@@ -25,8 +25,8 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1950 | Thomas E. Dewey | Republican | The New York governor won at the start of the Cold War. |
 | 1956 | Thomas E. Dewey | Republican | Re-elected. |
 | 1962 | Richard Nixon | Republican | Inherited John F. Kennedy as his Prime Minister. In 1963 he dismissed Kennedy, who had embarrassed him by trying to force through a civil-rights bill, only to see Kennedy return to office after new elections. After Kennedy’s assassination in 1964 he appointed Lyndon Johnson, expecting a moderate, and was forced to accept the Civil Rights Act. |
-| 1968 | Nelson Rockefeller | Christian Democratic | Beat George Wallace (SRP), who topped the first round in a year of riots and assassinations, in the runoff. The CDP’s first President. |
-| 1974 | Robert F. Kennedy | Social Democratic Labor | Lost the LDP nomination to Lyndon Johnson, left the party for the SDLP, and beat Johnson in the runoff. The SDLP’s first President. |
+| 1968 | Robert F. Kennedy | Social Democratic Labor | Lost the LDP nomination to Prime Minister Lyndon Johnson, left the party for the SDLP, and won. He beat George Wallace (SRP) in the runoff after Johnson came third in the first round. The SDLP’s first President. |
+| 1974 | Robert F. Kennedy | Social Democratic Labor | Re-elected over Gerald Ford (Republican). |
 | 1980 | Ronald Reagan | Conservative Coalition | His runoff win over Jimmy Carter (LDP) made the new CC the main party of the right. |
 | 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Walter Mondale (LDP). |
 | 1992 | Bill Clinton | Liberal Democratic | Beat Vice President George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote. |
@@ -49,8 +49,9 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1961–1963 | John F. Kennedy | Democratic | Democratic–SDLP–CDP coalition; dismissed by President Nixon after his civil-rights bill failed, and the coalition broke up |
 | 1963–1964 | John F. Kennedy | Democratic | Democratic–SDLP–Progressive and centrist majority after the snap election, despite Democratic infighting; Kennedy was assassinated in Dallas in November 1964 |
 | 1964–1966 | Lyndon B. Johnson | Democratic | Appointed by Nixon as a safe pair of hands; forced through the Civil Rights Act (1965) and the Voting Rights Act, splitting the Democratic Party |
-| 1966–1974 | Lyndon B. Johnson | Liberal Democratic | LDP–SDLP coalition, later with CDP support under President Rockefeller; Johnson stood down to run for President |
-| 1974–1978 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP grand coalition under President Robert Kennedy (SDLP), after a bitter presidential race between the two left parties |
+| 1966–1968 | Lyndon B. Johnson | Liberal Democratic | LDP–SDLP coalition; Johnson stood down to run for President and lost |
+| 1968–1974 | Hubert Humphrey | Liberal Democratic | LDP–SDLP coalition under President Robert Kennedy, an uneasy partnership after the bitter 1968 race |
+| 1974–1978 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP grand coalition during Kennedy’s second term |
 | 1978–1982 | Walter Mondale | Liberal Democratic | LDP–SDLP coalition |
 | 1982–1986 | Bob Dole | Conservative Coalition | CC–CDP coalition under President Reagan |
 | 1986–1990 | Jack Kemp | Conservative Coalition | CC–CDP–Libertarian coalition |
@@ -220,39 +221,39 @@ Nixon won narrowly, and found himself sharing power with a Democratic Prime Mini
 
 ### 1968
 
-Wallace topped a five-way first round; the LDP, SDLP and Republicans all backed Rockefeller in the runoff.
+Kennedy, beaten for the LDP nomination by Johnson, ran for the SDLP and topped a five-way first round. The LDP, CDP and Republicans backed him against Wallace in the runoff.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| George Wallace | SRP | 23.9% |
-| Nelson Rockefeller | CDP | 23.1% |
-| Hubert Humphrey | LDP | 22.4% |
-| Ronald Reagan | Republican Party | 17.3% |
-| Eugene McCarthy | SDLP | 9.6% |
+| Robert F. Kennedy | SDLP | 24.6% |
+| George Wallace | SRP | 22.1% |
+| Lyndon B. Johnson | LDP | 21.0% |
+| Nelson Rockefeller | CDP | 18.2% |
+| Ronald Reagan | Republican Party | 10.4% |
 | Others |  | 3.7% |
 
 | Runoff (638 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Nelson Rockefeller | CDP | 451 | 63.5% |
-| George Wallace | SRP | 187 | 36.5% |
+| Robert F. Kennedy | SDLP | 438 | 64.2% |
+| George Wallace | SRP | 200 | 35.8% |
 
 ### 1974
 
-Kennedy, beaten for the LDP nomination by Johnson, ran for the SDLP and beat him in an all-left runoff. Rockefeller came fourth in his bid for a second term.
+Re-elected comfortably; Watergate sank the Republicans’ hopes.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| Robert F. Kennedy | SDLP | 27.9% |
-| Lyndon B. Johnson | LDP | 26.4% |
-| Gerald Ford | Republican Party | 21.0% |
-| Nelson Rockefeller | CDP | 13.4% |
-| George Wallace | SRP | 7.6% |
-| Others |  | 3.7% |
+| Robert F. Kennedy | SDLP | 33.1% |
+| Gerald Ford | Republican Party | 25.0% |
+| Walter Mondale | LDP | 17.9% |
+| Nelson Rockefeller | CDP | 13.6% |
+| George Wallace | SRP | 7.2% |
+| Others |  | 3.2% |
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Robert F. Kennedy | SDLP | 412 | 54.6% |
-| Lyndon B. Johnson | LDP | 289 | 45.4% |
+| Robert F. Kennedy | SDLP | 421 | 56.0% |
+| Gerald Ford | Republican Party | 280 | 44.0% |
 
 ### 1980
 
@@ -317,7 +318,7 @@ Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’
 
 ### Social Democratic Labor Party (SDLP)
 
-*Founded 1952.* A merger of the heirs of Theodore Roosevelt’s Progressive Party with the labor and socialist parties that had grown up beside it: the Socialist Party of Norman Thomas, Minnesota’s Farmer-Labor Party, New York’s American Labor Party and the Nonpartisan League of the Plains. Its strength lies in the industrial Midwest, the unions and the Rust Belt. Its high point came in 1974, when Robert F. Kennedy, beaten for the LDP nomination by Lyndon Johnson, joined the party and won the presidency.
+*Founded 1952.* A merger of the heirs of Theodore Roosevelt’s Progressive Party with the labor and socialist parties that had grown up beside it: the Socialist Party of Norman Thomas, Minnesota’s Farmer-Labor Party, New York’s American Labor Party and the Nonpartisan League of the Plains. Its strength lies in the industrial Midwest, the unions and the Rust Belt. Its high point came in 1968, when Robert F. Kennedy, beaten for the LDP nomination by Lyndon Johnson, joined the party and won the presidency, which he held for two terms.
 
 **Ideology:** Mainstream social democracy and labor politics: collective bargaining, public health insurance, industrial policy and a mixed economy. It is wary of free trade and more culturally moderate than the LDP.
 
