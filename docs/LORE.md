@@ -8,7 +8,7 @@ How this America got here. The story diverges from ours with the deadlocked elec
 |---|---|
 | 1789–1912 | The same republic as ours: a President elected every four years, a House elected by districts, and two dominant parties, the Democrats and the Republicans. |
 | 1912 | Theodore Roosevelt’s breakaway Progressive Party beats the Republicans for second place. Woodrow Wilson wins the presidency with 42% of the vote, and no party controls the House. A year of deadlock follows: three appropriations bills fail, and the Army goes unpaid for six weeks. |
-| 1913–1914 | The Reconstruction Amendments of 1914. A Prime Minister, chosen by and answerable to the House, takes over the day-to-day running of the government. The House is elected by statewide proportional representation. The President serves a six-year term, elected in two rounds: a national popular vote, then an Electoral College runoff between the top two. Three senators per state are elected by proportional representation and the fourth by the state house. Presidents may serve two terms. Wilson resigns to seek a fresh mandate under the new rules, and loses the runoff to Theodore Roosevelt. |
+| 1913–1914 | The Reconstruction Amendments of 1914. A Prime Minister takes over the day-to-day running of the government. The President appoints and may dismiss the Prime Minister, who also needs the confidence of the House. The House is elected by statewide proportional representation. The President serves a six-year term, elected in two rounds: a national popular vote, then an Electoral College runoff between the top two. Three senators per state are elected by proportional representation and the fourth by the state house. Presidents may serve two terms. Wilson resigns to seek a fresh mandate under the new rules, and loses the runoff to Theodore Roosevelt. |
 | 1974 | After a decade in which a dozen parties sat in the House, the House is fixed at 600 seats: 500 state list seats with no threshold, and 100 national list seats for parties with at least 5% of the nationwide vote. |
 | 1990s | Regional parties are on the rise and the far left is fragmented. The presidency remains the one office every voter fills on the same day. |
 
@@ -24,9 +24,9 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1944 | John Nance Garner | Democratic | Cactus Jack, the Texan conservative, won as a steady wartime choice. |
 | 1950 | Thomas E. Dewey | Republican | The New York governor won at the start of the Cold War. |
 | 1956 | Thomas E. Dewey | Republican | Re-elected. |
-| 1962 | John F. Kennedy | Democratic | Shared power with a Republican Prime Minister, Richard Nixon, for his whole term. Survived the 1963 Dallas assassination attempt. |
+| 1962 | Richard Nixon | Republican | Inherited John F. Kennedy as his Prime Minister. In 1963 he dismissed Kennedy, who had embarrassed him by trying to force through a civil-rights bill, only to see Kennedy return to office after new elections. After Kennedy’s assassination in 1964 he appointed Lyndon Johnson, expecting a moderate, and was forced to accept the Civil Rights Act. |
 | 1968 | Nelson Rockefeller | Christian Democratic | Beat George Wallace (SRP), who topped the first round in a year of riots and assassinations, in the runoff. The CDP’s first President. |
-| 1974 | Robert F. Kennedy | Liberal Democratic | Beat Gerald Ford in the post-Watergate runoff and brought the LDP its first presidency, twelve years after his brother won it as a Democrat. |
+| 1974 | Robert F. Kennedy | Social Democratic Labor | Lost the LDP nomination to Lyndon Johnson, left the party for the SDLP, and beat Johnson in the runoff. The SDLP’s first President. |
 | 1980 | Ronald Reagan | Conservative Coalition | His runoff win over Jimmy Carter (LDP) made the new CC the main party of the right. |
 | 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Walter Mondale (LDP). |
 | 1992 | Bill Clinton | Liberal Democratic | Beat Vice President George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote. |
@@ -45,10 +45,12 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1945–1950 | Alben W. Barkley | Democratic | Democratic–Progressive coalition; demobilisation and the start of the Cold War |
 | 1950–1953 | Robert A. Taft | Republican | Republican–CDP coalition; Taft died in office |
 | 1953–1958 | Estes Kefauver | Democratic | Democratic–SDLP coalition |
-| 1958–1962 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition |
-| 1962–1971 | Richard Nixon | Republican | Republican–CDP coalition, sharing power with President Kennedy, then serving under President Rockefeller. Passed the Civil Rights and Voting Rights Acts with northern Democratic votes, which split the Democratic Party in 1966. |
-| 1971–1975 | Hubert Humphrey | Liberal Democratic | LDP–SDLP coalition |
-| 1975–1978 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP grand coalition under President Robert Kennedy |
+| 1958–1961 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition |
+| 1961–1963 | John F. Kennedy | Democratic | Democratic–SDLP–CDP coalition; dismissed by President Nixon after his civil-rights bill failed, and the coalition broke up |
+| 1963–1964 | John F. Kennedy | Democratic | Democratic–SDLP–Progressive and centrist majority after the snap election, despite Democratic infighting; Kennedy was assassinated in Dallas in November 1964 |
+| 1964–1966 | Lyndon B. Johnson | Democratic | Appointed by Nixon as a safe pair of hands; forced through the Civil Rights Act (1965) and the Voting Rights Act, splitting the Democratic Party |
+| 1966–1974 | Lyndon B. Johnson | Liberal Democratic | LDP–SDLP coalition, later with CDP support under President Rockefeller; Johnson stood down to run for President |
+| 1974–1978 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP grand coalition under President Robert Kennedy (SDLP), after a bitter presidential race between the two left parties |
 | 1978–1982 | Walter Mondale | Liberal Democratic | LDP–SDLP coalition |
 | 1982–1986 | Bob Dole | Conservative Coalition | CC–CDP coalition under President Reagan |
 | 1986–1990 | Jack Kemp | Conservative Coalition | CC–CDP–Libertarian coalition |
@@ -201,20 +203,20 @@ Re-elected in the first presidential race for the new SDLP.
 
 ### 1962
 
-CDP voters split; Kennedy won the runoff by carrying Illinois and Texas.
+Nixon won narrowly, and found himself sharing power with a Democratic Prime Minister, John F. Kennedy.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| John F. Kennedy | Democratic Party | 31.5% |
-| Barry Goldwater | Republican Party | 26.0% |
-| Nelson Rockefeller | CDP | 18.7% |
-| Walter Reuther | SDLP | 14.2% |
-| Others |  | 9.6% |
+| Richard Nixon | Republican Party | 30.9% |
+| Hubert Humphrey | Democratic Party | 27.4% |
+| Nelson Rockefeller | CDP | 19.8% |
+| Walter Reuther | SDLP | 13.6% |
+| Others |  | 8.3% |
 
 | Runoff (638 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| John F. Kennedy | Democratic Party | 331 | 51.4% |
-| Barry Goldwater | Republican Party | 307 | 48.6% |
+| Richard Nixon | Republican Party | 337 | 51.6% |
+| Hubert Humphrey | Democratic Party | 301 | 48.4% |
 
 ### 1968
 
@@ -236,21 +238,21 @@ Wallace topped a five-way first round; the LDP, SDLP and Republicans all backed 
 
 ### 1974
 
-Rockefeller fell to third; the post-Watergate mood carried Kennedy.
+Kennedy, beaten for the LDP nomination by Johnson, ran for the SDLP and beat him in an all-left runoff. Rockefeller came fourth in his bid for a second term.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| Robert F. Kennedy | LDP | 32.6% |
-| Gerald Ford | Republican Party | 24.4% |
-| Nelson Rockefeller | CDP | 17.0% |
-| George McGovern | SDLP | 13.1% |
-| George Wallace | SRP | 8.8% |
-| Others |  | 4.1% |
+| Robert F. Kennedy | SDLP | 27.9% |
+| Lyndon B. Johnson | LDP | 26.4% |
+| Gerald Ford | Republican Party | 21.0% |
+| Nelson Rockefeller | CDP | 13.4% |
+| George Wallace | SRP | 7.6% |
+| Others |  | 3.7% |
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Robert F. Kennedy | LDP | 417 | 55.3% |
-| Gerald Ford | Republican Party | 284 | 44.7% |
+| Robert F. Kennedy | SDLP | 412 | 54.6% |
+| Lyndon B. Johnson | LDP | 289 | 45.4% |
 
 ### 1980
 
@@ -309,13 +311,13 @@ Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’
 
 ### Liberal Democratic Party (LDP)
 
-*Founded 1966.* Born when the old Democratic Party broke apart over the Civil Rights and Voting Rights Acts, which passed under Nixon’s government with northern Democratic votes. Lyndon Johnson and Hubert Humphrey led the northern, western and Black Democratic wings out of a party whose southern caucus had fought the laws to the end. The conservative southern Democrats who stayed behind later merged into the Conservative Coalition.
+*Founded 1966.* Born when the old Democratic Party broke apart over the Civil Rights and Voting Rights Acts, which Prime Minister Lyndon Johnson forced through against President Nixon’s wishes after John F. Kennedy’s assassination. Johnson and Hubert Humphrey led the northern, western and Black Democratic wings out of a party whose southern caucus had fought the laws to the end. The conservative southern Democrats who stayed behind later merged into the Conservative Coalition.
 
 **Ideology:** Liberal and socially progressive; pro-market but committed to a welfare state; internationalist. A broad church running from Third Way New Democrats to civil-rights liberals, held together by opposition to segregation and later by government office.
 
 ### Social Democratic Labor Party (SDLP)
 
-*Founded 1952.* A merger of the heirs of Theodore Roosevelt’s Progressive Party with the labor and socialist parties that had grown up beside it: the Socialist Party of Norman Thomas, Minnesota’s Farmer-Labor Party, New York’s American Labor Party and the Nonpartisan League of the Plains. Its strength lies in the industrial Midwest, the unions and the Rust Belt.
+*Founded 1952.* A merger of the heirs of Theodore Roosevelt’s Progressive Party with the labor and socialist parties that had grown up beside it: the Socialist Party of Norman Thomas, Minnesota’s Farmer-Labor Party, New York’s American Labor Party and the Nonpartisan League of the Plains. Its strength lies in the industrial Midwest, the unions and the Rust Belt. Its high point came in 1974, when Robert F. Kennedy, beaten for the LDP nomination by Lyndon Johnson, joined the party and won the presidency.
 
 **Ideology:** Mainstream social democracy and labor politics: collective bargaining, public health insurance, industrial policy and a mixed economy. It is wary of free trade and more culturally moderate than the LDP.
 
