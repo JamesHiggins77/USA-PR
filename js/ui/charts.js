@@ -43,6 +43,28 @@
     return '<svg viewBox="0 0 ' + 11 * s + ' ' + 8 * s + '" width="100%" style="max-width:640px">' + out + '</svg>';
   };
 
+  // Geographical map: real state outlines. Small north-eastern states get
+  // labelled boxes at the side, as on printed election maps.
+  var SMALL = ['NH', 'VT', 'MA', 'RI', 'CT', 'NJ', 'DE', 'MD', 'DC'];
+  Ch.geoMap = function (Q, colorOf, labelOf) {
+    var out = '', G = U.GEO;
+    Object.keys(G).forEach(function (id) {
+      var c = colorOf(id) || '#888', g = G[id], st = U.STATES[id] || U.DC, ink = Ch.ink(c);
+      out += '<g class="tile" data-state="' + id + '"><path d="' + g.d + '" fill="' + c + '" stroke="var(--bg)" stroke-width="0.8"></path>';
+      if (SMALL.indexOf(id) < 0) out += '<text x="' + g.c[0] + '" y="' + (g.c[1] - 2) + '" text-anchor="middle" font-size="11" font-weight="bold" style="fill:' + ink + ';pointer-events:none">' + id + '</text>' +
+        '<text x="' + g.c[0] + '" y="' + (g.c[1] + 10) + '" text-anchor="middle" font-size="9" style="fill:' + ink + ';pointer-events:none">' + (labelOf ? labelOf(id) : '') + '</text>';
+      out += '<title>' + st.name + '</title></g>';
+    });
+    SMALL.forEach(function (id, i) {
+      var c = colorOf(id) || '#888', ink = Ch.ink(c), x = 925, y = 175 + i * 38, g = G[id];
+      out += '<g class="tile" data-state="' + id + '"><line x1="' + g.c[0] + '" y1="' + g.c[1] + '" x2="' + x + '" y2="' + (y + 16) + '" stroke="currentColor" stroke-opacity=".25"/>' +
+        '<rect x="' + x + '" y="' + y + '" width="44" height="32" rx="4" fill="' + c + '"></rect>' +
+        '<text x="' + (x + 22) + '" y="' + (y + 14) + '" text-anchor="middle" font-size="11" font-weight="bold" style="fill:' + ink + '">' + id + '</text>' +
+        '<text x="' + (x + 22) + '" y="' + (y + 26) + '" text-anchor="middle" font-size="9" style="fill:' + ink + '">' + (labelOf ? labelOf(id) : '') + '</text><title>' + (U.STATES[id] || U.DC).name + '</title></g>';
+    });
+    return '<svg viewBox="0 0 975 610" width="100%" style="color:var(--ink)">' + out + '</svg>';
+  };
+
   Ch.polls = function (Q, parties) {
     var P = Q.polls.slice(-60), W = 640, Hh = 240, pad = 30;
     if (P.length < 2) return '<p class="muted small">Polling history will appear after a few months.</p>';

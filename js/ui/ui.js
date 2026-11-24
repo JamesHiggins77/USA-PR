@@ -2,7 +2,7 @@
 (function (G) {
   'use strict';
   var U = G.USA, S = U.Game, F = U.Flow, C = U.Coalition, V = U.Votes, Ch = U.Charts, K = U.Content, Ev = U.Events;
-  var Q = null, view = 'office', openCard = null, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null;
+  var Q = null, view = 'office', openCard = null, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
   var $ = function (id) { return document.getElementById(id); };
   var P = function (p) { return U.PARTIES[p]; };
   var chip = function (p) { return '<i class="chip" style="background:' + P(p).color + '"></i>'; };
@@ -194,7 +194,9 @@
     else if (mapMode === 'ldp') { colorOf = function (id) { var v = sh[id][Q.player] || 0; return 'rgba(255,165,0,' + U.clamp(v / 40, 0.12, 1) + ')'; }; labelOf = function (id) { return Math.round(sh[id][Q.player] || 0) + '%'; }; }
     else { colorOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).color : '#777'; }; labelOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).short : 'DC'; }; }
     var h = '<h1>The states</h1><div class="row"><span class="small">Show:</span>' + [['lead', 'Leading party'], ['ldp', 'LDP strength'], ['gov', 'Governors']].map(function (m) { return '<button class="btn ' + (mapMode === m[0] ? '' : 'ghost') + '" data-map="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
-    h += '<div class="grid2"><div>' + Ch.map(Q, colorOf, labelOf) + '</div><div>' + stateDetail(mapSel || 'CA', sh) + '</div></div>';
+    h += '<span class="small" style="margin-left:12px">Map:</span>' + [['geo', 'Geographical'], ['topo', 'Topographical']].map(function (m) { return '<button class="btn ' + (mapStyle === m[0] ? '' : 'ghost') + '" data-mapstyle="' + m[0] + '">' + m[1] + '</button>'; }).join('');
+    var mp = mapStyle === 'geo' ? Ch.geoMap(Q, colorOf, labelOf) : Ch.map(Q, colorOf, labelOf);
+    h += mapStyle === 'geo' ? '<div style="margin-top:10px">' + mp + '</div><div>' + stateDetail(mapSel || 'CA', sh) + '</div>' : '<div class="grid2"><div>' + mp + '</div><div>' + stateDetail(mapSel || 'CA', sh) + '</div></div>';
     return h;
   }
   function stateDetail(id, sh) {
@@ -253,6 +255,7 @@
     document.querySelectorAll('.cards [data-card]').forEach(function (b) { b.onclick = function () { if (Q.actionsLeft <= 0) return; openCard = K.CARDS.filter(function (c) { return c.id === b.dataset.card; })[0]; lastText = null; render(); }; });
     document.querySelectorAll('.scene button[data-card]').forEach(function (b) { b.onclick = function () { lastText = F.playCard(Q, openCard, +b.dataset.card); openCard = null; save(); render(); }; });
     document.querySelectorAll('button[data-event]').forEach(function (b) { b.onclick = function () { lastText = F.answerEvent(Q, +b.dataset.event); save(); render(); }; });
+    document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
     document.querySelectorAll('[data-map]').forEach(function (b) { b.onclick = function () { mapMode = b.dataset.map; render(); }; });
     document.querySelectorAll('.tile').forEach(function (t) { t.onclick = function () { mapSel = t.dataset.state; render(); }; });
     document.querySelectorAll('[data-role]').forEach(function (s) { s.onchange = function () { var p = s.dataset.role; deal.coalition = deal.coalition.filter(function (x) { return x !== p; }); deal.cs = deal.cs.filter(function (x) { return x !== p; }); delete deal.posts[p]; if (s.value === 'coalition') deal.coalition.push(p); if (s.value === 'cs') deal.cs.push(p); if (s.value !== 'none' && !deal.concessions[p]) deal.concessions[p] = []; deal.posts = {}; render(); }; });
@@ -276,5 +279,6 @@
     });
   }
 
+  try { mapStyle = localStorage.getItem('usa-pr-mapstyle') || 'geo'; } catch (e) {}
   render();
 })(typeof globalThis !== 'undefined' ? globalThis : window);
