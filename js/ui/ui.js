@@ -10,7 +10,7 @@
   var pct = function (v) { return v.toFixed(1) + '%'; };
   var sign = function (v, d) { var s = v.toFixed(d == null ? 1 : d); return (v > 0 ? '+' : '') + s; };
 
-  var TABS = [['office', 'Office'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party'], ['log', 'Timeline'], ['system', 'Game']];
+  var TABS = [['office', 'Office'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party'], ['history', 'History'], ['log', 'Timeline'], ['system', 'Game']];
 
   function save() { if (Q) S.save(Q); }
   function go(v) { if (U.Night) U.Night.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
@@ -20,7 +20,7 @@
     $('tabs').innerHTML = TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (view === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('');
     renderSide();
     var m = $('main');
-    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, log: log, system: system, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night }[view];
+    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, log: log, system: system, history: history, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night }[view];
     m.innerHTML = fn();
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
@@ -335,6 +335,17 @@
     h += '<p class="small muted">Factions with dissent above 65 start defying the whip on key votes. Above 88 they may walk out. A weak leader facing a restless faction can be challenged.</p>';
     h += '<h2>Regional stand-down agreements</h2><p class="small muted">Parties that do not field district candidates in a partner\u2019s region. Includes agreements between other parties.</p><table><tr><th>Party standing aside</th><th>In favour of</th><th>Where</th></tr>' + (Q.standDowns || []).map(function (a) { return '<tr><td>' + chip(a.party) + P(a.party).name + '</td><td>' + chip(a.partner) + P(a.partner).name + '</td><td>' + U.Elections.REGION_NAMES[a.region] + '</td></tr>'; }).join('') + '</table>';
     h += '<h2>Electoral pacts</h2><p>' + ((Q.pacts || []).length ? Q.pacts.map(function (k) { return k.parties.map(function (x) { return P(x).short; }).join(' + ') + ' (' + k.type + ')'; }).join(', ') : 'None.') + '</p>';
+    return h;
+  }
+
+  function history() {
+    var L = U.LORE, h = '<h1>History</h1><p class="small muted">How this America got here. The story diverges from ours with the deadlocked election of 1912; real people appear, but their careers differ.</p>';
+    h += '<h2>The constitution</h2><table><tr><th>When</th><th>What happened</th></tr>' + L.constitution.map(function (r) { return '<tr><td>' + r[0] + '</td><td style="text-align:left">' + esc(r[1]) + '</td></tr>'; }).join('') + '</table>';
+    h += '<h2>Presidents</h2><table><tr><th>Elected</th><th>President</th><th>Party</th><th>Notes</th></tr>' + L.presidents.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td style="text-align:left">' + esc(r[3]) + '</td></tr>'; }).join('') + '</table>';
+    h += '<h2>Prime Ministers and governments</h2><table><tr><th>Years</th><th>Prime Minister</th><th>Party</th><th>Government</th></tr>' + L.governments.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td style="text-align:left">' + esc(r[3]) + '</td></tr>'; }).join('') + '</table>';
+    h += '<h2>The parties</h2>' + U.ALL_PARTIES.filter(function (p) { return L.parties[p]; }).map(function (p) { var x = L.parties[p];
+      return '<div class="panel"><h3 style="margin-top:0">' + chip(p) + esc(P(p).name) + ' <span class="small muted">founded ' + esc(x[0]) + '</span></h3><p>' + esc(x[1]) + '</p><p class="small"><b>Ideology:</b> ' + esc(x[2]) + '</p></div>'; }).join('');
+    h += '<h2>The default timeline</h2><p>' + esc(L.future) + '</p>';
     return h;
   }
 

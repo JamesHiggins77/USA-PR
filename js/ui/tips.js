@@ -95,7 +95,9 @@
   function partyCard(Q, p) {
     var P = U.PARTIES[p], C = U.Coalition, h = '<b>' + esc(P.name) + '</b> <span class="muted">(' + esc(P.short) + ')</span><br>';
     var kind = { party: 'Political party', alliance: 'Electoral alliance', federation: 'Federation of state parties', regional: 'Regional party', bloc: 'Several small parties shown together' }[P.kind] || P.kind;
-    h += '<span class="muted">' + kind + (P.founded ? ' · founded ' + esc(P.founded) : '') + '</span><br>';
+    var lore = U.LORE && U.LORE.parties[p];
+    h += '<span class="muted">' + kind + (lore ? ' · founded ' + esc(lore[0]) : P.founded ? ' · founded ' + esc(P.founded) : '') + '</span><br>';
+    if (lore) h += '<span class="muted">' + esc(lore[2]) + '</span><br>';
     if (Q && Q.dormant[p]) return h + 'Does not exist at present.' + (P.note ? '<br>' + esc(P.note) : '');
     h += 'Leader: ' + esc(Q && Q.leaders && Q.leaders[p] ? (p === Q.player ? Q.leader.name : Q.leaders[p]) : P.leader) + '<br>';
     if (Q) {
