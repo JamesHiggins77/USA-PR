@@ -1,0 +1,132 @@
+// Party roster (brief §5). Identities are canon; every number (positions,
+// vote targets, group preferences, relations) is a SCENARIO ASSUMPTION.
+// kind: party | alliance (joint lists, seats split among members) |
+//       federation (autonomous state parties under one bloc) | regional
+(function (G) {
+  'use strict';
+  var U = G.USA;
+  U.GROUPS = ['prof', 'suburb', 'union', 'rural', 'relig', 'black', 'hisp', 'young', 'retire'];
+  U.GROUP_NAMES = { prof: 'Urban professionals', suburb: 'Suburban middle class', union: 'Union households',
+    rural: 'Rural & small-town', relig: 'Religious traditionalists', black: 'Black voters',
+    hisp: 'Hispanic voters', young: 'Young voters & students', retire: 'Retirees' };
+
+  // econ: -10 left .. +10 right; soc: -10 liberal .. +10 traditional;
+  // fed: -10 centralist .. +10 states' rights / devolution.
+  // pref: relative support by group (shapes movement; national totals are
+  // calibrated to `target` at game start).
+  var P = {
+    ldp: { name: 'Liberal Democratic Party', short: 'LDP', color: '#2f6fd6', kind: 'party', econ: -2, soc: -4, fed: -2,
+      target: 23, office: .8, leader: 'Al Gore', founded: '1960s (Democratic split over civil rights)',
+      pref: { prof: 34, suburb: 22, union: 12, rural: 6, relig: 6, black: 40, hisp: 30, young: 24, retire: 18 } },
+    sdlp: { name: 'Social Democratic Labor Party', short: 'SDLP', color: '#d63a3a', kind: 'party', econ: -6, soc: -2, fed: -3,
+      target: 18, office: .8, leader: 'Bill Bradley', founded: '1950s (Progressive + labor merger)',
+      pref: { prof: 10, suburb: 14, union: 44, rural: 16, relig: 8, black: 30, hisp: 26, young: 12, retire: 22 } },
+    cdp: { name: 'Christian Democratic Party', short: 'CDP', color: '#e08a1e', kind: 'party', econ: 3, soc: 4, fed: 1,
+      target: 13.5, office: .8, leader: 'John McCain',
+      pref: { prof: 14, suburb: 22, union: 8, rural: 22, relig: 30, black: 5, hisp: 14, young: 7, retire: 20 } },
+    cc: { name: 'Conservative Coalition', short: 'CC', color: '#1d2f6b', kind: 'party', econ: 6, soc: 6, fed: 4,
+      target: 20, office: .9, leader: 'George W. Bush', founded: 'late 1970s (Southern Democrats + Republicans)',
+      pref: { prof: 16, suburb: 24, union: 12, rural: 32, relig: 30, black: 3, hisp: 10, young: 10, retire: 22 } },
+    asp: { name: 'American Solidarity Party', short: 'ASP', color: '#7a4fb3', kind: 'alliance', econ: -3, soc: 5, fed: 3,
+      target: 7, office: .6, leader: 'Ross Perot (Reform)',
+      members: { reform: 0.40, asp_core: 0.15, mormon: 0.15, catholic: 0.15, moderate: 0.15 },
+      pref: { prof: 4, suburb: 7, union: 9, rural: 10, relig: 14, black: 6, hisp: 8, young: 4, retire: 8 } },
+    ul: { name: 'United Left', short: 'UL', color: '#9c1c4f', kind: 'alliance', econ: -9, soc: -7, fed: -2,
+      target: 6.5, office: .3, leader: 'Bernie Sanders (coordinator)',
+      pref: { prof: 8, suburb: 3, union: 6, rural: 2, relig: 1, black: 10, hisp: 6, young: 18, retire: 2 } },
+    acp: { name: 'American Communist Party', short: 'ACP', color: '#5c0a0a', kind: 'party', econ: -9, soc: 1, fed: -6,
+      target: 1, office: .1, leader: 'Party collective',
+      pref: { prof: 1, suburb: .5, union: 2, rural: .5, relig: .2, black: 2, hisp: 1, young: 3, retire: .5 } },
+    lib: { name: 'Libertarian Party', short: 'LIB', color: '#d9c21f', kind: 'party', econ: 9, soc: -5, fed: 6,
+      target: 3, office: .4, leader: 'Harry Browne',
+      pref: { prof: 6, suburb: 4, union: 2, rural: 5, relig: 2, black: 1, hisp: 2, young: 9, retire: 2 } },
+    con: { name: 'Constitution Party', short: 'CON', color: '#5a4630', kind: 'party', econ: 8, soc: 9, fed: 8,
+      target: 2.5, office: .3, leader: 'Howard Phillips',
+      pref: { prof: 2, suburb: 3, union: 3, rural: 8, relig: 10, black: 1, hisp: 1, young: 2, retire: 4 } },
+    // AGA: autonomous state Green parties; home = state-level vote share
+    aga: { name: 'American Green Alliance', short: 'AGA', color: '#3aa35b', kind: 'federation', econ: -1, soc: 0, fed: 5,
+      office: .5, leader: 'Alliance caucus chair',
+      home: { AK: 11, RI: 9, VA: 5, OR: 2.5, WA: 2, VT: 2, ME: 2.5, NM: 2, CO: 1.5, MT: 2, MN: 1.5, WI: 1.5 },
+      chapters: { AK: { name: 'Green Party of Alaska', econ: 0, soc: 1 }, RI: { name: 'Green Party of Rhode Island', econ: -4, soc: -4 },
+        VA: { name: 'Independent Greens of Virginia', econ: 4, soc: 4 } } },
+    lsp: { name: 'Lone Star Party', short: 'LSP', color: '#a33b1f', kind: 'regional', econ: 6, soc: 4, fed: 9,
+      office: .6, leader: 'Party chair (Austin)', home: { TX: 17 }, secession: .15 },
+    srp: { name: 'Southern Rights Party', short: 'SRP', color: '#7d6b3a', kind: 'regional', econ: -1, soc: 9, fed: 9,
+      office: .5, leader: 'Party chair (Jackson)', secession: .2,
+      home: { MS: 12, AL: 11, SC: 10, GA: 7, LA: 8, AR: 6, TN: 6, NC: 4, FL: 2.5, VA: 2, OK: 3, KY: 3, WV: 2 } },
+    cnp: { name: 'Californian National Party', short: 'CNP', color: '#e5a3c6', kind: 'regional', econ: -3, soc: -5, fed: 9,
+      office: .3, leader: 'Party chair (Oakland)', home: { CA: 3.5 }, secession: .8 },
+    cfc: { name: 'Californian Freedom Coalition', short: 'CFC', color: '#c98a3e', kind: 'regional', econ: 3, soc: 0, fed: 7,
+      office: .5, leader: 'Party chair (Sacramento)', home: { CA: 3 }, secession: 0 },
+    alk: { name: 'Alaskan Party', short: 'ALK', color: '#4a7f8c', kind: 'regional', econ: 6, soc: 2, fed: 9,
+      office: .4, leader: 'Party chair (Wasilla)', home: { AK: 9 }, secession: .3 },
+    aloha: { name: 'Aloha ʻĀina Party', short: 'AʻĀ', color: '#21a6a0', kind: 'regional', econ: -4, soc: -2, fed: 7,
+      office: .3, leader: 'Party chair (Honolulu)', home: { HI: 6 }, secession: .2 },
+    raza: { name: 'Raza Unida Party', short: 'RUP', color: '#c4572b', kind: 'regional', econ: -5, soc: -1, fed: 4,
+      office: .4, leader: 'Party chair (San Antonio)', home: { TX: 3, NM: 5, CA: 1.2, AZ: 2, CO: 1.2 }, secession: 0 },
+    nenp: { name: 'New England National Party', short: 'NENP', color: '#6d8fb0', kind: 'regional', econ: -2, soc: -4, fed: 8,
+      office: .3, leader: 'Party chair (Boston)', home: { ME: 4, NH: 3, VT: 5, MA: 2.5, RI: 2.5, CT: 2 }, secession: .3 },
+    nyfp: { name: 'New York Freedom Party', short: 'NYFP', color: '#8c8c3a', kind: 'regional', econ: 1, soc: -2, fed: 7,
+      office: .4, leader: 'Party chair (Albany)', home: { NY: 3 }, secession: .05 }
+  };
+  U.PARTIES = P;
+  U.NATIONAL = ['ldp', 'sdlp', 'cdp', 'cc', 'asp', 'ul', 'acp', 'lib', 'con'];
+  U.REGIONAL = ['aga', 'lsp', 'srp', 'cnp', 'cfc', 'alk', 'aloha', 'raza', 'nenp', 'nyfp'];
+  U.ALL_PARTIES = U.NATIONAL.concat(U.REGIONAL);
+
+  // United Left constituent organisations (brief §5.1): seat share and stance.
+  // stance: reformist (may back a centre-left PM) .. revolutionary (votes no).
+  U.UL_MEMBERS = {
+    green: { name: 'Green Party', w: 0.30, stance: 'reformist' },
+    dsa: { name: 'Democratic Socialists of America', w: 0.16, stance: 'reformist' },
+    wfp: { name: 'Working Families Party', w: 0.12, stance: 'reformist' },
+    vpp: { name: 'Vermont Progressive Party', w: 0.06, stance: 'reformist' },
+    cpusa: { name: 'Communist Party USA', w: 0.08, stance: 'hard' },
+    bpp: { name: 'Black Panther Party', w: 0.06, stance: 'hard' },
+    psl: { name: 'Party for Socialism and Liberation', w: 0.04, stance: 'revolutionary' },
+    spusa: { name: 'Socialist Party USA', w: 0.04, stance: 'hard' },
+    salt: { name: 'Socialist Alternative', w: 0.04, stance: 'revolutionary' },
+    others: { name: 'Smaller groups (WCP, SCWP, SWP, SEP, PLP, WWP, FSP, Socialist Action)', w: 0.10, stance: 'revolutionary' }
+  };
+  U.ASP_MEMBERS = { reform: 'Reform Party', asp_core: 'American Solidarity Party', mormon: 'Mormon Unity Party',
+    catholic: 'Catholic Party', moderate: 'Moderate Party' };
+  // Forward and United parties appear later in the timeline (dormant in 1999).
+
+  // Pairs that will not sit in the same cabinet (soft for confidence & supply).
+  U.RED_LINES = [
+    ['cc', 'ul'], ['cc', 'acp'], ['cdp', 'ul'], ['cdp', 'acp'], ['lib', 'ul'], ['lib', 'acp'],
+    ['con', 'ul'], ['con', 'acp'], ['con', 'sdlp'], ['con', 'ldp'], ['ul', 'srp'], ['ul', 'lsp'],
+    ['acp', 'ldp'], ['acp', 'sdlp'], ['acp', 'asp'], ['srp', 'raza'], ['srp', 'acp'], ['ul', 'con']
+  ];
+  U.vetoes = function (a, b) {
+    return U.RED_LINES.some(function (r) { return (r[0] === a && r[1] === b) || (r[0] === b && r[1] === a); });
+  };
+
+  // LDP internal factions (player party). Scenario assumption.
+  U.LDP_FACTIONS = {
+    newdem: { name: 'New Democrats', figure: 'Joe Lieberman', econ: 2, soc: -2, strength: 34, dissent: 15,
+      wants: 'fiscal discipline, business-friendly growth, Grand Coalition' },
+    proglib: { name: 'Progressive Liberals', figure: 'Ted Kennedy', econ: -5, soc: -6, strength: 30, dissent: 25,
+      wants: 'universal healthcare, closer ties with the SDLP, fight the Greens' },
+    civil: { name: 'Civil Rights Caucus', figure: 'John Lewis', econ: -4, soc: -5, strength: 18, dissent: 15,
+      wants: 'voting rights, urban investment, criminal-justice reform' },
+    heartland: { name: 'Heartland Liberals', figure: 'Evan Bayh', econ: 1, soc: 1, strength: 18, dissent: 20,
+      wants: 'rural investment, moderate social policy, a deal with the CDP' }
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : window);
+// Parties that do not exist in 1999 and may emerge (brief §5.5). Dormant until
+// conditions activate them; nothing guarantees their rise.
+(function (G) {
+  'use strict';
+  var U = G.USA;
+  U.PARTIES.maga = { name: 'MAGA Party', short: 'MAGA', color: '#c8102e', kind: 'party', econ: 3, soc: 8, fed: 4,
+    target: 0, office: .8, leader: 'Donald Trump', dormantUntil: 'conditions (2015+)',
+    pref: { prof: 4, suburb: 14, union: 20, rural: 30, relig: 24, black: 3, hisp: 8, young: 8, retire: 20 } };
+  U.PARTIES.afp = { name: 'America First Party', short: 'AFP', color: '#3b0d0d', kind: 'party', econ: 4, soc: 10, fed: 6,
+    target: 0, office: .3, leader: 'Party chair',
+    pref: { prof: 1, suburb: 4, union: 8, rural: 12, relig: 10, black: .5, hisp: 1, young: 5, retire: 5 } };
+  U.NATIONAL.push('maga', 'afp');
+  U.ALL_PARTIES = U.NATIONAL.concat(U.REGIONAL);
+  U.RED_LINES.push(['maga', 'ul'], ['maga', 'acp'], ['maga', 'sdlp'], ['afp', 'ldp'], ['afp', 'sdlp'], ['afp', 'ul'],
+    ['afp', 'acp'], ['afp', 'cdp'], ['maga', 'raza']);
+})(typeof globalThis !== 'undefined' ? globalThis : window);

@@ -1,0 +1,11 @@
+{
+  "name": "american-republic",
+  "version": "0.1.0",
+  "description": "The American Republic 1999-2024: a multiparty US political simulator (play as the Liberal Democratic Party)",
+  "main": "index.html",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "playtest": "node tools/playtest.js"
+  },
+  "license": "MIT"
+}

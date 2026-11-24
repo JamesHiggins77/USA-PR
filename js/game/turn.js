@@ -1,0 +1,323 @@
+// Monthly routine: economy, attribution of responsibility, AI party moves,
+// coalition stability, budgets, confidence votes, elections and formation.
+(function (G) {
+  'use strict';
+  var U = G.USA, V = U.Votes, X = U.Elections, C = U.Coalition, S = U.Game = U.Game || {};
+
+  S.now = function (Q) { return U.monthIndex(Q.year, Q.month); };
+  S.note = function (Q, text) { Q.log.push({ t: U.dateStr(Q), text: text }); Q.report.push(text); };
+  S.inGov = function (Q, p) { return Q.gov && Q.gov.coalition.indexOf(p || Q.player) >= 0; };
+  S.supportsGov = function (Q, p) { return S.inGov(Q, p) || (Q.gov && Q.gov.cs.indexOf(p || Q.player) >= 0); };
+  S.pmIsPlayer = function (Q) { return Q.gov && Q.gov.pmParty === Q.player; };
+  S.govSeats = function (Q) { return Q.gov ? C.seats(Q, Q.gov.coalition.concat(Q.gov.cs)) : 0; };
+
+  // ---- economy (brief §8.2). Shocks are probabilistic, never scripted ----
+  S.economy = function (Q) {
+    var e = Q.econ, now = S.now(Q);
+    if (!e.busted && now >= U.monthIndex(2000, 3) && U.rng(Q) < 0.07) {
+      e.busted = true; e.shock = -3.5; S.note(Q, 'The technology-stock bubble bursts. Markets fall sharply.');
+      Q.flags.bust = now;
+    }
+    if (e.shock) { e.shock *= 0.93; if (Math.abs(e.shock) < 0.1) e.shock = 0; }
+    var trend = 3.0 + (e.bubble && !e.busted ? 1.2 : 0) + (e.shock || 0) + (Q.policyGrowth || 0);
+    e.growth = U.round1(e.growth + (trend - e.growth) * 0.15 + U.gauss(Q) * 0.25);
+    var nat = 5.2 - (e.growth - 3) * 0.6;
+    e.unemp = U.round1(U.clamp(e.unemp + (nat - e.unemp) * 0.08 + U.gauss(Q) * 0.05, 2.5, 14));
+    e.infl = U.round1(U.clamp(e.infl + ((2.3 + (e.growth - 3) * 0.3) - e.infl) * 0.1 + U.gauss(Q) * 0.08, -1, 10));
+    var structural = (Q.spending || 0);
+    e.deficit = U.round1(e.deficit + ((structural - (e.growth - 3) * 0.6 - 0.5) - e.deficit) * 0.08);
+    e.debt = U.round1(e.debt + e.deficit / 12);
+  };
+
+  // Voters attribute performance differently by group and office (brief §8.3).
+  S.attribution = function (Q) {
+    var e = Q.econ;
+    var score = { prof: (e.growth - 2.8) * 0.5, suburb: (e.growth - 2.8) * 0.3 - (e.infl - 2.5) * 0.3,
+      union: -(e.unemp - 5) * 0.6, rural: (e.growth - 2.8) * 0.2 - (e.infl - 2.5) * 0.2, relig: 0,
+      black: -(e.unemp - 5) * 0.5, hisp: -(e.unemp - 5) * 0.5, young: -(e.unemp - 5) * 0.3 + (e.growth - 2.8) * 0.2,
+      retire: -(e.infl - 2.5) * 0.6 };
+    var g = Q.gov; if (!g) return;
+    var parts = [[g.pmParty, 0.5]];
+    var others = g.coalition.filter(function (p) { return p !== g.pmParty; });
+    others.forEach(function (p) { parts.push([p, 0.3 / Math.max(1, others.length)]); });
+    if (Q.president.party && U.PARTIES[Q.president.party]) parts.push([Q.president.party, 0.15]);
+    parts.forEach(function (pp) {
+      var m = {}; for (var k in score) m[k] = score[k] * pp[1] * 0.08;
+      V.campaign(Q, pp[0], m, pp[0] === Q.player ? 'Economy (credit/blame for the government)' : null);
+    });
+    var econIdx = (e.growth - 2.5) * 4 - (e.unemp - 5) * 4 - Math.max(0, e.infl - 3) * 3;
+    Q.govApproval = U.clamp(Q.govApproval + (50 + econIdx - Q.govApproval) * 0.08 + U.gauss(Q) * 1.2 - (Q.scandal || 0), 10, 85);
+    Q.president.approval = U.clamp(Q.president.approval + (55 + econIdx * 0.7 - Q.president.approval) * 0.06 + U.gauss(Q), 15, 85);
+    Q.scandal = Math.max(0, (Q.scandal || 0) - 0.5);
+  };
+
+  // Non-player parties campaign, drift and react (brief §16).
+  S.aiParties = function (Q) {
+    U.ALL_PARTIES.forEach(function (p) {
+      if (Q.dormant[p]) return;
+      var m = Q.mods[p] = Q.mods[p] || {};
+      U.GROUPS.forEach(function (g) {
+        m[g] = (m[g] || 0) * 0.985 + (p === Q.player ? 0 : U.gauss(Q) * 0.12);
+      });
+      Q.fatigue && Q.fatigue[p] && (Q.fatigue[p] *= 0.8);
+      // AI parties campaign too: a monthly push among their best groups,
+      // stronger during election campaigns
+      if (p !== Q.player && U.PARTIES[p].pref) {
+        var best = U.GROUPS.slice().sort(function (a, b) { return U.PARTIES[p].pref[b] - U.PARTIES[p].pref[a]; }).slice(0, 3);
+        var push = (Q.electionAt ? 0.5 : 0.25) * (0.5 + U.rng(Q)) * Math.sqrt(U.PARTIES[p].target || 2) / 3;
+        var o = {}; o[U.pick(Q, best)] = push; o[U.pick(Q, U.GROUPS)] = push * 0.5;
+        V.campaign(Q, p, o, null);
+      }
+      if (U.PARTIES[p].home) Q.homeMult[p] = U.clamp((Q.homeMult[p] == null ? 1 : Q.homeMult[p]) + U.gauss(Q) * 0.015, 0.3, 3);
+    });
+    // The Green surge: Nader's profile pulls young and professional voters to the UL
+    if (Q.flags.naderSurge && S.now(Q) < Q.flags.naderSurge + 24) {
+      V.campaign(Q, 'ul', { young: 0.35, prof: 0.18, union: 0.05 }, null);
+      V.campaign(Q, 'ldp', { young: -0.06, prof: -0.04 }, 'Nader’s Green surge');
+    }
+    // Discontent accumulates under long grand coalitions and weak economies
+    var gc = Q.gov && Q.gov.coalition.length >= 3 ? 0.15 : 0;
+    Q.discontent = U.clamp(Q.discontent + gc + (Q.econ.unemp - 5.5) * 0.1 + (40 - Q.govApproval) * 0.01, 0, 100);
+    // Dormant populist right can emerge from 2015 if conditions allow
+    if (Q.dormant.maga && Q.year >= 2015 && Q.month >= 6 && Q.discontent > 45 && U.rng(Q) < 0.15) S.activate(Q, 'maga', 4 + Q.discontent / 10);
+    if (Q.dormant.afp && !Q.dormant.maga && Q.year >= 2018 && S.inGov(Q, 'maga') && U.rng(Q) < 0.05) S.activate(Q, 'afp', 2);
+  };
+
+  S.activate = function (Q, p, share) {
+    Q.dormant[p] = false; Q.calib[p] = 1; Q.mods[p] = {};
+    var n = V.national(Q); Q.calib[p] = share / Math.max(0.1, n[p]);
+    S.note(Q, U.PARTIES[p].name + ' is launched' + (p === 'maga' ? ' by Donald Trump' : '') + '. Early polls give it around ' + Math.round(share) + '%.');
+  };
+
+  // Coalition partners grow restless when the government drifts from them.
+  S.coalitionStability = function (Q) {
+    var g = Q.gov; if (!g || Q.formation) return;
+    g.coalition.concat(g.cs).forEach(function (p) {
+      if (p === g.pmParty) return;
+      var drift = (C.compat(Q, p, g.pmParty) - 0.55) * 1.2 + (Q.govApproval - 45) * 0.03 + U.gauss(Q) * 0.6;
+      C.addRel(Q, p, g.pmParty, drift);
+      if (C.rel(Q, p, g.pmParty) < 18 && U.rng(Q) < 0.3) {
+        var wasCoal = g.coalition.indexOf(p) >= 0;
+        g.coalition = g.coalition.filter(function (x) { return x !== p; }); g.cs = g.cs.filter(function (x) { return x !== p; });
+        S.note(Q, 'The ' + U.PARTIES[p].name + ' withdraws ' + (wasCoal ? 'from the coalition' : 'its confidence-and-supply support') + '. The government now relies on ' + S.govSeats(Q) + ' seats.');
+        Q.flags.partnerLeft = p;
+      }
+    });
+  };
+
+  // Budget vote (brief §8.2). Partners vote yes unless relations collapsed.
+  S.budgetVote = function (Q, plan, playerVote) {
+    var g = Q.gov, decide = function (p, sub) {
+      if (p === Q.player && playerVote) return playerVote;
+      if (g.coalition.indexOf(p) >= 0) return 'yes';
+      if (g.cs.indexOf(p) >= 0) return C.rel(Q, p, g.pmParty) > 30 ? 'yes' : 'abstain';
+      var cp = C.compat(Q, p, g.pmParty) + (plan && plan.lean ? plan.lean(p) : 0);
+      if (p === 'aga' && sub && sub !== 'other') return Q.flags['agaDeal' + sub] ? 'yes' : (cp > 0.55 ? 'abstain' : 'no');
+      return cp > 0.68 ? 'abstain' : 'no';
+    };
+    var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
+    var passH = h.yes > h.no, passS = s.yes > s.no, override = !passS && h.yes >= 401;
+    return { house: h, senate: s, passed: passH && (passS || override), override: override };
+  };
+
+  S.applyBudget = function (Q, plan, res) {
+    var g = Q.gov;
+    if (res.passed) {
+      g.budgetFails = 0; Q.spending = (Q.spending || 0) + (plan.spending || 0); Q.policyGrowth = (Q.policyGrowth || 0) * 0.5 + (plan.growth || 0);
+      if (plan.groups) V.campaign(Q, g.pmParty, plan.groups, g.pmParty === Q.player ? 'Budget measures' : null);
+      Q.govApproval += 2;
+    } else {
+      g.budgetFails += 1; Q.govApproval -= 4;
+    }
+  };
+
+  // AI no-confidence motions when the government is weak.
+  S.confidenceCheck = function (Q) {
+    var g = Q.gov; if (!g || Q.formation || Q.electionAt) return;
+    var support = S.govSeats(Q);
+    if (support >= 401 && g.budgetFails < 2) return;
+    if (U.rng(Q) > (g.budgetFails >= 2 ? 0.6 : 0.12)) return;
+    var res = U.Parliament.count(Q, 'house', function (p) {
+      if (p === Q.player) return S.supportsGov(Q) ? 'no' : (Q.playerNoConf || 'yes');
+      if (S.supportsGov(Q, p)) return 'no';
+      return C.compat(Q, p, g.pmParty) > 0.6 ? 'abstain' : 'yes';
+    });
+    S.note(Q, 'A motion of no confidence in ' + g.pm + ': ' + res.yes + ' for, ' + res.no + ' against, ' + res.abstain + ' abstaining.');
+    if (res.yes >= 401) { S.note(Q, 'The government falls. A general election is called.'); S.callElection(Q, 2); }
+  };
+
+  S.callElection = function (Q, monthsAhead) {
+    if (Q.electionAt) return;
+    Q.electionAt = S.now(Q) + (monthsAhead || 2);
+    var d = Q.electionAt, y = Math.floor(d / 12), m = d % 12 + 1;
+    S.note(Q, 'A general election is called for ' + U.MONTHS[m - 1] + ' ' + y + '.');
+  };
+
+  // AI Prime Ministers call elections when polls favour them or at the deadline.
+  S.electionTiming = function (Q) {
+    if (Q.electionAt || Q.formation) return;
+    var now = S.now(Q);
+    if (now >= Q.deadline) { S.note(Q, 'The legislature’s term is ending: the election must now be held.'); S.callElection(Q, 2); return; }
+    if (!S.pmIsPlayer(Q) && Q.gov && now >= Q.deadline - 10 && (Q.trend[Q.gov.pmParty] || 0) > 1 && U.rng(Q) < 0.2) S.callElection(Q, 2);
+  };
+
+  // ---- the general election ----
+  S.runGeneralElection = function (Q) {
+    var before = U.clone(Q.house), beforeS = U.Elections.senateCount(Q), shares = V.national(Q);
+    var h = X.house(Q);
+    Q.house = h.house; Q.agaSeats = S.agaByState(h);
+    // Green seats inside the UL follow the Greens' weight in the alliance
+    var gw = U.UL_MEMBERS.green.w + (Q.flags.naderSurge ? 0.15 : 0);
+    Q.greenSeats = Math.round((Q.house.ul || 0) * U.clamp(gw, 0.1, 0.7));
+    var oldGov = {}; for (var sid in Q.states) oldGov[sid] = Q.states[sid].governor;
+    if (U.RULES.stateElections === 'with-general') for (sid in U.STATES) Q.states[sid] = X.stateGov(Q, U.STATES[sid], Q.states[sid]);
+    Q.electionNo += 1;
+    var races = X.senate(Q, Q.electionNo + 1);
+    var res = { date: U.dateStr(Q), shares: shares, house: U.clone(Q.house), before: before, senate: X.senateCount(Q), beforeSenate: beforeS,
+      districts: h.districts.length, runoffs: h.districts.filter(function (d) { return d.round === 2; }).length,
+      pr: h.pr, byState: {}, senateRaces: races.length, govFlips: 0, distWon: {} };
+    h.districts.forEach(function (d) { res.distWon[d.winner] = (res.distWon[d.winner] || 0) + 1; });
+    for (sid in h.byState) res.byState[sid] = { shares: h.byState[sid].shares, district: h.byState[sid].district, pr: h.byState[sid].pr, governor: Q.states[sid] && Q.states[sid].governor };
+    for (sid in oldGov) if (oldGov[sid] !== Q.states[sid].governor) res.govFlips++;
+    // close district results for the briefing
+    res.close = h.districts.filter(function (d) { return d.round === 2 && Math.abs(d.r2[d.finalists[0]] - d.r2[d.finalists[1]]) < 2; })
+      .slice(0, 8).map(function (d) { return { state: d.state, n: d.n, a: d.finalists[0], b: d.finalists[1], va: d.r2[d.finalists[0]], vb: d.r2[d.finalists[1]] }; });
+    Q.lastElection = res;
+    Q.electionAt = null; Q.pacts = [];
+    Q.deadline = S.now(Q) + U.RULES.government.maxTermMonths;
+    Q.formation = { start: S.now(Q), monthsLeft: U.RULES.government.formationMonthsBeforeRepeat, failed: [] };
+    if (Q.gov) Q.gov.caretaker = true;
+    Q.causes = {};
+    var swing = shares[Q.player] - (Q.prevShare || shares[Q.player]); Q.prevShare = shares[Q.player];
+    // party reacts: a bad result raises dissent and the leader's vulnerability
+    var seatDelta = (Q.house[Q.player] || 0) - (before[Q.player] || 0);
+    if (seatDelta < -30) { for (var k in Q.factions) Q.factions[k].dissent += 10; Q.leader.approval -= 10; Q.unity -= 8; }
+    if (seatDelta > 20) { Q.leader.approval += 8; Q.unity += 5; Q.morale += 8; }
+    res.swing = swing;
+    S.note(Q, 'General election: the ' + U.PARTIES[Q.player].short + ' wins ' + Q.house[Q.player] + ' seats (' + (seatDelta >= 0 ? '+' : '') + seatDelta + ') with ' + shares[Q.player].toFixed(1) + '% of the vote.');
+    return res;
+  };
+
+  // ---- presidential election ----
+  S.presidentialDue = function (Q) {
+    var f = U.RULES.president.firstElection, now = S.now(Q), first = U.monthIndex(f.year, f.month);
+    return now >= first && (now - first) % (12 * U.RULES.president.termYears) === 0;
+  };
+  S.defaultCandidates = function (Q) {
+    var list = [], y = Q.year;
+    var names = { sdlp: Q.year <= 2000 ? 'Bill Bradley' : U.PARTIES.sdlp.leader, cdp: y <= 2004 ? 'John McCain' : U.PARTIES.cdp.leader,
+      cc: y <= 2004 ? 'George W. Bush' : U.PARTIES.cc.leader, ul: y <= 2004 ? 'Ralph Nader' : U.PARTIES.ul.leader,
+      asp: y <= 2000 ? 'Pat Buchanan' : U.PARTIES.asp.leader, lib: y <= 2000 ? 'Harry Browne' : 'Libertarian nominee', maga: 'Donald Trump' };
+    var appeal = { sdlp: 2, cdp: 3, cc: 2, ul: 2, asp: 0, lib: 0, maga: 4 };
+    ['sdlp', 'cdp', 'cc', 'ul', 'asp', 'lib', 'maga'].forEach(function (p) {
+      if (Q.dormant[p] || (Q.presWithdrawn && Q.presWithdrawn.indexOf(p) >= 0)) return;
+      list.push({ id: p, party: p, name: names[p], backers: [], appeal: appeal[p] || 0 });
+    });
+    return list;
+  };
+  S.runPresidential = function (Q) {
+    var cands = S.defaultCandidates(Q), mine = Q.presCandidate;
+    if (mine && mine.party === Q.player) cands.unshift({ id: Q.player, party: Q.player, name: mine.name, backers: mine.backers || [], appeal: mine.appeal || 0 });
+    else if (mine && mine.endorse) cands.forEach(function (c) { if (c.party === mine.endorse) c.backers.push(Q.player); });
+    // regional parties back the nearest candidate
+    U.REGIONAL.forEach(function (p) {
+      var best = null, bd = 1e9; cands.forEach(function (c) { var d = U.Electoral.dist(X.pos(Q)[p], X.pos(Q)[c.party]); if (d < bd) { bd = d; best = c; } });
+      if (best && best.backers.indexOf(p) < 0) best.backers.push(p);
+    });
+    var res = X.president(Q, cands);
+    var w = cands.filter(function (c) { return c.id === res.winner; })[0];
+    res.winnerName = w.name; res.winnerParty = w.party; res.date = U.dateStr(Q);
+    Q.lastPresidential = res;
+    var oldPres = Q.president;
+    Q.president = { name: w.name, party: w.party, approval: 58, termEnds: S.now(Q) + 2 + 48, termLimited: oldPres.name === w.name };
+    S.note(Q, w.name + ' (' + U.PARTIES[w.party].short + ') is elected President' + (res.round === 2 ? ' in the second round' : ' in the first round') + '.');
+    // the LDP leader becomes President: the party needs a new leader (and PM)
+    if (w.party === Q.player && Q.leader.name === w.name) { Q.flags.leaderToWhiteHouse = S.now(Q); }
+    Q.presCandidate = null; Q.presWithdrawn = [];
+    return res;
+  };
+
+  // ---- government formation (brief §4.8) ----
+  S.formGovernment = function (Q, deal, label) {
+    var tot = C.seats(Q, deal.coalition), posts = {};
+    deal.coalition.forEach(function (p) { posts[p] = (deal.posts && deal.posts[p]) || Math.max(1, Math.round(20 * Q.house[p] / tot)); });
+    Q.gov = { pm: label, pmParty: deal.pm, coalition: deal.coalition.slice(), cs: deal.cs.slice(), posts: posts,
+      concessions: U.clone(deal.concessions || {}), since: S.now(Q), budgetFails: 0 };
+    // concessions shift the government's policy and the partners' trust
+    for (var p in deal.concessions) {
+      deal.concessions[p].forEach(function (id) {
+        var d = C.demandsOf(p).filter(function (x) { return x.id === id; })[0]; if (!d) return;
+        Q.spending = (Q.spending || 0) + (d.deficit || 0);
+        Q.pendingConcessions = (Q.pendingConcessions || []).concat([{ party: p, id: id, text: d.text, due: S.now(Q) + 18 }]);
+      });
+      C.addRel(Q, p, deal.pm, 6);
+    }
+    Q.formation = null; Q.govApproval = 50;
+    S.note(Q, label + ' is confirmed as Prime Minister, leading ' + deal.coalition.map(function (p) { return U.PARTIES[p].short; }).join('–') +
+      (deal.cs.length ? ' with confidence and supply from ' + deal.cs.map(function (p) { return U.PARTIES[p].short; }).join(', ') : '') + '.');
+  };
+
+  S.pmName = function (Q, p) {
+    if (p === Q.player) return Q.leader.name;
+    var y = Q.year;
+    var n = { sdlp: 'Bill Bradley', cdp: y <= 2004 ? 'John McCain' : 'the CDP leader', cc: y <= 2004 ? 'George W. Bush' : 'the CC leader',
+      maga: y >= 2016 ? 'Mike Pence' : 'the MAGA leader' }[p];
+    return n || ('the ' + U.PARTIES[p].short + ' leader');
+  };
+
+  S.tryInvestiture = function (Q, deal) {
+    var c1 = C.investitureVote(Q, deal), ok = C.passes(c1, 1), c2 = null;
+    if (!ok) { c2 = C.investitureVote(Q, deal); ok = C.passes(c2, 2); }
+    return { first: c1, second: c2, passed: ok };
+  };
+
+  // AI formateurs take their turn at the end of each formation month.
+  S.aiFormation = function (Q) {
+    var F = Q.formation; if (!F) return null;
+    var cands = C.formateurs(Q).filter(function (p) { return p !== Q.player && F.failed.indexOf(p) < 0; });
+    for (var i = 0; i < cands.length; i++) {
+      var pm = cands[i], deal = C.aiDeal(Q, pm, F.playerRefused ? [Q.player] : []);
+      var inv = S.tryInvestiture(Q, deal);
+      if (inv.passed) {
+        if (deal.coalition.indexOf(Q.player) >= 0 || deal.cs.indexOf(Q.player) >= 0) { F.offer = deal; return 'offer'; }
+        S.formGovernment(Q, deal, S.pmName(Q, pm)); return 'formed';
+      }
+      F.failed.push(pm);
+      S.note(Q, S.pmName(Q, pm) + ' fails to assemble a majority (' + inv.first.yes + ' yes, ' + inv.first.no + ' no).');
+      return 'failed';
+    }
+    return null;
+  };
+
+  // ---- end of month ----
+  S.endMonth = function (Q) {
+    Q.report = []; Q.causes = Q.causes || {};
+    var before = V.national(Q)[Q.player];
+    S.economy(Q); S.attribution(Q); S.aiParties(Q); S.coalitionStability(Q);
+    if (Q.formation) {
+      var r = S.aiFormation(Q);
+      Q.formation && (Q.formation.monthsLeft -= 1);
+      if (Q.formation && Q.formation.monthsLeft <= 0 && !Q.formation.offer) {
+        S.note(Q, 'No government can be formed. A repeat election is called.');
+        Q.formation = null; S.callElection(Q, 2);
+      }
+    } else { S.confidenceCheck(Q); S.electionTiming(Q); }
+    // unpaid concessions erode trust
+    (Q.pendingConcessions || []).forEach(function (c) {
+      if (!c.done && S.now(Q) > c.due) { C.addRel(Q, c.party, Q.gov ? Q.gov.pmParty : Q.player, -1.5); }
+    });
+    // factions drift and the leader's standing follows the polls
+    for (var k in Q.factions) Q.factions[k].dissent = U.clamp(Q.factions[k].dissent + U.gauss(Q) * 1.2 - 0.3, 0, 100);
+    Q.funds = U.round1(Q.funds + 0.6 + Q.morale / 200);
+    Q.leader.approval = U.clamp(Q.leader.approval + ((Q.trend[Q.player] || 0) * 1.2) + U.gauss(Q) * 1.2 - 0.1, 5, 90);
+    for (var t in Q.timers) if (Q.timers[t] > 0) Q.timers[t] -= 1;
+    // advance the calendar
+    Q.month += 1; if (Q.month > 12) { Q.month = 1; Q.year += 1; }
+    Q.actionsLeft = U.RULES.government.actionsPerMonth + (Q.electionAt ? 1 : 0);
+    S.recordPoll(Q);
+    var after = V.national(Q)[Q.player];
+    Q.lastMonthDelta = after - before;
+    var due = { general: Q.electionAt === S.now(Q), president: S.presidentialDue(Q) };
+    return due;
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : window);
