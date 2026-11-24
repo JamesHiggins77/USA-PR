@@ -22,11 +22,10 @@
       dcMethod: 'two-round'
     },
     senate: {
-      total: 200, perState: 4,
-      directTermElections: 2,           // direct seat contested every 2nd general election
-      directClasses: 2,                 // states split into class A / B (staggered)
-      directFirstRoundMajority: 0.5,
-      appointedReconsidered: 'on-state-government-change'
+      total: 200, perState: 4,          // designer canon: per state, 3 elected by PR + 1 by the state house
+      prSeatsPerState: 3,               // elected statewide by PR at every general election
+      prFormula: 'sainte-lague', prThreshold: 0,
+      legislatureSeat: 'state-house'    // the 4th senator is elected by the lower house (Nebraska: its legislature)
     },
     president: {
       termYears: 6, lastElection: { year: 1992, month: 11 },   // designer canon: 6-year terms; Clinton elected 1992, up again November 1998

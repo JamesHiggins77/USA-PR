@@ -300,10 +300,10 @@
     var oldGov = {}; for (var sid in Q.states) oldGov[sid] = Q.states[sid].governor;
     if (U.RULES.stateElections === 'with-general') for (sid in U.STATES) Q.states[sid] = X.stateGov(Q, U.STATES[sid], Q.states[sid]);
     Q.electionNo += 1;
-    var races = X.senate(Q, Q.electionNo + 1);
+    var senateRes = X.senate(Q);
     var res = { date: U.dateStr(Q), shares: shares, house: U.clone(Q.house), before: before, senate: X.senateCount(Q), beforeSenate: beforeS,
       districts: h.districts.length, runoffs: h.districts.filter(function (d) { return d.round === 2; }).length,
-      pr: h.pr, byState: {}, senateRaces: races.length, govFlips: 0, distWon: {} };
+      pr: h.pr, byState: {}, govFlips: 0, distWon: {} };
     h.districts.forEach(function (d) { res.distWon[d.winner] = (res.distWon[d.winner] || 0) + 1; });
     for (sid in h.byState) res.byState[sid] = { shares: h.byState[sid].shares, district: h.byState[sid].district, pr: h.byState[sid].pr, governor: Q.states[sid] && Q.states[sid].governor };
     for (sid in oldGov) if (oldGov[sid] !== Q.states[sid].governor) res.govFlips++;
@@ -313,7 +313,7 @@
     // full race-by-race detail for election night (kept out of the save file)
     var slim = function (r, sid) { var t = Object.keys(r.r1).sort(function (a, b) { return r.r1[b] - r.r1[a]; }).slice(0, 4).map(function (p) { return [p, Math.round(r.r1[p] * 10) / 10]; });
       return { s: sid || r.state, n: r.n, round: r.round, w: r.winner, f: r.finalists, r2: r.r2, t: t }; };
-    var detail = { districts: h.districts.map(function (d) { return slim(d); }), senate: races.map(function (r) { return slim(r); }), pr: {}, governors: [] };
+    var detail = { districts: h.districts.map(function (d) { return slim(d); }), senate: senateRes, pr: {}, governors: [] };
     for (sid in h.byState) if (sid !== 'DC') detail.pr[sid] = h.byState[sid].pr;
     for (sid in U.STATES) if (Q.states[sid].govRace) detail.governors.push(slim(Q.states[sid].govRace, sid));
     Q.lastDistricts = detail.districts.map(function (d) { return { s: d.s, n: d.n, w: d.w, round: d.round, f: d.f }; });

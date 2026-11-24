@@ -22,7 +22,7 @@
 
   K.CARDS.push(
     { id: 'state_tour', title: 'Campaign in a battleground state', tag: 'State',
-      body: function (Q) { return 'Where the LDP is in a close race for first place, a sustained local campaign can flip runoffs, a governorship and Senate appointments. Costs 1.'; },
+      body: function (Q) { return 'Where the LDP is in a close race for first place, a sustained local campaign can win list seats, a governorship and a Senate seat. Costs 1.'; },
       options: function (Q) { return battlegrounds(Q).map(function (b) {
         return { label: stateName(b.sid), sub: 'Gap with the ' + U.PARTIES[b.rival].short + ': ' + b.gap.toFixed(1) + ' points. Costs 1.', cond: function (Q) { return H.funds(Q, 1); },
           act: function (Q) { H.spend(Q, 1); addStateMod(Q, Q.player, b.sid, 2.5, 'State campaigns'); return 'Weeks of town halls and local radio across ' + stateName(b.sid) + '. The local polls tighten.'; } };
@@ -40,7 +40,7 @@
 
     { id: 'appointment', title: 'Senate appointment talks', tag: 'State',
       cond: function (Q) { return D.appointmentTargets(Q).length > 0; },
-      body: function (Q) { return 'Where no party controls a state chamber, the senator it appoints is up for negotiation. A deal with the chamber’s other parties could put a Liberal Democrat in the U.S. Senate.'; },
+      body: function (Q) { return 'Each state house elects one U.S. senator. Where no party controls the chamber, that seat is up for negotiation: a deal with its other parties could put a Liberal Democrat in the Senate.'; },
       options: function (Q) { return D.appointmentTargets(Q).map(function (t) {
         return { label: stateName(t.sid) + ' state ' + t.chamber + ' (now ' + U.PARTIES[t.seat.party].short + ')', sub: 'LDP holds ' + t.mine + ' of ' + t.total + ' seats. Partner needed: ' + U.PARTIES[t.partner].short + ' (relations ' + Math.round(C.rel(Q, Q.player, t.partner)) + '). Chance about ' + Math.round(t.p * 100) + '%.',
           act: function (Q) {
@@ -67,7 +67,7 @@
       ]; } },
 
     { id: 'gov_recruit', title: 'Recruit a candidate for governor', tag: 'State',
-      body: function () { return 'A strong candidate can win a governorship, and with it a Senate appointment. Costs 1.'; },
+      body: function () { return 'A strong candidate can win a governorship and lift the party\u2019s state list. Costs 1.'; },
       options: function (Q) { return battlegrounds(Q).filter(function (b) { return Q.states[b.sid].governor !== Q.player; }).slice(0, 5).map(function (b) {
         return { label: stateName(b.sid) + ' (governor: ' + U.PARTIES[Q.states[b.sid].governor].short + ')', sub: 'Costs 1. Lasting boost in the state.', cond: function (Q) { return H.funds(Q, 1); },
           act: function (Q) { H.spend(Q, 1); addStateMod(Q, Q.player, b.sid, 1.8, 'State campaigns'); Q.govCandidates = Q.govCandidates || {}; Q.govCandidates[b.sid] = 1; return 'A popular local figure agrees to run for Governor of ' + stateName(b.sid) + ' as a Liberal Democrat.'; } };
@@ -116,8 +116,8 @@
   D.appointmentTargets = function (Q) {
     var out = [];
     Object.keys(U.STATES).forEach(function (sid) {
-      var sg = Q.states[sid]; if (!sg || U.STATES[sid].unicameral) return;
-      [['house', 'house'], ['senate', 'senate']].forEach(function (c) {
+      var sg = Q.states[sid]; if (!sg) return;
+      [['house', 'house']].forEach(function (c) {
         var seats = sg[c[0]], tot = U.sum(seats), mine = seats[Q.player] || 0;
         var seat = Q.senateSeats.filter(function (x) { return x.state === sid && x.type === c[1]; })[0];
         if (!seat || seat.party === Q.player || mine / tot < 0.2) return;

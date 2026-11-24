@@ -70,8 +70,11 @@
     }
     if (g && g.detail) {
       raceItems('districts', g.detail.districts, function (d) { return d.s + '-' + d.n; });
-      raceItems('senate', g.detail.senate, function (d) { return 'Senate: ' + d.s; });
       raceItems('governors', g.detail.governors, function (d) { return 'Governor: ' + d.s; });
+      Object.keys(g.detail.senate || {}).forEach(function (sid) {
+        var it = { tab: 'senate', night: 1, state: sid, label: 'Senate: ' + sid, seats: g.detail.senate[sid].seats, dist: g.detail.senate[sid].shares };
+        timing(it, 8); items.push(it);
+      });
       Object.keys(g.detail.pr).forEach(function (sid) {
         var it = { tab: 'pr', night: 1, state: sid, label: sid + ' list seats', seats: g.detail.pr[sid], dist: (g.byState[sid] || {}).shares || {} };
         timing(it, 8); items.push(it);
@@ -88,7 +91,7 @@
       ec(1, pr.byState); if (pr.byState2) ec(2, pr.byState2);
     }
     var tabs = [];
-    if (g && g.detail) { if (g.detail.districts.length) tabs.push(['districts', 'House districts']); tabs.push(['pr', g.detail.districts.length ? 'House list seats' : 'House'], ['senate', 'Senate (direct)'], ['governors', 'Governors']); }
+    if (g && g.detail) { if (g.detail.districts.length) tabs.push(['districts', 'House districts']); tabs.push(['pr', g.detail.districts.length ? 'House list seats' : 'House'], ['senate', 'Senate'], ['governors', 'Governors']); }
     if (pr) tabs.push(['ec', 'President']);
     return { items: items, tabs: tabs, tab: pr && !g ? 'ec' : tabs[0][0], night: 1, t: 0, speed: 6, playing: true, hasNight2: items.some(function (i) { return i.night === 2; }) };
   };
@@ -122,7 +125,7 @@
     var p = pctIn(i);
     if (called(i)) {
       if (i.tab === 'ec') { var w = i.night === 1 ? lead(i.dist)[0] : Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; return { fill: P(colorKey(elec, w)).color, called: true }; }
-      if (i.tab === 'pr') { var tp = lead(i.seats)[0]; return { fill: P(tp).color, called: true }; }
+      if (i.seats) { var tp = lead(i.seats)[0]; return { fill: P(tp).color, called: true }; }
       if (i.night === 1 && i.runoff) return { runoff: i.runoff, called: true };
       return { fill: P(i.party).color, called: true };
     }
@@ -146,7 +149,7 @@
         if (called(i)) { done += U.sum(i.ev); for (var c in i.ev) if (i.ev[c]) tally[c] = (tally[c] || 0) + i.ev[c]; }
         return;
       }
-      if (tab === 'pr') { total += U.sum(i.seats); inSum += pctIn(i); inN++; if (called(i)) { done += U.sum(i.seats); for (var p in i.seats) if (i.seats[p]) tally[p] = (tally[p] || 0) + i.seats[p]; } return; }
+      if (i.seats) { total += U.sum(i.seats); inSum += pctIn(i); inN++; if (called(i)) { done += U.sum(i.seats); for (var p in i.seats) if (i.seats[p]) tally[p] = (tally[p] || 0) + i.seats[p]; } return; }
       if (i.night === 1) { total++; if (st.night === 1) { inSum += pctIn(i); inN++; } }
       if (i.night === 2 && st.night === 2) { inSum += pctIn(i); inN++; }
       if (i.night === 1 && i.runoff) { if (called(i)) pend++; return; }
@@ -162,7 +165,7 @@
   function feed(elec) {
     var cm = cands(elec), out = [];
     st.items.forEach(function (i) {
-      if (i.night !== st.night || i.t > st.t || i.t < st.t - 45 || i.tab === 'pr') return;
+      if (i.night !== st.night || i.t > st.t || i.t < st.t - 45 || i.seats) return;
       var txt;
       if (i.tab === 'ec' && i.night === 1) { var w1 = lead(i.dist)[0]; txt = esc(i.label) + ': <b style="color:' + P(colorKey(elec, w1)).color + '">' + esc(cm[w1] ? cm[w1].name : w1) + '</b> wins the state\u2019s popular vote'; }
       else if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; txt = esc(i.label) + ': <b style="color:' + P(colorKey(elec, w)).color + '">' + esc(cm[w] ? cm[w].name : w) + '</b> takes all ' + i.ev[w] + ' electors'; }
@@ -246,7 +249,7 @@
     if (called(i)) {
       if (i.tab === 'ec' && i.night === 1) h += 'Called: <b>' + esc(cands(elec)[lead(i.dist)[0]].name) + '</b> wins the state (round one counts national votes only)<br>';
       else if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; h += 'Called: <b>' + esc(cands(elec)[w].name) + '</b> takes all ' + i.ev[w] + ' electors<br>'; }
-      else if (i.tab === 'pr') h += 'Called: ' + lead(i.seats).filter(function (x) { return i.seats[x]; }).map(function (x) { return P(x).short + ' ' + i.seats[x]; }).join(', ') + '<br>';
+      else if (i.seats) h += 'Called: ' + lead(i.seats).filter(function (x) { return i.seats[x]; }).map(function (x) { return P(x).short + ' ' + i.seats[x]; }).join(', ') + '<br>';
       else if (i.night === 1 && i.runoff) h += 'Called: runoff between <b>' + P(i.runoff[0]).short + '</b> and <b>' + P(i.runoff[1]).short + '</b><br>';
       else h += 'Called: <b style="color:' + P(i.party).color + '">' + esc(P(i.party).name) + '</b> ' + (i.night === 2 ? 'wins the runoff' : 'wins outright') + (i.fullCount ? ' (after the full count)' : '') + '<br>';
     } else h += '<span class="muted">' + (p > 90 ? 'Too close to call' : 'Too early to call') + '</span><br>';
@@ -257,7 +260,7 @@
     U.Zoom.attach(document.getElementById('nt-map'), 'night-states', function (t) {
       var sid = t.dataset.state; if (!sid) return null;
       var name = (U.STATES[sid] || U.DC).name, tab = st.tab;
-      var title = name + (tab === 'ec' ? (st.night === 2 ? ': presidential runoff (' + (U.Elections.apportion().electors[sid] || '') + ' electors)' : ': president, round one') : tab === 'senate' ? ': U.S. Senate (direct seat)' : tab === 'governors' ? ': Governor' : ': list seats');
+      var title = name + (tab === 'ec' ? (st.night === 2 ? ': presidential runoff (' + (U.Elections.apportion().electors[sid] || '') + ' electors)' : ': president, round one') : tab === 'senate' ? ': U.S. Senate (3 seats by PR)' : tab === 'governors' ? ': Governor' : ': list seats');
       return raceCard(elec, title, current(tab, function (i) { return i.state === sid; }));
     });
     U.Zoom.attach(document.getElementById('nt-dmap'), 'night-districts', function (t) {

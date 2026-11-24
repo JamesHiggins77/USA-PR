@@ -43,9 +43,9 @@
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
     Q.senateSeats = [];
     Object.keys(U.STATES).forEach(function (sid) {
-      ['direct', 'gov', 'house', 'senate'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
+      ['pr', 'pr', 'pr', 'house'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
     });
-    X.senate(Q, 0); X.senate(Q, 1); // fill both direct classes
+    X.senate(Q);
     for (p in tmp) Q.mods[p] = {};
     Q.lastSenate = X.senateCount(Q);
 

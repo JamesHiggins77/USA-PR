@@ -21,11 +21,15 @@ test('the 1997 opening matches the canon', () => {
   assert.strictEqual(Q.nextPres, U.monthIndex(1998, 11), 'presidential election in November 1998');
 });
 
-test('Nebraska is unicameral and its governor appoints three senators', () => {
+test('Senate: in each state 3 seats by PR and 1 elected by the state house', () => {
   const Q = U.Game.newGame(3);
-  const ne = Q.senateSeats.filter(s => s.state === 'NE' && s.type !== 'direct');
-  assert.ok(ne.every(s => s.party === Q.states.NE.governor));
-  assert.strictEqual(Q.states.NE.senate, undefined);
+  for (const sid of Object.keys(U.STATES)) {
+    const seats = Q.senateSeats.filter(s => s.state === sid);
+    assert.strictEqual(seats.filter(s => s.type === 'pr').length, 3);
+    const h = seats.filter(s => s.type === 'house');
+    assert.strictEqual(h.length, 1); assert.strictEqual(h[0].party, U.Elections.chamberChoice(Q, Q.states[sid].house));
+  }
+  assert.strictEqual(Q.states.NE.senate, undefined, 'Nebraska is unicameral');
 });
 
 test('general elections always produce 600 seats and a multiparty House', () => {

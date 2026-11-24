@@ -185,30 +185,23 @@
     return best || order[0];
   };
 
-  X.appointments = function (Q, sid) {
-    var sg = Q.states[sid], s = U.STATES[sid];
-    var govPick = sg.governor;
-    if (s.unicameral) return { gov: govPick, house: govPick, senate: govPick };
-    return { gov: govPick, house: X.chamberChoice(Q, sg.house), senate: X.chamberChoice(Q, sg.senate) };
-  };
+  // The state house's choice for the 4th Senate seat (Nebraska: its single chamber).
+  X.legislatureSenator = function (Q, sid) { return X.chamberChoice(Q, Q.states[sid].house); };
 
-  // Senate update after a general election. Direct seats due by class.
-  X.senate = function (Q, electionNo) {
-    var pos = X.pos(Q), races = [];
-    var dueClass = electionNo % R.senate.directClasses;
-    Object.keys(U.STATES).forEach(function (sid, idx) {
+  // Senate after a general election: in every state, 3 seats by statewide PR
+  // and 1 elected by the state house. Returns {state: {seats, shares}}.
+  X.senate = function (Q) {
+    var out = {};
+    Object.keys(U.STATES).forEach(function (sid) {
       var seats = Q.senateSeats.filter(function (x) { return x.state === sid; });
-      var direct = seats.filter(function (x) { return x.type === 'direct'; })[0];
-      if (idx % R.senate.directClasses === dueClass) {
-        var sh = V.stateShares(Q, U.STATES[sid]);
-        if (direct.party && sh[direct.party]) sh[direct.party] *= 1.08;
-        var r = E.twoRound(sh, pos, { majority: R.senate.directFirstRoundMajority, pactWith: X.pactFn(Q) });
-        r.state = sid; races.push(r); direct.party = r.winner;
-      }
-      var ap = X.appointments(Q, sid);
-      seats.forEach(function (x) { if (x.type !== 'direct' && ap[x.type]) x.party = ap[x.type]; });
+      var sh = V.stateShares(Q, U.STATES[sid]);
+      var won = E.divisor(sh, R.senate.prSeatsPerState, R.senate.prFormula, R.senate.prThreshold), list = [];
+      Object.keys(won).sort(function (a, b) { return won[b] - won[a] || sh[b] - sh[a]; }).forEach(function (p) { for (var i = 0; i < won[p]; i++) list.push(p); });
+      seats.filter(function (x) { return x.type === 'pr'; }).forEach(function (x, i) { x.party = list[i]; });
+      seats.filter(function (x) { return x.type === 'house'; }).forEach(function (x) { x.party = X.legislatureSenator(Q, sid); });
+      out[sid] = { seats: won, shares: sh };
     });
-    return races;
+    return out;
   };
 
   X.senateCount = function (Q) {
