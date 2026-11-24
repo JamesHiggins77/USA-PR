@@ -208,16 +208,21 @@
     for (var c in pop) pop[c] /= P;
     return { ev: ev, pop: pop, byState: bs, total: total };
   }
-  // The presidential election always has two rounds: the top two in electors
-  // meet head to head, and the winner of that round takes the presidency.
+  // Two rounds, always (designer canon). Round one is a national popular vote;
+  // the top two meet in round two, decided by the Electoral College
+  // (winner-take-all by state). Ties: popular vote, then a coin flip.
   X.president = function (Q, cands) {
     var r = round(Q, cands), ids = cands.map(function (c) { return c.id; });
-    var order = rank(Q, r.ev, r.pop, ids);
-    var res = { total: r.total, need: Math.floor(r.total / 2) + 1, r1: r.ev, pop1: r.pop, byState: r.byState, cands: cands, order1: order };
+    var coin = {}; ids.forEach(function (c) { coin[c] = U.rng(Q); });
+    var order = ids.slice().sort(function (a, b) { return (r.pop[b] || 0) - (r.pop[a] || 0) || coin[b] - coin[a]; });
+    var r1 = {}; for (var c in r.pop) r1[c] = Math.round(r.pop[c] * 10) / 10;
+    var bs1 = {}; for (var sid in r.byState) bs1[sid] = { votes: r.byState[sid].votes, ev: {} };
+    var res = { total: r.total, need: Math.floor(r.total / 2) + 1, r1: r1, pop1: r.pop, byState: bs1, cands: cands, order1: order, firstRound: 'popular' };
     var fin = cands.filter(function (c) { return c.id === order[0] || c.id === order[1]; });
     if (fin.length < 2) { res.winner = order[0]; res.round = 1; return res; }
     var r2 = round(Q, fin), o2 = rank(Q, r2.ev, r2.pop, fin.map(function (c) { return c.id; }));
-    res.r2 = r2.ev; res.pop2 = r2.pop; res.byState2 = r2.byState; res.round = 2; res.winner = o2[0];
+    var two = U.sum(r2.pop), p2 = {}; for (var k in r2.pop) p2[k] = two ? r2.pop[k] / two * 100 : 0; // share of the two-way vote
+    res.r2 = r2.ev; res.pop2 = p2; res.byState2 = r2.byState; res.round = 2; res.winner = o2[0];
     res.tiebreak = (r2.ev[o2[0]] || 0) === (r2.ev[o2[1]] || 0) ? ((r2.pop[o2[0]] || 0) === (r2.pop[o2[1]] || 0) ? 'coin' : 'popular vote') : null;
     return res;
   };

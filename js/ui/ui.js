@@ -132,8 +132,8 @@
     }
     if (elec.presidential) {
       var pr = elec.presidential;
-      h += '<h1 style="margin-top:28px">Presidential election</h1><p><b>' + esc(pr.winnerName) + '</b> (' + P(pr.winnerParty).short + ') wins ' + (pr.round === 1 ? 'in the first round' : 'the second round') + '. ' + pr.need + ' electors needed of ' + pr.total + '.</p>';
-      h += '<table><tr><th>Candidate</th><th>Round 1 electors</th>' + (pr.r2 ? '<th>Round 2</th>' : '') + '</tr>' + pr.cands.map(function (c) { return '<tr><td>' + chip(c.party) + esc(c.name) + (c.backers.length ? ' <span class="small muted">(backed by ' + c.backers.map(function (b) { return P(b).short; }).join(', ') + ')</span>' : '') + '</td><td>' + (pr.r1[c.id] || 0) + '</td>' + (pr.r2 ? '<td>' + (pr.r2[c.id] != null ? pr.r2[c.id] : '') + '</td>' : '') + '</tr>'; }).join('') + '</table>';
+      h += '<h1 style="margin-top:28px">Presidential election</h1><p><b>' + esc(pr.winnerName) + '</b> (' + P(pr.winnerParty).short + ') wins the Electoral College runoff' + (pr.tiebreak ? ' (tie broken by ' + pr.tiebreak + ')' : '') + '. Round one was a national popular vote; the top two went head to head in the Electoral College, where a state\u2019s winner takes all its electors.</p>';
+      h += '<table><tr><th>Candidate</th><th>Round 1 (popular vote)</th>' + (pr.r2 ? '<th>Round 2 electors</th><th>Round 2 vote</th>' : '') + '</tr>' + pr.cands.slice().sort(function (a, b) { return (pr.r1[b.id] || 0) - (pr.r1[a.id] || 0); }).map(function (c) { return '<tr><td>' + chip(c.party) + esc(c.name) + (c.backers.length ? ' <span class="small muted">(backed by ' + c.backers.map(function (b) { return P(b).short; }).join(', ') + ')</span>' : '') + '</td><td>' + (pr.r1[c.id] || 0).toFixed(1) + '%</td>' + (pr.r2 ? '<td>' + (pr.r2[c.id] != null ? '<b>' + pr.r2[c.id] + '</b>' : '') + '</td><td>' + (pr.pop2 && pr.pop2[c.id] != null ? pr.pop2[c.id].toFixed(1) + '%' : '') + '</td>' : '') + '</tr>'; }).join('') + '</table>';
     }
     h += '<div class="endbar"><button class="btn" data-act="closeelec">Continue</button></div>';
     return h;

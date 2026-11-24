@@ -27,7 +27,7 @@
       dcElectors: 3,
       allocation: 'winner-take-all',    // designer canon: a state's plurality winner takes all its electors
       alwaysRunoff: true,               // designer canon: there is always a second round
-      runoff: 'top-two-electors'        // top two by electors; ties: national popular vote, then a coin flip
+      runoff: 'popular-then-electoral'  // round 1: national popular vote, top two advance; round 2: Electoral College; ties: popular vote, then coin
     },
     government: {
       investitureFirstBallot: 'absolute', // 401 of 801

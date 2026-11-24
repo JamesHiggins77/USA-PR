@@ -17,7 +17,7 @@ Each month you either **play one card** (choose one of its options) or **discard
 - **House (801)**: 435 two-round districts (real 2012 boundaries) + 365 statewide list seats (Sainte-Laguë) + DC, computed separately and added together.
 - **Senate (200)**: per state, one directly elected seat (two rounds, staggered), plus appointments by the governor, state house and state senate. Nebraska is unicameral, so its governor appoints three.
 - **States**: two-round governors, constituency-PR state houses, statewide-PR state senates with the fixed 5% threshold. State results determine Senate appointments.
-- **President**: a six-year term, elected by the Electoral College in two rounds that are always held. Each state's plurality winner takes all its electors, and the top two go to a head-to-head runoff. There are joint tickets and endorsements.
+- **President**: a six-year term, elected in two rounds that are always held: a national popular vote, then a head-to-head runoff between the top two decided by the Electoral College, where each state's winner takes all its electors. There are joint tickets and endorsements.
 - **Government formation**: investiture votes (401 on the first ballot, more yes than no on the second), coalitions vs confidence and supply, cabinet posts, concessions, red lines, and AI formateurs who can offer the LDP a role.
 - **Voters**: nine voter groups across 50 states, with regional affinities and regional/federated parties. The briefing explains what moved the LDP's numbers.
 - **Party**: four LDP factions with dissent, rebellions on key votes, walkouts, leadership challenges, funds, unity, morale.

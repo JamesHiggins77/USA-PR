@@ -62,7 +62,7 @@
       var ec = function (night, bs) {
         Object.keys(bs).forEach(function (sid) {
           var dist = norm(bs[sid].votes), a = lead(dist);
-          var it = { tab: 'ec', night: night, state: sid, label: (night === 2 ? 'Runoff: ' : 'Electors: ') + sid, dist: dist, ev: bs[sid].ev };
+          var it = { tab: 'ec', night: night, state: sid, label: (night === 2 ? 'Electors: ' : 'President, round one: ') + sid, dist: dist, ev: bs[sid].ev, pop: (U.STATES[sid] || U.DC).pop };
           timing(it, dist[a[0]] - (dist[a[1]] || 0)); items.push(it);
         });
       };
@@ -70,7 +70,7 @@
     }
     var tabs = [];
     if (g && g.detail) tabs.push(['districts', 'House districts'], ['pr', 'House list seats'], ['senate', 'Senate (direct)'], ['governors', 'Governors']);
-    if (pr) tabs.push(['ec', 'Electoral College']);
+    if (pr) tabs.push(['ec', 'President']);
     return { items: items, tabs: tabs, tab: pr && !g ? 'ec' : tabs[0][0], night: 1, t: 0, speed: 6, playing: true, hasNight2: items.some(function (i) { return i.night === 2; }) };
   };
 
@@ -102,7 +102,7 @@
     if (!i) return { fill: '#d6d2c8', none: true };
     var p = pctIn(i);
     if (called(i)) {
-      if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; return { fill: P(colorKey(elec, w)).color, called: true }; }
+      if (i.tab === 'ec') { var w = i.night === 1 ? lead(i.dist)[0] : Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; return { fill: P(colorKey(elec, w)).color, called: true }; }
       if (i.tab === 'pr') { var tp = lead(i.seats)[0]; return { fill: P(tp).color, called: true }; }
       if (i.night === 1 && i.runoff) return { runoff: i.runoff, called: true };
       return { fill: P(i.party).color, called: true };
@@ -117,7 +117,13 @@
       if (i.tab !== tab) return;
       if (tab === 'ec') {
         var nt = st.night === 2 && elec.presidential.byState2 ? 2 : 1; if (i.night !== nt) return;
-        total += U.sum(i.ev); inSum += pctIn(i); inN++;
+        inSum += pctIn(i); inN++;
+        if (nt === 1) {
+          var pin = pctIn(i), pv = provisional(i); total++; if (called(i)) done++;
+          for (var c0 in pv) tally[c0] = (tally[c0] || 0) + pv[c0] * i.pop * pin / 100;
+          return;
+        }
+        total += U.sum(i.ev);
         if (called(i)) { done += U.sum(i.ev); for (var c in i.ev) if (i.ev[c]) tally[c] = (tally[c] || 0) + i.ev[c]; }
         return;
       }
@@ -129,7 +135,9 @@
       if (i.night === 2) pend--;
       done++; tally[i.party] = (tally[i.party] || 0) + 1;
     });
-    return { tally: tally, done: done, total: total, pending: Math.max(0, pend), pctIn: inN ? inSum / inN : 0 };
+    var popular = tab === 'ec' && !(st.night === 2 && elec.presidential.byState2);
+    if (popular) { var tt = U.sum(tally); for (var k in tally) tally[k] = tt ? Math.round(tally[k] / tt * 1000) / 10 : 0; }
+    return { tally: tally, done: done, total: total, pending: Math.max(0, pend), pctIn: inN ? inSum / inN : 0, popular: popular };
   }
 
   function feed(elec) {
@@ -137,7 +145,8 @@
     st.items.forEach(function (i) {
       if (i.night !== st.night || i.t > st.t || i.t < st.t - 45 || i.tab === 'pr') return;
       var txt;
-      if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; txt = esc(i.label) + ': <b style="color:' + P(colorKey(elec, w)).color + '">' + esc(cm[w] ? cm[w].name : w) + '</b> takes all ' + i.ev[w] + ' electors'; }
+      if (i.tab === 'ec' && i.night === 1) { var w1 = lead(i.dist)[0]; txt = esc(i.label) + ': <b style="color:' + P(colorKey(elec, w1)).color + '">' + esc(cm[w1] ? cm[w1].name : w1) + '</b> wins the state\u2019s popular vote'; }
+      else if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; txt = esc(i.label) + ': <b style="color:' + P(colorKey(elec, w)).color + '">' + esc(cm[w] ? cm[w].name : w) + '</b> takes all ' + i.ev[w] + ' electors'; }
       else if (i.night === 1 && i.runoff) txt = esc(i.label) + ': no majority. Runoff between ' + P(i.runoff[0]).short + ' and ' + P(i.runoff[1]).short + '.';
       else txt = esc(i.label) + ': <b style="color:' + P(i.party).color + '">' + P(i.party).short + '</b> ' + (i.night === 2 ? 'wins the runoff' : 'wins outright') + '.';
       out.push([i.t, txt]);
@@ -189,15 +198,15 @@
       if (svg && !svg.querySelector('defs')) svg.insertAdjacentHTML('afterbegin', '<defs></defs>');
       document.querySelectorAll('#nt-map .tile').forEach(function (g) { paint(g, status(elec, current(st.tab, function (i) { return i.state === g.dataset.state; })), svg); });
     }
-    var unit = st.tab === 'ec' ? 'electors' : st.tab === 'governors' ? 'governorships' : 'seats';
+    var unit = st.tab === 'ec' ? (snap.popular ? 'states' : 'electors') : st.tab === 'governors' ? 'governorships' : 'seats';
     var prog = '<b>' + Math.round(snap.pctIn) + '% of the expected vote in</b> · ' + snap.done + ' of ' + snap.total + ' ' + unit + ' called';
     if (snap.pending && st.night === 1) prog += ' · ' + snap.pending + ' going to a runoff';
-    if (st.tab === 'ec') prog += st.night === 1 ? ' · the top two go to a runoff' : ' · most electors wins';
+    if (st.tab === 'ec') prog += snap.popular ? ' \u00b7 round one is a national popular vote: the top two go to the Electoral College runoff' : ' \u00b7 Electoral College runoff: a state\u2019s winner takes all its electors; ' + pres.need + ' for a majority';
     document.getElementById('nt-progress').innerHTML = prog + '<div class="bar"><i style="width:' + snap.pctIn + '%"></i></div>';
     var keys = Object.keys(snap.tally).sort(function (a, b) { return snap.tally[b] - snap.tally[a]; });
-    document.getElementById('nt-tally').innerHTML = '<table class="seats"><tr><th>' + (st.tab === 'ec' ? 'Candidate' : 'Party') + '</th><th>' + (st.tab === 'ec' ? 'Electors' : st.tab === 'governors' ? 'Won' : 'Seats') + '</th></tr>' + keys.map(function (k) {
+    document.getElementById('nt-tally').innerHTML = '<table class="seats"><tr><th>' + (st.tab === 'ec' ? 'Candidate' : 'Party') + '</th><th>' + (st.tab === 'ec' ? (snap.popular ? 'Vote so far' : 'Electors') : st.tab === 'governors' ? 'Won' : 'Seats') + '</th></tr>' + keys.map(function (k) {
       var party = colorKey(elec, k), name = st.tab === 'ec' ? cm[k].name : P(k).name;
-      return '<tr><td><i class="chip" style="background:' + P(party).color + '"></i>' + esc(name) + '</td><td><b>' + snap.tally[k] + '</b></td></tr>';
+      return '<tr><td><i class="chip" style="background:' + P(party).color + '"></i>' + esc(name) + '</td><td><b>' + snap.tally[k] + (snap.popular ? '%' : '') + '</b></td></tr>';
     }).join('') + '</table>';
     document.getElementById('nt-feed').innerHTML = feed(elec) || '<div class="small muted">' + (st.t < 1 ? 'Polls close at 7pm Eastern.' : 'Waiting for results…') + '</div>';
     var end = document.getElementById('nt-end'), finished = st.t >= END1, html;
@@ -216,7 +225,8 @@
     if (p <= 0) return h + '<span class="muted">' + (st.t < closeOf(i.state) ? 'Polls close at ' + clock(closeOf(i.state)) + '.' : 'No votes counted yet.') + '</span>';
     var shares = called(i) && p >= 99.9 ? i.dist : provisional(i), order = lead(shares).slice(0, 5);
     if (called(i)) {
-      if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; h += 'Called: <b>' + esc(cands(elec)[w].name) + '</b> takes all ' + i.ev[w] + ' electors<br>'; }
+      if (i.tab === 'ec' && i.night === 1) h += 'Called: <b>' + esc(cands(elec)[lead(i.dist)[0]].name) + '</b> wins the state (round one counts national votes only)<br>';
+      else if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; h += 'Called: <b>' + esc(cands(elec)[w].name) + '</b> takes all ' + i.ev[w] + ' electors<br>'; }
       else if (i.tab === 'pr') h += 'Called: ' + lead(i.seats).filter(function (x) { return i.seats[x]; }).map(function (x) { return P(x).short + ' ' + i.seats[x]; }).join(', ') + '<br>';
       else if (i.night === 1 && i.runoff) h += 'Called: runoff between <b>' + P(i.runoff[0]).short + '</b> and <b>' + P(i.runoff[1]).short + '</b><br>';
       else h += 'Called: <b style="color:' + P(i.party).color + '">' + esc(P(i.party).name) + '</b> ' + (i.night === 2 ? 'wins the runoff' : 'wins outright') + '<br>';
@@ -228,7 +238,7 @@
     U.Zoom.attach(document.getElementById('nt-map'), 'night-states', function (t) {
       var sid = t.dataset.state; if (!sid) return null;
       var name = (U.STATES[sid] || U.DC).name, tab = st.tab;
-      var title = name + (tab === 'ec' ? (st.night === 2 ? ': presidential runoff' : ': president') : tab === 'senate' ? ': U.S. Senate (direct seat)' : tab === 'governors' ? ': Governor' : ': list seats');
+      var title = name + (tab === 'ec' ? (st.night === 2 ? ': presidential runoff (' + (U.Elections.apportion().electors[sid] || '') + ' electors)' : ': president, round one') : tab === 'senate' ? ': U.S. Senate (direct seat)' : tab === 'governors' ? ': Governor' : ': list seats');
       return raceCard(elec, title, current(tab, function (i) { return i.state === sid; }));
     });
     U.Zoom.attach(document.getElementById('nt-dmap'), 'night-districts', function (t) {

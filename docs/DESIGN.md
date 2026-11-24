@@ -12,8 +12,8 @@ This document follows the brief's §22 checklist: unresolved rules and their def
 | House PR formula / threshold | Sainte-Laguë, **no threshold** (state-senate 5% is not applied) | `rules.house.prFormula`, `prThreshold` |
 | No compensatory seats | District and PR results simply add up, as the brief specifies | — |
 | Electors per state | House seats + 4 (one per senator); DC = 3; total 1,003, majority 502 | `rules.president.electors` |
-| Elector allocation | **Winner-take-all** (designer canon): a state's plurality winner takes all its electors | `rules.president.allocation` |
-| Presidential runoff | **Always held** (designer canon): the top two by electors meet head to head, state by state, winner-take-all. Ties are broken by the national popular vote, then a coin flip (also for second place in round one) | `rules.president.runoff` |
+| Elector allocation | **Winner-take-all** (designer canon), used in the round-two Electoral College vote | `rules.president.allocation` |
+| Presidential rounds | **Always two** (designer canon). Round one is a national popular vote; the top two advance. Round two is decided by the Electoral College, winner-take-all by state. Ties are broken by the national popular vote, then a coin flip | `rules.president.runoff` |
 | Presidential term | **6 years** (designer canon): Clinton elected 1992; elections November 1998, 2004, 2010, 2016. Two-term limit. A President may resign so that an early presidential election is held with a general election (Clinton's 1999 option), which restarts the cycle | `rules.president` |
 | Senate direct seat | Two classes of states; each direct seat is contested every second general election | `rules.senate.directClasses` |
 | Appointed senators | Re-appointed after each general election from the new state governments (governor picks own party; chambers pick the largest member of the most compatible majority) | `engine/elections.js` |
