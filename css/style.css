@@ -4,9 +4,11 @@
   --card: #fff; --shadow: 0 1px 3px rgba(0,0,0,.08);
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #15171b; --panel: #1d2026; --ink: #e8e6e1; --muted: #9aa1ab; --line: #323741;
-    --card: #23272e; --accent: #ffa500; --accent-ink: #1a1a1a; --good: #5cbf85; --bad: #e06666; --warn: #e0a84a; --shadow: none; }
+  :root:not([data-theme="light"]) { --bg: #15171b; --panel: #1d2026; --ink: #e8e6e1; --muted: #9aa1ab; --line: #323741;
+    --card: #23272e; --accent: #ffa500; --accent-ink: #1a1a1a; --good: #5cbf85; --bad: #e06666; --warn: #e0a84a; --shadow: none;  color-scheme: dark; }
 }
+:root[data-theme="dark"] { --bg: #15171b; --panel: #1d2026; --ink: #e8e6e1; --muted: #9aa1ab; --line: #323741;
+    --card: #23272e; --accent: #ffa500; --accent-ink: #1a1a1a; --good: #5cbf85; --bad: #e06666; --warn: #e0a84a; --shadow: none;  color-scheme: dark; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 Georgia, 'Times New Roman', serif; }
 button, select, input { font: inherit; }
