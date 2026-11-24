@@ -13,17 +13,18 @@
   var TABS = [['office', 'Office'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party'], ['log', 'Timeline'], ['system', 'Game']];
 
   function save() { if (Q) S.save(Q); }
-  function go(v) { view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
+  function go(v) { if (U.Night) U.Night.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
 
   function render() {
     if (!Q) return renderStart();
     $('tabs').innerHTML = TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (view === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('');
     renderSide();
     var m = $('main');
-    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, log: log, system: system, election: election, negotiate: negotiate }[view];
+    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, log: log, system: system, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night }[view];
     m.innerHTML = fn();
-    U.Tips.decorate(m); U.Tips.decorate($('side'));
+    if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
+    if (view === 'night') U.Night.start(Q, elec, function () { go('election'); });
   }
 
   // ---------- start ----------
@@ -141,6 +142,14 @@
     return '<table>' + combos.map(function (c) { var n = c.reduce(function (s, p) { return s + (seats[p] || 0); }, 0); var veto = c.some(function (a) { return c.some(function (b) { return U.vetoes(a, b); }); });
       return '<tr><td>' + c.map(function (p) { return P(p).short; }).join(' + ') + (veto ? ' <span class="small down">red line</span>' : '') + '</td><td class="' + (n >= 401 ? 'up' : '') + '">' + n + '</td></tr>'; }).join('') + '</table><p class="small muted">401 seats are needed for a first-ballot investiture; on the second ballot, more yes than no votes is enough.</p>';
   }
+
+  function electionChoice() {
+    var what = elec.general && elec.presidential ? 'The general and presidential elections' : elec.general ? 'The general election' : 'The presidential election';
+    return '<div class="scene"><div class="date">' + U.dateStr(Q) + '</div><h1>The polls are about to close</h1><p>' + what + ' are over. How do you want to see the results?</p>' +
+      '<div class="choices"><button class="choice" data-act="seenight">Experience election night<small>Watch results come in state by state as polls close across the time zones, with a speed control. Races without a majority go to a second night of runoffs.</small></button>' +
+      '<button class="choice" data-act="seefinal">See the final result<small>Go straight to the full results.</small></button></div></div>';
+  }
+  function night() { return U.Night.html(Q, elec); }
 
   // ---------- negotiation ----------
   function negotiate() {
@@ -288,7 +297,7 @@
     if (!res) return;
     lastText = (res.text || '') + ' <span class="muted">\u2014 The month passes. It is now ' + U.dateStr(Q) + '.</span>';
     save();
-    if (res.out && (res.out.general || res.out.presidential)) { elec = res.out; go('election'); } else go('office');
+    if (res.out && (res.out.general || res.out.presidential)) { elec = res.out; U.Night.reset(); go('electionchoice'); } else go('office');
   }
 
   // ---------- events ----------
@@ -314,6 +323,8 @@
         if (a === 'continue') { Q = S.load(); F.begin(Q); go('office'); }
         if (a === 'close') { openCard = null; openSlot = null; render(); }
         if (a === 'discardall') { after(F.discardAll(Q)); }
+        if (a === 'seenight') { go('night'); }
+        if (a === 'seefinal') { go('election'); }
         if (a === 'closeelec') { elec = null; go('office'); }
         if (a === 'negotiate') { deal = null; go('negotiate'); }
         if (a === 'aideal') { deal = C.aiDeal(Q, Q.player); render(); }

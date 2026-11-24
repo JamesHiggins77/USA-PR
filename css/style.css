@@ -83,3 +83,9 @@ select { background: var(--card); color: var(--ink); border: 1px solid var(--lin
 .deckbtn:disabled { opacity: .4; cursor: default; }
 .deck-national { --deck: #2f6fd6; } .deck-party { --deck: #ffa500; } .deck-state { --deck: #228b22; } .deck-coalition { --deck: #8e44ad; } .deck-campaign { --deck: #d63a3a; }
 table.seats { max-width: 420px; margin-top: 6px; }
+.nightbar { gap: 12px; align-items: center; }
+.nightbar input[type=range] { vertical-align: middle; width: 160px; }
+.clock { font: 600 22px system-ui, sans-serif; margin-left: auto; font-variant-numeric: tabular-nums; }
+.nightgrid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; }
+@media (max-width: 900px) { .nightgrid { grid-template-columns: 1fr; } }
+#nt-map path, #nt-map rect { transition: fill .4s; }

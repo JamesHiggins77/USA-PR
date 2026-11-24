@@ -297,7 +297,13 @@
     // close district results for the briefing
     res.close = h.districts.filter(function (d) { return d.round === 2 && Math.abs(d.r2[d.finalists[0]] - d.r2[d.finalists[1]]) < 2; })
       .slice(0, 8).map(function (d) { return { state: d.state, n: d.n, a: d.finalists[0], b: d.finalists[1], va: d.r2[d.finalists[0]], vb: d.r2[d.finalists[1]] }; });
+    // full race-by-race detail for election night (kept out of the save file)
+    var slim = function (r, sid) { return { s: sid || r.state, n: r.n, round: r.round, w: r.winner, f: r.finalists, r2: r.r2 }; };
+    var detail = { districts: h.districts.map(function (d) { return slim(d); }), senate: races.map(function (r) { return slim(r); }), pr: {}, governors: [] };
+    for (sid in h.byState) if (sid !== 'DC') detail.pr[sid] = h.byState[sid].pr;
+    for (sid in U.STATES) if (Q.states[sid].govRace) detail.governors.push(slim(Q.states[sid].govRace, sid));
     Q.lastElection = res;
+    res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];
     Q.deadline = S.now(Q) + U.RULES.government.maxTermMonths;
     Q.formation = { start: S.now(Q), monthsLeft: U.RULES.government.formationMonthsBeforeRepeat, failed: [] };
