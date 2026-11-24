@@ -64,3 +64,8 @@ svg text { fill: var(--ink); font-family: system-ui, sans-serif; }
 .log p { margin: 3px 0; font-size: 14px; } .log .t { color: var(--muted); font-family: system-ui, sans-serif; font-size: 12px; margin-right: 6px; }
 .endbar { margin-top: 22px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 select { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 2px 4px; }
+.tip { text-decoration: underline dotted; text-decoration-color: var(--muted); text-underline-offset: 2px; cursor: help; }
+.tip:focus { outline: 1px dotted var(--accent); }
+#tipbox { position: absolute; z-index: 50; max-width: 320px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
+  padding: 8px 11px; font: 12.5px/1.45 system-ui, sans-serif; box-shadow: 0 4px 16px rgba(0,0,0,.18); display: none; }
+#tipbox .muted { color: var(--muted); }

@@ -18,6 +18,8 @@
   S.remap = function (Q, from, to) {
     if (Q.house[from]) { Q.house[to] = (Q.house[to] || 0) + Q.house[from]; delete Q.house[from]; }
     Q.senateSeats.forEach(function (x) { if (x.party === from) x.party = to; });
+    for (var hs in (Q.houseByState || {})) { var dd = Q.houseByState[hs]; if (dd[from]) { dd[to] = (dd[to] || 0) + dd[from]; delete dd[from]; } }
+    if (Q.lastPresidential) { Q.lastPresidential.cands.forEach(function (c) { if (c.party === from) c.party = to; }); }
     for (var sid in Q.states) {
       var st = Q.states[sid]; if (st.governor === from) st.governor = to;
       ['house', 'senate'].forEach(function (c) { if (st[c] && st[c][from]) { st[c][to] = (st[c][to] || 0) + st[c][from]; delete st[c][from]; } });
@@ -281,7 +283,7 @@
   S.runGeneralElection = function (Q) {
     var before = U.clone(Q.house), beforeS = U.Elections.senateCount(Q), shares = V.national(Q);
     var h = X.house(Q);
-    Q.house = h.house; Q.agaSeats = S.agaByState(h);
+    Q.house = h.house; Q.agaSeats = S.agaByState(h); Q.houseByState = S.delegations(h);
     var oldGov = {}; for (var sid in Q.states) oldGov[sid] = Q.states[sid].governor;
     if (U.RULES.stateElections === 'with-general') for (sid in U.STATES) Q.states[sid] = X.stateGov(Q, U.STATES[sid], Q.states[sid]);
     Q.electionNo += 1;

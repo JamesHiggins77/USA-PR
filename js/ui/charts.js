@@ -8,14 +8,14 @@
   // Hemicycle: seats arranged in concentric rows, parties left-to-right.
   Ch.hemicycle = function (Q, seats, opts) {
     opts = opts || {};
-    var total = U.sum(seats), rows = Math.max(4, Math.round(Math.sqrt(total / 4.2))), R = 200, r0 = 70;
+    var total = U.sum(seats), rows = Math.max(total < 12 ? 1 : 2, Math.min(Math.round(Math.sqrt(total / 4.2)), 30)), R = 200, r0 = rows === 1 ? 200 : 70;
     var pts = [], rowR = [], k;
-    for (k = 0; k < rows; k++) rowR.push(r0 + (R - r0) * k / (rows - 1));
+    for (k = 0; k < rows; k++) rowR.push(rows === 1 ? R : r0 + (R - r0) * k / (rows - 1));
     var circ = rowR.reduce(function (s, r) { return s + r; }, 0), left = total;
     var counts = rowR.map(function (r, i) { var n = i === rows - 1 ? left : Math.round(total * r / circ); left -= n; return n; });
     rowR.forEach(function (r, i) { for (var j = 0; j < counts[i]; j++) { var a = Math.PI - Math.PI * (counts[i] === 1 ? 0.5 : j / (counts[i] - 1)); pts.push({ a: a, x: 220 + r * Math.cos(a), y: 215 - r * Math.sin(a) }); } });
     pts.sort(function (p, q) { return q.a - p.a; });
-    var order = ORDER(Q).filter(function (p) { return seats[p]; }), idx = 0, dot = Math.max(1.6, 150 / Math.sqrt(total) * 0.42), out = '';
+    var order = ORDER(Q).filter(function (p) { return seats[p]; }), idx = 0, dot = Math.min(16, Math.max(1.6, 150 / Math.sqrt(Math.max(1, total)) * 0.42)), out = '';
     order.forEach(function (p) { for (var i = 0; i < seats[p]; i++) { var pt = pts[idx++]; if (pt) out += '<circle cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="' + dot.toFixed(2) + '" fill="' + U.PARTIES[p].color + '"><title>' + U.PARTIES[p].short + ' ' + seats[p] + '</title></circle>'; } });
     var maj = Math.floor(total / 2) + 1;
     return '<svg viewBox="0 0 440 230" width="100%" style="max-width:520px">' + out +

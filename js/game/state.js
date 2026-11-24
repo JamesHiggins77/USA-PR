@@ -27,9 +27,14 @@
     // the governing parties stronger, the Greens before Nader's surge.
     var tmp = { ldp: 3, sdlp: 1.5, cdp: 1.5, grn: -6, cc: -1, reform: 1 };
     for (var p in tmp) Q.mods[p] = V.all(tmp[p]);
-    var h = X.house(Q); Q.house = h.house;
+    var h = X.house(Q); Q.house = h.house; Q.houseByState = S.delegations(h);
     // canon: Ralph Nader is one of exactly four Green MPs
-    var gd = 4 - (Q.house.grn || 0); Q.house.grn = 4; Q.house.ldp -= gd; Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h);
+    var gd = 4 - (Q.house.grn || 0); Q.house.grn = 4; Q.house.ldp -= gd;
+    // keep state delegations consistent with the national total
+    ['CA', 'OR', 'WA', 'MA', 'NY', 'VT', 'MN', 'WI', 'IL', 'NJ'].forEach(function (sid) {
+      var d = Q.houseByState[sid]; if (!gd || !d) return;
+      if (gd > 0 && d.ldp > 0) { d.ldp--; d.grn = (d.grn || 0) + 1; gd--; } else if (gd < 0 && d.grn > 0) { d.grn--; d.ldp = (d.ldp || 0) + 1; gd++; }
+    }); Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h);
     Q.states = {};
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
     Q.senateSeats = [];
@@ -40,6 +45,8 @@
     for (p in tmp) Q.mods[p] = {};
     Q.lastSenate = X.senateCount(Q);
 
+    // the 1996 presidential result (generated) so every state has a last vote
+    Q.lastPresidential = S.pres1996(Q);
     Q.gov = { pm: 'Al Gore', pmParty: 'ldp', coalition: ['ldp', 'sdlp', 'cdp'], cs: ['reform'],
       posts: { ldp: 9, sdlp: 6, cdp: 5 }, concessions: { reform: ['transfers'] }, since: U.monthIndex(1996, 12), budgetFails: 0 };
     Q.president = { name: 'Bill Clinton', party: 'ldp', approval: 66, termEnds: U.monthIndex(2001, 1), termLimited: true };
@@ -56,6 +63,18 @@
     return Q;
   };
 
+  S.delegations = function (h) {
+    var o = {}; for (var s in h.byState) { var st = h.byState[s], d = {};
+      [st.district, st.pr].forEach(function (x) { for (var p in x) if (x[p]) d[p] = (d[p] || 0) + x[p]; }); o[s] = d; }
+    return o;
+  };
+  S.pres1996 = function (Q) {
+    var c = [{ id: 'ldp', party: 'ldp', name: 'Bill Clinton', backers: ['sdlp'], appeal: 3 }, { id: 'cc', party: 'cc', name: 'Bob Dole', backers: ['con', 'srp', 'lsp'], appeal: 0 },
+      { id: 'reform', party: 'reform', name: 'Ross Perot', backers: ['asp'], appeal: 1 }, { id: 'cdp', party: 'cdp', name: 'CDP nominee', backers: [], appeal: 0 }, { id: 'grn', party: 'grn', name: 'Ralph Nader', backers: [], appeal: 0 }];
+    var r = X.president(Q, c), w = c.filter(function (x) { return x.id === r.winner; })[0];
+    r.winnerName = w.name; r.winnerParty = w.party; r.date = 'November 1996'; r.generated = true;
+    return r;
+  };
   function agaByState(h) {
     var o = {}; for (var s in h.byState) { var st = h.byState[s]; o[s] = ((st.pr.aga) || 0) + ((st.district.aga) || 0); } return o;
   }
