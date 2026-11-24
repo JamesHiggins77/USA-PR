@@ -88,7 +88,7 @@
       ec(1, pr.byState); if (pr.byState2) ec(2, pr.byState2);
     }
     var tabs = [];
-    if (g && g.detail) tabs.push(['districts', 'House districts'], ['pr', 'House list seats'], ['senate', 'Senate (direct)'], ['governors', 'Governors']);
+    if (g && g.detail) { if (g.detail.districts.length) tabs.push(['districts', 'House districts']); tabs.push(['pr', g.detail.districts.length ? 'House list seats' : 'House'], ['senate', 'Senate (direct)'], ['governors', 'Governors']); }
     if (pr) tabs.push(['ec', 'President']);
     return { items: items, tabs: tabs, tab: pr && !g ? 'ec' : tabs[0][0], night: 1, t: 0, speed: 6, playing: true, hasNight2: items.some(function (i) { return i.night === 2; }) };
   };

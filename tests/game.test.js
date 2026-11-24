@@ -4,7 +4,7 @@ const sum = o => Object.values(o).reduce((s, v) => s + v, 0);
 
 test('the 1997 opening matches the canon', () => {
   const Q = U.Game.newGame(7);
-  assert.strictEqual(sum(Q.house), 801);
+  assert.strictEqual(sum(Q.house), 600);
   assert.strictEqual(Q.senateSeats.length, 200);
   assert.strictEqual(Q.president.name, 'Bill Clinton');
   assert.strictEqual(Q.gov.pm, 'Al Gore');
@@ -13,7 +13,7 @@ test('the 1997 opening matches the canon', () => {
   assert.ok(Q.dormant.ul && Q.dormant.acp, 'no United Left or ACP at the start');
   assert.strictEqual(Q.house.grn, 4, 'Nader is one of four Green MPs');
   const g = ['ldp', 'sdlp'];
-  assert.ok(g.reduce((s, p) => s + Q.house[p], 0) >= 401, 'government controls the House');
+  assert.ok(g.concat(['reform']).reduce((s, p) => s + Q.house[p], 0) >= U.majority(), 'government and its confidence-and-supply partner control the House');
   const sen = U.Elections.senateCount(Q);
   assert.ok(g.reduce((s, p) => s + (sen[p] || 0), 0) >= 101, 'government controls the Senate');
   assert.strictEqual(Q.player, 'ldp');
@@ -28,13 +28,13 @@ test('Nebraska is unicameral and its governor appoints three senators', () => {
   assert.strictEqual(Q.states.NE.senate, undefined);
 });
 
-test('general elections always produce 801 seats and a multiparty House', () => {
+test('general elections always produce 600 seats and a multiparty House', () => {
   for (const seed of [1, 2, 3]) {
     const Q = U.Game.newGame(seed);
     const r = U.Game.runGeneralElection(Q);
-    assert.strictEqual(sum(r.house), 801);
+    assert.strictEqual(sum(r.house), 600);
     assert.ok(Object.keys(r.house).length >= 6);
-    assert.ok(Math.max(...Object.values(r.house)) < 401, 'no single-party majority in a typical opening');
+    assert.ok(Math.max(...Object.values(r.house)) < U.majority(), 'no single-party majority in a typical opening');
   }
 });
 

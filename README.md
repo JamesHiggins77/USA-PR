@@ -14,7 +14,7 @@ Each month you either **play one card** (choose one of its options) or **discard
 
 ## What is simulated
 
-- **House (801)**: 435 two-round districts (real 2012 boundaries) + 365 statewide list seats (Sainte-Laguë) + DC, computed separately and added together.
+- **House (600)**: pure proportional representation from statewide party lists (Sainte-Laguë), seats shared among the states by population. Majority 301; the President breaks a tie. National or state thresholds are optional (see docs/threshold_runs.md).
 - **Senate (200)**: per state, one directly elected seat (two rounds, staggered), plus appointments by the governor, state house and state senate. Nebraska is unicameral, so its governor appoints three.
 - **States**: two-round governors, constituency-PR state houses, statewide-PR state senates with the fixed 5% threshold. State results determine Senate appointments.
 - **President**: a six-year term, elected in two rounds that are always held: a national popular vote, then a head-to-head runoff between the top two decided by the Electoral College, where each state's winner takes all its electors. There are joint tickets and endorsements.

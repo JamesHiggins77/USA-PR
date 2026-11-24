@@ -246,7 +246,7 @@
       return cp > 0.68 ? 'abstain' : 'no';
     };
     var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
-    var passH = h.yes > h.no, passS = s.yes > s.no, override = !passS && h.yes >= 401;
+    var passH = U.simple(h), passS = s.yes > s.no, override = !passS && U.absolute(h);
     return { house: h, senate: s, passed: passH && (passS || override), override: override };
   };
 
@@ -265,7 +265,7 @@
   S.confidenceCheck = function (Q) {
     var g = Q.gov; if (!g || Q.formation || Q.electionAt) return;
     var support = S.govSeats(Q);
-    if (support >= 401 && g.budgetFails < 2) return;
+    if (support >= U.majority() && g.budgetFails < 2) return;
     if (U.rng(Q) > (g.budgetFails >= 2 ? 0.6 : 0.12)) return;
     var res = U.Parliament.count(Q, 'house', function (p) {
       if (p === Q.player) return S.supportsGov(Q) ? 'no' : (Q.playerNoConf || 'yes');
@@ -273,7 +273,7 @@
       return C.compat(Q, p, g.pmParty) > 0.6 ? 'abstain' : 'yes';
     });
     S.note(Q, 'A motion of no confidence in ' + g.pm + ': ' + res.yes + ' for, ' + res.no + ' against, ' + res.abstain + ' abstaining.');
-    if (res.yes >= 401) { S.note(Q, 'The government falls. A general election is called.'); S.callElection(Q, 2); }
+    if (U.absolute(res)) { S.note(Q, 'The government falls. A general election is called.'); S.callElection(Q, 2); }
   };
 
   S.callElection = function (Q, monthsAhead) {
@@ -451,7 +451,8 @@
   S.formGovernment = function (Q, deal, label) {
     var tot = C.seats(Q, deal.coalition), posts = {};
     deal.coalition.forEach(function (p) { posts[p] = (deal.posts && deal.posts[p]) || Math.max(1, Math.round(20 * Q.house[p] / tot)); });
-    Q.gov = { pm: label, pmParty: deal.pm, coalition: deal.coalition.slice(), cs: deal.cs.slice(), posts: posts,
+    var csOnly = deal.cs.filter(function (p, i) { return deal.coalition.indexOf(p) < 0 && deal.cs.indexOf(p) === i; });
+    Q.gov = { pm: label, pmParty: deal.pm, coalition: deal.coalition.slice(), cs: csOnly, posts: posts,
       concessions: U.clone(deal.concessions || {}), since: S.now(Q), budgetFails: 0 };
     // concessions shift the government's policy and the partners' trust
     for (var p in deal.concessions) {

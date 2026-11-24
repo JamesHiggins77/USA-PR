@@ -16,6 +16,8 @@
   P.count = function (Q, chamber, decide) {
     var seats = chamber === 'senate' ? U.Elections.senateCount(Q) : Q.house;
     var res = { yes: 0, no: 0, abstain: 0, by: [] };
+    // the President breaks ties in the House by their party's line
+    if (chamber !== 'senate' && Q.president && U.PARTIES[Q.president.party]) res.pres = decide(Q.president.party);
     function tally(label, party, n, v) {
       if (!n) return; res[v] += n; res.by.push({ label: label, party: party, n: n, vote: v });
     }

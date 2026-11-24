@@ -174,11 +174,11 @@
     // ---- opposition ----
     { id: 'noconf', title: 'A motion of no confidence', tag: 'Opposition',
       cond: function (Q) { return Q.gov && !S.supportsGov(Q) && !Q.formation && !Q.electionAt; },
-      body: function (Q) { return 'The government relies on ' + S.govSeats(Q) + ' of 801 seats. A motion needs 401 votes.'; },
+      body: function (Q) { return 'The government relies on ' + S.govSeats(Q) + ' of ' + U.RULES.house.total + ' seats. A motion needs ' + U.majority() + ' votes.'; },
       options: [
         { label: 'Table the motion', sub: 'If it fails, the government is strengthened.', act: function (Q) {
           var res = U.Parliament.count(Q, 'house', function (p) { if (p === Q.player) return 'yes'; if (S.supportsGov(Q, p)) return C.rel(Q, p, Q.gov.pmParty) < 25 ? 'abstain' : 'no'; return C.compat(Q, p, Q.gov.pmParty) > 0.6 ? 'abstain' : (C.rel(Q, p, Q.player) > 35 ? 'yes' : 'abstain'); });
-          if (res.yes >= 401) { S.callElection(Q, 2); return 'The motion passes, ' + res.yes + ' to ' + res.no + '. The government falls and an election is called.'; }
+          if (U.absolute(res)) { S.callElection(Q, 2); return 'The motion passes, ' + res.yes + ' to ' + res.no + '. The government falls and an election is called.'; }
           Q.govApproval += 3; Q.morale -= 3; return 'The motion fails: ' + res.yes + ' for, ' + res.no + ' against, ' + res.abstain + ' abstaining.'; } }
       ] },
 
@@ -230,11 +230,11 @@
       return db < dq - 0.5 ? 'yes' : db < dq + 1.5 ? 'abstain' : 'no';
     };
     var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
-    var passed = h.yes > h.no && (s.yes > s.no || h.yes >= 401);
+    var passed = U.simple(h) && (s.yes > s.no || U.absolute(h));
     var vetoed = false;
     if (passed && Q.president.party !== Q.player && !S.inGov(Q, Q.president.party)) {
       var pd = U.Electoral.dist(pos[Q.president.party] || ppos, bpos);
-      if (pd > 7 && U.rng(Q) < 0.6) vetoed = !(h.yes >= 401 && s.yes >= 101);
+      if (pd > 7 && U.rng(Q) < 0.6) vetoed = !(U.absolute(h) && s.yes >= 101);
     }
     out.push('House: ' + h.yes + ' yes, ' + h.no + ' no, ' + h.abstain + ' abstaining. Senate: ' + s.yes + '–' + s.no + '.');
     if (passed && !vetoed) {

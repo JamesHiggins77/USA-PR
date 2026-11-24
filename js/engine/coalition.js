@@ -135,8 +135,8 @@
 
   C.passes = function (count, ballot) {
     var need = Math.floor(U.RULES.house.total / 2) + 1;
-    if (ballot === 1) return count.yes >= need;
-    return count.yes > count.no;
+    if (ballot === 1) return U.absolute(count);
+    return U.simple(count);
   };
 
   // AI builds the most plausible deal for a PM party.

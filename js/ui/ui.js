@@ -125,7 +125,7 @@
       var r = elec.general, seats = r.house, order = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a]; });
       h += '<h1>General election, ' + r.date + '</h1><div class="grid2"><div>' + Ch.hemicycle(Q, seats) + '</div><div><table><tr><th>Party</th><th>Vote</th><th>Districts</th><th>List</th><th>Seats</th><th>+/−</th></tr>' +
         order.map(function (p) { var d = seats[p] - (r.before[p] || 0); return '<tr><td>' + chip(p) + P(p).short + '</td><td>' + pct(r.shares[p] || 0) + '</td><td>' + (r.distWon[p] || 0) + '</td><td>' + (r.pr[p] || 0) + '</td><td><b>' + seats[p] + '</b></td><td class="' + (d > 0 ? 'up' : d < 0 ? 'down' : '') + '">' + sign(d, 0) + '</td></tr>'; }).join('') + '</table>' +
-        '<p class="small muted">' + r.runoffs + ' of ' + r.districts + ' district seats went to a second round. ' + r.govFlips + ' governorships changed hands; ' + r.senateRaces + ' Senate seats were directly elected and state legislatures re-appointed theirs.</p></div></div>';
+        '<p class="small muted">' + (r.districts ? r.runoffs + ' of ' + r.districts + ' district seats went to a second round. ' : '') + r.govFlips + ' governorships changed hands; ' + r.senateRaces + ' Senate seats were directly elected and state legislatures re-appointed theirs.</p></div></div>';
       h += '<h2>Senate</h2>' + Ch.hemicycle(Q, r.senate) + Ch.seatTable(Q, r.senate, function (p) { return r.senate[p] - (r.beforeSenate[p] || 0); });
       if (r.close.length) h += '<h3>Closest runoffs</h3><table><tr><th>District</th><th>Result</th></tr>' + r.close.map(function (c) { return '<tr><td>' + c.state + '-' + c.n + '</td><td>' + chip(c.a) + P(c.a).short + ' ' + c.va.toFixed(1) + ' – ' + c.vb.toFixed(1) + ' ' + P(c.b).short + chip(c.b) + '</td></tr>'; }).join('') + '</table>';
       h += '<h3>Coalition arithmetic</h3>' + arithmetic(seats);
@@ -203,7 +203,7 @@
     var sen = U.Elections.senateCount(Q);
     var O = Q.offices || {}, off = function (label, o) { return o ? '<div class="kv"><span>' + label + '</span><b>' + esc(o.name) + ' ' + chip(o.party) + P(o.party).short + '</b></div>' : ''; };
     var h0 = '<div class="panel" style="max-width:560px"><b>Officeholders</b>' + off('President', Q.president) + off('Vice President', O.vp) + (Q.gov ? off('Prime Minister', { name: Q.gov.pm, party: Q.gov.pmParty }) : '') + off('Speaker of the House', O.speaker) + off('President pro tempore of the Senate', O.ppt) + '</div>';
-    var h = '<h1>Parliament</h1>' + h0 + '<div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, Q.house) + Ch.seatTable(Q, Q.house) + '<p class="small muted">435 two-round districts, 365 statewide list seats (' + U.RULES.house.prFormula + ', threshold ' + (U.RULES.house.prThreshold * 100) + '%), and the DC seat.</p></div>' +
+    var h = '<h1>Parliament</h1>' + h0 + '<div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, Q.house) + Ch.seatTable(Q, Q.house) + '<p class="small muted">' + (U.pure() ? U.RULES.house.total + ' seats by statewide proportional representation (' + U.RULES.house.prFormula + '; national threshold ' + (U.RULES.house.nationalThreshold * 100) + '%, state threshold ' + (U.RULES.house.stateThreshold * 100) + '%). Majority ' + U.majority() + '; the President breaks a tie.' : '435 two-round districts, 365 statewide list seats and the DC seat.') + '</p></div>' +
       '<div><h2>Senate</h2>' + Ch.hemicycle(Q, sen) + Ch.seatTable(Q, sen) + '<p class="small muted">Four per state: one directly elected, one appointed by the governor, one each by the state house and state senate (in unicameral Nebraska, the governor appoints three).</p></div></div>';
     if (Q.house.ul) { var ul = U.Parliament.ulSplit(Q, Q.house.ul); h += '<h3>Inside the United Left</h3><p class="small">' + Object.keys(ul).filter(function (k) { return ul[k]; }).map(function (k) { return esc(P(k).name) + ' <b>' + ul[k] + '</b> <span class="muted">(' + U.LEFT_MEMBERS[k] + ')</span>'; }).join(' &middot; ') + ' &middot; Unity ' + Math.round(Q.ulUnity) + '</p>'; }
     if (Q.house.revsoc) h += '<p class="small muted">' + esc(P('revsoc').note) + '</p>';
@@ -235,13 +235,14 @@
 
   // ---------- map ----------
   function map() {
+    if (mapMode === 'districts' && U.pure()) mapMode = 'lead';
     var colorOf, labelOf, sh = {};
     V.allStates().forEach(function (s) { sh[s.id] = V.stateShares(Q, s); });
     var lead = function (id) { var o = sh[id]; return Object.keys(o).sort(function (a, b) { return o[b] - o[a]; })[0]; };
     if (mapMode === 'lead') { colorOf = function (id) { return P(lead(id)).color; }; labelOf = function (id) { return P(lead(id)).short; }; }
     else if (mapMode === 'ldp') { colorOf = function (id) { var v = sh[id][Q.player] || 0; return 'rgba(255,165,0,' + U.clamp(v / 40, 0.12, 1) + ')'; }; labelOf = function (id) { return Math.round(sh[id][Q.player] || 0) + '%'; }; }
     else { colorOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).color : '#777'; }; labelOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).short : 'DC'; }; }
-    var h = '<h1>The states</h1><div class="row"><span class="small">Show:</span>' + [['lead', 'Leading party'], ['ldp', 'LDP strength'], ['gov', 'Governors'], ['districts', 'House districts']].map(function (m) { return '<button class="btn ' + (mapMode === m[0] ? '' : 'ghost') + '" data-map="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
+    var h = '<h1>The states</h1><div class="row"><span class="small">Show:</span>' + [['lead', 'Leading party'], ['ldp', 'LDP strength'], ['gov', 'Governors']].concat(U.pure() ? [] : [['districts', 'House districts']]).map(function (m) { return '<button class="btn ' + (mapMode === m[0] ? '' : 'ghost') + '" data-map="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
     h += '<span class="small" style="margin-left:12px">Map:</span>' + [['geo', 'Geographical'], ['topo', 'Topographical']].map(function (m) { return '<button class="btn ' + (mapStyle === m[0] ? '' : 'ghost') + '" data-mapstyle="' + m[0] + '">' + m[1] + '</button>'; }).join('');
     var dw = {}; (Q.lastDistricts || []).forEach(function (d) { dw[d.s + '-' + d.n] = d.w; });
     var leanTxt = function (v) { return v == null ? 'n/a' : (v >= 0 ? 'D+' : 'R+') + Math.abs(v).toFixed(1); };

@@ -6,16 +6,25 @@
 
   X.apportion = function () {
     if (X._app) return X._app;
-    var pops = {}; for (var k in U.STATES) pops[k] = U.STATES[k].pop;
-    var d = {};
-    if (R.house.apportionment === 'map' && U.DISTRICTS) { for (k in U.STATES) d[k] = U.DISTRICTS[k].cells.length; }
-    else d = E.hamilton(pops, R.house.districtSeats, R.house.minDistrictPerState);
-    var pr = E.hamilton(pops, R.house.prSeats, R.house.minPrPerState);
-    var el = {}; for (k in U.STATES) el[k] = R.president.electors === 'house-plus-senate' ? d[k] + pr[k] + R.senate.perState : d[k] + pr[k];
-    el.DC = R.president.dcElectors;
+    var pops = {}, k; for (k in U.STATES) pops[k] = U.STATES[k].pop;
+    var d = {}, pr = {}, el = {};
+    if (U.pure()) {
+      var all = U.clone(pops); all.DC = U.DC.pop;
+      pr = E.hamilton(all, R.house.pureSeats, 1);
+      for (k in U.STATES) d[k] = 0;
+      for (k in U.STATES) el[k] = pr[k] + R.senate.perState;
+      el.DC = R.president.dcElectors;
+    } else {
+      if (R.house.apportionment === 'map' && U.DISTRICTS) { for (k in U.STATES) d[k] = U.DISTRICTS[k].cells.length; }
+      else d = E.hamilton(pops, R.house.districtSeats, R.house.minDistrictPerState);
+      pr = E.hamilton(pops, R.house.prSeats, R.house.minPrPerState);
+      for (k in U.STATES) el[k] = R.president.electors === 'house-plus-senate' ? d[k] + pr[k] + R.senate.perState : d[k] + pr[k];
+      el.DC = R.president.dcElectors;
+    }
     X._app = { district: d, pr: pr, electors: el };
     return X._app;
   };
+  X.resetApportion = function () { X._app = null; };
 
   X.pos = function (Q) {
     var o = {}; U.ALL_PARTIES.forEach(function (p) { o[p] = (Q.pos && Q.pos[p]) || U.PARTIES[p]; }); return o;
@@ -70,8 +79,30 @@
   }
   X.applyStandDowns = applyStandDowns;
 
+  // Pure PR: each state (and DC) elects its share of the 625 seats from
+  // statewide lists. Thresholds: national share and/or state share.
+  X.housePure = function (Q, opt) {
+    opt = opt || {};
+    var nt = opt.nationalThreshold != null ? opt.nationalThreshold : R.house.nationalThreshold;
+    var stt = opt.stateThreshold != null ? opt.stateThreshold : R.house.stateThreshold;
+    var exempt = opt.exemptRegional != null ? opt.exemptRegional : R.house.thresholdExemptRegional;
+    var app = X.apportion(), nat = V.national(Q), house = {}, byState = {}, prOut = {};
+    V.allStates().forEach(function (s) {
+      var sh = V.stateShares(Q, s), ok = {};
+      for (var p in sh) {
+        var natOk = (nat[p] || 0) >= nt * 100 || (exempt && U.REGIONAL.indexOf(p) >= 0);
+        if (natOk && sh[p] >= stt * 100) ok[p] = sh[p];
+      }
+      var seats = E.divisor(ok, app.pr[s.id], R.house.prFormula, 0);
+      byState[s.id] = { shares: sh, district: {}, pr: seats };
+      for (p in seats) if (seats[p]) { house[p] = (house[p] || 0) + seats[p]; prOut[p] = (prOut[p] || 0) + seats[p]; }
+    });
+    return { house: house, districts: [], pr: prOut, byState: byState };
+  };
+
   // Full House election. Returns {house, districts, pr, byState}.
   X.house = function (Q) {
+    if (U.pure()) return X.housePure(Q);
     var app = X.apportion(), pos = X.pos(Q), pact = X.pactFn(Q), house = {}, byState = {}, districts = [], prOut = {};
     function add(p, n) { house[p] = (house[p] || 0) + n; }
     V.allStates().forEach(function (s) {

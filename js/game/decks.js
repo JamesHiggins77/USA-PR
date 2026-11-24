@@ -84,7 +84,7 @@
     { partner: 'aga', mine: 'mountain', theirs: 'pacific', need: 55, fac: { heartland: 2 }, text: 'A deal with the AGA: its chapters stand aside in the Pacific states, the LDP in the Mountain West' }
   ];
   D.pactsOf = function (Q, p) { var o = {}; (Q.standDowns || []).forEach(function (a) { if (a.party === p || a.partner === p) o[a.pact] = true; }); return Object.keys(o); };
-  K.CARDS.push({ id: 'standdown', title: 'Regional electoral agreements', tag: 'Coalition',
+  K.CARDS.push({ id: 'standdown', title: 'Regional electoral agreements', tag: 'Coalition', cond: function () { return !U.pure(); },
     body: function (Q) {
       var mine = (Q.standDowns || []).filter(function (a) { return a.party === Q.player || a.partner === Q.player; });
       return 'Parties can agree not to field district candidates in each other’s regions, so their voters stop splitting. Voters do not follow perfectly: about 70% go to the partner. Current LDP agreements: ' +
