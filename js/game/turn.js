@@ -329,6 +329,7 @@
     if (seatDelta < -30) { for (var k in Q.factions) Q.factions[k].dissent += 10; Q.leader.approval -= 10; Q.unity -= 8; }
     if (seatDelta > 20) { Q.leader.approval += 8; Q.unity += 5; Q.morale += 8; }
     res.swing = swing;
+    if (Q.leaders) S.leadershipChanges(Q, before);
     S.note(Q, 'General election: the ' + U.PARTIES[Q.player].short + ' wins ' + Q.house[Q.player] + ' seats (' + (seatDelta >= 0 ? '+' : '') + seatDelta + ') with ' + shares[Q.player].toFixed(1) + '% of the vote.');
     return res;
   };
@@ -340,10 +341,10 @@
   };
   S.defaultCandidates = function (Q) {
     var list = [], y = Q.year;
-    var names = { sdlp: Q.year <= 2000 ? 'Bill Bradley' : U.PARTIES.sdlp.leader, cdp: y <= 2004 ? 'John McCain' : U.PARTIES.cdp.leader,
-      cc: y <= 2004 ? 'George W. Bush' : U.PARTIES.cc.leader, grn: y <= 2004 ? 'Ralph Nader' : 'Green nominee',
-      ul: (Q.ulMembers && Q.ulMembers.grn && y <= 2004) ? 'Ralph Nader' : 'Bernie Sanders',
-      reform: y <= 2000 ? 'Pat Buchanan' : 'Reform nominee', asp: 'ASP nominee', lib: y <= 2000 ? 'Harry Browne' : 'Libertarian nominee', maga: 'Donald Trump' };
+    var L = function (p) { return S.leaderOf(Q, p); };
+    var names = { sdlp: L('sdlp'), cdp: L('cdp'), cc: L('cc'), grn: L('grn'),
+      ul: (Q.ulMembers && Q.ulMembers.grn && y <= 2004) ? 'Ralph Nader' : L('ul'),
+      reform: y <= 2000 ? 'Pat Buchanan' : L('reform'), asp: L('asp'), lib: L('lib'), maga: L('maga') };
     var appeal = { sdlp: 2, cdp: 3, cc: 2, ul: 2, grn: 2, reform: 0, asp: 0, lib: 0, maga: 4 };
     ['sdlp', 'cdp', 'cc', 'ul', 'grn', 'reform', 'lib', 'maga'].concat(Q.dormant.reform ? ['asp'] : []).forEach(function (p) {
       if (Q.dormant[p] || (Q.presWithdrawn && Q.presWithdrawn.indexOf(p) >= 0)) return;
@@ -365,7 +366,7 @@
     res.winnerName = w.name; res.winnerParty = w.party; res.date = U.dateStr(Q);
     Q.lastPresidential = res;
     var oldPres = Q.president;
-    var vp = (mine && mine.party === Q.player && w.party === Q.player && mine.vp) ? mine.vp : { name: w.party === Q.player ? 'an LDP running mate' : S.officeName(Q, 'speaker', w.party, 1), party: w.party };
+    var vp = (mine && mine.party === Q.player && w.party === Q.player && mine.vp) ? mine.vp : { name: w.party === Q.player ? 'an LDP running mate' : S.pickPerson(Q, w.party, (function () { var e = {}; e[w.name] = 1; return e; })(), 'charisma'), party: w.party };
     Q.offices = Q.offices || {}; Q.offices.vp = vp;
     Q.president = { name: w.name, party: w.party, approval: 58, termEnds: S.now(Q) + 2 + 48, termLimited: oldPres.name === w.name };
     S.note(Q, w.name + ' (' + U.PARTIES[w.party].short + ') is elected President, with ' + vp.name + ' (' + U.PARTIES[vp.party].short + ') as Vice President' + (res.round === 2 ? ' in the second round' : ' in the first round') + '.');
@@ -382,10 +383,61 @@
     asp: ['Bart Stupak'], reform: ['Jesse Ventura'], ul: ['Bernie Sanders'], maga: ['Kevin McCarthy'],
     ppt: { ldp: ['Robert Byrd', 'Pat Leahy'], sdlp: ['Paul Wellstone', 'Tom Harkin'], cdp: ['Pete Domenici', 'Richard Lugar'], cc: ['Strom Thurmond', 'Ted Stevens'] }
   };
-  S.officeName = function (Q, office, p, n) {
-    var list = office === 'ppt' ? OFFICE_NAMES.ppt[p] : OFFICE_NAMES[p];
-    if (list && list.length) return list[(n || 0) % list.length];
-    return 'a senior ' + U.PARTIES[p].short + ' member';
+  // Someone from a party's roster who holds no other top job.
+  S.busy = function (Q) {
+    var b = {}; [Q.president, Q.offices && Q.offices.vp, Q.offices && Q.offices.speaker, Q.offices && Q.offices.ppt].forEach(function (o) { if (o) b[o.name] = 1; });
+    if (Q.gov) b[Q.gov.pm] = 1; for (var p in (Q.leaders || {})) b[Q.leaders[p]] = 1; if (Q.leader) b[Q.leader.name] = 1;
+    (Q.cabinet || []).forEach(function (c) { b[c.name] = 1; });
+    return b;
+  };
+  S.pickPerson = function (Q, p, exclude, byStat) {
+    var list = U.PEOPLE[p] || [], busy = S.busy(Q);
+    var free = list.filter(function (n) { return !busy[n] && !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]); });
+    if (!free.length) free = list.filter(function (n) { return !(exclude && exclude[n]); });
+    if (byStat) free.sort(function (a, b) { return U.personStats(b)[byStat] - U.personStats(a)[byStat]; });
+    return free[0] || ('a senior ' + U.PARTIES[p].short + ' member');
+  };
+  S.officeName = function (Q, office, p) {
+    var o = Q.offices && Q.offices[office]; if (o) { var tmp = o.name; o.name = '\u0000'; var n = S.pickPerson(Q, p, null, 'competence'); o.name = tmp; return n; }
+    return S.pickPerson(Q, p, null, 'competence');
+  };
+  S.leaderOf = function (Q, p) { return p === Q.player ? Q.leader.name : (Q.leaders && Q.leaders[p]) || U.PARTIES[p].leader; };
+
+  // ---- cabinet: 20 portfolios shared by party, best ministers first ----
+  S.PORTFOLIOS = ['Deputy Prime Minister', 'Treasury', 'State', 'Defense', 'Attorney General', 'Health and Human Services', 'Labor', 'Commerce',
+    'Education', 'Interior', 'Agriculture', 'Energy', 'Transportation', 'Housing and Urban Development', 'Veterans Affairs', 'Environment',
+    'Trade', 'Federalism and the States', 'Science and Technology', 'Budget'];
+  S.assignCabinet = function (Q) {
+    var g = Q.gov; if (!g) return;
+    Q.cabinet = [];
+    var order = [], left = U.clone(g.posts), tot = U.sum(left);
+    // the PM's party picks first, then turns follow each party's share
+    var credit = {}; Object.keys(left).forEach(function (p) { credit[p] = p === g.pmParty ? 1 : 0; });
+    for (var i = 0; i < Math.min(20, tot); i++) {
+      var pick = Object.keys(left).filter(function (p) { return left[p] > 0; }).sort(function (a, b) { return (credit[b] + g.posts[b] / tot) - (credit[a] + g.posts[a] / tot); })[0];
+      if (!pick) break;
+      order.push(pick); left[pick]--; credit[pick] -= 1; Object.keys(credit).forEach(function (p) { credit[p] += g.posts[p] / tot; });
+    }
+    var used = {}; used[g.pm] = 1;
+    order.forEach(function (p, i) {
+      var name = S.pickPerson(Q, p, used, 'competence'); used[name] = 1;
+      Q.cabinet.push({ post: S.PORTFOLIOS[i], name: name, party: p });
+    });
+  };
+
+  // AI parties change leaders after bad elections, or now and then
+  S.leadershipChanges = function (Q, before) {
+    U.ALL_PARTIES.forEach(function (p) {
+      if (p === Q.player || Q.dormant[p] || !U.PEOPLE[p] || U.PEOPLE[p].length < 2) return;
+      var b = before[p] || 0, n = Q.house[p] || 0, bad = b >= 8 && n < b * 0.8;
+      if (!bad && U.rng(Q) > 0.08) return;
+      var old = Q.leaders[p], gov = Q.gov && Q.gov.pmParty === p && !Q.formation;
+      if (gov && !bad) return;
+      var ex = {}; ex[old] = 1; Q.retired = Q.retired || {}; if (bad) Q.retired[old] = 1;
+      var nw = S.pickPerson(Q, p, ex, 'charisma');
+      Q.leaders[p] = nw;
+      S.note(Q, (bad ? 'After a poor result, ' : '') + old + ' steps down as leader of the ' + U.PARTIES[p].short + '. ' + nw + ' takes over.');
+    });
   };
   // Speaker: the PM's party unless the coalition deal gave it away.
   // President pro tempore: the largest governing party in the Senate.
@@ -416,6 +468,7 @@
     Q.formation = null; Q.govApproval = 50;
     var spk = null; for (var cp in deal.concessions) if (deal.concessions[cp].indexOf('speaker') >= 0) spk = cp;
     S.setPresidingOfficers(Q, spk);
+    S.assignCabinet(Q);
     // giving a top office away costs goodwill inside the player's party
     if (spk && deal.pm === Q.player && spk !== Q.player) {
       for (var fk in Q.factions) Q.factions[fk].dissent += 6; Q.unity -= 4;
@@ -427,6 +480,7 @@
 
   S.pmName = function (Q, p) {
     if (p === Q.player) return Q.leader.name;
+    if (Q.leaders && Q.leaders[p] && !(p === 'maga' && Q.year >= 2016 && Q.president.name === Q.leaders[p])) return Q.leaders[p];
     var y = Q.year;
     var n = { sdlp: 'Bill Bradley', cdp: y <= 2004 ? 'John McCain' : 'the CDP leader', cc: y <= 2004 ? 'George W. Bush' : 'the CC leader',
       maga: y >= 2016 ? 'Mike Pence' : 'the MAGA leader' }[p];

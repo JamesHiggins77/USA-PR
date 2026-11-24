@@ -70,7 +70,14 @@ Still flagged:
 - **President pro tempore of the Senate**: a senior senator from the largest governing party in the Senate.
 - **Vice President**: elected with the President. The LDP's nominee can take a running mate from another party (SDLP, CDP or Reform) in return for that party standing down; this also costs goodwill among LDP members.
 - **State legislative speakers**: each state house and state senate is presided over by the party leading its majority.
-- Officeholders' names (Gephardt, Byrd, Kerrey and later appointees) are scenario assumptions.
+- Officeholders' names (Gephardt, Kennedy, Kerrey and later appointees) are scenario assumptions.
+
+## 4c. Politicians (designer request)
+
+- `js/data/people.js` lists 4–25 real historical figures per party, placed by their real-world politics. The first name in each list leads the party at the start. For regionalist, secessionist and far-right parties, only people who publicly held matching views are used.
+- Party leaders change after a bad election (losing 20% of seats) or occasionally otherwise. New leaders, Speakers, Vice Presidents and the 20-member cabinet are drawn from these rosters, and nobody holds two top jobs at once.
+- Competence, charisma and loyalty ratings are derived deterministically from the name. They are game values, not judgements about the real people.
+- The American Communist Party has only four names: the real party was founded in 2024, and the game activates it only in the 2020s.
 
 ## 5. Not yet built (next steps)
 

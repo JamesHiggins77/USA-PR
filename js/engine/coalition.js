@@ -95,6 +95,19 @@
     return { margin: m, vote: vote, reasons: ['Relations ' + Math.round(r), 'Size: \u2212' + sizeCost + ' (larger parties expect something in return)', 'Policy distance: \u2212' + distCost].concat(U.vetoes(p, pm) ? ['Red line: \u221225'] : []) };
   };
 
+  // Best case for a role: every concession (and the Speakership if free) and
+  // a generous share of posts. If even that fails, the role is impossible.
+  C.bestCase = function (Q, deal, p, role) {
+    var d = U.clone(deal);
+    ['coalition', 'cs', 'abstain'].forEach(function (k) { d[k] = (d[k] || []).filter(function (x) { return x !== p; }); });
+    d[role] = (d[role] || []).concat([p]);
+    var speakerTaken = Object.keys(d.concessions || {}).some(function (q) { return q !== p && d.concessions[q].indexOf('speaker') >= 0; });
+    d.concessions = d.concessions || {};
+    d.concessions[p] = C.demandsOf(p).map(function (x) { return x.id; }).concat(speakerTaken ? [] : ['speaker']);
+    if (role === 'coalition') { var tot = C.seats(Q, d.coalition); d.posts = d.posts || {}; d.posts[p] = Math.max(1, Math.round(20 * Q.house[p] / tot)) + 3; }
+    return C.assess(Q, p, d, role);
+  };
+
   // How each party will vote on a PM candidate under a deal.
   C.investitureVote = function (Q, deal) {
     var verdicts = {};

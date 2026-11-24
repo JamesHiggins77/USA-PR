@@ -168,7 +168,15 @@
       var a = role === 'none' ? null : C.assess(Q, p, deal, role), un = C.unprompted(Q, p, Q.player);
       h += '<div class="neg"><div class="neghead"><span>' + chip(p) + '<b>' + esc(P(p).name) + '</b> <span class="muted small">' + Q.house[p] + ' seats</span></span>' +
         (a ? '<span class="margin ' + (a.ok ? 'yes' : 'no') + '">' + (a.margin > 0 ? '+' : '') + a.margin + '</span>' : '<span class="small">Without a deal: <b class="' + (un.vote === 'yes' ? 'up' : un.vote === 'no' ? 'down' : '') + '">' + { yes: 'votes yes', abstain: 'abstains', no: 'votes no' }[un.vote] + '</b> <span class="muted">(' + (un.margin > 0 ? '+' : '') + un.margin + ')</span></span>') + '</div>';
-      h += '<div class="seg">' + [['none', 'No deal'], ['abstain', 'Abstain'], ['cs', 'Confidence & supply'], ['coalition', 'Coalition']].map(function (r) { return '<button data-role="' + p + '|' + r[0] + '" class="' + (role === r[0] ? 'on' : '') + '">' + r[1] + '</button>'; }).join('') + '</div>';
+      // grey out roles the party will never accept, and pointless ones
+      var rank = { none: 0, abstain: 1, cs: 2, coalition: 3 }, given = un.vote === 'yes' ? 2 : un.vote === 'abstain' ? 1 : 0;
+      var noneLabel = un.vote === 'yes' ? 'Backs you anyway' : un.vote === 'abstain' ? 'Abstains anyway' : 'No deal';
+      h += '<div class="seg">' + [['none', noneLabel], ['abstain', 'Abstain'], ['cs', 'Confidence & supply'], ['coalition', 'Coalition']].map(function (r) {
+        var why = '';
+        if (r[0] !== 'none' && rank[r[0]] <= given && r[0] !== 'cs') why = 'Not needed: this party already ' + (un.vote === 'yes' ? 'votes for you' : 'abstains') + ' without a deal.';
+        else if (r[0] !== 'none' && C.bestCase(Q, deal, p, r[0]).margin < 0) why = 'Impossible: they refuse even with every concession on offer.';
+        return '<button data-role="' + p + '|' + r[0] + '" class="' + (role === r[0] ? 'on' : '') + '"' + (why && role !== r[0] ? ' disabled title="' + esc(why) + '"' : '') + '>' + r[1] + '</button>';
+      }).join('') + '</div>';
       if (role === 'coalition') h += '<div class="row small" style="margin-top:6px">Cabinet posts <button class="mini" data-posts="' + p + '|-1">−</button><b>' + (deal.posts[p] || 0) + '</b><button class="mini" data-posts="' + p + '|1"' + (postsUsed >= 20 ? ' disabled' : '') + '>+</button></div>';
       if (role !== 'none') {
         h += '<div class="concs">' + C.demandsOf(p).concat([{ id: 'speaker', text: 'Speaker of the House' }]).map(function (d) {
@@ -212,6 +220,8 @@
     var g = Q.gov, h = '<h1>Coalition and relations</h1>';
     if (g) {
       h += '<div class="panel"><b>' + (Q.formation ? 'Caretaker government' : 'Government') + ':</b> ' + esc(g.pm) + ' (' + P(g.pmParty).short + '). Cabinet: ' + Object.keys(g.posts).map(function (p) { return P(p).short + ' ' + g.posts[p]; }).join(', ') + '. ' + (g.cs.length ? 'Confidence and supply: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') + '. ' : '') + 'Since ' + U.MONTHS[g.since % 12] + ' ' + Math.floor(g.since / 12) + '.</div>';
+      if (Q.cabinet && Q.cabinet.length) h += '<h3>Cabinet</h3><table><tr><th>Portfolio</th><th>Minister</th><th>Party</th></tr><tr><td>Prime Minister</td><td>' + esc(g.pm) + '</td><td>' + chip(g.pmParty) + P(g.pmParty).short + '</td></tr>' +
+        Q.cabinet.map(function (c) { return '<tr><td>' + esc(c.post) + '</td><td>' + esc(c.name) + '</td><td>' + chip(c.party) + P(c.party).short + '</td></tr>'; }).join('') + '</table>';
       var pend = (Q.pendingConcessions || []).filter(function (c) { return !c.done; });
       if (pend.length) h += '<h3>Outstanding commitments</h3><table>' + pend.map(function (c) { var due = c.due; return '<tr><td>' + esc(c.text) + '</td><td>' + P(c.party).short + '</td><td class="' + (S.now(Q) > due ? 'down' : '') + '">due ' + U.MONTHS[due % 12].slice(0, 3) + ' ' + Math.floor(due / 12) + '</td></tr>'; }).join('') + '</table>';
     }

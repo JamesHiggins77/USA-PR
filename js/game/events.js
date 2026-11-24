@@ -167,9 +167,9 @@
     { id: 'sanders', title: 'Sanders takes over the Communists', when: function (Q) { return at(Q, 1999, 4) && !Q.flags.sanders && chance(Q, 0.07); },
       body: function () { return 'Bernie Sanders, the Vermont socialist, is elected leader of the Communist Party USA on a platform of "democratic socialism, not sectarianism". In his first speech he says the left loses because it is divided into a dozen parties, and calls for a single United Left list.'; },
       options: [
-        { label: 'Welcome a serious voice on the left', sub: 'Relations with the CPUSA up; the New Democrats wince.', act: function (Q) { Q.flags.sanders = S.now(Q); H.rel(Q, 'cpusa', 10); H.fac(Q, { newdem: 4, proglib: -2 }); return 'Sanders thanks you, and says he will still run against you.'; } },
-        { label: 'Warn about a communist-led left', sub: 'New Democrats pleased; the left closes ranks.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.flags.leftSolidarity = 1; H.rel(Q, 'cpusa', -10); H.rel(Q, 'grn', -3); H.fac(Q, { newdem: -5, proglib: 4 }); H.camp(Q, { suburb: 0.3, retire: 0.2, young: -0.3 }, 'Response to Sanders'); return 'The attack lands in the suburbs. On the left it makes unity talks easier.'; } },
-        { label: 'Say nothing', act: function (Q) { Q.flags.sanders = S.now(Q); return 'The press covers it as a curiosity.'; } }
+        { label: 'Welcome a serious voice on the left', sub: 'Relations with the CPUSA up; the New Democrats wince.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.leaders.cpusa = 'Bernie Sanders'; H.rel(Q, 'cpusa', 10); H.fac(Q, { newdem: 4, proglib: -2 }); return 'Sanders thanks you, and says he will still run against you.'; } },
+        { label: 'Warn about a communist-led left', sub: 'New Democrats pleased; the left closes ranks.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.leaders.cpusa = 'Bernie Sanders'; Q.flags.leftSolidarity = 1; H.rel(Q, 'cpusa', -10); H.rel(Q, 'grn', -3); H.fac(Q, { newdem: -5, proglib: 4 }); H.camp(Q, { suburb: 0.3, retire: 0.2, young: -0.3 }, 'Response to Sanders'); return 'The attack lands in the suburbs. On the left it makes unity talks easier.'; } },
+        { label: 'Say nothing', act: function (Q) { Q.flags.sanders = S.now(Q); Q.leaders.cpusa = 'Bernie Sanders'; return 'The press covers it as a curiosity.'; } }
       ] },
 
     { id: 'ul_talks', title: 'Talks on a United Left', repeat: true,

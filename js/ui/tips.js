@@ -81,6 +81,8 @@
     if (T.re) return;
     for (var k in U.LDP_FACTIONS) FACTIONS[U.LDP_FACTIONS[k].name] = k;
     for (var g in U.GROUP_NAMES) GROUPS[U.GROUP_NAMES[g]] = g;
+    // every rostered politician gets a card
+    Object.keys(U.PERSON_PARTY || {}).forEach(function (n) { if (!PEOPLE[n]) PEOPLE[n] = [U.PERSON_PARTY[n], '']; });
     var keys = Object.keys(PEOPLE).concat(Object.keys(TERMS), Object.keys(FACTIONS), Object.keys(GROUPS));
     T.partyKey = {};
     U.ALL_PARTIES.forEach(function (p) { var P = U.PARTIES[p]; T.partyKey[P.name] = p; T.partyKey[P.short] = p; });
@@ -95,7 +97,7 @@
     var kind = { party: 'Political party', alliance: 'Electoral alliance', federation: 'Federation of state parties', regional: 'Regional party', bloc: 'Several small parties shown together' }[P.kind] || P.kind;
     h += '<span class="muted">' + kind + (P.founded ? ' · founded ' + esc(P.founded) : '') + '</span><br>';
     if (Q && Q.dormant[p]) return h + 'Does not exist at present.' + (P.note ? '<br>' + esc(P.note) : '');
-    h += 'Leader: ' + esc(P.leader) + '<br>';
+    h += 'Leader: ' + esc(Q && Q.leaders && Q.leaders[p] ? (p === Q.player ? Q.leader.name : Q.leaders[p]) : P.leader) + '<br>';
     if (Q) {
       var n = U.Votes.national(Q)[p] || 0, pos = Q.pos[p];
       h += 'Polling ' + n.toFixed(1) + '% · House ' + (Q.house[p] || 0) + ' · Senate ' + (U.Elections.senateCount(Q)[p] || 0) + '<br>';
@@ -117,8 +119,12 @@
       if (Q.president.name === name) roles.push('President');
       if (Q.gov && Q.gov.pm === name) roles.push('Prime Minister');
       if (Q.leader.name === name) roles.push('LDP leader');
+      for (var lp in (Q.leaders || {})) if (Q.leaders[lp] === name && lp !== Q.player) roles.push(U.PARTIES[lp].short + ' leader');
+      ['vp', 'speaker', 'ppt'].forEach(function (k) { if (Q.offices && Q.offices[k] && Q.offices[k].name === name) roles.push({ vp: 'Vice President', speaker: 'Speaker of the House', ppt: 'President pro tempore' }[k]); });
+      (Q.cabinet || []).forEach(function (c) { if (c.name === name) roles.push(c.post); });
     }
-    return '<b>' + esc(name) + '</b>' + (p ? ' <span class="muted">(' + esc(U.PARTIES[p].short) + ')</span>' : '') +
+    var stt = U.personStats ? U.personStats(name) : null;
+    return '<b>' + esc(name) + '</b>' + (p ? ' <span class="muted">(' + esc(U.PARTIES[p].short) + ')</span>' : '') + (stt ? '<br><span class="muted">Competence ' + stt.competence + ' \u00b7 charisma ' + stt.charisma + ' \u00b7 loyalty ' + stt.loyalty + '</span>' : '') +
       (roles.length ? '<br><b>Now:</b> ' + roles.join(', ') : '') + (d ? '<br>' + esc(d[1]) : '');
   }
 
