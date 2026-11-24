@@ -27,12 +27,29 @@
     // first returns 10-40 minutes after polls close; the count takes 2.5-6 hours
     item.t0 = closeOf(item.state) + 10 + Math.floor(hash(k + 'o') * 30);
     item.t1 = Math.min(END1 - 5, item.t0 + 150 + Math.floor(hash(k + 'd') * 210));
-    // even a blowout waits for about a quarter of the count; close races need 90%+
-    var need = U.clamp(97 - margin * 2.4, 25, 99);
-    item.need = need;
-    item.t = Math.max(item.t0 + 2, Math.round(item.t0 + (item.t1 - item.t0) * Math.pow(need / 100, CURVE)));
+    var f = N.callFraction(margin);
+    item.need = f * 100;
+    item.t = f >= 1 ? item.t1 : Math.max(item.t0 + 2, Math.round(item.t0 + (item.t1 - item.t0) * Math.pow(f, CURVE)));
+    item.fullCount = f >= 1;
   }
   function lead(dist) { var a = Object.keys(dist).sort(function (x, y) { return dist[y] - dist[x]; }); return a; }
+
+  // When is it safe to call? A race is called at the smallest counted share f
+  // for which the leader's final margin m (points) exceeds the remaining doubt:
+  //   m > Z * SIGMA * sqrt((1 - f) / f)  +  LATE * (1 - f)
+  // The first term is sampling uncertainty (95% confidence): the counted votes
+  // are a sample of the total, so it shrinks as the count grows. The second is
+  // the risk that the uncounted votes lean differently (late mail ballots, a
+  // big city reporting last): it falls to zero as the count finishes.
+  // Results: 40 pts -> 20% in; 30 -> 33%; 20 -> 54%; 10 -> 80%; 5 -> 92%;
+  // 3 -> 96%; 1 -> 99.4%; 0.5 -> 99.8%; under ~0.2 -> only after the full count.
+  var Z = 1.96, SIGMA = 6, LATE = 20;
+  N.callFraction = function (m) {
+    for (var f = 0.02; f < 0.9995; f += 0.0005) {
+      if (m > Z * SIGMA * Math.sqrt((1 - f) / f) + LATE * (1 - f)) return f;
+    }
+    return 1;
+  };
 
   var st = null;
 
@@ -231,8 +248,8 @@
       else if (i.tab === 'ec') { var w = Object.keys(i.ev).filter(function (c) { return i.ev[c]; })[0]; h += 'Called: <b>' + esc(cands(elec)[w].name) + '</b> takes all ' + i.ev[w] + ' electors<br>'; }
       else if (i.tab === 'pr') h += 'Called: ' + lead(i.seats).filter(function (x) { return i.seats[x]; }).map(function (x) { return P(x).short + ' ' + i.seats[x]; }).join(', ') + '<br>';
       else if (i.night === 1 && i.runoff) h += 'Called: runoff between <b>' + P(i.runoff[0]).short + '</b> and <b>' + P(i.runoff[1]).short + '</b><br>';
-      else h += 'Called: <b style="color:' + P(i.party).color + '">' + esc(P(i.party).name) + '</b> ' + (i.night === 2 ? 'wins the runoff' : 'wins outright') + '<br>';
-    } else h += '<span class="muted">Too early to call</span><br>';
+      else h += 'Called: <b style="color:' + P(i.party).color + '">' + esc(P(i.party).name) + '</b> ' + (i.night === 2 ? 'wins the runoff' : 'wins outright') + (i.fullCount ? ' (after the full count)' : '') + '<br>';
+    } else h += '<span class="muted">' + (p > 90 ? 'Too close to call' : 'Too early to call') + '</span><br>';
     h += '<span class="muted">' + Math.round(p) + '% in</span>';
     return h + order.map(function (k) { return row(k, pctTxt(shares[k]), elec); }).join('');
   }
