@@ -29,8 +29,8 @@
   function renderStart() {
     $('tabs').innerHTML = ''; $('side').innerHTML = '<p class="small muted">A political strategy game in an alternate United States with proportional representation, two-round elections and coalition government.</p>';
     $('main').innerHTML = '<div class="scene"><div class="date">January 1999</div><h1>The American Republic</h1>' +
-      '<p>President <b>Bill Clinton</b> is popular. But in this America, the President is not the one who runs the country day to day: that is <b>Prime Minister Al Gore</b>, who governs through a Grand Coalition of the <b>Liberal Democrats</b>, the <b>Social Democratic Labor Party</b> of Bill Bradley, and the <b>Christian Democrats</b>, with the <b>Reform Party</b> providing confidence and supply.</p>' +
-      '<p>Ralph Nader has taken over the Greens, one of only four Green MPs, and they are surging. The left is fragmented. The Conservative Coalition wants its old place back. In Texas and the Deep South, regionalists are counting the seats they could trade.</p>' +
+      '<p>President <b>Bill Clinton</b> is popular. But in this America, the President is not the one who runs the country day to day: that is <b>Prime Minister Al Gore</b>, who governs through a Grand Coalition of the <b>Liberal Democrats</b>, the <b>Social Democratic Labor Party</b> of Bill Bradley, and the <b>Christian Democrats</b>, with Ross Perot\u2019s <b>Reform Party</b> providing confidence and supply.</p>' +
+      '<p>Ralph Nader has taken over the Greens, one of only four Green MPs, and they are surging. The far left is fragmented into a dozen parties. The Conservative Coalition wants its old place back. In Texas and the Deep South, regionalists are counting the seats they could trade.</p>' +
       '<p>You lead the <b style="color:' + P('ldp').color + '">Liberal Democratic Party</b>. You do not control the government, your partners, or the voters. The general election must be called by <b>September 2000</b>.</p>' +
       '<div class="choices"><button class="choice" data-act="new">New campaign<small>A fresh 1999 start. The simulation decides what happens next.</small></button>' +
       (S.hasSave() ? '<button class="choice" data-act="continue">Continue saved campaign<small>Autosaved at the end of each month.</small></button>' : '') +
@@ -122,7 +122,8 @@
   }
 
   function arithmetic(seats) {
-    var combos = [['ldp', 'sdlp'], ['ldp', 'sdlp', 'cdp'], ['ldp', 'cdp', 'asp'], ['ldp', 'sdlp', 'ul'], ['ldp', 'sdlp', 'asp'], ['cc', 'cdp', 'asp'], ['cc', 'cdp', 'lib', 'asp'], ['cc', 'cdp', 'srp', 'lsp', 'lib']];
+    var combos = [['ldp', 'sdlp'], ['ldp', 'sdlp', 'cdp'], ['ldp', 'cdp', 'asp'], ['ldp', 'sdlp', S.greenId(Q)], ['ldp', 'sdlp', 'asp'], ['ldp', 'sdlp', 'reform'], ['cc', 'cdp', 'asp'], ['cc', 'cdp', 'lib', 'asp'], ['cc', 'cdp', 'srp', 'lsp', 'lib']]
+      .filter(function (c) { return c.every(function (p) { return !Q.dormant[p]; }); });
     return '<table>' + combos.map(function (c) { var n = c.reduce(function (s, p) { return s + (seats[p] || 0); }, 0); var veto = c.some(function (a) { return c.some(function (b) { return U.vetoes(a, b); }); });
       return '<tr><td>' + c.map(function (p) { return P(p).short; }).join(' + ') + (veto ? ' <span class="small down">red line</span>' : '') + '</td><td class="' + (n >= 401 ? 'up' : '') + '">' + n + '</td></tr>'; }).join('') + '</table><p class="small muted">401 seats are needed for a first-ballot investiture; on the second ballot, more yes than no votes is enough.</p>';
   }
@@ -158,7 +159,8 @@
     var sen = U.Elections.senateCount(Q);
     var h = '<h1>Parliament</h1><div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, Q.house) + Ch.legend(Q, Q.house) + '<p class="small muted">400 two-round districts, 400 statewide list seats (' + U.RULES.house.prFormula + ', threshold ' + (U.RULES.house.prThreshold * 100) + '%), and the DC seat.</p></div>' +
       '<div><h2>Senate</h2>' + Ch.hemicycle(Q, sen) + Ch.legend(Q, sen) + '<p class="small muted">Four per state: one directly elected, one appointed by the governor, one each by the state house and state senate (in unicameral Nebraska, the governor appoints three).</p></div></div>';
-    if (Q.house.ul) { var ul = U.Parliament.ulSplit(Q, Q.house.ul); h += '<h3>Inside the United Left</h3><p class="small">' + Object.keys(ul).filter(function (k) { return ul[k]; }).map(function (k) { return esc(U.UL_MEMBERS[k].name) + ' <b>' + ul[k] + '</b> <span class="muted">(' + U.UL_MEMBERS[k].stance + ')</span>'; }).join(' &middot; ') + '</p>'; }
+    if (Q.house.ul) { var ul = U.Parliament.ulSplit(Q, Q.house.ul); h += '<h3>Inside the United Left</h3><p class="small">' + Object.keys(ul).filter(function (k) { return ul[k]; }).map(function (k) { return esc(P(k).name) + ' <b>' + ul[k] + '</b> <span class="muted">(' + U.LEFT_MEMBERS[k] + ')</span>'; }).join(' &middot; ') + ' &middot; Unity ' + Math.round(Q.ulUnity) + '</p>'; }
+    if (Q.house.revsoc) h += '<p class="small muted">' + esc(P('revsoc').note) + '</p>';
     if (Q.house.aga) h += '<h3>American Green Alliance</h3><p class="small">A federation of autonomous state parties. House seats by state: ' + Object.keys(Q.agaSeats || {}).filter(function (s) { return Q.agaSeats[s]; }).map(function (s) { return s + ' ' + Q.agaSeats[s]; }).join(', ') + '. Each chapter decides its own votes on confidence and budgets.</p>';
     if (Q.lastVote) {
       var lv = Q.lastVote;
@@ -189,7 +191,7 @@
     V.allStates().forEach(function (s) { sh[s.id] = V.stateShares(Q, s); });
     var lead = function (id) { var o = sh[id]; return Object.keys(o).sort(function (a, b) { return o[b] - o[a]; })[0]; };
     if (mapMode === 'lead') { colorOf = function (id) { return P(lead(id)).color; }; labelOf = function (id) { return P(lead(id)).short; }; }
-    else if (mapMode === 'ldp') { colorOf = function (id) { var v = sh[id][Q.player] || 0; return 'rgba(47,111,214,' + U.clamp(v / 40, 0.12, 1) + ')'; }; labelOf = function (id) { return Math.round(sh[id][Q.player] || 0) + '%'; }; }
+    else if (mapMode === 'ldp') { colorOf = function (id) { var v = sh[id][Q.player] || 0; return 'rgba(255,165,0,' + U.clamp(v / 40, 0.12, 1) + ')'; }; labelOf = function (id) { return Math.round(sh[id][Q.player] || 0) + '%'; }; }
     else { colorOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).color : '#777'; }; labelOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).short : 'DC'; }; }
     var h = '<h1>The states</h1><div class="row"><span class="small">Show:</span>' + [['lead', 'Leading party'], ['ldp', 'LDP strength'], ['gov', 'Governors']].map(function (m) { return '<button class="btn ' + (mapMode === m[0] ? '' : 'ghost') + '" data-map="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
     h += '<div class="grid2"><div>' + Ch.map(Q, colorOf, labelOf) + '</div><div>' + stateDetail(mapSel || 'CA', sh) + '</div></div>';

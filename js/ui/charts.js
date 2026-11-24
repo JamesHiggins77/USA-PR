@@ -29,14 +29,16 @@
     }).join('') + '</div>';
   };
 
+  // dark text on light fills (yellow, orange), white on dark ones
+  Ch.ink = function (c) { var m = /^#(..)(..)(..)$/.exec(c); if (!m) return '#fff'; var r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16); return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#1a1a1a' : '#fff'; };
   Ch.map = function (Q, colorOf, labelOf) {
     var s = 46, out = '';
     var all = Object.keys(U.STATES).map(function (k) { return U.STATES[k]; }).concat([U.DC]);
     all.forEach(function (st) {
-      var c = colorOf(st.id) || '#888';
+      var c = colorOf(st.id) || '#888', ink = U.Charts.ink(c);
       out += '<g class="tile" data-state="' + st.id + '"><rect x="' + st.x * s + '" y="' + st.y * s + '" width="' + (s - 3) + '" height="' + (s - 3) + '" rx="4" fill="' + c + '"></rect>' +
-        '<text x="' + (st.x * s + (s - 3) / 2) + '" y="' + (st.y * s + 20) + '" text-anchor="middle" font-size="12" font-weight="bold" style="fill:#fff">' + st.id + '</text>' +
-        '<text x="' + (st.x * s + (s - 3) / 2) + '" y="' + (st.y * s + 35) + '" text-anchor="middle" font-size="9.5" style="fill:#fff">' + (labelOf ? labelOf(st.id) : '') + '</text><title>' + st.name + '</title></g>';
+        '<text x="' + (st.x * s + (s - 3) / 2) + '" y="' + (st.y * s + 20) + '" text-anchor="middle" font-size="12" font-weight="bold" style="fill:' + ink + '">' + st.id + '</text>' +
+        '<text x="' + (st.x * s + (s - 3) / 2) + '" y="' + (st.y * s + 35) + '" text-anchor="middle" font-size="9.5" style="fill:' + ink + '">' + (labelOf ? labelOf(st.id) : '') + '</text><title>' + st.name + '</title></g>';
     });
     return '<svg viewBox="0 0 ' + 11 * s + ' ' + 8 * s + '" width="100%" style="max-width:640px">' + out + '</svg>';
   };

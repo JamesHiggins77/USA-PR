@@ -40,19 +40,26 @@ This document follows the brief's §22 checklist: unresolved rules and their def
 ## 3. Scenario assumptions (generated or chosen, NOT canon)
 
 - All opening seat counts, vote shares, state governments and Senate composition are **generated** by running the model on a 1996-style electorate (governing parties slightly stronger, Greens weaker). The tests check that the canon conditions hold: the government controls both chambers and Nader is one of four Green MPs.
-- National vote targets at the start: LDP 23, CC 20, SDLP 18, CDP 13.5, ASP 7, UL 6.5, LIB 3, CON 2.5, ACP 1; regional parties by state home share.
+- National vote targets at the start: LDP 23, CC 20, SDLP 18, CDP 13.5, ASP 3.8, Reform 3.4, Greens 2.4, DSA 1.1, WFP 0.9, CPUSA 0.8, revolutionary parties 0.7, LIB 3, CON 2.5; regional parties by state home share.
 - Group preferences, regional affinities, demographic indices, party positions and starting relations.
-- **Party leaders other than canon**: CDP John McCain, CC George W. Bush, ASP Ross Perot (Reform), UL coordinator Bernie Sanders, Libertarian Harry Browne, Constitution Howard Phillips; 2000 ASP nominee Pat Buchanan. Regional parties are led by unnamed chairs.
+- **Party leaders other than canon**: CDP John McCain, CC George W. Bush, Reform Ross Perot (2000 nominee Pat Buchanan), ASP an unnamed coalition chair, United Left Bernie Sanders, Libertarian Harry Browne, Constitution Howard Phillips; Regional parties are led by unnamed chairs.
 - **LDP**: Al Gore is assumed to be the LDP leader as well as PM, and Clinton an LDP President. The four factions (New Democrats/Lieberman, Progressive Liberals/Kennedy, Civil Rights Caucus/Lewis, Heartland Liberals/Bayh) are a design proposal.
 - Economy at the start: growth 4.4%, unemployment 4.3%, inflation 2.2%, a 1% surplus, debt 40% of GDP.
 
-## 4. Decisions flagged for the designer
+## 4. Designer decisions and remaining flags
 
-1. **Reform Party and the ASP.** The canon lists Reform as an ASP constituent and also as the 1999 confidence-and-supply partner. The game models the ASP as one parliamentary actor whose Reform constituent signed the deal. If Reform should sit as a separate group in 1999, it would need its own party entry.
-2. **Greens inside the UL.** The UL runs joint lists. The Greens' share of UL seats is tracked inside the alliance (4 at the start, growing with Nader's surge). A Green breakaway from the UL is not yet modelled as a separate list.
-3. **MAGA and the America First Party** are defined but dormant. MAGA can launch from mid-2015 if accumulated discontent is high (long grand coalitions, unemployment, low approval); the AFP can appear only if MAGA has entered government. Neither is guaranteed.
-4. **Forward and United parties** (ASP constituents) are treated as not yet existing in 1999.
-5. **Snap elections** are possible after 12 months of government. The brief says only "must be called by September 2000".
+Decided by the designer:
+1. **Reform Party** starts as a separate party and is the 1999 confidence-and-supply partner. From 2000 its support drifts down slightly each month. If it polls below 2.6% for six consecutive months, it is absorbed into the ASP as a constituent party, and its seats, senators, state offices and government role pass to the ASP. If its support holds, it survives.
+2. **Non-canon leaders** are fine as long as they are plausible.
+3. **No United Left in 1999.** The far left is fragmented: Greens (Nader, exactly 4 MPs), CPUSA, DSA, Working Families, the Vermont Progressives, and the small revolutionary parties. A Sanders leadership win in the Communist Party (an event, not a fixed date) opens United Left talks. Each party decides whether to join, the player can try to keep the Greens out, and the talks can fail and be retried after 18 months. Once the UL exists, its seats are split among its members by their weight when it formed. The Greens can later walk out if UL unity falls.
+4. **The ACP does not exist until the 2020s.** It can be launched from 2021, more likely when discontent is high.
+5. **Party colours** follow the designer's reference map.
+
+Still flagged:
+- "The Communist Party" that Sanders leads is taken to be the **CPUSA** (a UL member), not the ACP.
+- The revolutionary socialist parties (PSL, Black Panther Party, SWP, SEP, WWP, Socialist Alternative and others) are separate parties, but for readability they share one entry ("RSP") with aggregated seats.
+- **MAGA and the America First Party** remain dormant until conditions allow: MAGA from mid-2015 with high discontent, and the AFP only after MAGA has been in government.
+- **Snap elections** are possible after 12 months of government.
 
 ## 5. Not yet built (next steps)
 

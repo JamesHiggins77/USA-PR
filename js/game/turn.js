@@ -9,6 +9,92 @@
   S.inGov = function (Q, p) { return Q.gov && Q.gov.coalition.indexOf(p || Q.player) >= 0; };
   S.supportsGov = function (Q, p) { return S.inGov(Q, p) || (Q.gov && Q.gov.cs.indexOf(p || Q.player) >= 0); };
   S.pmIsPlayer = function (Q) { return Q.gov && Q.gov.pmParty === Q.player; };
+  // Whichever organisation currently carries the Green vote
+  S.greenId = function (Q) { return Q.dormant.grn ? 'ul' : 'grn'; };
+  S.live = function (Q, p) { return !Q.dormant[p]; };
+
+  // Move everything a party holds (seats, senators, state offices, government
+  // roles, pacts) to another party when it merges or is absorbed.
+  S.remap = function (Q, from, to) {
+    if (Q.house[from]) { Q.house[to] = (Q.house[to] || 0) + Q.house[from]; delete Q.house[from]; }
+    Q.senateSeats.forEach(function (x) { if (x.party === from) x.party = to; });
+    for (var sid in Q.states) {
+      var st = Q.states[sid]; if (st.governor === from) st.governor = to;
+      ['house', 'senate'].forEach(function (c) { if (st[c] && st[c][from]) { st[c][to] = (st[c][to] || 0) + st[c][from]; delete st[c][from]; } });
+    }
+    if (Q.gov) ['coalition', 'cs'].forEach(function (k) {
+      if (Q.gov[k].indexOf(from) >= 0) { Q.gov[k] = Q.gov[k].filter(function (p) { return p !== from; }); if (Q.gov.coalition.indexOf(to) < 0 && Q.gov[k].indexOf(to) < 0) Q.gov[k].push(to); }
+      if (Q.gov.posts && Q.gov.posts[from]) { Q.gov.posts[to] = (Q.gov.posts[to] || 0) + Q.gov.posts[from]; delete Q.gov.posts[from]; }
+    });
+    (Q.pacts || []).forEach(function (k) { k.parties = k.parties.map(function (p) { return p === from ? to : p; }); });
+    (Q.pendingConcessions || []).forEach(function (c) { if (c.party === from) c.party = to; });
+  };
+
+  // Merge member parties into an alliance/party. retention: share of the
+  // members' combined vote the merged list keeps.
+  S.mergeInto = function (Q, members, into, retention) {
+    var n = V.national(Q), X = 0, wsum = 0, pos = { econ: 0, soc: 0, fed: 0 }, w = {};
+    members.forEach(function (m) { X += n[m] || 0; });
+    if (!Q.dormant[into]) X += n[into] || 0;
+    members.forEach(function (m) {
+      var s = n[m] || 0.01; w[m] = s; wsum += s;
+      ['econ', 'soc', 'fed'].forEach(function (k) { pos[k] += Q.pos[m][k] * s; });
+    });
+    if (Q.dormant[into]) { ['econ', 'soc', 'fed'].forEach(function (k) { Q.pos[into][k] = pos[k] / wsum; }); }
+    U.ALL_PARTIES.forEach(function (q) {
+      if (members.indexOf(q) >= 0 || q === into) return;
+      var r = 0; members.forEach(function (m) { r += C.rel(Q, m, q) * w[m] / wsum; });
+      if (Q.dormant[into]) C.addRel(Q, into, q, r - C.rel(Q, into, q));
+    });
+    members.forEach(function (m) { Q.dormant[m] = true; S.remap(Q, m, into); });
+    Q.dormant[into] = false; Q.mods[into] = Q.mods[into] || {}; Q.calib[into] = Q.calib[into] || 1;
+    var n2 = V.national(Q); Q.calib[into] *= (X * retention) / Math.max(0.05, n2[into] || 0.05);
+    return w;
+  };
+
+  // Whichever organisation currently carries the Green vote
+  S.greenId = function (Q) { return Q.dormant.grn ? 'ul' : 'grn'; };
+  S.live = function (Q, p) { return !Q.dormant[p]; };
+
+  // Move everything a party holds (seats, senators, state offices, government
+  // roles, pacts) to another party when it merges or is absorbed.
+  S.remap = function (Q, from, to) {
+    if (Q.house[from]) { Q.house[to] = (Q.house[to] || 0) + Q.house[from]; delete Q.house[from]; }
+    Q.senateSeats.forEach(function (x) { if (x.party === from) x.party = to; });
+    for (var sid in Q.states) {
+      var st = Q.states[sid]; if (st.governor === from) st.governor = to;
+      ['house', 'senate'].forEach(function (c) { if (st[c] && st[c][from]) { st[c][to] = (st[c][to] || 0) + st[c][from]; delete st[c][from]; } });
+    }
+    if (Q.gov) ['coalition', 'cs'].forEach(function (k) {
+      if (Q.gov[k].indexOf(from) >= 0) { Q.gov[k] = Q.gov[k].filter(function (p) { return p !== from; }); if (Q.gov.coalition.indexOf(to) < 0 && Q.gov[k].indexOf(to) < 0) Q.gov[k].push(to); }
+      if (Q.gov.posts && Q.gov.posts[from]) { Q.gov.posts[to] = (Q.gov.posts[to] || 0) + Q.gov.posts[from]; delete Q.gov.posts[from]; }
+    });
+    (Q.pacts || []).forEach(function (k) { k.parties = k.parties.map(function (p) { return p === from ? to : p; }); });
+    (Q.pendingConcessions || []).forEach(function (c) { if (c.party === from) c.party = to; });
+  };
+
+  // Merge member parties into an alliance/party. retention: share of the
+  // members' combined vote the merged list keeps.
+  S.mergeInto = function (Q, members, into, retention) {
+    var n = V.national(Q), X = 0, wsum = 0, pos = { econ: 0, soc: 0, fed: 0 }, w = {};
+    members.forEach(function (m) { X += n[m] || 0; });
+    if (!Q.dormant[into]) X += n[into] || 0;
+    members.forEach(function (m) {
+      var s = n[m] || 0.01; w[m] = s; wsum += s;
+      ['econ', 'soc', 'fed'].forEach(function (k) { pos[k] += Q.pos[m][k] * s; });
+    });
+    if (Q.dormant[into]) { ['econ', 'soc', 'fed'].forEach(function (k) { Q.pos[into][k] = pos[k] / wsum; }); }
+    U.ALL_PARTIES.forEach(function (q) {
+      if (members.indexOf(q) >= 0 || q === into) return;
+      var r = 0; members.forEach(function (m) { r += C.rel(Q, m, q) * w[m] / wsum; });
+      if (Q.dormant[into]) C.addRel(Q, into, q, r - C.rel(Q, into, q));
+    });
+    members.forEach(function (m) { Q.dormant[m] = true; S.remap(Q, m, into); });
+    Q.dormant[into] = false; Q.mods[into] = Q.mods[into] || {}; Q.calib[into] = Q.calib[into] || 1;
+    var n2 = V.national(Q); Q.calib[into] *= (X * retention) / Math.max(0.05, n2[into] || 0.05);
+    return w;
+  };
+
   S.govSeats = function (Q) { return Q.gov ? C.seats(Q, Q.gov.coalition.concat(Q.gov.cs)) : 0; };
 
   // ---- economy (brief §8.2). Shocks are probabilistic, never scripted ----
@@ -72,12 +158,42 @@
     });
     // The Green surge: Nader's profile pulls young and professional voters to the UL
     if (Q.flags.naderSurge && S.now(Q) < Q.flags.naderSurge + 24) {
-      V.campaign(Q, 'ul', { young: 0.35, prof: 0.18, union: 0.05 }, null);
+      V.campaign(Q, S.greenId(Q), { young: 0.35, prof: 0.18, union: 0.05 }, null);
       V.campaign(Q, 'ldp', { young: -0.06, prof: -0.04 }, 'Nader’s Green surge');
     }
     // Discontent accumulates under long grand coalitions and weak economies
     var gc = Q.gov && Q.gov.coalition.length >= 3 ? 0.15 : 0;
     Q.discontent = U.clamp(Q.discontent + gc + (Q.econ.unemp - 5.5) * 0.1 + (40 - Q.govApproval) * 0.01, 0, 100);
+    // Reform fades after the Perot era; if it stays weak it joins the ASP
+    if (!Q.dormant.reform && Q.year >= 2000) {
+      V.campaign(Q, 'reform', V.all(-0.03), null);
+      var rs = V.national(Q).reform || 0;
+      Q.reformLow = rs < 2.6 ? (Q.reformLow || 0) + 1 : 0;
+      if (Q.reformLow >= 6) {
+        S.mergeInto(Q, ['reform'], 'asp', 0.85);
+        S.note(Q, 'With its polling below 3% for six months, the Reform Party votes to join the American Solidarity Party as a constituent party. Its MPs now sit with the ASP.');
+        Q.flags.reformAbsorbed = S.now(Q);
+      }
+    }
+    // The United Left holds together only while its members agree
+    if (!Q.dormant.ul) Q.ulUnity = U.clamp(Q.ulUnity + U.gauss(Q) * 1.5 - (S.inGov(Q, 'ul') ? 0.6 : 0.1), 0, 100);
+    // A syncretic communist party emerges only in the 2020s
+    if (Q.dormant.acp && Q.year >= 2021 && U.rng(Q) < 0.03 + Q.discontent / 3000) S.activate(Q, 'acp', 1 + Q.discontent / 40);
+    // Reform fades after the Perot era; if it stays weak it joins the ASP
+    if (!Q.dormant.reform && Q.year >= 2000) {
+      V.campaign(Q, 'reform', V.all(-0.03), null);
+      var rs = V.national(Q).reform || 0;
+      Q.reformLow = rs < 2.6 ? (Q.reformLow || 0) + 1 : 0;
+      if (Q.reformLow >= 6) {
+        S.mergeInto(Q, ['reform'], 'asp', 0.85);
+        S.note(Q, 'With its polling below 3% for six months, the Reform Party votes to join the American Solidarity Party as a constituent party. Its MPs now sit with the ASP.');
+        Q.flags.reformAbsorbed = S.now(Q);
+      }
+    }
+    // The United Left holds together only while its members agree
+    if (!Q.dormant.ul) Q.ulUnity = U.clamp(Q.ulUnity + U.gauss(Q) * 1.5 - (S.inGov(Q, 'ul') ? 0.6 : 0.1), 0, 100);
+    // A syncretic communist party emerges only in the 2020s
+    if (Q.dormant.acp && Q.year >= 2021 && U.rng(Q) < 0.03 + Q.discontent / 3000) S.activate(Q, 'acp', 1 + Q.discontent / 40);
     // Dormant populist right can emerge from 2015 if conditions allow
     if (Q.dormant.maga && Q.year >= 2015 && Q.month >= 6 && Q.discontent > 45 && U.rng(Q) < 0.15) S.activate(Q, 'maga', 4 + Q.discontent / 10);
     if (Q.dormant.afp && !Q.dormant.maga && Q.year >= 2018 && S.inGov(Q, 'maga') && U.rng(Q) < 0.05) S.activate(Q, 'afp', 2);
@@ -166,9 +282,6 @@
     var before = U.clone(Q.house), beforeS = U.Elections.senateCount(Q), shares = V.national(Q);
     var h = X.house(Q);
     Q.house = h.house; Q.agaSeats = S.agaByState(h);
-    // Green seats inside the UL follow the Greens' weight in the alliance
-    var gw = U.UL_MEMBERS.green.w + (Q.flags.naderSurge ? 0.15 : 0);
-    Q.greenSeats = Math.round((Q.house.ul || 0) * U.clamp(gw, 0.1, 0.7));
     var oldGov = {}; for (var sid in Q.states) oldGov[sid] = Q.states[sid].governor;
     if (U.RULES.stateElections === 'with-general') for (sid in U.STATES) Q.states[sid] = X.stateGov(Q, U.STATES[sid], Q.states[sid]);
     Q.electionNo += 1;
@@ -206,10 +319,11 @@
   S.defaultCandidates = function (Q) {
     var list = [], y = Q.year;
     var names = { sdlp: Q.year <= 2000 ? 'Bill Bradley' : U.PARTIES.sdlp.leader, cdp: y <= 2004 ? 'John McCain' : U.PARTIES.cdp.leader,
-      cc: y <= 2004 ? 'George W. Bush' : U.PARTIES.cc.leader, ul: y <= 2004 ? 'Ralph Nader' : U.PARTIES.ul.leader,
-      asp: y <= 2000 ? 'Pat Buchanan' : U.PARTIES.asp.leader, lib: y <= 2000 ? 'Harry Browne' : 'Libertarian nominee', maga: 'Donald Trump' };
-    var appeal = { sdlp: 2, cdp: 3, cc: 2, ul: 2, asp: 0, lib: 0, maga: 4 };
-    ['sdlp', 'cdp', 'cc', 'ul', 'asp', 'lib', 'maga'].forEach(function (p) {
+      cc: y <= 2004 ? 'George W. Bush' : U.PARTIES.cc.leader, grn: y <= 2004 ? 'Ralph Nader' : 'Green nominee',
+      ul: (Q.ulMembers && Q.ulMembers.grn && y <= 2004) ? 'Ralph Nader' : 'Bernie Sanders',
+      reform: y <= 2000 ? 'Pat Buchanan' : 'Reform nominee', asp: 'ASP nominee', lib: y <= 2000 ? 'Harry Browne' : 'Libertarian nominee', maga: 'Donald Trump' };
+    var appeal = { sdlp: 2, cdp: 3, cc: 2, ul: 2, grn: 2, reform: 0, asp: 0, lib: 0, maga: 4 };
+    ['sdlp', 'cdp', 'cc', 'ul', 'grn', 'reform', 'lib', 'maga'].concat(Q.dormant.reform ? ['asp'] : []).forEach(function (p) {
       if (Q.dormant[p] || (Q.presWithdrawn && Q.presWithdrawn.indexOf(p) >= 0)) return;
       list.push({ id: p, party: p, name: names[p], backers: [], appeal: appeal[p] || 0 });
     });

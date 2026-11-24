@@ -36,8 +36,8 @@
             return 'Viewers ask whose competence this is. The coalition shares the credit.'; } },
         { label: 'Social justice and civil rights', sub: 'Black, Hispanic and young voters. Pleases the Civil Rights Caucus.',
           act: function (Q) { H.camp(Q, { black: 0.9, hisp: 0.7, young: 0.4 }, 'Interviews'); H.fac(Q, { civil: -5, heartland: 2 }); H.shift(Q, -0.2, -0.2); return 'A strong performance. Some Heartland Liberals think it was aimed at somebody else’s voters.'; } },
-        { label: 'Take on the Greens', sub: 'Argue a Green vote is a wasted vote. Costs relations with the United Left.',
-          act: function (Q) { var k = Q.flags.naderSurge ? 1 : 0.5; H.camp(Q, { young: 0.4 * k, prof: 0.5 * k }, 'Attacks on the Greens'); H.other(Q, 'ul', { young: -0.6 * k, prof: -0.4 * k }); H.rel(Q, 'ul', -8); H.fac(Q, { proglib: 3, newdem: -2 }); return 'Nader replies that the LDP is the reason people vote Green. Some young viewers agree with him; more agree with you.'; } },
+        { label: 'Take on the Greens', sub: 'Argue a Green vote is a wasted vote. Costs relations with the Greens.',
+          act: function (Q) { var k = Q.flags.naderSurge ? 1 : 0.5; H.camp(Q, { young: 0.4 * k, prof: 0.5 * k }, 'Attacks on the Greens'); H.other(Q, S.greenId(Q), { young: -0.6 * k, prof: -0.4 * k }); H.rel(Q, S.greenId(Q), -8); H.fac(Q, { proglib: 3, newdem: -2 }); return 'Nader replies that the LDP is the reason people vote Green. Some young viewers agree with him; more agree with you.'; } },
         { label: 'Take on the Conservative Coalition', sub: 'Draw a clear line with the main right-wing alternative.',
           act: function (Q) { H.camp(Q, { suburb: 0.5, prof: 0.4, black: 0.3 }, 'Attacks on the CC'); H.other(Q, 'cc', { suburb: -0.4 }); H.rel(Q, 'cc', -6); H.rel(Q, 'cdp', -2); return 'The CC accuses you of fear-mongering. The CDP, which sits in cabinet with you and courts the same suburbs, says nothing.'; } }
       ] },
@@ -102,31 +102,31 @@
 
     { id: 'court', title: 'Court another party', tag: 'Coalition', cooldown: 2,
       body: function (Q) { return 'Relations matter in negotiations. Who do you invite for dinner?'; },
-      options: ['sdlp', 'cdp', 'asp', 'ul', 'cc', 'aga', 'lsp', 'srp', 'lib'].map(function (p) {
+      options: function (Q) { return ['sdlp', 'cdp', 'reform', 'asp', 'grn', 'ul', 'cpusa', 'wfp', 'cc', 'aga', 'lsp', 'srp', 'lib'].filter(function (p) { return !Q.dormant[p]; }).map(function (p) {
         return { label: function (Q) { return U.PARTIES[p].name + ' (relations ' + Math.round(C.rel(Q, Q.player, p)) + ')'; },
-          sub: { sdlp: 'Progressive Liberals approve.', cdp: 'New Democrats and Heartland approve; Progressive Liberals do not.', asp: 'Heartland Liberals approve.', ul: 'Progressive Liberals approve; New Democrats appalled.', cc: 'Most factions are uneasy.', aga: 'A federation: its state parties bargain separately.', lsp: 'The Texas regionalists want resource rights. Civil Rights Caucus uneasy.', srp: 'The Civil Rights Caucus will be furious.', lib: 'New Democrats curious.' }[p],
+          sub: { reform: 'Perot\u2019s party: fiscal hawks with populist voters.', grn: 'Nader\u2019s Greens. Progressive Liberals approve; New Democrats appalled.', cpusa: 'The New Democrats will be appalled.', wfp: 'A labor-backed party close to the SDLP.', sdlp: 'Progressive Liberals approve.', cdp: 'New Democrats and Heartland approve; Progressive Liberals do not.', asp: 'Heartland Liberals approve.', ul: 'Progressive Liberals approve; New Democrats appalled.', cc: 'Most factions are uneasy.', aga: 'A federation: its state parties bargain separately.', lsp: 'The Texas regionalists want resource rights. Civil Rights Caucus uneasy.', srp: 'The Civil Rights Caucus will be furious.', lib: 'New Democrats curious.' }[p],
           act: function (Q) {
             H.rel(Q, p, 7 + Math.round(U.rng(Q) * 4));
-            var f = { sdlp: { proglib: -2 }, cdp: { newdem: -2, heartland: -2, proglib: 3 }, asp: { heartland: -2 }, ul: { proglib: -2, newdem: 6 }, cc: { proglib: 5, civil: 5, newdem: 1 }, aga: {}, lsp: { civil: 3 }, srp: { civil: 15, proglib: 6 }, lib: { newdem: -1, proglib: 2 } }[p];
+            var f = { reform: { newdem: -1 }, grn: { proglib: -2, newdem: 5 }, cpusa: { newdem: 10, heartland: 6 }, wfp: { proglib: -2, newdem: 3 }, sdlp: { proglib: -2 }, cdp: { newdem: -2, heartland: -2, proglib: 3 }, asp: { heartland: -2 }, ul: { proglib: -2, newdem: 6 }, cc: { proglib: 5, civil: 5, newdem: 1 }, aga: {}, lsp: { civil: 3 }, srp: { civil: 15, proglib: 6 }, lib: { newdem: -1, proglib: 2 } }[p];
             H.fac(Q, f);
             return 'A long dinner with the ' + U.PARTIES[p].short + ' leadership. ' + (C.compat(Q, Q.player, p) < 0.4 ? 'The food was better than the conversation.' : 'There is common ground.');
           } };
-      }) },
+      }); } },
 
     { id: 'pact', title: 'An electoral pact', tag: 'Coalition', cooldown: 3,
       cond: function (Q) { return S.now(Q) >= Q.deadline - 14 || Q.electionAt; },
       body: function (Q) { var cur = (Q.pacts || []).map(function (p) { return p.parties.map(function (x) { return U.PARTIES[x].short; }).join('+') + ' (' + p.type + ')'; }).join(', ');
         return 'District runoffs reward parties that cooperate. A transfer pact asks voters to back the partner in the runoff; a joint-candidate pact means the weaker party stands down in each district. Voters do not always follow. ' + (cur ? 'Current pacts: ' + cur + '.' : 'No pacts yet.'); },
-      options: [['sdlp', 'transfer'], ['sdlp', 'joint'], ['cdp', 'transfer'], ['ul', 'transfer'], ['aga', 'transfer']].map(function (o) {
+      options: function (Q) { return [['sdlp', 'transfer'], ['sdlp', 'joint'], ['cdp', 'transfer'], ['reform', 'transfer'], [S.greenId(Q), 'transfer'], ['aga', 'transfer']].filter(function (o) { return !Q.dormant[o[0]]; }).map(function (o) {
         var p = o[0], type = o[1];
         return { label: (type === 'joint' ? 'Joint candidates with the ' : 'Runoff transfer pact with the ') + U.PARTIES[p].short,
           sub: type === 'joint' ? 'Needs relations 60+. Strong effect; the weaker partner’s activists resent it.' : 'Needs relations 50+.',
           cond: function (Q) { if ((Q.pacts || []).some(function (k) { return k.parties.indexOf(p) >= 0; })) return 'Already agreed.'; return C.rel(Q, Q.player, p) >= (type === 'joint' ? 60 : 50) ? true : 'The ' + U.PARTIES[p].short + ' is not interested (relations ' + Math.round(C.rel(Q, Q.player, p)) + ').'; },
           act: function (Q) { Q.pacts.push({ parties: [Q.player, p], type: type });
-            var f = { sdlp: { newdem: 5, proglib: -4 }, cdp: { proglib: 6, newdem: -4, heartland: -3 }, ul: { newdem: 10, proglib: -5 }, aga: { heartland: -2 } }[p]; H.fac(Q, f);
+            var f = { sdlp: { newdem: 5, proglib: -4 }, cdp: { proglib: 6, newdem: -4, heartland: -3 }, ul: { newdem: 10, proglib: -5 }, grn: { newdem: 8, proglib: -5 }, reform: { proglib: 3 }, aga: { heartland: -2 } }[p] || {}; H.fac(Q, f);
             if (type === 'joint') Q.morale -= 4;
             return 'The pact is signed. Local party branches start working out the details, and some of them object.'; } };
-      }) },
+      }); } },
 
     { id: 'organise', title: 'Build the state parties', tag: 'Party', cooldown: 4,
       body: function () { return 'A permanent organisation in a region lasts longer than a rally. Costs 2.'; },
@@ -240,7 +240,7 @@
       H.camp(Q, pol.groups, 'Legislation: ' + pol.name);
       H.fac(Q, pol.fac); Q.spending = (Q.spending || 0) + pol.cost; Q.policyGrowth = (Q.policyGrowth || 0) + (pol.growth || 0);
       if (pol.funds) Q.funds += pol.funds;
-      if (pol.ulDrain) V.campaign(Q, 'ul', { young: -0.4, prof: -0.3 }, null);
+      if (pol.ulDrain) V.campaign(Q, S.greenId(Q), { young: -0.4, prof: -0.3 }, null);
       if (pol.regional) U.REGIONAL.forEach(function (p) { C.addRel(Q, Q.player, p, 6); });
       (Q.pendingConcessions || []).forEach(function (c) { if (!c.done && c.text.toLowerCase().indexOf(pol.name.split(' ')[0].toLowerCase()) >= 0) { c.done = true; C.addRel(Q, Q.player, c.party, 10); } });
       Q.govApproval += 1;

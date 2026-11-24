@@ -14,6 +14,12 @@
     cc: { SO: 1.25, PL: 1.1, MT: 1.2, TX: 1.1, MW: .95, MA: .85, NE: .75, PC: .75 },
     asp: { MT: 1.5, PL: 1.2, MW: 1.1, SO: .9, NE: .9, MA: .9, PC: .8, TX: .9 },
     ul: { PC: 1.4, NE: 1.3, MA: 1.1, MW: .95, SO: .7, PL: .7, MT: .9, TX: .7 },
+    grn: { PC: 1.4, NE: 1.35, MA: 1.05, MW: .95, SO: .7, PL: .7, MT: 1.0, TX: .7 },
+    dsa: { PC: 1.3, NE: 1.2, MA: 1.25, MW: 1.0, SO: .7, PL: .7, MT: .8, TX: .7 },
+    wfp: { MA: 1.7, NE: 1.3, MW: 1.0, PC: .9, SO: .7, PL: .6, MT: .6, TX: .6 },
+    cpusa: { MA: 1.3, MW: 1.25, PC: 1.1, NE: 1.0, SO: .8, PL: .6, MT: .6, TX: .7 },
+    revsoc: { PC: 1.3, MA: 1.25, MW: 1.0, NE: 1.0, SO: .9, PL: .6, MT: .6, TX: .8 },
+    reform: { MW: 1.25, PL: 1.2, TX: 1.2, MT: 1.1, SO: .9, MA: .9, NE: .9, PC: .8 },
     acp: { PC: 1.2, MA: 1.2, MW: 1.1, SO: .8, PL: .7, MT: .8, NE: 1.0, TX: .8 },
     lib: { MT: 1.4, PC: 1.1, NE: 1.15, PL: 1.0, SO: .85, MW: .9, MA: .85, TX: 1.1 },
     con: { SO: 1.3, PL: 1.2, MT: 1.2, MW: 1.0, TX: .9, MA: .7, NE: .6, PC: .7 }
@@ -79,10 +85,11 @@
   // Calibrate national parties to their target shares (run once at start).
   V.calibrate = function (Q) {
     Q.calib = {}; U.NATIONAL.forEach(function (p) { Q.calib[p] = 1; });
-    var tTot = U.NATIONAL.reduce(function (s, p) { return s + U.PARTIES[p].target; }, 0);
+    var live = U.NATIONAL.filter(function (p) { return !(Q.dormant && Q.dormant[p]); });
+    var tTot = live.reduce(function (s, p) { return s + U.PARTIES[p].target; }, 0);
     for (var it = 0; it < 6; it++) {
-      var n = V.national(Q), nTot = U.NATIONAL.reduce(function (s, p) { return s + (n[p] || 0); }, 0);
-      U.NATIONAL.forEach(function (p) { Q.calib[p] *= (U.PARTIES[p].target / tTot) / (n[p] / nTot); });
+      var n = V.national(Q), nTot = live.reduce(function (s, p) { return s + (n[p] || 0); }, 0);
+      live.forEach(function (p) { Q.calib[p] *= (U.PARTIES[p].target / tTot) / (n[p] / nTot); });
     }
   };
 

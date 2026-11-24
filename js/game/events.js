@@ -23,20 +23,20 @@
         { label: 'Side with fiscal caution', sub: 'CDP pleased, SDLP angry.', act: function (Q) { H.rel(Q, 'sdlp', -12); H.rel(Q, 'cdp', 8); H.fac(Q, { proglib: 8, newdem: -5 }); V.campaign(Q, 'sdlp', { union: 0.5, young: 0.3 }, null); return 'Bradley takes the fight to the country. SDLP voters rally to him.'; } }
       ] },
 
-    { id: 'reform_cs', title: 'The Reform Party’s price', when: function (Q) { return at(Q, 1999, 8) && Q.gov && Q.gov.cs.indexOf('asp') >= 0; },
-      body: function () { return 'The Reform Party, the ASP constituent that signed the confidence-and-supply deal, wants more for its states before the budget: federal money for Minnesota, Utah and the Plains, and a balanced-budget pledge.'; },
+    { id: 'reform_cs', title: 'The Reform Party’s price', when: function (Q) { return at(Q, 1999, 8) && Q.gov && Q.gov.cs.indexOf('reform') >= 0; },
+      body: function () { return 'Ross Perot\u2019s Reform Party, whose confidence-and-supply votes keep the coalition safe, wants more before the budget: federal money for Minnesota, Texas and the Plains, and a balanced-budget pledge. Its polling is slipping, and its leaders need something to show.'; },
       options: [
-        { label: 'Pay: a regional investment package', sub: 'ASP relations up; deficit up.', act: function (Q) { H.rel(Q, 'asp', 10); Q.spending = (Q.spending || 0) + 0.2; H.region(Q, 'PL', 0.3, 'Regional investment'); return 'Bridges, rural hospitals and broadband pilots. The CDP grumbles about pork.'; } },
-        { label: 'Offer the balanced-budget pledge instead', sub: 'Cheaper. SDLP unhappy.', act: function (Q) { H.rel(Q, 'asp', 5); H.rel(Q, 'sdlp', -5); H.shift(Q, 0.3, 0); return 'Perot’s people accept, for now.'; } },
-        { label: 'Refuse', sub: 'The ASP may withdraw support.', act: function (Q) { H.rel(Q, 'asp', -15); return 'Reform leaders tell reporters the deal is "under review".'; } }
+        { label: 'Pay: a regional investment package', sub: 'Reform relations up; deficit up. Props up Reform\u2019s polling.', act: function (Q) { H.rel(Q, 'reform', 10); V.campaign(Q, 'reform', V.all(0.3), null); Q.spending = (Q.spending || 0) + 0.2; H.region(Q, 'PL', 0.3, 'Regional investment'); return 'Bridges, rural hospitals and broadband pilots. The CDP grumbles about pork.'; } },
+        { label: 'Offer the balanced-budget pledge instead', sub: 'Cheaper. SDLP unhappy.', act: function (Q) { H.rel(Q, 'reform', 5); H.rel(Q, 'sdlp', -5); H.shift(Q, 0.3, 0); return 'Perot’s people accept, for now.'; } },
+        { label: 'Refuse', sub: 'Reform may withdraw support.', act: function (Q) { H.rel(Q, 'reform', -15); return 'Reform leaders tell reporters the deal is "under review".'; } }
       ] },
 
     { id: 'seattle', title: 'The battle of Seattle', when: function (Q) { return at(Q, 1999, 11); },
       body: function () { return 'Tens of thousands of trade unionists, environmentalists and anarchists shut down the WTO ministerial meeting in Seattle. Police use tear gas. The Greens and the United Left are on the streets; the SDLP’s unions too.'; },
       options: [
-        { label: 'Defend free trade and order', sub: 'New Democrats pleased; UL and SDLP angry.', act: function (Q) { H.camp(Q, { suburb: 0.4, prof: 0.2, union: -0.6, young: -0.5 }, 'Seattle protests'); H.rel(Q, 'ul', -8); H.rel(Q, 'sdlp', -3); H.fac(Q, { newdem: -5, proglib: 6 }); V.campaign(Q, 'ul', { young: 0.5 }, null); return 'Business groups praise the government. The protesters’ photos dominate the news anyway.'; } },
+        { label: 'Defend free trade and order', sub: 'New Democrats pleased; Greens and SDLP angry.', act: function (Q) { H.camp(Q, { suburb: 0.4, prof: 0.2, union: -0.6, young: -0.5 }, 'Seattle protests'); H.rel(Q, S.greenId(Q), -8); H.rel(Q, 'sdlp', -3); H.fac(Q, { newdem: -5, proglib: 6 }); V.campaign(Q, S.greenId(Q), { young: 0.5 }, null); return 'Business groups praise the government. The protesters’ photos dominate the news anyway.'; } },
         { label: 'Call for labor and environmental standards in trade', sub: 'SDLP pleased; moves the LDP slightly left.', act: function (Q) { H.camp(Q, { union: 0.5, young: 0.2 }, 'Seattle protests'); H.rel(Q, 'sdlp', 5); H.shift(Q, -0.4, 0); return 'A speech on fair trade. The protesters are unimpressed, the unions less so.'; } },
-        { label: 'Sympathise with the protesters', sub: 'Young voters respond; the CDP is appalled.', act: function (Q) { H.camp(Q, { young: 0.8, prof: 0.2, suburb: -0.4 }, 'Seattle protests'); H.rel(Q, 'cdp', -8); H.rel(Q, 'ul', 6); H.fac(Q, { proglib: -4, newdem: 8 }); return 'The coalition’s centre-right partners ask whose side the LDP is on.'; } }
+        { label: 'Sympathise with the protesters', sub: 'Young voters respond; the CDP is appalled.', act: function (Q) { H.camp(Q, { young: 0.8, prof: 0.2, suburb: -0.4 }, 'Seattle protests'); H.rel(Q, 'cdp', -8); H.rel(Q, S.greenId(Q), 6); H.fac(Q, { proglib: -4, newdem: 8 }); return 'The coalition’s centre-right partners ask whose side the LDP is on.'; } }
       ] },
 
     { id: 'y2k', title: 'The millennium bug', when: function (Q) { return at(Q, 2000, 1); },
@@ -102,8 +102,8 @@
     { id: 'security', title: 'An attack on American soil', when: function (Q) { return at(Q, 2001, 6) && !Q.flags.securityDone && chance(Q, 0.06); },
       body: function () { return 'A coordinated terrorist attack kills thousands. The country is in shock. Every party suspends campaigning. In the days that follow, the government must decide how to respond, at home and abroad, and the civil-liberties debate will shape politics for years.'; },
       options: [
-        { label: 'National unity: support broad security powers', sub: 'Government rallies; Libertarians and UL object.', act: function (Q) { Q.flags.securityDone = 1; Q.govApproval += 15; Q.president.approval += 15; H.shift(Q, 0, 1); H.rel(Q, 'ul', -10); H.rel(Q, 'lib', -6); H.rel(Q, 'cc', 6); H.fac(Q, { civil: 8, proglib: 6, newdem: -4 }); return 'Parliament passes sweeping security legislation within weeks.'; } },
-        { label: 'Security with strict civil-liberties safeguards', sub: 'Harder to pass; the CC attacks it as weak.', act: function (Q) { Q.flags.securityDone = 1; Q.govApproval += 8; H.rel(Q, 'lib', 6); H.rel(Q, 'ul', 4); H.rel(Q, 'cc', -6); H.fac(Q, { civil: -6, proglib: -4, heartland: 4 }); return 'Sunset clauses and judicial oversight are written in. The CC says the LDP is soft.'; } }
+        { label: 'National unity: support broad security powers', sub: 'Government rallies; Libertarians and UL object.', act: function (Q) { Q.flags.securityDone = 1; Q.govApproval += 15; Q.president.approval += 15; H.shift(Q, 0, 1); H.rel(Q, S.greenId(Q), -10); H.rel(Q, 'lib', -6); H.rel(Q, 'cc', 6); H.fac(Q, { civil: 8, proglib: 6, newdem: -4 }); return 'Parliament passes sweeping security legislation within weeks.'; } },
+        { label: 'Security with strict civil-liberties safeguards', sub: 'Harder to pass; the CC attacks it as weak.', act: function (Q) { Q.flags.securityDone = 1; Q.govApproval += 8; H.rel(Q, 'lib', 6); H.rel(Q, S.greenId(Q), 4); H.rel(Q, 'cc', -6); H.fac(Q, { civil: -6, proglib: -4, heartland: 4 }); return 'Sunset clauses and judicial oversight are written in. The CC says the LDP is soft.'; } }
       ] },
 
     // ---- systemic events ----
@@ -154,13 +154,66 @@
         { label: 'Push for an early election', sub: 'Only if the LDP leads the government.', cond: function (Q) { return S.pmIsPlayer(Q) ? true : 'The LDP does not hold the premiership.'; }, act: function (Q) { Q.flags.partnerLeft = null; S.callElection(Q, 2); return 'The voters will decide.'; } }
       ] },
 
-    { id: 'ul_strain', title: 'Strain in the United Left', when: function (Q) { return at(Q, 2001, 1) && (Q.house.ul || 0) >= 25 && chance(Q, 0.08); },
-      body: function () { return 'The United Left’s reformist wing (Greens, DSA, Working Families) wants to negotiate with centre-left governments. Its revolutionary organisations threaten to leave the alliance if it does. Nader’s Greens are now its biggest component.'; },
+    { id: 'sanders', title: 'Sanders takes over the Communists', when: function (Q) { return at(Q, 1999, 4) && !Q.flags.sanders && chance(Q, 0.07); },
+      body: function () { return 'Bernie Sanders, the Vermont socialist, is elected leader of the Communist Party USA on a platform of "democratic socialism, not sectarianism". In his first speech he says the left loses because it is divided into a dozen parties, and calls for a single United Left list.'; },
+      options: [
+        { label: 'Welcome a serious voice on the left', sub: 'Relations with the CPUSA up; the New Democrats wince.', act: function (Q) { Q.flags.sanders = S.now(Q); H.rel(Q, 'cpusa', 10); H.fac(Q, { newdem: 4, proglib: -2 }); return 'Sanders thanks you, and says he will still run against you.'; } },
+        { label: 'Warn about a communist-led left', sub: 'New Democrats pleased; the left closes ranks.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.flags.leftSolidarity = 1; H.rel(Q, 'cpusa', -10); H.rel(Q, 'grn', -3); H.fac(Q, { newdem: -5, proglib: 4 }); H.camp(Q, { suburb: 0.3, retire: 0.2, young: -0.3 }, 'Response to Sanders'); return 'The attack lands in the suburbs. On the left it makes unity talks easier.'; } },
+        { label: 'Say nothing', act: function (Q) { Q.flags.sanders = S.now(Q); return 'The press covers it as a curiosity.'; } }
+      ] },
+
+    { id: 'ul_talks', title: 'Talks on a United Left', repeat: true,
+      when: function (Q) { return Q.flags.sanders && Q.dormant.ul && S.now(Q) >= Q.flags.sanders + 6 && !(Q.flags.ulTalksFailed && S.now(Q) < Q.flags.ulTalksFailed + 18) && chance(Q, 0.15); },
+      body: function (Q) { return 'Sanders has brought the far left to the table: the Communist Party, the DSA, Working Families, the Vermont Progressives, the revolutionary groups' + (Q.dormant.grn ? '' : ', and Nader\u2019s Greens') + '. A single list would stop the left wasting votes in the runoffs, and could make it a real force. Every party will decide for itself.'; },
+      options: [
+        { label: 'Try to keep the Greens out: offer Nader an electoral pact', sub: 'Needs Green relations 45+. Greens less likely to join.', cond: function (Q) { return Q.dormant.grn ? 'The Greens are already in.' : C.rel(Q, Q.player, 'grn') >= 45 ? true : 'Nader will not listen (relations ' + Math.round(C.rel(Q, Q.player, 'grn')) + ').'; },
+          act: function (Q) { Q.pacts.push({ parties: [Q.player, 'grn'], type: 'transfer' }); H.fac(Q, { newdem: 6 }); return Ev.ulTalks(Q, -0.35); } },
+        { label: 'Stay out of it', act: function (Q) { return Ev.ulTalks(Q, 0); } },
+        { label: 'Denounce the talks as a communist front', sub: 'Pleases the New Democrats; helps the left unite against you.', act: function (Q) { H.fac(Q, { newdem: -5, proglib: 5 }); H.rel(Q, 'grn', -6); H.rel(Q, 'cpusa', -8); return Ev.ulTalks(Q, 0.15); } }
+      ] },
+
+    { id: 'green_split', title: 'The Greens walk out', repeat: true,
+      when: function (Q) { return !Q.dormant.ul && Q.ulMembers && Q.ulMembers.grn && Q.ulUnity < 40 && chance(Q, 0.12); },
+      body: function () { return 'After months of fights over candidate lists and whether to deal with centre-left governments, the Green Party leaves the United Left and will run its own list again.'; },
+      options: [
+        { label: 'Welcome the Greens as a possible partner', sub: 'Green relations up; Progressive Liberals pleased.', act: function (Q) { Ev.greenSplit(Q); H.rel(Q, 'grn', 10); H.fac(Q, { proglib: -3, newdem: 3 }); return 'The Greens take their MPs with them. The left is split again.'; } },
+        { label: 'Say nothing', act: function (Q) { Ev.greenSplit(Q); return 'The Greens take their MPs with them. The left is split again.'; } }
+      ] },
+
+    { id: 'ul_strain', title: 'Strain in the United Left', when: function (Q) { return !Q.dormant.ul && (Q.house.ul || 0) >= 15 && chance(Q, 0.06); },
+      body: function () { return 'The United Left\u2019s reformist wing (Greens, DSA, Working Families) wants to negotiate with centre-left governments. Its revolutionary organisations threaten to leave the alliance if it does.'; },
       options: [
         { label: 'Quietly encourage the reformists', sub: 'UL relations up; New Democrats uneasy.', act: function (Q) { H.rel(Q, 'ul', 8); H.fac(Q, { newdem: 4 }); Q.ulUnity -= 10; return 'Back-channel talks begin with the Green and DSA leaderships.'; } },
         { label: 'Stay out of it', act: function () { return 'The alliance argues in public for weeks.'; } }
       ] }
   ];
+
+  // Each far-left party decides whether to join the United Left.
+  Ev.ulTalks = function (Q, mod) {
+    var base = { cpusa: 1, dsa: 0.85, wfp: 0.6, vpp: 0.75, revsoc: 0.65, grn: 0.6 + (Q.flags.leftSolidarity ? 0.15 : 0) + mod };
+    var join = Object.keys(base).filter(function (p) { return !Q.dormant[p] && U.rng(Q) < base[p] + (p !== 'grn' ? mod / 2 : 0); });
+    if (join.length < 3 || join.indexOf('cpusa') < 0) {
+      Q.flags.ulTalksFailed = S.now(Q);
+      S.note(Q, 'The United Left talks collapse. Only ' + join.map(function (p) { return U.PARTIES[p].short; }).join(', ') + ' were ready to sign.');
+      return 'The talks collapse over candidate lists. The far left stays divided, for now.';
+    }
+    var w = S.mergeInto(Q, join, 'ul', 1.08);
+    Q.ulMembers = {}; for (var p in w) Q.ulMembers[p] = w[p];
+    Q.ulUnity = 65;
+    S.note(Q, 'The United Left is founded under Bernie Sanders: ' + join.map(function (p) { return U.PARTIES[p].short; }).join(', ') + ' will run joint lists.' + (join.indexOf('grn') < 0 && !Q.dormant.grn ? ' The Greens stay out.' : ''));
+    return '<b>The United Left is born.</b> ' + join.map(function (p) { return U.PARTIES[p].name; }).join(', ') + ' agree to run as one alliance.' + (join.indexOf('grn') < 0 && !Q.dormant.grn ? ' Nader\u2019s Greens stay out.' : '');
+  };
+
+  Ev.greenSplit = function (Q) {
+    var n = V.national(Q), tot = U.sum(Q.ulMembers), gw = Q.ulMembers.grn / tot, share = (n.ul || 0) * gw;
+    delete Q.ulMembers.grn;
+    var gs = Math.round((Q.house.ul || 0) * gw); Q.house.ul -= gs; Q.house.grn = gs;
+    Q.dormant.grn = false; Q.calib.grn = Q.calib.grn || 1;
+    var n2 = V.national(Q); Q.calib.grn *= share / Math.max(0.05, n2.grn || 0.05);
+    Q.calib.ul *= (1 - gw);
+    Q.ulUnity = 60;
+    S.note(Q, 'The Greens leave the United Left, taking ' + gs + ' MPs with them.');
+  };
 
   Ev.rebel = function (Q) { return Object.keys(Q.factions).sort(function (a, b) { return Q.factions[b].dissent - Q.factions[a].dissent; })[0]; };
 

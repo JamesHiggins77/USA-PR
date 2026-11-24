@@ -8,11 +8,11 @@
     var Q = {
       version: 1, seed: (seed || Date.now()) >>> 0, year: 1999, month: 1, player: 'ldp',
       mods: {}, stateMods: {}, homeMult: {}, causes: {}, rel: {}, pos: {}, trend: {},
-      dormant: { maga: true, afp: true }, flags: {}, timers: {}, log: [], polls: [], pacts: [],
+      dormant: { maga: true, afp: true, ul: true, acp: true }, ulMembers: null, flags: {}, timers: {}, log: [], polls: [], pacts: [],
       funds: 10, unity: 60, morale: 55, actionsLeft: U.RULES.government.actionsPerMonth,
       factions: U.clone(U.LDP_FACTIONS), leader: { name: 'Al Gore', approval: 58, charisma: 1 },
       electionNo: 0, deadline: U.monthIndex(2000, 9), electionAt: null, formation: null,
-      greenSeats: 4, ulUnity: 60, discontent: 20
+      ulUnity: 60, discontent: 20
     };
     U.ALL_PARTIES.forEach(function (p) { var P = U.PARTIES[p]; Q.pos[p] = { econ: P.econ, soc: P.soc, fed: P.fed }; Q.mods[p] = {}; });
     V.calibrate(Q);
@@ -20,14 +20,16 @@
     U.ALL_PARTIES.forEach(function (a) { U.ALL_PARTIES.forEach(function (b) {
       if (a < b) Q.rel[a + '|' + b] = Math.round(25 + 45 * U.Coalition.compat(Q, a, b));
     }); });
-    [['ldp', 'sdlp', 66], ['ldp', 'cdp', 58], ['sdlp', 'cdp', 48], ['ldp', 'asp', 56], ['ldp', 'ul', 32],
-     ['sdlp', 'ul', 40], ['cc', 'cdp', 50], ['cc', 'ldp', 30]].forEach(function (r) { U.Coalition.addRel(Q, r[0], r[1], r[2] - U.Coalition.rel(Q, r[0], r[1])); });
+    [['ldp', 'sdlp', 66], ['ldp', 'cdp', 58], ['sdlp', 'cdp', 48], ['ldp', 'reform', 56], ['ldp', 'asp', 50], ['ldp', 'grn', 32],
+     ['sdlp', 'grn', 40], ['sdlp', 'wfp', 60], ['sdlp', 'dsa', 50], ['reform', 'asp', 55], ['cc', 'cdp', 50], ['cc', 'ldp', 30]].forEach(function (r) { U.Coalition.addRel(Q, r[0], r[1], r[2] - U.Coalition.rel(Q, r[0], r[1])); });
 
     // Generate the 1999 parliament from an earlier (1996-style) electorate:
     // the governing parties stronger, the Greens before Nader's surge.
-    var tmp = { ldp: 3, sdlp: 1.5, cdp: 1.5, ul: -3.5, cc: -1 };
+    var tmp = { ldp: 3, sdlp: 1.5, cdp: 1.5, grn: -6, cc: -1, reform: 1 };
     for (var p in tmp) Q.mods[p] = V.all(tmp[p]);
-    var h = X.house(Q); Q.house = h.house; Q.lastHouse = U.clone(h.house); Q.agaSeats = agaByState(h);
+    var h = X.house(Q); Q.house = h.house;
+    // canon: Ralph Nader is one of exactly four Green MPs
+    var gd = 4 - (Q.house.grn || 0); Q.house.grn = 4; Q.house.ldp -= gd; Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h);
     Q.states = {};
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
     Q.senateSeats = [];
@@ -38,8 +40,8 @@
     for (p in tmp) Q.mods[p] = {};
     Q.lastSenate = X.senateCount(Q);
 
-    Q.gov = { pm: 'Al Gore', pmParty: 'ldp', coalition: ['ldp', 'sdlp', 'cdp'], cs: ['asp'],
-      posts: { ldp: 9, sdlp: 6, cdp: 5 }, concessions: { asp: ['transfers'] }, since: U.monthIndex(1996, 12), budgetFails: 0 };
+    Q.gov = { pm: 'Al Gore', pmParty: 'ldp', coalition: ['ldp', 'sdlp', 'cdp'], cs: ['reform'],
+      posts: { ldp: 9, sdlp: 6, cdp: 5 }, concessions: { reform: ['transfers'] }, since: U.monthIndex(1996, 12), budgetFails: 0 };
     Q.president = { name: 'Bill Clinton', party: 'ldp', approval: 66, termEnds: U.monthIndex(2001, 1), termLimited: true };
     Q.econ = { growth: 4.4, unemp: 4.3, infl: 2.2, deficit: -1.0, debt: 40, bubble: 1, busted: false };
     Q.govApproval = 54;
@@ -47,9 +49,9 @@
     Q.report = ['Opening briefing. Questions nobody can answer yet:',
       'Can the LDP stay a major party of government while managing the SDLP and the CDP?',
       'Will voters credit Clinton, Gore, the LDP, or the coalition as a whole for the good times?',
-      'Can Nader turn his popularity into seats, and will the fragmented left unite or split?',
+      'Can Nader turn his popularity into seats? The far left is split between the Greens, the Communists, the DSA, Working Families and a dozen revolutionary groups: will anyone unite it?',
       'Can the CDP stay centre-right while governing with social democrats, and can the Conservative Coalition become the alternative again?',
-      'What will the Reform Party and the regionalists demand for their votes after the election?'];
+      'Perot\u2019s Reform Party props up the government, but its best days may be behind it. What will it, and the regionalists, demand for their votes?'];
     Q.log.push({ t: U.dateStr(Q), text: 'The campaign begins. Al Gore’s Grand Coalition governs; the general election must be called by September 2000.' });
     return Q;
   };

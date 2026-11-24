@@ -5,14 +5,11 @@
   'use strict';
   var U = G.USA, P = U.Parliament = {};
 
+  // United Left seats are split among its member parties by their weight in
+  // the alliance when it was formed (Q.ulMembers).
   P.ulSplit = function (Q, seats) {
-    var out = {}, left = seats, keys = Object.keys(U.UL_MEMBERS);
-    var g = Math.min(seats, Q.greenSeats != null ? Q.greenSeats : Math.round(seats * U.UL_MEMBERS.green.w));
-    out.green = g; left -= g;
-    var rest = {}; keys.forEach(function (k) { if (k !== 'green') rest[k] = U.UL_MEMBERS[k].w; });
-    var a = U.Electoral.hamilton(rest, Math.max(0, left), 0);
-    for (var k in a) out[k] = a[k];
-    return out;
+    var w = Q.ulMembers || { cpusa: 1 };
+    return U.Electoral.hamilton(w, seats, 0);
   };
 
   // decide(party, sub) -> 'yes' | 'no' | 'abstain'
@@ -26,7 +23,7 @@
       var n = seats[p];
       if (p === 'ul') {
         var split = P.ulSplit(Q, n);
-        for (var k in split) tally(U.UL_MEMBERS[k].name, 'ul', split[k], decide('ul', k));
+        for (var k in split) tally(U.PARTIES[k].name, 'ul', split[k], decide('ul', k));
       } else if (p === 'aga' && chamber !== 'senate') {
         var ag = Q.agaSeats || {}, used = 0;
         ['AK', 'RI', 'VA'].forEach(function (st) { var m = Math.min(n - used, ag[st] || 0); used += m; tally(U.PARTIES.aga.chapters[st].name, 'aga', m, decide('aga', st)); });

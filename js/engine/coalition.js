@@ -22,6 +22,7 @@
     cdp: [{ id: 'balanced', text: 'Balanced-budget rule', value: 12, econ: 1.5 }, { id: 'family', text: 'Family tax credit', value: 8, soc: 0.5 }],
     asp: [{ id: 'transfers', text: 'Regional investment for constituent states', value: 14, deficit: 0.2 }, { id: 'family', text: 'Family tax credit', value: 8, soc: 0.5 }],
     ul: [{ id: 'climate', text: 'Climate and clean-energy programme', value: 15, econ: -1 }, { id: 'health', text: 'Universal health coverage bill', value: 10, econ: -1.5 }],
+    reform: [{ id: 'transfers', text: 'Regional investment for Reform\u2019s states', value: 14, deficit: 0.2 }, { id: 'balanced', text: 'Balanced-budget pledge', value: 10, econ: 1 }],
     cc: [{ id: 'taxcut', text: 'Across-the-board tax cut', value: 15, econ: 2, deficit: 0.5 }, { id: 'defence', text: 'Defence spending increase', value: 8, deficit: 0.2 }],
     lib: [{ id: 'taxcut', text: 'Across-the-board tax cut', value: 14, econ: 2, deficit: 0.5 }, { id: 'civlib', text: 'Civil-liberties package', value: 8, soc: -0.5 }],
     aga: [{ id: 'local', text: 'Alaska, Rhode Island and Virginia projects', value: 16, deficit: 0.1 }, { id: 'climate', text: 'Climate and clean-energy programme', value: 8, econ: -1 }],
@@ -29,7 +30,7 @@
     srp: [{ id: 'states', text: 'States’ rights package', value: 18, fed: 1.5, soc: 1 }],
     default: [{ id: 'local', text: 'Regional investment package', value: 14, deficit: 0.1 }, { id: 'devolve', text: 'Devolution commission', value: 10, fed: 1 }]
   };
-  C.demandsOf = function (p) { return C.DEMANDS[p] || C.DEMANDS.default; };
+  C.demandsOf = function (p) { if (U.LEFT_MEMBERS[p] && p !== 'vpp') return C.DEMANDS.ul; return C.DEMANDS[p] || C.DEMANDS.default; };
 
   C.seats = function (Q, list) { return list.reduce(function (s, p) { return s + (Q.house[p] || 0); }, 0); };
 
@@ -82,7 +83,7 @@
     });
     return U.Parliament.count(Q, 'house', function (p, sub) {
       var v = verdicts[p] || 'no';
-      if (p === 'ul' && v === 'yes') { var st = U.UL_MEMBERS[sub].stance; return st === 'reformist' ? 'yes' : st === 'hard' ? 'abstain' : 'no'; }
+      if (p === 'ul' && v === 'yes') { var st = U.LEFT_MEMBERS[sub] || 'hard'; return st === 'reformist' ? 'yes' : st === 'hard' ? 'abstain' : 'no'; }
       if (p === 'aga' && sub && sub !== 'other' && U.PARTIES.aga.chapters[sub]) {
         var ch = U.PARTIES.aga.chapters[sub], pmPos = U.Elections.pos(Q)[deal.pm];
         var d = E.dist(ch, pmPos);

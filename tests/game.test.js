@@ -9,8 +9,9 @@ test('the 1999 opening matches the canon', () => {
   assert.strictEqual(Q.president.name, 'Bill Clinton');
   assert.strictEqual(Q.gov.pm, 'Al Gore');
   assert.deepStrictEqual(Q.gov.coalition, ['ldp', 'sdlp', 'cdp']);
-  assert.deepStrictEqual(Q.gov.cs, ['asp']);
-  assert.strictEqual(Q.greenSeats, 4, 'Nader is one of four Green MPs');
+  assert.deepStrictEqual(Q.gov.cs, ['reform']);
+  assert.ok(Q.dormant.ul && Q.dormant.acp, 'no United Left or ACP in 1999');
+  assert.strictEqual(Q.house.grn, 4, 'Nader is one of four Green MPs');
   const g = ['ldp', 'sdlp', 'cdp'];
   assert.ok(g.reduce((s, p) => s + Q.house[p], 0) >= 401, 'government controls the House');
   const sen = U.Elections.senateCount(Q);
@@ -49,8 +50,8 @@ test('a numerical majority does not form automatically', () => {
 });
 
 test('United Left and AGA members vote separately', () => {
-  const Q = U.Game.newGame(9); Q.house.ul = 30; Q.house.aga = 5; Q.agaSeats = { AK: 2, RI: 1, VA: 2 };
-  const res = U.Parliament.count(Q, 'house', (p, sub) => p === 'ul' ? (U.UL_MEMBERS[sub].stance === 'reformist' ? 'yes' : 'no') : p === 'aga' ? (sub === 'VA' ? 'no' : 'yes') : 'abstain');
+  const Q = U.Game.newGame(9); Q.ulMembers = { grn: 3, dsa: 2, cpusa: 1, revsoc: 1 }; Q.house.ul = 30; Q.house.aga = 5; Q.agaSeats = { AK: 2, RI: 1, VA: 2 };
+  const res = U.Parliament.count(Q, 'house', (p, sub) => p === 'ul' ? (U.LEFT_MEMBERS[sub] === 'reformist' ? 'yes' : 'no') : p === 'aga' ? (sub === 'VA' ? 'no' : 'yes') : 'abstain');
   const ul = res.by.filter(b => b.party === 'ul'); assert.ok(ul.some(b => b.vote === 'yes') && ul.some(b => b.vote === 'no'));
   const aga = res.by.filter(b => b.party === 'aga'); assert.ok(aga.some(b => b.vote === 'no') && aga.some(b => b.vote === 'yes'));
 });
@@ -65,5 +66,26 @@ test('the campaign runs headless to 2005 without errors and MAGA stays dormant b
   }
   assert.ok(Q.year >= 2005);
   assert.strictEqual(Q.dormant.maga, true);
+  assert.strictEqual(Q.dormant.acp, true, 'ACP only appears in the 2020s');
   assert.ok(Q.electionNo >= 1);
+});
+
+test('the far left can unite into the United Left, and the Greens can leave it', () => {
+  const Q = U.Game.newGame(4); U.Flow.begin(Q);
+  const before = sum(Q.house);
+  const w = U.Game.mergeInto(Q, ['grn', 'cpusa', 'dsa', 'wfp', 'revsoc'], 'ul', 1.05); Q.ulMembers = w;
+  assert.strictEqual(sum(Q.house), before);
+  assert.ok(Q.dormant.grn && Q.dormant.cpusa && !Q.dormant.ul);
+  const n = U.Votes.national(Q); assert.ok(n.ul > 4 && n.ul < 9, 'UL keeps roughly the members\' vote: ' + n.ul);
+  Q.house.ul = 20; U.Events.greenSplit(Q);
+  assert.ok(!Q.dormant.grn && Q.house.grn > 0 && !Q.ulMembers.grn);
+});
+
+test('Reform is absorbed into the ASP, keeping its seats and its C&S role', () => {
+  const Q = U.Game.newGame(4);
+  const r = Q.house.reform, a = Q.house.asp || 0;
+  U.Game.mergeInto(Q, ['reform'], 'asp', 0.85);
+  assert.strictEqual(Q.house.asp, r + a); assert.ok(Q.dormant.reform);
+  assert.ok(Q.gov.cs.indexOf('asp') >= 0 && Q.gov.cs.indexOf('reform') < 0);
+  assert.ok(!Q.senateSeats.some(x => x.party === 'reform'));
 });
