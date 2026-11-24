@@ -65,6 +65,7 @@
     }
     var conc = (deal.concessions && deal.concessions[p]) || [];
     conc.forEach(function (id) {
+      if (id === 'speaker') { var sv = Math.round(8 + 14 * P.office); score += sv; reasons.push('Concession: Speaker of the House (+' + sv + ')'); return; }
       var d = C.demandsOf(p).filter(function (x) { return x.id === id; })[0];
       if (d) { score += d.value; reasons.push('Concession: ' + d.text + ' (+' + d.value + ')'); }
     });
@@ -73,8 +74,9 @@
     // parties that are surging prefer opposition / fresh elections
     var trend = (Q.trend && Q.trend[p]) || 0;
     if (trend > 1.5) { score -= 8; reasons.push('Rising in the polls: tempted by opposition'); }
-    var ok = score >= (role === 'coalition' ? 45 : 30);
-    return { score: Math.round(score), ok: ok, reasons: reasons };
+    // margin: positive = agrees, negative = refuses (and by how much)
+    var margin = Math.round(score - (role === 'coalition' ? 45 : 30));
+    return { score: Math.round(score), margin: margin, ok: margin >= 0, reasons: reasons };
   };
 
   // How each party will vote on a PM candidate under a deal.

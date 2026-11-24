@@ -37,6 +37,21 @@
     U.Decks.toDiscard(Q, slot);
     return { text: 'You set the card aside.', out: F.end(Q) };
   };
+  // let a month pass without playing a card (the hand is kept)
+  F.skip = function (Q) {
+    if (Q.pendingEvent) return null;
+    return { text: 'You let the month pass.', out: F.end(Q) };
+  };
+  // skip several months, stopping at anything that needs the player:
+  // an event, an election, government formation talks or an offer
+  F.skipAhead = function (Q, max) {
+    var n = 0, out = {};
+    while (n < (max || 12) && !Q.pendingEvent) {
+      out = F.end(Q); n++;
+      if (out.general || out.presidential || (Q.formation && (F.canNegotiate(Q) || Q.formation.offer))) break;
+    }
+    return { text: 'You let ' + n + ' month' + (n > 1 ? 's' : '') + ' pass.', out: out };
+  };
   F.discardAll = function (Q) {
     if (Q.pendingEvent) return null;
     for (var i = 0; i < Q.hand.length; i++) U.Decks.toDiscard(Q, i);
@@ -79,6 +94,7 @@
   F.canNegotiate = function (Q) {
     return !!Q.formation && !Q.formation.offer && (Q.house[Q.player] || 0) >= 40 && !(Q.timers.negotiate > 0);
   };
+  F.speakerOffered = function (deal) { for (var p in deal.concessions) if (deal.concessions[p].indexOf('speaker') >= 0) return p; return null; };
   F.blankDeal = function (Q) { return { pm: Q.player, coalition: [Q.player], cs: [], posts: {}, concessions: {} }; };
   F.normalisePosts = function (Q, deal) {
     var tot = C.seats(Q, deal.coalition);

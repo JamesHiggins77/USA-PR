@@ -30,6 +30,10 @@
 
   // ---- key terms
   var TERMS = {
+    'Speaker of the House': 'Presides over the House and controls its agenda. Normally from the Prime Minister\u2019s party, but it can be offered to a partner in coalition talks, which annoys your own members.',
+    'Speaker': 'Presides over the House. Can be offered to a partner in coalition talks.',
+    'Vice President': 'Elected with the President on a joint ticket. A running mate from another party can bring that party on board, at the cost of your own members\u2019 hopes.',
+    'President pro tempore of the Senate': 'The Senate\u2019s presiding officer: a senior senator from the largest governing party in the Senate.',
     'Grand Coalition': 'A government of the large centre-left and centre-right parties together: in 1999, LDP + SDLP + CDP.',
     'confidence and supply': 'A party outside the cabinet agrees to back the government on confidence votes and budgets, usually in return for concessions. It gets no ministers.',
     'Confidence and supply': 'A party outside the cabinet agrees to back the government on confidence votes and budgets, usually in return for concessions. It gets no ministers.',

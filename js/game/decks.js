@@ -197,6 +197,8 @@
     }
     return null;
   };
+  // draw from a deck into the first empty slot
+  D.drawAny = function (Q, d) { var i = Q.hand.indexOf(null); return i < 0 ? null : D.draw(Q, d, i); };
   D.handFull = function (Q) { return Q.hand.every(Boolean); };
   // the player may act once every empty slot is filled or nothing can be drawn
   D.ready = function (Q) { return Q.hand.every(function (h) { return h; }) || !D.ORDER.some(function (d) { return D.canDraw(Q, d) === true; }); };

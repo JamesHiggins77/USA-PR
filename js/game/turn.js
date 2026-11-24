@@ -310,7 +310,8 @@
     res.close = h.districts.filter(function (d) { return d.round === 2 && Math.abs(d.r2[d.finalists[0]] - d.r2[d.finalists[1]]) < 2; })
       .slice(0, 8).map(function (d) { return { state: d.state, n: d.n, a: d.finalists[0], b: d.finalists[1], va: d.r2[d.finalists[0]], vb: d.r2[d.finalists[1]] }; });
     // full race-by-race detail for election night (kept out of the save file)
-    var slim = function (r, sid) { return { s: sid || r.state, n: r.n, round: r.round, w: r.winner, f: r.finalists, r2: r.r2 }; };
+    var slim = function (r, sid) { var t = Object.keys(r.r1).sort(function (a, b) { return r.r1[b] - r.r1[a]; }).slice(0, 4).map(function (p) { return [p, Math.round(r.r1[p] * 10) / 10]; });
+      return { s: sid || r.state, n: r.n, round: r.round, w: r.winner, f: r.finalists, r2: r.r2, t: t }; };
     var detail = { districts: h.districts.map(function (d) { return slim(d); }), senate: races.map(function (r) { return slim(r); }), pr: {}, governors: [] };
     for (sid in h.byState) if (sid !== 'DC') detail.pr[sid] = h.byState[sid].pr;
     for (sid in U.STATES) if (Q.states[sid].govRace) detail.governors.push(slim(Q.states[sid].govRace, sid));
@@ -364,12 +365,37 @@
     res.winnerName = w.name; res.winnerParty = w.party; res.date = U.dateStr(Q);
     Q.lastPresidential = res;
     var oldPres = Q.president;
+    var vp = (mine && mine.party === Q.player && w.party === Q.player && mine.vp) ? mine.vp : { name: w.party === Q.player ? 'an LDP running mate' : S.officeName(Q, 'speaker', w.party, 1), party: w.party };
+    Q.offices = Q.offices || {}; Q.offices.vp = vp;
     Q.president = { name: w.name, party: w.party, approval: 58, termEnds: S.now(Q) + 2 + 48, termLimited: oldPres.name === w.name };
-    S.note(Q, w.name + ' (' + U.PARTIES[w.party].short + ') is elected President' + (res.round === 2 ? ' in the second round' : ' in the first round') + '.');
+    S.note(Q, w.name + ' (' + U.PARTIES[w.party].short + ') is elected President, with ' + vp.name + ' (' + U.PARTIES[vp.party].short + ') as Vice President' + (res.round === 2 ? ' in the second round' : ' in the first round') + '.');
     // the LDP leader becomes President: the party needs a new leader (and PM)
     if (w.party === Q.player && Q.leader.name === w.name) { Q.flags.leaderToWhiteHouse = S.now(Q); }
     Q.presCandidate = null; Q.presWithdrawn = [];
     return res;
+  };
+
+  // ---- presiding officers ----
+  var OFFICE_NAMES = {
+    ldp: ['Dick Gephardt', 'Nancy Pelosi', 'Steny Hoyer'], sdlp: ['David Bonior', 'Marcy Kaptur', 'Sherrod Brown'],
+    cdp: ['Dennis Hastert', 'Chris Shays', 'Fred Upton'], cc: ['Newt Gingrich', 'Dick Armey', 'Tom DeLay'],
+    asp: ['Bart Stupak'], reform: ['Jesse Ventura'], ul: ['Bernie Sanders'], maga: ['Kevin McCarthy'],
+    ppt: { ldp: ['Robert Byrd', 'Pat Leahy'], sdlp: ['Paul Wellstone', 'Tom Harkin'], cdp: ['Pete Domenici', 'Richard Lugar'], cc: ['Strom Thurmond', 'Ted Stevens'] }
+  };
+  S.officeName = function (Q, office, p, n) {
+    var list = office === 'ppt' ? OFFICE_NAMES.ppt[p] : OFFICE_NAMES[p];
+    if (list && list.length) return list[(n || 0) % list.length];
+    return 'a senior ' + U.PARTIES[p].short + ' member';
+  };
+  // Speaker: the PM's party unless the coalition deal gave it away.
+  // President pro tempore: the largest governing party in the Senate.
+  S.setPresidingOfficers = function (Q, speakerParty) {
+    var g = Q.gov, o = Q.offices = Q.offices || {};
+    var sp = speakerParty || g.pmParty;
+    if (!o.speaker || o.speaker.party !== sp) o.speaker = { name: S.officeName(Q, 'speaker', sp, Q.electionNo), party: sp };
+    var sen = X.senateCount(Q), gp = g.coalition.concat(g.cs).filter(function (p) { return sen[p]; }).sort(function (a, b) { return sen[b] - sen[a]; })[0];
+    if (!gp) gp = Object.keys(sen).sort(function (a, b) { return sen[b] - sen[a]; })[0];
+    if (!o.ppt || o.ppt.party !== gp) o.ppt = { name: S.officeName(Q, 'ppt', gp, Q.electionNo), party: gp };
   };
 
   // ---- government formation (brief §4.8) ----
@@ -388,6 +414,13 @@
       C.addRel(Q, p, deal.pm, 6);
     }
     Q.formation = null; Q.govApproval = 50;
+    var spk = null; for (var cp in deal.concessions) if (deal.concessions[cp].indexOf('speaker') >= 0) spk = cp;
+    S.setPresidingOfficers(Q, spk);
+    // giving a top office away costs goodwill inside the player's party
+    if (spk && deal.pm === Q.player && spk !== Q.player) {
+      for (var fk in Q.factions) Q.factions[fk].dissent += 6; Q.unity -= 4;
+      S.note(Q, 'The Speakership goes to the ' + U.PARTIES[spk].short + ' (' + Q.offices.speaker.name + '). LDP members who wanted the job are not pleased.');
+    }
     S.note(Q, label + ' is confirmed as Prime Minister, leading ' + deal.coalition.map(function (p) { return U.PARTIES[p].short; }).join('–') +
       (deal.cs.length ? ' with confidence and supply from ' + deal.cs.map(function (p) { return U.PARTIES[p].short; }).join(', ') : '') + '.');
   };
@@ -442,9 +475,10 @@
       if (!c.done && S.now(Q) > c.due) { C.addRel(Q, c.party, Q.gov ? Q.gov.pmParty : Q.player, -1.5); }
     });
     // factions drift and the leader's standing follows the polls
-    for (var k in Q.factions) Q.factions[k].dissent = U.clamp(Q.factions[k].dissent + U.gauss(Q) * 1.2 - 0.3, 0, 100);
-    Q.funds = U.round1(Q.funds + 0.35 + Q.morale / 400);
-    Q.leader.approval = U.clamp(Q.leader.approval + ((Q.trend[Q.player] || 0) * 1.2) + U.gauss(Q) * 1.2 - 0.1, 5, 90);
+    // factions drift back toward a baseline of grumbling; the leader's standing toward the middle
+    for (var k in Q.factions) Q.factions[k].dissent = U.clamp(Q.factions[k].dissent + (25 - Q.factions[k].dissent) * 0.03 + U.gauss(Q) * 1.2, 0, 100);
+    Q.funds = U.round1(Math.min(40, Q.funds + 0.35 + Q.morale / 400 - Math.max(0, Q.funds - 20) * 0.03)); // a big war chest is spent on upkeep
+    Q.leader.approval = U.clamp(Q.leader.approval + ((Q.trend[Q.player] || 0) * 1.2) + (45 - Q.leader.approval) * 0.03 + U.gauss(Q) * 1.2, 5, 90);
     for (var t in Q.timers) if (Q.timers[t] > 0) Q.timers[t] -= 1;
     // advance the calendar
     Q.month += 1; if (Q.month > 12) { Q.month = 1; Q.year += 1; }

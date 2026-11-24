@@ -108,6 +108,9 @@
       for (p in seats) g.house[p] = (g.house[p] || 0) + seats[p];
     }
     if (!s.unicameral) g.senate = E.divisor(sh, R.stateSenate.seats, R.stateSenate.formula, R.stateSenate.threshold);
+    // presiding officers: the party leading the chamber's majority
+    g.houseSpeaker = X.chamberChoice(Q, g.house);
+    if (g.senate) g.senateSpeaker = X.chamberChoice(Q, g.senate);
     return g;
   };
 

@@ -26,7 +26,7 @@
     if (g && g.detail) {
       g.detail.districts.forEach(function (d) {
         var t = callTime(d.s, 'd' + d.n);
-        items.push({ tab: 'districts', night: 1, t: t, state: d.s, party: d.round === 1 ? d.w : null, runoff: d.round === 2 ? d.f : null, label: d.s + '-' + d.n, top: d.top });
+        items.push({ tab: 'districts', night: 1, t: t, state: d.s, party: d.round === 1 ? d.w : null, runoff: d.round === 2 ? d.f : null, label: d.s + '-' + d.n, top: d.t });
         if (d.round === 2) items.push({ tab: 'districts', night: 2, t: callTime(d.s, 'r' + d.n), state: d.s, party: d.w, label: d.s + '-' + d.n, r2: d.r2, f: d.f });
       });
       Object.keys(g.detail.pr).forEach(function (sid) {
@@ -34,11 +34,11 @@
         items.push({ tab: 'pr', night: 1, t: Math.min(END1 - 5, t), state: sid, seats: seats, label: sid + ' list seats' });
       });
       g.detail.senate.forEach(function (r) {
-        items.push({ tab: 'senate', night: 1, t: callTime(r.s, 'sen'), state: r.s, party: r.round === 1 ? r.w : null, runoff: r.round === 2 ? r.f : null, label: 'Senate: ' + r.s, top: r.top });
+        items.push({ tab: 'senate', night: 1, t: callTime(r.s, 'sen'), state: r.s, party: r.round === 1 ? r.w : null, runoff: r.round === 2 ? r.f : null, label: 'Senate: ' + r.s, top: r.t });
         if (r.round === 2) items.push({ tab: 'senate', night: 2, t: callTime(r.s, 'sen2'), state: r.s, party: r.w, label: 'Senate: ' + r.s, f: r.f, r2: r.r2 });
       });
       g.detail.governors.forEach(function (r) {
-        items.push({ tab: 'governors', night: 1, t: callTime(r.s, 'gov'), state: r.s, party: r.round === 1 ? r.w : null, runoff: r.round === 2 ? r.f : null, label: 'Governor: ' + r.s, top: r.top });
+        items.push({ tab: 'governors', night: 1, t: callTime(r.s, 'gov'), state: r.s, party: r.round === 1 ? r.w : null, runoff: r.round === 2 ? r.f : null, label: 'Governor: ' + r.s, top: r.t });
         if (r.round === 2) items.push({ tab: 'governors', night: 2, t: callTime(r.s, 'gov2'), state: r.s, party: r.w, label: 'Governor: ' + r.s, f: r.f, r2: r.r2 });
       });
     }
@@ -203,8 +203,62 @@
       if (!document.getElementById('nt-map')) { N.stop(); return; }
       if (st.playing && st.t < END1) { st.t = Math.min(END1, st.t + dt * st.speed); hooks.update(); }
     }, 250);
+    N.attachHover(elec);
     hooks.update();
   };
+  // ---- hover cards ----
+  function pct(v) { return (Math.round(v * 10) / 10).toFixed(1) + '%'; }
+  function row(p, v) { return '<div class="kv"><span><i class="chip" style="background:' + P(p).color + '"></i>' + esc(P(p).short) + '</span><b>' + v + '</b></div>'; }
+  function isDone(i) { return i.night < st.night || (i.night === st.night && i.t <= st.t); }
+  function raceCard(title, tab, match) {
+    var i1 = st.items.filter(function (i) { return i.tab === tab && i.night === 1 && match(i); })[0];
+    var i2 = st.items.filter(function (i) { return i.tab === tab && i.night === 2 && match(i); })[0];
+    var h = '<b>' + esc(title) + '</b><br>';
+    if (!i1) return h + '<span class="muted">No race this time.</span>';
+    if (!isDone(i1)) return h + '<span class="muted">Not yet called.</span>';
+    var t = i1.top || [];
+    if (!i1.runoff) h += '<b style="color:' + P(i1.party).color + '">' + esc(P(i1.party).name) + '</b> wins outright<br>';
+    else if (i2 && isDone(i2)) h += '<b style="color:' + P(i2.party).color + '">' + esc(P(i2.party).name) + '</b> wins the runoff' + i2.f.map(function (p) { return row(p, pct(i2.r2[p])); }).join('') + '<span class="muted">First round:</span>';
+    else h += 'Runoff: ' + esc(P(i1.runoff[0]).short) + ' v ' + esc(P(i1.runoff[1]).short) + '<br><span class="muted">First round:</span>';
+    return h + t.map(function (x) { return row(x[0], pct(x[1])); }).join('');
+  }
+  function stateCard(elec, sid) {
+    var name = (U.STATES[sid] || U.DC).name, tab = st.tab, cm = cands(elec);
+    if (tab === 'senate') return raceCard(name + ': U.S. Senate (direct seat)', 'senate', function (i) { return i.state === sid; });
+    if (tab === 'governors') return raceCard(name + ': Governor', 'governors', function (i) { return i.state === sid; });
+    if (tab === 'pr') {
+      var i = st.items.filter(function (x) { return x.tab === 'pr' && x.state === sid; })[0];
+      if (!i) return '<b>' + esc(name) + '</b><br>No list seats.';
+      if (!isDone(i)) return '<b>' + esc(name) + ': list seats</b><br><span class="muted">Counting.</span>';
+      return '<b>' + esc(name) + ': ' + U.sum(i.seats) + ' list seats</b>' + Object.keys(i.seats).filter(function (p) { return i.seats[p]; }).sort(function (a, b) { return i.seats[b] - i.seats[a]; }).map(function (p) { return row(p, i.seats[p]); }).join('');
+    }
+    if (tab === 'ec') {
+      var night = st.night === 2 && elec.presidential.byState2 ? 2 : 1;
+      var e = st.items.filter(function (x) { return x.tab === 'ec' && x.state === sid && x.night === night; })[0];
+      if (!e || !isDone(e)) return '<b>' + esc(name) + '</b><br><span class="muted">Not yet called.</span>';
+      var tot = U.sum(e.votes);
+      return '<b>' + esc(name) + ': ' + U.sum(e.ev) + ' electors' + (night === 2 ? ' (runoff)' : '') + '</b>' + Object.keys(e.votes).sort(function (a, b) { return e.votes[b] - e.votes[a]; }).filter(function (c) { return e.votes[c] / tot > 0.01; })
+        .map(function (c) { return '<div class="kv"><span><i class="chip" style="background:' + P(cm[c].party).color + '"></i>' + esc(cm[c].name) + '</span><b>' + pct(e.votes[c] / tot * 100) + ' · ' + (e.ev[c] || 0) + '</b></div>'; }).join('');
+    }
+    var won = {}, pend = 0, open = 0;
+    st.items.forEach(function (i) {
+      if (i.tab !== 'districts' || i.state !== sid || i.night !== 1) return;
+      if (!isDone(i)) { open++; return; }
+      if (!i.runoff) { won[i.party] = (won[i.party] || 0) + 1; return; }
+      var i2 = st.items.filter(function (x) { return x.tab === 'districts' && x.night === 2 && x.label === i.label; })[0];
+      if (i2 && isDone(i2)) won[i2.party] = (won[i2.party] || 0) + 1; else pend++;
+    });
+    return '<b>' + esc(name) + ': House districts</b>' + Object.keys(won).sort(function (a, b) { return won[b] - won[a]; }).map(function (p) { return row(p, won[p]); }).join('') +
+      (pend ? '<div class="small">' + pend + ' going to a runoff</div>' : '') + (open ? '<div class="small muted">' + open + ' not yet called</div>' : '');
+  }
+  N.attachHover = function (elec) {
+    U.Zoom.attach(document.getElementById('nt-map'), 'night-states', function (t) { return t.dataset.state ? stateCard(elec, t.dataset.state) : null; });
+    U.Zoom.attach(document.getElementById('nt-dmap'), 'night-districts', function (t) {
+      var k = t.dataset.d || (t.dataset.state + '-1'), parts = k.split('-'), name = (U.STATES[parts[0]] || U.DC).name;
+      return raceCard(name + ' ' + (U.DISTRICTS[parts[0]] && U.DISTRICTS[parts[0]].cells.length > 1 ? 'district ' + parts[1] : 'at-large'), 'districts', function (i) { return i.label === k; });
+    });
+  };
+
   N.stop = function () { if (timer) clearInterval(timer); timer = null; };
   N.reset = function () { N.stop(); st = null; };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

@@ -53,6 +53,8 @@
     Q.lastPresidential = S.pres1996(Q);
     Q.gov = { pm: 'Al Gore', pmParty: 'ldp', coalition: ['ldp', 'sdlp', 'cdp'], cs: ['reform'],
       posts: { ldp: 9, sdlp: 6, cdp: 5 }, concessions: { reform: ['transfers'] }, since: U.monthIndex(1996, 12), budgetFails: 0 };
+    // Presiding officers and the Vice President (names are scenario assumptions)
+    Q.offices = { speaker: { name: 'Dick Gephardt', party: 'ldp' }, ppt: { name: 'Robert Byrd', party: 'ldp' }, vp: { name: 'Bob Kerrey', party: 'ldp' } };
     Q.president = { name: 'Bill Clinton', party: 'ldp', approval: 66, termEnds: U.monthIndex(2001, 1), termLimited: true };
     Q.econ = { growth: 4.4, unemp: 4.3, infl: 2.2, deficit: -1.0, debt: 40, bubble: 1, busted: false };
     Q.govApproval = 54;

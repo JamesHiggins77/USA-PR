@@ -64,6 +64,14 @@ Still flagged:
 - **MAGA and the America First Party** remain dormant until conditions allow: MAGA from mid-2015 with high discontent, and the AFP only after MAGA has been in government.
 - **Snap elections** are possible after 12 months of government.
 
+## 4b. Offices (designer request)
+
+- **Speaker of the House**: from the Prime Minister's party, unless the coalition deal offers it to a partner (the "Speaker of the House" concession at the negotiating table). Offering it raises every LDP faction's dissent and lowers unity.
+- **President pro tempore of the Senate**: a senior senator from the largest governing party in the Senate.
+- **Vice President**: elected with the President. The LDP's nominee can take a running mate from another party (SDLP, CDP or Reform) in return for that party standing down; this also costs goodwill among LDP members.
+- **State legislative speakers**: each state house and state senate is presided over by the party leading its majority.
+- Officeholders' names (Gephardt, Byrd, Kerrey and later appointees) are scenario assumptions.
+
 ## 5. Not yet built (next steps)
 
 - More authored events for 2002–2024 (the systemic loop runs to 2024 and beyond, but authored content thins out after 2001).

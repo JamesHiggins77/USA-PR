@@ -2,7 +2,7 @@
 (function (G) {
   'use strict';
   var U = G.USA, S = U.Game, F = U.Flow, C = U.Coalition, V = U.Votes, Ch = U.Charts, K = U.Content, Ev = U.Events;
-  var Q = null, view = 'office', openCard = null, openSlot = null, Dk = U.Decks, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
+  var mapHover = null, Q = null, view = 'office', openCard = null, openSlot = null, Dk = U.Decks, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
   var $ = function (id) { return document.getElementById(id); };
   var P = function (p) { return U.PARTIES[p]; };
   var chip = function (p) { return '<i class="chip" style="background:' + P(p).color + '"></i>'; };
@@ -24,6 +24,7 @@
     m.innerHTML = fn();
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
+    if (view === 'map' && $('mapbox')) U.Zoom.attach($('mapbox'), 'states-' + mapMode + '-' + (mapMode === 'districts' ? 'geo' : mapStyle), mapHover);
     if (view === 'night') U.Night.start(Q, elec, function () { go('election'); });
   }
 
@@ -52,6 +53,7 @@
     else if (g) h += '<div>PM <b>' + esc(g.pm) + '</b> (' + P(g.pmParty).short + ')</div><div class="small">' + g.coalition.map(function (p) { return chip(p) + P(p).short; }).join(' ') + (g.cs.length ? ' &middot; C&amp;S: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') : '') + '</div><div class="kv"><span>Seats</span><b>' + S.govSeats(Q) + ' / 801</b></div>';
     h += '<div class="kv"><span>Gov. approval</span><b>' + Math.round(Q.govApproval) + '%</b></div>';
     h += '<div class="kv"><span>President</span><b>' + esc(Q.president.name) + ' (' + P(Q.president.party).short + ')</b></div>';
+    if (Q.offices) h += '<div class="kv"><span>Vice President</span><b>' + esc(Q.offices.vp.name) + ' (' + P(Q.offices.vp.party).short + ')</b></div><div class="kv"><span>Speaker</span><b>' + esc(Q.offices.speaker.name) + ' (' + P(Q.offices.speaker.party).short + ')</b></div>';
     var ed = Q.electionAt || Q.deadline, y = Math.floor(ed / 12), m = ed % 12 + 1;
     h += '<div class="kv"><span>' + (Q.electionAt ? 'Election day' : 'Election due by') + '</span><b>' + U.MONTHS[m - 1].slice(0, 3) + ' ' + y + '</b></div>';
     h += '<h4>Polls</h4>';
@@ -94,23 +96,24 @@
       h += '<div class="panel"><b>Government formation.</b> No party has a majority on its own. ' + (F.canNegotiate(Q) ? 'You can open negotiations for ' + esc(Q.leader.name) + ' to become Prime Minister.' : (Q.formation && (Q.house[Q.player] || 0) < 40 ? 'The LDP is too small to lead a government.' : 'Talks resume next month.')) +
         ' Other parties will try if you do not.<div class="row" style="margin-top:8px"><button class="btn" data-act="negotiate"' + (F.canNegotiate(Q) ? '' : ' disabled') + '>Open the negotiating table</button></div></div>';
     }
-    var ready = Dk.ready(Q), empty = Q.hand.filter(function (x) { return !x; }).length;
-    h += '<h2>Your hand</h2><p class="small muted">Each month, <b>play one card or discard one</b>; either ends the month. ' + (empty ? 'Fill your empty slot' + (empty > 1 ? 's' : '') + ' first by drawing from a deck.' : 'Hover over a card to read it.') + '</p><div class="hand">';
+    var empty = Q.hand.filter(function (x) { return !x; }).length;
+    h += '<h2>Decks</h2><p class="small muted">Click a deck to draw a card into your hand' + (empty ? ' (' + empty + ' empty slot' + (empty > 1 ? 's' : '') + ')' : ' (your hand is full)') + '. Drawing takes no time.</p><div class="decks">';
+    Dk.ORDER.forEach(function (d) {
+      var ok = empty ? Dk.canDraw(Q, d) : 'Your hand is full: play or discard a card first.';
+      h += '<button class="deck deck-' + d + '" data-deck="' + d + '"' + (ok === true ? '' : ' disabled title="' + esc(ok) + '"') + '><span class="deckname">' + Dk.DECKS[d].name + '</span><span class="small">' + Q.decks[d].draw.length + ' cards' + (Q.decks[d].discard.length ? ' · ' + Q.decks[d].discard.length + ' used' : '') + '</span>' + (ok === true ? '' : '<span class="small why">' + esc(ok) + '</span>') + '</button>';
+    });
+    h += '</div>';
+    h += '<h2>Your hand <span class="small muted">' + (5 - empty) + ' / 5</span></h2><p class="small muted">Play a card or discard one, and the month ends. Or skip the month and keep your cards.</p><div class="hand">';
     Q.hand.forEach(function (hc, i) {
-      if (!hc) {
-        h += '<div class="slot empty"><div class="tag">Empty slot</div><div class="small" style="margin:4px 0 8px">Draw from:</div>' + Dk.ORDER.map(function (d) {
-          var ok = Dk.canDraw(Q, d); return '<button class="deckbtn deck-' + d + '" data-draw="' + d + '|' + i + '"' + (ok === true ? '' : ' disabled title="' + esc(ok) + '"') + '>' + Dk.DECKS[d].name + '</button>';
-        }).join('') + '</div>';
-        return;
-      }
+      if (!hc) { h += '<div class="slot empty"><span class="small muted">Empty — click a deck above</span></div>'; return; }
       var c = Dk.card(hc.id), use = F.cardUsable(Q, i), body = c.body(Q).replace(/<[^>]+>/g, '');
       h += '<div class="slot deck-' + hc.deck + '"><div class="tag">' + esc(Dk.DECKS[hc.deck].name) + '</div><div class="t">' + esc(c.title) + '</div><div class="small muted cardtext">' + esc(body.length > 150 ? body.slice(0, 147) + '…' : body) + '</div>' +
         (use === true ? '' : '<div class="small down">' + esc(use) + '</div>') +
-        '<div class="row" style="margin-top:auto;padding-top:8px"><button class="btn" data-play="' + i + '"' + (use === true && ready ? '' : ' disabled') + '>Play</button><button class="btn ghost" data-discard="' + i + '"' + (ready ? '' : ' disabled') + '>Discard</button></div></div>';
+        '<div class="row" style="margin-top:auto;padding-top:8px"><button class="btn" data-play="' + i + '"' + (use === true ? '' : ' disabled') + '>Play</button><button class="btn ghost" data-discard="' + i + '">Discard</button></div></div>';
     });
     h += '</div>';
-    h += '<div class="endbar"><button class="btn ghost" data-act="discardall"' + (Q.hand.some(Boolean) || ready ? '' : ' disabled') + '>Discard the whole hand and let the month pass</button><span class="small muted">No action this month; you draw five fresh cards next month.</span></div>';
-    h += '<p class="small muted">' + Dk.ORDER.map(function (d) { return Dk.DECKS[d].name + ': ' + Q.decks[d].draw.length + ' in deck, ' + Q.decks[d].discard.length + ' discarded'; }).join(' &middot; ') + '</p>';
+    h += '<div class="endbar"><button class="btn" data-act="skip">Skip month</button><button class="btn ghost" data-act="skipahead">Skip ahead</button><span class="small muted">Skip ahead runs up to 12 months and stops at the next event, election or negotiation.</span>' +
+      '<button class="btn ghost" data-act="discardall" style="margin-left:auto"' + (Q.hand.some(Boolean) ? '' : ' disabled') + '>Discard hand &amp; skip</button></div>';
     h += briefing();
     return h;
   }
@@ -156,20 +159,27 @@
     if (!deal) { deal = F.blankDeal(Q); }
     F.normalisePosts(Q, deal);
     var parties = U.ALL_PARTIES.filter(function (p) { return p !== Q.player && Q.house[p]; }).sort(function (a, b) { return Q.house[b] - Q.house[a]; });
-    var h = '<div class="date">Government formation</div><h1>The negotiating table</h1><p>Build a government for <b>' + esc(Q.leader.name) + '</b>. Choose each party’s role, the cabinet posts (20 in total) and the concessions you offer. Each party judges the deal on policy, trust, office, red lines and its own interests.</p>';
-    h += '<table><tr><th>Party</th><th>Seats</th><th>Role</th><th>Posts</th><th>Concessions</th><th>Verdict</th></tr>';
     var postsUsed = U.sum(deal.posts);
+    var h = '<div class="date">Government formation</div><h1>The negotiating table</h1><p>Build a government for <b>' + esc(Q.leader.name) + '</b>. Give each party a role, share out the 20 cabinet posts, and offer concessions (including the Speakership of the House). Each party shows a score: <b class="up">positive means it agrees</b>, <b class="down">negative means it refuses</b>, by that margin.</p>';
+    h += '<div class="negs">';
     parties.forEach(function (p) {
       var role = deal.coalition.indexOf(p) >= 0 ? 'coalition' : deal.cs.indexOf(p) >= 0 ? 'cs' : 'none';
       var a = role === 'none' ? null : C.assess(Q, p, deal, role);
-      var dem = C.demandsOf(p);
-      h += '<tr><td>' + chip(p) + P(p).name + '</td><td>' + Q.house[p] + '</td><td><select data-role="' + p + '"><option value="none"' + (role === 'none' ? ' selected' : '') + '>Opposition</option><option value="cs"' + (role === 'cs' ? ' selected' : '') + '>Confidence &amp; supply</option><option value="coalition"' + (role === 'coalition' ? ' selected' : '') + '>Coalition</option></select></td>' +
-        '<td>' + (role === 'coalition' ? '<select data-posts="' + p + '">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (n) { return '<option' + (deal.posts[p] === n ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select>' : '') + '</td>' +
-        '<td style="text-align:left">' + (role === 'none' ? '' : dem.map(function (d) { var on = (deal.concessions[p] || []).indexOf(d.id) >= 0; return '<label class="small" style="display:block"><input type="checkbox" data-conc="' + p + '|' + d.id + '"' + (on ? ' checked' : '') + '> ' + esc(d.text) + '</label>'; }).join('')) + '</td>' +
-        '<td style="text-align:left">' + (a ? '<span class="pill ' + (a.ok ? 'yes' : 'no') + '">' + (a.ok ? 'Agrees' : 'Refuses') + ' (' + a.score + ')</span><ul class="reasons">' + a.reasons.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>' : '') + '</td></tr>';
+      h += '<div class="neg"><div class="neghead"><span>' + chip(p) + '<b>' + esc(P(p).name) + '</b> <span class="muted small">' + Q.house[p] + ' seats</span></span>' +
+        (a ? '<span class="margin ' + (a.ok ? 'yes' : 'no') + '">' + (a.margin > 0 ? '+' : '') + a.margin + '</span>' : '') + '</div>';
+      h += '<div class="seg">' + [['none', 'Opposition'], ['cs', 'Confidence & supply'], ['coalition', 'Coalition']].map(function (r) { return '<button data-role="' + p + '|' + r[0] + '" class="' + (role === r[0] ? 'on' : '') + '">' + r[1] + '</button>'; }).join('') + '</div>';
+      if (role === 'coalition') h += '<div class="row small" style="margin-top:6px">Cabinet posts <button class="mini" data-posts="' + p + '|-1">−</button><b>' + (deal.posts[p] || 0) + '</b><button class="mini" data-posts="' + p + '|1"' + (postsUsed >= 20 ? ' disabled' : '') + '>+</button></div>';
+      if (role !== 'none') {
+        h += '<div class="concs">' + C.demandsOf(p).concat([{ id: 'speaker', text: 'Speaker of the House' }]).map(function (d) {
+          var on = (deal.concessions[p] || []).indexOf(d.id) >= 0, taken = d.id === 'speaker' && !on && F.speakerOffered(deal);
+          return '<button class="conc' + (on ? ' on' : '') + '" data-conc="' + p + '|' + d.id + '"' + (taken ? ' disabled title="Already offered to another party"' : '') + '>' + (on ? '✓ ' : '+ ') + esc(d.text) + '</button>';
+        }).join('') + '</div>';
+        h += '<ul class="reasons">' + a.reasons.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
+      }
+      h += '</div>';
     });
-    h += '</table>';
-    h += '<p class="small muted">LDP keeps ' + (deal.posts[Q.player] || 0) + ' posts; ' + postsUsed + ' allocated in total (20 available). Concessions become commitments: if they are not delivered, trust erodes.</p>';
+    h += '</div>';
+    h += '<p class="small muted">The LDP keeps ' + (deal.posts[Q.player] || 0) + ' posts; ' + postsUsed + ' of 20 allocated. Concessions become commitments: if they are not delivered, trust erodes.' + (F.speakerOffered(deal) ? '' : ' The Speakership stays with the LDP unless you offer it.') + '</p>';
     var inv = C.investitureVote(Q, deal);
     h += '<div class="panel"><b>Projected investiture vote:</b> ' + inv.yes + ' yes, ' + inv.no + ' no, ' + inv.abstain + ' abstaining. ' + (C.passes(inv, 1) ? '<span class="up">Passes on the first ballot.</span>' : C.passes(inv, 2) ? '<span class="up">Fails the first ballot, passes the second.</span>' : '<span class="down">Fails.</span>') +
       '<div class="small muted" style="margin-top:4px">' + inv.by.filter(function (b) { return b.n; }).map(function (b) { return esc(b.label) + ' ' + b.n + ' ' + b.vote; }).join(' &middot; ') + '</div></div>';
@@ -180,7 +190,9 @@
   // ---------- parliament ----------
   function parliament() {
     var sen = U.Elections.senateCount(Q);
-    var h = '<h1>Parliament</h1><div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, Q.house) + Ch.seatTable(Q, Q.house) + '<p class="small muted">435 two-round districts, 365 statewide list seats (' + U.RULES.house.prFormula + ', threshold ' + (U.RULES.house.prThreshold * 100) + '%), and the DC seat.</p></div>' +
+    var O = Q.offices || {}, off = function (label, o) { return o ? '<div class="kv"><span>' + label + '</span><b>' + esc(o.name) + ' ' + chip(o.party) + P(o.party).short + '</b></div>' : ''; };
+    var h0 = '<div class="panel" style="max-width:560px"><b>Officeholders</b>' + off('President', Q.president) + off('Vice President', O.vp) + (Q.gov ? off('Prime Minister', { name: Q.gov.pm, party: Q.gov.pmParty }) : '') + off('Speaker of the House', O.speaker) + off('President pro tempore of the Senate', O.ppt) + '</div>';
+    var h = '<h1>Parliament</h1>' + h0 + '<div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, Q.house) + Ch.seatTable(Q, Q.house) + '<p class="small muted">435 two-round districts, 365 statewide list seats (' + U.RULES.house.prFormula + ', threshold ' + (U.RULES.house.prThreshold * 100) + '%), and the DC seat.</p></div>' +
       '<div><h2>Senate</h2>' + Ch.hemicycle(Q, sen) + Ch.seatTable(Q, sen) + '<p class="small muted">Four per state: one directly elected, one appointed by the governor, one each by the state house and state senate (in unicameral Nebraska, the governor appoints three).</p></div></div>';
     if (Q.house.ul) { var ul = U.Parliament.ulSplit(Q, Q.house.ul); h += '<h3>Inside the United Left</h3><p class="small">' + Object.keys(ul).filter(function (k) { return ul[k]; }).map(function (k) { return esc(P(k).name) + ' <b>' + ul[k] + '</b> <span class="muted">(' + U.LEFT_MEMBERS[k] + ')</span>'; }).join(' &middot; ') + ' &middot; Unity ' + Math.round(Q.ulUnity) + '</p>'; }
     if (Q.house.revsoc) h += '<p class="small muted">' + esc(P('revsoc').note) + '</p>';
@@ -221,14 +233,29 @@
     var dw = {}; (Q.lastDistricts || []).forEach(function (d) { dw[d.s + '-' + d.n] = d.w; });
     var leanTxt = function (v) { return v == null ? 'n/a' : (v >= 0 ? 'D+' : 'R+') + Math.abs(v).toFixed(1); };
     var dTitle = function (sid, n) {
+      return '';
+    };
+    mapHover = function (t) {
+      if (t.dataset.d) { var a = t.dataset.d.split('-'); return districtCard(a[0], +a[1]); }
+      return t.dataset.state ? stateCard(t.dataset.state) : null;
+    };
+    var districtCard = function (sid, n) {
       var st = U.STATES[sid] || U.DC, L = U.DISTRICT_LEAN && U.DISTRICT_LEAN[sid], nd = U.DISTRICTS[sid] ? U.DISTRICTS[sid].cells.length : 1;
       var est = V.districtShares(Q, st, sh[sid], n - 1, nd, true), top = Object.keys(est).sort(function (a, b) { return est[b] - est[a]; }).slice(0, 4);
-      return st.name + ' ' + (nd === 1 ? 'at-large' : 'district ' + n) + '\n1998 lean (1992/96 presidential): ' + leanTxt(L && L[n - 1]) +
-        '\nLast winner: ' + (dw[sid + '-' + n] ? P(dw[sid + '-' + n]).short : 'n/a') + '\nEstimated first round now: ' + top.map(function (p) { return P(p).short + ' ' + est[p].toFixed(0) + '%'; }).join(', ');
+      var ld = (Q.lastDistricts || []).filter(function (d) { return d.s === sid && d.n === n; })[0];
+      return '<b>' + esc(st.name) + ' ' + (nd === 1 ? 'at-large' : 'district ' + n) + '</b><br>1998 lean: <b>' + leanTxt(L && L[n - 1]) + '</b><br>Last winner: ' + (ld ? chip(ld.w) + P(ld.w).short + (ld.round === 2 ? ' (runoff v ' + P(ld.f.filter(function (x) { return x !== ld.w; })[0]).short + ')' : ' (first round)') : 'n/a') +
+        '<div class="muted" style="margin-top:4px">Estimated first round now:</div>' + top.map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + est[p].toFixed(1) + '%</b></div>'; }).join('');
+    };
+    var stateCard = function (sid) {
+      var st = U.STATES[sid] || U.DC, o = sh[sid], top = Object.keys(o).sort(function (a, b) { return o[b] - o[a]; }).slice(0, 5), sg = Q.states[sid], del = (Q.houseByState || {})[sid] || {};
+      var h = '<b>' + esc(st.name) + '</b><div class="muted">Polling now</div>' + top.map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + o[p].toFixed(1) + '%</b></div>'; }).join('');
+      h += '<div class="muted" style="margin-top:4px">House delegation (' + U.sum(del) + ')</div><div>' + Object.keys(del).filter(function (p) { return del[p]; }).sort(function (a, b) { return del[b] - del[a]; }).map(function (p) { return chip(p) + P(p).short + ' ' + del[p]; }).join(' ') + '</div>';
+      if (sg) h += '<div style="margin-top:4px">Governor: ' + chip(sg.governor) + P(sg.governor).short + ' · Senators: ' + Q.senateSeats.filter(function (x) { return x.state === sid; }).map(function (x) { return chip(x.party) + P(x.party).short; }).join(' ') + '</div>';
+      return h;
     };
     var mp = mapMode === 'districts' ? Ch.districtMap(Q, function (sid, n) { var w = dw[sid + '-' + n]; return w ? P(w).color : '#9aa0a6'; }, '', dTitle) + '<p class="small muted">Winners at the last general election. Boundaries are the real congressional districts drawn after the 2010 census (2012 maps, from the public-domain @unitedstates/districts project). Hover over a district for its 1998 partisan lean and estimated vote. Each district\u2019s vote follows its real lean from the 1992 and 1996 presidential elections.</p>'
       : mapStyle === 'geo' ? Ch.geoMap(Q, colorOf, labelOf) : Ch.map(Q, colorOf, labelOf);
-    h += '<div style="margin-top:10px' + (mapStyle === 'geo' ? '' : ';max-width:640px') + '">' + mp + '</div><p class="small muted">Click a state for its results and delegations.</p><div id="statedetail" class="panel">' + stateDetail(mapSel || 'CA', sh) + '</div>';
+    h += '<div id="mapbox" style="margin-top:10px' + (mapStyle === 'geo' || mapMode === 'districts' ? '' : ';max-width:640px') + '">' + mp + '</div><p class="small muted">Scroll or use + / \u2212 to zoom, drag to pan. Hover for details; click a state for its full results and delegations.</p><div id="statedetail" class="panel">' + stateDetail(mapSel || 'CA', sh) + '</div>';
     return h;
   }
   function seatTable(o) {
@@ -257,6 +284,7 @@
     if (sg) {
       var sen = Q.senateSeats.filter(function (x) { return x.state === id; });
       h += '<h3>Senate delegation</h3>' + sen.map(function (x) { return '<div class="kv"><span>' + { direct: 'Directly elected', gov: 'Governor’s appointee', house: s.unicameral ? 'Governor’s appointee (for legislature)' : 'State house appointee', senate: s.unicameral ? 'Governor’s appointee (for legislature)' : 'State senate appointee' }[x.type] + '</span><b>' + chip(x.party) + P(x.party).name + '</b></div>'; }).join('');
+      h += '<h3>Legislative speakers</h3><div class="kv"><span>' + (s.unicameral ? 'Speaker of the Legislature' : 'Speaker of the State House') + '</span><b>' + (sg.houseSpeaker ? chip(sg.houseSpeaker) + P(sg.houseSpeaker).short : 'n/a') + '</b></div>' + (sg.senate ? '<div class="kv"><span>President of the State Senate</span><b>' + (sg.senateSpeaker ? chip(sg.senateSpeaker) + P(sg.senateSpeaker).short : 'n/a') + '</b></div>' : '');
       h += '<h3>Governor</h3><div class="kv"><span>' + (sg.govRace && sg.govRace.round === 2 ? 'Won in a runoff' : 'Won outright') + '</span><b>' + chip(sg.governor) + P(sg.governor).name + '</b></div>';
     }
     h += '</div></div>';
@@ -314,7 +342,7 @@
   function bind() {
     document.querySelectorAll('[data-tab]').forEach(function (b) { b.onclick = function () { go(b.dataset.tab); }; });
     // hand buttons carry the card id; option buttons inside a card scene carry an index
-    document.querySelectorAll('[data-draw]').forEach(function (b) { b.onclick = function () { var a = b.dataset.draw.split('|'); Dk.draw(Q, a[0], +a[1]); save(); render(); }; });
+    document.querySelectorAll('[data-deck]').forEach(function (b) { b.onclick = function () { Dk.drawAny(Q, b.dataset.deck); save(); render(); }; });
     document.querySelectorAll('[data-play]').forEach(function (b) { b.onclick = function () { openSlot = +b.dataset.play; openCard = F.cardAt(Q, openSlot); lastText = null; render(); window.scrollTo(0, 0); }; });
     document.querySelectorAll('[data-discard]').forEach(function (b) { b.onclick = function () { after(F.discard(Q, +b.dataset.discard)); }; });
     document.querySelectorAll('.scene button[data-card]').forEach(function (b) { b.onclick = function () { var slot = openSlot; openCard = null; openSlot = null; after(F.playHand(Q, slot, +b.dataset.card)); }; });
@@ -322,9 +350,9 @@
     document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
     document.querySelectorAll('[data-map]').forEach(function (b) { b.onclick = function () { mapMode = b.dataset.map; render(); }; });
     document.querySelectorAll('.tile').forEach(function (t) { t.onclick = function () { mapSel = t.dataset.state; render(); var d = $('statedetail'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
-    document.querySelectorAll('[data-role]').forEach(function (s) { s.onchange = function () { var p = s.dataset.role; deal.coalition = deal.coalition.filter(function (x) { return x !== p; }); deal.cs = deal.cs.filter(function (x) { return x !== p; }); delete deal.posts[p]; if (s.value === 'coalition') deal.coalition.push(p); if (s.value === 'cs') deal.cs.push(p); if (s.value !== 'none' && !deal.concessions[p]) deal.concessions[p] = []; deal.posts = {}; render(); }; });
-    document.querySelectorAll('[data-posts]').forEach(function (s) { s.onchange = function () { deal.posts[s.dataset.posts] = +s.value; render(); }; });
-    document.querySelectorAll('[data-conc]').forEach(function (c) { c.onchange = function () { var a = c.dataset.conc.split('|'), l = deal.concessions[a[0]] = deal.concessions[a[0]] || []; if (c.checked) l.push(a[1]); else l.splice(l.indexOf(a[1]), 1); render(); }; });
+    document.querySelectorAll('[data-role]').forEach(function (b) { b.onclick = function () { var a = b.dataset.role.split('|'), p = a[0]; deal.coalition = deal.coalition.filter(function (x) { return x !== p; }); deal.cs = deal.cs.filter(function (x) { return x !== p; }); delete deal.posts[p]; if (a[1] === 'coalition') deal.coalition.push(p); if (a[1] === 'cs') deal.cs.push(p); if (a[1] === 'none') delete deal.concessions[p]; else if (!deal.concessions[p]) deal.concessions[p] = []; deal.posts = {}; render(); }; });
+    document.querySelectorAll('[data-posts]').forEach(function (b) { b.onclick = function () { var a = b.dataset.posts.split('|'); deal.posts[a[0]] = U.clamp((deal.posts[a[0]] || 0) + +a[1], 1, 12); var mine = deal.posts[Q.player] || 0; if (+a[1] > 0 && U.sum(deal.posts) > 20 && mine > 1) deal.posts[Q.player] = mine - 1; if (+a[1] < 0) deal.posts[Q.player] = mine + 1; render(); }; });
+    document.querySelectorAll('[data-conc]').forEach(function (b) { b.onclick = function () { var a = b.dataset.conc.split('|'), l = deal.concessions[a[0]] = deal.concessions[a[0]] || [], i = l.indexOf(a[1]); if (i >= 0) l.splice(i, 1); else l.push(a[1]); render(); }; });
     document.querySelectorAll('[data-act]').forEach(function (b) {
       var a = b.dataset.act;
       if (a === 'loadfile') { b.onchange = function () { var f = b.files[0]; if (!f) return; f.text().then(function (t) { Q = JSON.parse(t); save(); go('office'); }); }; return; }
@@ -333,6 +361,8 @@
         if (a === 'continue') { Q = S.load(); F.begin(Q); go('office'); }
         if (a === 'close') { openCard = null; openSlot = null; render(); }
         if (a === 'discardall') { after(F.discardAll(Q)); }
+        if (a === 'skip') { after(F.skip(Q)); }
+        if (a === 'skipahead') { after(F.skipAhead(Q, 12)); }
         if (a === 'seenight') { go('night'); }
         if (a === 'seefinal') { go('election'); }
         if (a === 'closeelec') { elec = null; go('office'); }
