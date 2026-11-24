@@ -113,7 +113,7 @@
       '<div class="row nightbar"><button class="btn" data-nt="play"></button><button class="btn ghost" data-nt="skip">Skip to the end of the night</button>' +
       '<label class="small">Speed <input type="range" min="1" max="60" value="' + st.speed + '" data-nt="speed"> <span id="nt-speed"></span></label><b id="nt-clock" class="clock"></b></div>' +
       '<div class="row" style="margin:10px 0">' + st.tabs.map(function (t) { return '<button class="btn ' + (st.tab === t[0] ? '' : 'ghost') + '" data-nttab="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
-      '<div class="nightgrid"><div><div id="nt-map">' + Ch.geoMap(Q, function () { return '#9aa0a6'; }, function () { return ''; }) + '</div><p class="small muted">Grey: not yet reporting. Solid: the party winning most races called so far. Stripes: going to a runoff between those two parties.</p></div><div><div id="nt-progress" class="small"></div><div id="nt-tally"></div><h3>Latest</h3><div id="nt-feed"></div></div></div>' +
+      '<div class="nightgrid"><div><div id="nt-map">' + Ch.geoMap(Q, function () { return '#9aa0a6'; }, function () { return ''; }) + '</div><div id="nt-dmap" style="display:none">' + Ch.districtMap(Q, function () { return '#9aa0a6'; }) + '</div><p class="small muted">Grey: not yet reporting. Solid: the winner (on the state map, the party winning most races called so far). Stripes: going to a runoff between those two parties.</p></div><div><div id="nt-progress" class="small"></div><div id="nt-tally"></div><h3>Latest</h3><div id="nt-feed"></div></div></div>' +
       '<div class="endbar" id="nt-end"></div>';
   };
 
@@ -125,6 +125,17 @@
     document.getElementById('nt-clock').textContent = clock(Math.min(st.t, END1));
     document.getElementById('nt-speed').textContent = st.speed + ' min/s';
     document.querySelector('[data-nt=play]').textContent = st.playing ? 'Pause' : 'Play';
+    var dist = st.tab === 'districts';
+    document.getElementById('nt-map').style.display = dist ? 'none' : '';
+    document.getElementById('nt-dmap').style.display = dist ? '' : 'none';
+    if (dist) {
+      var dsvg = document.querySelector('#nt-dmap svg'), status = districtStatus();
+      document.querySelectorAll('#nt-dmap path.dist').forEach(function (el) {
+        var v = status[el.dataset.d], fill = '#9aa0a6';
+        if (v && v.runoff) fill = 'url(#' + stripes(dsvg, v.runoff[0], v.runoff[1], 'dro') + ')'; else if (v) fill = U.PARTIES[v].color;
+        if (el.getAttribute('fill') !== fill) el.setAttribute('fill', fill);
+      });
+    }
     var svg = document.querySelector('#nt-map svg');
     if (svg && !svg.querySelector('defs')) svg.insertAdjacentHTML('afterbegin', '<defs></defs>');
     document.querySelectorAll('#nt-map .tile').forEach(function (g) {
@@ -151,9 +162,22 @@
     if (end.dataset.h !== html) { end.innerHTML = html; end.dataset.h = html; bindEnd(); }
   };
 
+  // per-district state of play: party, {runoff: [a, b]}, or absent (not called)
+  function districtStatus() {
+    var o = {};
+    st.items.forEach(function (i) {
+      if (i.tab !== 'districts') return;
+      var done = i.night < st.night || (i.night === st.night && i.t <= st.t);
+      if (!done) return;
+      if (i.night === 1 && i.runoff) { if (!o[i.label]) o[i.label] = { runoff: i.runoff }; }
+      else o[i.label] = i.party;
+    });
+    return o;
+  }
+
   // diagonal stripes in the two runoff finalists' colours
-  function stripes(svg, a, b) {
-    var id = 'ro-' + a + '-' + b;
+  function stripes(svg, a, b, prefix) {
+    var id = (prefix || 'ro') + '-' + a + '-' + b;
     if (!svg.querySelector('#' + id)) svg.querySelector('defs').insertAdjacentHTML('beforeend',
       '<pattern id="' + id + '" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="12" fill="' + P(a).color + '"/><rect x="6" width="6" height="12" fill="' + P(b).color + '"/></pattern>');
     return id;

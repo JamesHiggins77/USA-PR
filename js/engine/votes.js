@@ -114,22 +114,31 @@
   // Shares by district: each district is a pseudo-state whose demography is
   // drawn around the state's (urban core -> rural fringe, union towns, Black-
   // and Hispanic-majority seats), plus a local candidate-quality factor.
-  V.districtShares = function (Q, s, sh, i, n) {
-    var d = n === 1 ? 0 : (i / (n - 1) - 0.5) * 2; // -1 urban core .. +1 rural
-    var g = function (k) { return U.gauss(Q) * k; };
-    var ds = {
+  // Deterministic per-district noise: a district keeps its character from one
+  // election to the next (safe seats exist); only candidates vary.
+  function hg(key) { var h = 2166136261; for (var i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619); }
+    var x = 0; for (var k = 0; k < 6; k++) { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; x += (h >>> 0) / 4294967296; } return x - 3; }
+  V.hg = hg;
+  V.districtProfile = function (s, i, n) {
+    var D = U.DISTRICTS && U.DISTRICTS[s.id], u = D && D.u[i] != null ? D.u[i] : (n === 1 ? 0.5 : 1 - i / (n - 1));
+    var d = 1 - 2 * u, key = s.id + i, g = function (t, k) { return hg(key + t) * k; };
+    return {
       id: s.id, region: s.region,
-      urban: U.clamp(s.urban - d * 0.6 + g(0.1), 0.05, 1),
-      relig: U.clamp(s.relig + d * 0.25 + g(0.1), 0.1, 1),
-      union: U.clamp(s.union * (1 + g(0.45)), 0.01, 0.6),
-      black: U.clamp(s.black * (1 - d * 0.8 + g(0.5)), 0, 0.85),
-      hisp: U.clamp(s.hisp * (1 - d * 0.6 + g(0.5)), 0, 0.85),
-      old: U.clamp(s.old + g(0.03), 0.05, 0.3)
+      urban: U.clamp(s.urban - d * 0.7 + g('u', 0.12), 0.03, 1),
+      relig: U.clamp(s.relig + d * 0.3 + g('r', 0.14), 0.05, 1),
+      union: U.clamp(s.union * (1 + g('n', 0.7)), 0.01, 0.7),
+      black: U.clamp(s.black * (1 - d * 1.1 + g('b', 0.8)), 0, 0.85),
+      hisp: U.clamp(s.hisp * (1 - d * 0.8 + g('h', 0.8)), 0, 0.85),
+      old: U.clamp(s.old + g('o', 0.04), 0.04, 0.32)
     };
-    var base = V.stateShares(Q, ds), out = {}, tot = 0;
+  };
+  V.districtShares = function (Q, s, sh, i, n) {
+    var base = V.stateShares(Q, V.districtProfile(s, i, n)), out = {}, tot = 0;
     for (var p in sh) {
       var v = base[p] != null ? base[p] : sh[p];
-      out[p] = Math.max(0.01, v * (1 + U.gauss(Q) * 0.12)); tot += out[p];
+      // local strongholds and the candidate on the ballot
+      v *= (1 + hg(s.id + i + p) * 0.18) * (1 + U.gauss(Q) * 0.08);
+      out[p] = Math.max(0.01, v); tot += out[p];
     }
     for (p in out) out[p] = out[p] / tot * 100;
     return out;

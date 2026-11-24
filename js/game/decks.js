@@ -74,6 +74,45 @@
       }); } }
   );
 
+  // ---- regional stand-down agreements ----
+  var SD_DEALS = [
+    { partner: 'sdlp', mine: 'midwest', theirs: 'pacific', need: 60, fac: { proglib: -3, newdem: 4 }, text: 'Extend the deal with the SDLP: it stands aside in the Pacific states, the LDP in the wider Midwest' },
+    { partner: 'cdp', mine: 'plains', theirs: 'neatlantic', need: 55, fac: { proglib: 8, newdem: -4, heartland: -3 }, text: 'A deal with the CDP: it stands aside in New England and the Atlantic, the LDP on the Plains' },
+    { partner: 'grn', mine: null, theirs: 'rustbelt', need: 50, fac: { newdem: 6, proglib: -3 }, conc: 'climate', text: 'Ask the Greens to stand aside in the Rust Belt, for a climate pledge' },
+    { partner: 'ul', mine: null, theirs: 'rustbelt', need: 50, fac: { newdem: 8, proglib: -3 }, conc: 'climate', text: 'Ask the United Left to stand aside in the Rust Belt, for a climate pledge' },
+    { partner: 'reform', mine: null, theirs: 'midwest', need: 55, fac: { heartland: -2 }, conc: 'transfers', text: 'Ask Reform to stand aside in the Midwest, for regional investment' },
+    { partner: 'aga', mine: 'mountain', theirs: 'pacific', need: 55, fac: { heartland: 2 }, text: 'A deal with the AGA: its chapters stand aside in the Pacific states, the LDP in the Mountain West' }
+  ];
+  D.pactsOf = function (Q, p) { var o = {}; (Q.standDowns || []).forEach(function (a) { if (a.party === p || a.partner === p) o[a.pact] = true; }); return Object.keys(o); };
+  K.CARDS.push({ id: 'standdown', title: 'Regional electoral agreements', tag: 'Coalition',
+    body: function (Q) {
+      var mine = (Q.standDowns || []).filter(function (a) { return a.party === Q.player || a.partner === Q.player; });
+      return 'Parties can agree not to field district candidates in each other’s regions, so their voters stop splitting. Voters do not follow perfectly: about 70% go to the partner. Current LDP agreements: ' +
+        (mine.length ? mine.map(function (a) { return U.PARTIES[a.party].short + ' stands aside in ' + U.Elections.REGION_NAMES[a.region]; }).join('; ') : 'none') + '.';
+    },
+    options: function (Q) {
+      var opts = SD_DEALS.filter(function (d) { return !Q.dormant[d.partner] && !(Q.standDowns || []).some(function (a) { return a.party === d.partner && a.region === d.theirs; }); }).map(function (d) {
+        return { label: d.text, sub: 'Needs relations ' + d.need + '+ with the ' + U.PARTIES[d.partner].short + '.',
+          cond: function (Q) { var r = C.rel(Q, Q.player, d.partner); return r >= d.need ? true : 'The ' + U.PARTIES[d.partner].short + ' will not agree (relations ' + Math.round(r) + ').'; },
+          act: function (Q) {
+            var pact = Q.player + '-' + d.partner + '-' + S.now(Q);
+            Q.standDowns.push({ party: d.partner, partner: Q.player, region: d.theirs, pact: pact });
+            if (d.mine) Q.standDowns.push({ party: Q.player, partner: d.partner, region: d.mine, pact: pact });
+            if (d.conc) Q.pendingConcessions = (Q.pendingConcessions || []).concat([{ party: d.partner, id: d.conc, text: C.demandsOf(d.partner).filter(function (x) { return x.id === d.conc; })[0].text + ' (stand-down deal)', due: S.now(Q) + 18 }]);
+            H.fac(Q, d.fac); H.rel(Q, d.partner, 3);
+            // existing partners of the other party resent it
+            D.pactsOf(Q, d.partner).forEach(function (pk) { (Q.standDowns || []).forEach(function (a) { if (a.pact === pk && a.party !== d.partner && a.party !== Q.player) C.addRel(Q, a.party, d.partner, -5); }); });
+            return 'The agreement is signed. Local branches that lose their candidates are not happy, but the arithmetic is better.';
+          } };
+      });
+      D.pactsOf(Q, Q.player).forEach(function (pk) {
+        var a = Q.standDowns.filter(function (x) { return x.pact === pk; }), other = a[0].party === Q.player ? a[0].partner : a[0].party;
+        opts.push({ label: 'End the agreement with the ' + U.PARTIES[other].short, sub: 'The LDP runs everywhere again. Relations suffer; activists cheer.',
+          act: function (Q) { Q.standDowns = Q.standDowns.filter(function (x) { return x.pact !== pk; }); H.rel(Q, other, -12); Q.morale += 5; return 'The LDP will contest every district. The ' + U.PARTIES[other].short + ' calls it a betrayal.'; } });
+      });
+      return opts;
+    } });
+
   D.appointmentTargets = function (Q) {
     var out = [];
     Object.keys(U.STATES).forEach(function (sid) {
@@ -118,7 +157,7 @@
     national: { name: 'National Politics', cards: [['interview', 3], ['ads', 2], ['platform', 2], ['bill', 3], ['noconf', 1]] },
     party: { name: 'Party Politics', cards: [['funds', 3], ['faction', 3], ['whip', 2], ['candidates', 2], ['organise', 2]] },
     state: { name: 'State Politics', cards: [['state_tour', 3], ['gov_project', 2], ['appointment', 2], ['regional_deal', 2], ['fed_dispute', 2], ['gov_recruit', 1]] },
-    coalition: { name: 'Coalition & Government', cards: [['court', 3], ['pact', 2], ['summit', 2], ['budget', 1], ['dissolve', 1]] },
+    coalition: { name: 'Coalition & Government', cards: [['court', 3], ['pact', 2], ['standdown', 2], ['summit', 2], ['budget', 1], ['dissolve', 1]] },
     campaign: { name: 'Campaign', cards: [['rally', 3], ['debate', 1], ['gotv', 3], ['ads', 1]] }
   };
   D.ORDER = ['national', 'party', 'state', 'coalition', 'campaign'];

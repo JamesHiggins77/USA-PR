@@ -12,7 +12,10 @@
       funds: 10, unity: 60, morale: 55, seen: {},
       factions: U.clone(U.LDP_FACTIONS), leader: { name: 'Al Gore', approval: 58, charisma: 1 },
       electionNo: 0, deadline: U.monthIndex(2000, 9), electionAt: null, formation: null,
-      ulUnity: 60, discontent: 20
+      ulUnity: 60, discontent: 20,
+      // standing electoral agreements in 1999 (designer canon)
+      standDowns: [{ party: 'sdlp', partner: 'ldp', region: 'neatlantic', pact: 'ldp-sdlp' }, { party: 'ldp', partner: 'sdlp', region: 'rustbelt', pact: 'ldp-sdlp' },
+        { party: 'cdp', partner: 'cc', region: 'south', pact: 'cc-cdp' }, { party: 'cc', partner: 'cdp', region: 'liberal', pact: 'cc-cdp' }]
     };
     U.ALL_PARTIES.forEach(function (p) { var P = U.PARTIES[p]; Q.pos[p] = { econ: P.econ, soc: P.soc, fed: P.fed }; Q.mods[p] = {}; });
     V.calibrate(Q);
@@ -28,6 +31,7 @@
     var tmp = { ldp: 3, sdlp: 1.5, cdp: 1.5, grn: -6, cc: -1, reform: 1 };
     for (var p in tmp) Q.mods[p] = V.all(tmp[p]);
     var h = X.house(Q); Q.house = h.house; Q.houseByState = S.delegations(h);
+    Q.lastDistricts = h.districts.map(function (d) { return { s: d.state, n: d.n, w: d.winner, round: d.round, f: d.finalists }; });
     // canon: Ralph Nader is one of exactly four Green MPs
     var gd = 4 - (Q.house.grn || 0); Q.house.grn = 4; Q.house.ldp -= gd;
     // keep state delegations consistent with the national total

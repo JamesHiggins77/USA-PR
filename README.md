@@ -34,6 +34,7 @@ js/game/               game state, monthly turn, cards, decks and hand, events, 
 js/ui/                 interface and SVG charts
 tests/                 node --test suite
 tools/playtest.js      headless random playthrough: node tools/playtest.js <seed> <endYear>
+tools/build_districts.js  regenerates js/data/districts.js (the synthetic district map)
 docs/DESIGN.md         rule defaults, data model, scenario assumptions, open questions
 ```
 

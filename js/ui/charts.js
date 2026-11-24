@@ -76,6 +76,26 @@
     return '<svg viewBox="0 0 975 610" width="100%" style="color:var(--ink)">' + out + '</svg>';
   };
 
+  // District map: each state's synthetic districts clipped to its outline.
+  // colorOf(stateId, districtNumber) -> fill (colour or url(#pattern)).
+  Ch.districtMap = function (Q, colorOf, defs) {
+    var G = U.GEO, D = U.DISTRICTS, clips = '', out = '';
+    Object.keys(G).forEach(function (sid) {
+      var cells = D[sid] ? D[sid].cells : [null], st = U.STATES[sid] || U.DC;
+      clips += '<clipPath id="clip-' + sid + '"><path d="' + G[sid].d + '"/></clipPath>';
+      out += '<g class="tile" data-state="' + sid + '" clip-path="url(#clip-' + sid + ')">';
+      cells.forEach(function (c, i) {
+        out += '<path class="dist" data-d="' + sid + '-' + (i + 1) + '" d="' + (c || G[sid].d) + '" fill="' + (colorOf(sid, i + 1) || '#9aa0a6') + '" stroke="var(--card)" stroke-width="0.35"><title>' + st.name + ' district ' + (i + 1) + '</title></path>';
+      });
+      out += '</g><path d="' + G[sid].d + '" fill="none" stroke="var(--ink)" stroke-opacity=".55" stroke-width="0.9" pointer-events="none"/>';
+    });
+    return '<svg viewBox="0 0 975 610" width="100%" style="color:var(--ink)"><defs>' + clips + (defs || '') + '</defs>' + out + '</svg>';
+  };
+  // diagonal stripes for a pair of parties (runoffs)
+  Ch.stripeDef = function (a, b) {
+    return '<pattern id="ro-' + a + '-' + b + '" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="' + U.PARTIES[a].color + '"/><rect x="4" width="4" height="8" fill="' + U.PARTIES[b].color + '"/></pattern>';
+  };
+
   Ch.polls = function (Q, parties) {
     var P = Q.polls.slice(-60), W = 640, Hh = 240, pad = 30;
     if (P.length < 2) return '<p class="muted small">Polling history will appear after a few months.</p>';

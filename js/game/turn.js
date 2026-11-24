@@ -223,6 +223,18 @@
     });
   };
 
+  S.agreementsCheck = function (Q) {
+    var seen = {};
+    (Q.standDowns || []).forEach(function (a) {
+      if (seen[a.pact]) return; seen[a.pact] = 1;
+      if (Q.dormant[a.party] || Q.dormant[a.partner]) { Q.standDowns = Q.standDowns.filter(function (x) { return x.pact !== a.pact; }); return; }
+      if (C.rel(Q, a.party, a.partner) < 28 && U.rng(Q) < 0.2) {
+        Q.standDowns = Q.standDowns.filter(function (x) { return x.pact !== a.pact; });
+        S.note(Q, 'The electoral agreement between the ' + U.PARTIES[a.party].short + ' and the ' + U.PARTIES[a.partner].short + ' collapses. Both will contest every district.');
+      }
+    });
+  };
+
   // Budget vote (brief §8.2). Partners vote yes unless relations collapsed.
   S.budgetVote = function (Q, plan, playerVote) {
     var g = Q.gov, decide = function (p, sub) {
@@ -302,6 +314,7 @@
     var detail = { districts: h.districts.map(function (d) { return slim(d); }), senate: races.map(function (r) { return slim(r); }), pr: {}, governors: [] };
     for (sid in h.byState) if (sid !== 'DC') detail.pr[sid] = h.byState[sid].pr;
     for (sid in U.STATES) if (Q.states[sid].govRace) detail.governors.push(slim(Q.states[sid].govRace, sid));
+    Q.lastDistricts = detail.districts.map(function (d) { return { s: d.s, n: d.n, w: d.w, round: d.round, f: d.f }; });
     Q.lastElection = res;
     res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];
@@ -415,7 +428,7 @@
   S.endMonth = function (Q) {
     Q.report = []; Q.causes = Q.causes || {};
     var before = V.national(Q)[Q.player];
-    S.economy(Q); S.attribution(Q); S.aiParties(Q); S.coalitionStability(Q);
+    S.economy(Q); S.attribution(Q); S.aiParties(Q); S.coalitionStability(Q); S.agreementsCheck(Q);
     if (Q.formation) {
       var r = S.aiFormation(Q);
       Q.formation && (Q.formation.monthsLeft -= 1);

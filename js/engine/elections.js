@@ -38,6 +38,36 @@
     return out;
   }
 
+  // Regional stand-down agreements (brief §4.7): a party does not field
+  // district candidates in the agreed states. Its voters mostly follow the
+  // agreement (70% to the partner), the rest choose by ideology or abstain.
+  X.REGION_SETS = {
+    rustbelt: ['MI', 'OH', 'IN', 'WI', 'PA', 'WV'],
+    neatlantic: ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'DE', 'MD', 'DC'],
+    south: ['AL', 'AR', 'FL', 'GA', 'KY', 'LA', 'MS', 'NC', 'OK', 'SC', 'TN', 'VA', 'WV', 'TX'],
+    liberal: ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'DE', 'MD', 'DC', 'CA', 'OR', 'WA', 'HI', 'IL'],
+    pacific: ['CA', 'OR', 'WA', 'HI', 'AK'], midwest: ['IL', 'IN', 'IA', 'MI', 'MN', 'MO', 'OH', 'WI'],
+    plains: ['KS', 'NE', 'ND', 'SD', 'IA', 'MO'], mountain: ['AZ', 'CO', 'ID', 'MT', 'NV', 'NM', 'UT', 'WY']
+  };
+  X.REGION_NAMES = { rustbelt: 'the Rust Belt', neatlantic: 'New England and the Atlantic states', south: 'the South', liberal: 'the liberal states',
+    pacific: 'the Pacific states', midwest: 'the Midwest', plains: 'the Plains', mountain: 'the Mountain West' };
+  X.standsDown = function (Q, p, sid) {
+    return (Q.standDowns || []).filter(function (a) { return a.party === p && X.REGION_SETS[a.region].indexOf(sid) >= 0; })[0];
+  };
+  function applyStandDowns(Q, sid, sh) {
+    var out = sh, pos = X.pos(Q);
+    (Q.standDowns || []).forEach(function (a) {
+      if (!out[a.party] || X.REGION_SETS[a.region].indexOf(sid) < 0 || !out[a.partner]) return;
+      if (out === sh) out = U.clone(sh);
+      var v = out[a.party]; delete out[a.party];
+      out[a.partner] += v * 0.7;
+      var others = Object.keys(out).filter(function (q) { return q !== a.partner; }), ws = others.map(function (q) { return Math.exp(-E.dist(pos[a.party], pos[q]) / 3); }), wt = ws.reduce(function (x, y) { return x + y; }, 0);
+      others.forEach(function (q, i) { out[q] += v * 0.15 * ws[i] / wt; }); // 15% elsewhere, 15% stay home
+    });
+    return out;
+  }
+  X.applyStandDowns = applyStandDowns;
+
   // Full House election. Returns {house, districts, pr, byState}.
   X.house = function (Q) {
     var app = X.apportion(), pos = X.pos(Q), pact = X.pactFn(Q), house = {}, byState = {}, districts = [], prOut = {};
@@ -46,7 +76,7 @@
       var sh = V.stateShares(Q, s), st = byState[s.id] = { shares: sh, district: {}, pr: {} };
       var nd = s.id === 'DC' ? R.house.dcSeats : app.district[s.id];
       for (var i = 0; i < nd; i++) {
-        var ds = applyJoint(Q, V.districtShares(Q, s, sh, i, nd));
+        var ds = applyJoint(Q, applyStandDowns(Q, s.id, V.districtShares(Q, s, sh, i, nd)));
         var r = E.twoRound(ds, pos, { majority: R.house.districtFirstRoundMajority, pactWith: pact });
         r.state = s.id; r.n = i + 1; districts.push(r);
         st.district[r.winner] = (st.district[r.winner] || 0) + 1; add(r.winner, 1);
