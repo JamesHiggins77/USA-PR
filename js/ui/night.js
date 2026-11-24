@@ -75,14 +75,22 @@
         var top = Object.keys(i.seats).sort(function (a, b) { return i.seats[b] - i.seats[a]; })[0]; byState[i.state] = top; return; }
       if (i.night === 1) total++;
       // a race is decided by its night-2 item if it had a runoff
-      if (i.night === 1 && i.runoff) { if (done(i)) { pending++; byState[i.state] = byState[i.state] || { runoff: true }; } return; }
+      var s = byState[i.state] = byState[i.state] || { c: {}, pairs: {}, pend: 0 };
+      if (i.night === 1 && i.runoff) { if (done(i)) { pending++; s.pend++; var k = i.runoff.join('|'); s.pairs[k] = (s.pairs[k] || 0) + 1; } return; }
       if (!done(i)) return;
-      if (i.night === 2) pending--;
+      if (i.night === 2) { pending--; s.pend--; var k2 = i.f.join('|'); s.pairs[k2]--; }
       called++; tally[i.party] = (tally[i.party] || 0) + 1;
-      var s = byState[i.state]; if (!s || s.runoff) s = byState[i.state] = { c: {} }; s.c[i.party] = (s.c[i.party] || 0) + 1;
+      s.c[i.party] = (s.c[i.party] || 0) + 1;
     });
     if (tab === 'districts' || tab === 'senate' || tab === 'governors') {
-      for (var sid in byState) { var b = byState[sid]; byState[sid] = b.runoff ? 'runoff' : Object.keys(b.c).sort(function (a, c) { return b.c[c] - b.c[a]; })[0]; }
+      // a state shows its decided leader, or stripes of the most common runoff
+      // pairing while more of its races are pending than decided
+      for (var sid in byState) {
+        var b = byState[sid], dec = U.sum(b.c);
+        if (!dec && !b.pend) { delete byState[sid]; continue; }
+        if (b.pend > dec) { var pair = Object.keys(b.pairs).filter(function (k) { return b.pairs[k] > 0; }).sort(function (x, y) { return b.pairs[y] - b.pairs[x]; })[0]; byState[sid] = { runoff: pair.split('|') }; }
+        else byState[sid] = Object.keys(b.c).sort(function (a, c) { return b.c[c] - b.c[a]; })[0];
+      }
     }
     return { tally: tally, byState: byState, pending: Math.max(0, pending), called: called, total: total };
   }
@@ -105,7 +113,7 @@
       '<div class="row nightbar"><button class="btn" data-nt="play"></button><button class="btn ghost" data-nt="skip">Skip to the end of the night</button>' +
       '<label class="small">Speed <input type="range" min="1" max="60" value="' + st.speed + '" data-nt="speed"> <span id="nt-speed"></span></label><b id="nt-clock" class="clock"></b></div>' +
       '<div class="row" style="margin:10px 0">' + st.tabs.map(function (t) { return '<button class="btn ' + (st.tab === t[0] ? '' : 'ghost') + '" data-nttab="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
-      '<div class="nightgrid"><div id="nt-map">' + Ch.geoMap(Q, function () { return '#9aa0a6'; }, function () { return ''; }) + '</div><div><div id="nt-progress" class="small"></div><div id="nt-tally"></div><h3>Latest</h3><div id="nt-feed"></div></div></div>' +
+      '<div class="nightgrid"><div><div id="nt-map">' + Ch.geoMap(Q, function () { return '#9aa0a6'; }, function () { return ''; }) + '</div><p class="small muted">Grey: not yet reporting. Solid: the party winning most races called so far. Stripes: going to a runoff between those two parties.</p></div><div><div id="nt-progress" class="small"></div><div id="nt-tally"></div><h3>Latest</h3><div id="nt-feed"></div></div></div>' +
       '<div class="endbar" id="nt-end"></div>';
   };
 
@@ -117,13 +125,13 @@
     document.getElementById('nt-clock').textContent = clock(Math.min(st.t, END1));
     document.getElementById('nt-speed').textContent = st.speed + ' min/s';
     document.querySelector('[data-nt=play]').textContent = st.playing ? 'Pause' : 'Play';
+    var svg = document.querySelector('#nt-map svg');
+    if (svg && !svg.querySelector('defs')) svg.insertAdjacentHTML('afterbegin', '<defs></defs>');
     document.querySelectorAll('#nt-map .tile').forEach(function (g) {
       var sid = g.dataset.state, v = snap.byState[sid], fill = '#9aa0a6';
-      if (v === 'runoff') fill = 'url(#hatch)'; else if (v && U.PARTIES[v]) fill = U.PARTIES[v].color;
+      if (v && v.runoff) fill = 'url(#' + stripes(svg, v.runoff[0], v.runoff[1]) + ')'; else if (v && U.PARTIES[v]) fill = U.PARTIES[v].color;
       g.querySelectorAll('path, rect').forEach(function (el) { el.setAttribute('fill', fill); });
     });
-    var svg = document.querySelector('#nt-map svg');
-    if (svg && !svg.querySelector('#hatch')) svg.insertAdjacentHTML('afterbegin', '<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#c9c4b8"/><line x1="0" y1="0" x2="0" y2="8" stroke="#6b6b6b" stroke-width="3"/></pattern></defs>');
     var unit = st.tab === 'ec' ? 'electors' : 'seats';
     var prog = snap.called + ' of ' + snap.total + ' ' + (st.tab === 'governors' ? 'governorships' : unit) + ' declared';
     if (snap.pending && st.night === 1) prog += ' · <b>' + snap.pending + ' going to a runoff</b>';
@@ -142,6 +150,14 @@
     else html = '<button class="btn ghost" data-nt="final">Skip to the full results</button>';
     if (end.dataset.h !== html) { end.innerHTML = html; end.dataset.h = html; bindEnd(); }
   };
+
+  // diagonal stripes in the two runoff finalists' colours
+  function stripes(svg, a, b) {
+    var id = 'ro-' + a + '-' + b;
+    if (!svg.querySelector('#' + id)) svg.querySelector('defs').insertAdjacentHTML('beforeend',
+      '<pattern id="' + id + '" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="12" fill="' + P(a).color + '"/><rect x="6" width="6" height="12" fill="' + P(b).color + '"/></pattern>');
+    return id;
+  }
 
   var timer = null, hooks = {};
   function bindEnd() {
