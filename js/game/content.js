@@ -168,7 +168,7 @@
       cond: function (Q) { return S.pmIsPlayer(Q) && !Q.electionAt && !Q.formation && S.now(Q) >= Q.gov.since + 12; },
       body: function (Q) { var d = Q.deadline, y = Math.floor(d / 12), m = d % 12 + 1; return Q.gov.pm + ' leads the government. The election must be called by ' + U.MONTHS[m - 1] + ' ' + y + '. Calling early can catch opponents unprepared, but partners may resent it.'; },
       options: [
-        { label: 'Call the election for two months from now', sub: 'Partners lose trust if they are behind in the polls.', act: function (Q) { S.callElection(Q, 2); Q.gov.coalition.concat(Q.gov.cs).forEach(function (p) { if (p !== Q.player && (Q.trend[p] || 0) < 0) H.rel(Q, p, -6); }); Q.morale += 4; return 'The President receives the Prime Minister’s request and dissolves the House.'; } }
+        { label: 'Call the election for two months from now', sub: function (Q) { return Q.flags.clintonEarly === 1 ? 'President Clinton will resign so that a presidential election is held the same day.' : 'Partners lose trust if they are behind in the polls.'; }, act: function (Q) { S.callElection(Q, 2); Q.gov.coalition.concat(Q.gov.cs).forEach(function (p) { if (p !== Q.player && (Q.trend[p] || 0) < 0) H.rel(Q, p, -6); }); Q.morale += 4; return 'The President receives the Prime Minister’s request and dissolves the House.'; } }
       ] },
 
     // ---- opposition ----

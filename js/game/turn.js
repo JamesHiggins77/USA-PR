@@ -279,6 +279,7 @@
   S.callElection = function (Q, monthsAhead) {
     if (Q.electionAt) return;
     Q.electionAt = S.now(Q) + (monthsAhead || 2);
+    if (Q.flags.clintonEarly === 1) { Q.nextPres = Q.electionAt; Q.flags.clintonEarly = 2; S.note(Q, 'As announced, President Clinton resigns his term early: a presidential election will be held on the same day.'); }
     var d = Q.electionAt, y = Math.floor(d / 12), m = d % 12 + 1;
     S.note(Q, 'A general election is called for ' + U.MONTHS[m - 1] + ' ' + y + '.');
   };
@@ -336,8 +337,7 @@
 
   // ---- presidential election ----
   S.presidentialDue = function (Q) {
-    var f = U.RULES.president.firstElection, now = S.now(Q), first = U.monthIndex(f.year, f.month);
-    return now >= first && (now - first) % (12 * U.RULES.president.termYears) === 0;
+    return S.now(Q) === Q.nextPres;
   };
   S.defaultCandidates = function (Q) {
     var list = [], y = Q.year;
@@ -368,7 +368,10 @@
     var oldPres = Q.president;
     var vp = (mine && mine.party === Q.player && w.party === Q.player && mine.vp) ? mine.vp : { name: w.party === Q.player ? 'an LDP running mate' : S.pickPerson(Q, w.party, (function () { var e = {}; e[w.name] = 1; return e; })(), 'charisma'), party: w.party };
     Q.offices = Q.offices || {}; Q.offices.vp = vp;
-    Q.president = { name: w.name, party: w.party, approval: 58, termEnds: S.now(Q) + 2 + 48, termLimited: oldPres.name === w.name };
+    var terms = oldPres.name === w.name ? (oldPres.terms || 1) + 1 : 1;
+    Q.president = { name: w.name, party: w.party, approval: 58, terms: terms, termLimited: terms >= U.RULES.president.termLimit };
+    Q.nextPres = S.now(Q) + 12 * U.RULES.president.termYears;
+    Q.flags.clintonEarly = 0;
     S.note(Q, w.name + ' (' + U.PARTIES[w.party].short + ') is elected President, with ' + vp.name + ' (' + U.PARTIES[vp.party].short + ') as Vice President' + (res.round === 2 ? ' in the second round' : ' in the first round') + '.');
     // the LDP leader becomes President: the party needs a new leader (and PM)
     if (w.party === Q.player && Q.leader.name === w.name) { Q.flags.leaderToWhiteHouse = S.now(Q); }

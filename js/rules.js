@@ -21,7 +21,8 @@
       appointedReconsidered: 'on-state-government-change'
     },
     president: {
-      termYears: 4, firstElection: { year: 2000, month: 11 },
+      termYears: 6, lastElection: { year: 1998, month: 11 },   // designer canon: 6-year terms; Clinton elected 1992 and 1998
+      termLimit: 2,
       electors: 'house-plus-senate',    // state electors = House seats + 4; DC = 3
       dcElectors: 3,
       allocation: 'proportional',       // 'proportional' | 'winner-take-all'

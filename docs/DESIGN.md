@@ -14,7 +14,7 @@ This document follows the brief's §22 checklist: unresolved rules and their def
 | Electors per state | House seats + 4 (one per senator); DC = 3; total 1,003, majority 502 | `rules.president.electors` |
 | Elector allocation | Proportional (largest remainder) within each state; winner-take-all is a switch | `rules.president.allocation` |
 | Presidential runoff | Top two by round-one electors; round two re-runs every state as a two-way race | `rules.president.runoff` |
-| Presidential term | 4 years, first election November 2000; a two-term limit is assumed (Clinton cannot run in 2000) | `rules.president` |
+| Presidential term | **6 years** (designer canon): Clinton elected 1992 and 1998; next election November 2004, then 2010 and 2016. Two-term limit. A President may resign so that an early presidential election is held with a general election (Clinton's 1999 option), which restarts the cycle | `rules.president` |
 | Senate direct seat | Two classes of states; each direct seat is contested every second general election | `rules.senate.directClasses` |
 | Appointed senators | Re-appointed after each general election from the new state governments (governor picks own party; chambers pick the largest member of the most compatible majority) | `engine/elections.js` |
 | State elections | Held alongside federal general elections | `rules.stateElections` |
@@ -78,6 +78,12 @@ Still flagged:
 - Party leaders change after a bad election (losing 20% of seats) or occasionally otherwise. New leaders, Speakers, Vice Presidents and the 20-member cabinet are drawn from these rosters, and nobody holds two top jobs at once.
 - Competence, charisma and loyalty ratings are derived deterministically from the name. They are game values, not judgements about the real people.
 - The American Communist Party has only four names: the real party was founded in 2024, and the game activates it only in the 2020s.
+
+## 4d. 1998 background (designer canon)
+
+- Clinton was re-elected President in November 1998; the Lewinsky scandal is ongoing at the start (a small scandal penalty on government approval).
+- Donald Trump endorsed the Reform Party in the 1998 presidential election. In autumn 1999 he may explore Reform's 2000 nomination (an event).
+- February 1999 event: Clinton considers resigning so that a presidential election is held on the same day as the general election, to win a fresh mandate and move the news on from the scandal. If he does, he stands again.
 
 ## 5. Not yet built (next steps)
 

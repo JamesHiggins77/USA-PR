@@ -50,7 +50,7 @@
     Q.lastSenate = X.senateCount(Q);
 
     // the 1996 presidential result (generated) so every state has a last vote
-    Q.lastPresidential = S.pres1996(Q);
+    Q.lastPresidential = S.pres1998(Q);
     Q.gov = { pm: 'Al Gore', pmParty: 'ldp', coalition: ['ldp', 'sdlp', 'cdp'], cs: ['reform'],
       posts: { ldp: 9, sdlp: 6, cdp: 5 }, concessions: { reform: ['transfers'] }, since: U.monthIndex(1996, 12), budgetFails: 0 };
     // Presiding officers and the Vice President (names are scenario assumptions)
@@ -58,7 +58,10 @@
     // party leaders (first name in each roster)
     Q.leaders = {}; U.ALL_PARTIES.forEach(function (p) { if (U.PEOPLE[p]) Q.leaders[p] = U.PEOPLE[p][0]; });
     Q.leaders.ldp = 'Al Gore'; Q.leaders.ul = 'Bernie Sanders';
-    Q.president = { name: 'Bill Clinton', party: 'ldp', approval: 66, termEnds: U.monthIndex(2001, 1), termLimited: true };
+    var le = U.RULES.president.lastElection;
+    Q.nextPres = U.monthIndex(le.year, le.month) + 12 * U.RULES.president.termYears; // November 2004
+    Q.president = { name: 'Bill Clinton', party: 'ldp', approval: 66, terms: 2, termLimited: true };
+    Q.scandal = 2; // the Lewinsky affair
     S.assignCabinet(Q);
     Q.econ = { growth: 4.4, unemp: 4.3, infl: 2.2, deficit: -1.0, debt: 40, bubble: 1, busted: false };
     Q.govApproval = 54;
@@ -68,7 +71,7 @@
       'Will voters credit Clinton, Gore, the LDP, or the coalition as a whole for the good times?',
       'Can Nader turn his popularity into seats? The far left is split between the Greens, the Communists, the DSA, Working Families and a dozen revolutionary groups: will anyone unite it?',
       'Can the CDP stay centre-right while governing with social democrats, and can the Conservative Coalition become the alternative again?',
-      'Perot\u2019s Reform Party props up the government, but its best days may be behind it. What will it, and the regionalists, demand for their votes?'];
+      'President Clinton won a second six-year term in November 1998, but the Lewinsky scandal still fills the news. In that presidential election, Donald Trump publicly endorsed the Reform Party. Perot\u2019s Reform Party props up the government, but its best days may be behind it. What will it, and the regionalists, demand for their votes?'];
     Q.log.push({ t: U.dateStr(Q), text: 'The campaign begins. Al Gore’s Grand Coalition governs; the general election must be called by September 2000.' });
     return Q;
   };
@@ -78,11 +81,11 @@
       [st.district, st.pr].forEach(function (x) { for (var p in x) if (x[p]) d[p] = (d[p] || 0) + x[p]; }); o[s] = d; }
     return o;
   };
-  S.pres1996 = function (Q) {
+  S.pres1998 = function (Q) {
     var c = [{ id: 'ldp', party: 'ldp', name: 'Bill Clinton', backers: ['sdlp'], appeal: 3 }, { id: 'cc', party: 'cc', name: 'Bob Dole', backers: ['con', 'srp', 'lsp'], appeal: 0 },
       { id: 'reform', party: 'reform', name: 'Ross Perot', backers: ['asp'], appeal: 1 }, { id: 'cdp', party: 'cdp', name: 'CDP nominee', backers: [], appeal: 0 }, { id: 'grn', party: 'grn', name: 'Ralph Nader', backers: [], appeal: 0 }];
     var r = X.president(Q, c), w = c.filter(function (x) { return x.id === r.winner; })[0];
-    r.winnerName = w.name; r.winnerParty = w.party; r.date = 'November 1996'; r.generated = true;
+    r.winnerName = w.name; r.winnerParty = w.party; r.date = 'November 1998'; r.generated = true;
     return r;
   };
   function agaByState(h) {

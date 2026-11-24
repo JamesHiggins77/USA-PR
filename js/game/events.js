@@ -7,6 +7,26 @@
   function chance(Q, p) { return U.rng(Q) < p; }
 
   Ev.LIST = [
+    { id: 'clinton_early', title: 'Clinton wants a fresh mandate', when: function (Q) { return at(Q, 1999, 2) && Q.president.name === 'Bill Clinton' && !Q.electionAt; },
+      body: function () { return 'The Lewinsky scandal will not go away. Every press conference is about it. President Clinton tells his closest advisers, and then a reporter, that he is thinking of cutting his term short: he would resign the presidency so that a presidential election is held on the same day as the general election, and stand again. A fresh mandate, he argues, would end the talk of impeachment and let the country move on. He wants the Liberal Democrats’ backing.'; },
+      options: [
+        { label: 'Back him: a joint election with Clinton on the ballot', sub: 'Clinton runs again alongside the general election. SDLP pleased; the scandal fades from the headlines, or the election becomes about it.', act: function (Q) {
+          Q.flags.clintonEarly = 1; H.rel(Q, 'sdlp', 3); H.rel(Q, 'cdp', -4); Q.scandal = Math.max(0, (Q.scandal || 0) - 2);
+          Q.presCandidate = { party: Q.player, name: 'Bill Clinton', appeal: 3, backers: [], vp: { name: 'Bob Kerrey', party: Q.player } };
+          if (Q.electionAt) { Q.nextPres = Q.electionAt; Q.flags.clintonEarly = 2; }
+          return 'The LDP backs the President. When the general election is called, Clinton will resign and run again on the same day. The opposition calls it a stunt; the cable news shows switch to the horse race.'; } },
+        { label: 'Talk him out of it', sub: 'Clinton serves out his term to 2004. The scandal keeps dragging on the government.', act: function (Q) { Q.scandal = (Q.scandal || 0) + 2; Q.president.approval -= 3; H.fac(Q, { newdem: -3, proglib: 3 }); return 'Gore and the party leadership persuade him to stay. The President is sullen; the late-night jokes continue.'; } },
+        { label: 'Leave it to him', sub: 'He may do it anyway.', act: function (Q) { if (U.rng(Q) < 0.5) { Q.flags.clintonEarly = 1; Q.presCandidate = { party: Q.player, name: 'Bill Clinton', appeal: 2, backers: [], vp: { name: 'Bob Kerrey', party: Q.player } }; if (Q.electionAt) { Q.nextPres = Q.electionAt; Q.flags.clintonEarly = 2; } H.fac(Q, { newdem: 3 }); return 'Clinton announces he will resign when the general election is called and stand again. The LDP learns of it from CNN.'; } Q.scandal = (Q.scandal || 0) + 1; return 'After a week of headlines, Clinton decides to serve out his term.'; } }
+      ] },
+
+    { id: 'trump_reform', title: 'Trump eyes the Reform nomination', when: function (Q) { return at(Q, 1999, 9) && !Q.dormant.reform && chance(Q, 0.35); },
+      body: function () { return 'Donald Trump, who endorsed the Reform Party in the 1998 presidential election, forms an exploratory committee for its 2000 presidential nomination. He is fighting Pat Buchanan for the party\u2019s soul, calls Buchanan "a Hitler lover", and says he would be a better negotiator with Japan and China. Reform\u2019s polling ticks up with every television appearance.'; },
+      options: [
+        { label: 'Ignore him: a celebrity sideshow', act: function (Q) { V.campaign(Q, 'reform', V.all(0.3), null); Q.discontent += 2; return 'Trump\u2019s flirtation keeps Reform in the headlines for weeks before he withdraws in February, saying the party is "a total mess".'; } },
+        { label: 'Court Reform\u2019s moderates against Buchanan', sub: 'Reform relations up; the Heartland Liberals like it.', act: function (Q) { H.rel(Q, 'reform', 6); H.fac(Q, { heartland: -3 }); V.campaign(Q, 'reform', V.all(0.2), null); return 'LDP figures praise Perot\u2019s original vision and pointedly not Buchanan\u2019s. Reform\u2019s moderates take note.'; } },
+        { label: 'Attack the Reform Party as unserious', sub: 'Reform relations down; may matter for its confidence-and-supply votes.', act: function (Q) { H.rel(Q, 'reform', -8); H.camp(Q, { suburb: 0.3, prof: 0.2 }, 'Response to Trump and Reform'); return 'The LDP calls Reform a vanity project. Perot\u2019s people remember it.'; } }
+      ] },
+
     { id: 'nader', title: 'Nader on campus', when: function (Q) { return at(Q, 1999, 3) && chance(Q, 0.5); },
       body: function () { return 'Ralph Nader, one of only four Green MPs, is filling university halls. His message: the Grand Coalition is a single corporate party with three logos. Students are listening, and so are some of your own activists.'; },
       options: [
@@ -54,11 +74,11 @@
       ] },
 
     { id: 'nomination', title: 'The presidential nomination', repeat: true,
-      when: function (Q) { var f = U.RULES.president.firstElection; return (Q.year - f.year) % U.RULES.president.termYears === 0 && Q.month >= 2 && Q.month < 11 && !Q.presCandidate; },
+      when: function (Q) { var until = Q.nextPres - S.now(Q); return until >= 1 && until <= 9 && !Q.presCandidate; },
       body: function (Q) { return (Q.president.party === Q.player && Q.president.termLimited ? 'President ' + Q.president.name + ' cannot run again. ' : '') +
         'The Electoral College has two rounds: if the centre-left splits its vote between several candidates, the runoff could be fought on the right\u2019s terms. Who carries the LDP\u2019s banner?'; },
       options: function (Q) {
-        var y2000 = Q.year === 2000, list = [];
+        var y2000 = Q.year <= 2004, list = [];
         var names = y2000 ? [['Al Gore', 2, 'Best known. If he wins, the LDP needs a new leader and Prime Minister.', null], ['Joe Lieberman', 1, 'Centrist; could attract CDP voters in a runoff. Progressive Liberals cool.', { newdem: -6, proglib: 5 }], ['Howard Dean', 1, 'Energises the left and competes with Nader.', { proglib: -6, newdem: 6 }]]
           : [[Q.leader.name, Q.leader.charisma + 1, 'The party leader. If elected, the LDP needs a new leader.', null]].concat(Object.keys(U.LDP_FACTIONS).filter(function (k) { return U.LDP_FACTIONS[k].figure !== Q.leader.name; }).slice(0, 2).map(function (k) { var f = {}; f[k] = -6; return [U.LDP_FACTIONS[k].figure, 0, 'Champion of the ' + U.LDP_FACTIONS[k].name + '.', f]; }));
         var mates = Object.keys(U.LDP_FACTIONS).map(function (k) { return U.LDP_FACTIONS[k].figure; });

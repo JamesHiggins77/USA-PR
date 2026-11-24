@@ -8,7 +8,7 @@
 
   // ---- people (party, background). Non-canon roles are scenario assumptions.
   var PEOPLE = {
-    'Bill Clinton': ['ldp', 'President since 1993. Popular, term-limited in 2000. Head of state with constitutional powers, but not the head of government.'],
+    'Bill Clinton': ['ldp', 'President since 1993, re-elected in 1998 for a second six-year term; popular despite the Lewinsky scandal. Head of state with constitutional powers, but not the head of government.'],
     'Al Gore': ['ldp', 'Leader of the Liberal Democrats and Prime Minister of the Grand Coalition in 1999. Holds the effective executive power.'],
     'Bill Bradley': ['sdlp', 'Leader of the Social Democratic Labor Party. Former basketball star and senator; pushes for universal healthcare.'],
     'Ralph Nader': ['grn', 'Consumer advocate turned Green leader, one of the party’s four MPs in 1999. Drives the Green surge.'],
@@ -24,7 +24,7 @@
     'John Lewis': ['ldp', 'Civil-rights icon; leads the LDP’s Civil Rights Caucus.'],
     'Evan Bayh': ['ldp', 'Leads the Heartland Liberals, the LDP’s moderate rural and small-town wing.'],
     'Howard Dean': ['ldp', 'Governor of Vermont. Energises the LDP’s left and its younger activists.'],
-    'Donald Trump': ['maga', 'New York businessman and celebrity. Founds the MAGA Party only if conditions allow.'],
+    'Donald Trump': ['maga', 'New York businessman and celebrity. Endorsed the Reform Party in the 1998 presidential election. Founds the MAGA Party only if conditions allow.'],
     'Mike Pence': ['cc', 'Conservative Coalition figure; Prime Minister of the broad-right coalition in the default timeline. Not guaranteed in a sandbox run.']
   };
 
@@ -50,7 +50,7 @@
     'Sainte-Laguë': 'A proportional seat formula (divisors 1, 3, 5…) that treats small and large parties evenly.',
     'sainte-lague': 'A proportional seat formula (divisors 1, 3, 5…) that treats small and large parties evenly.',
     "D'Hondt": 'A proportional seat formula (divisors 1, 2, 3…) that slightly favours larger parties.',
-    'Electoral College': 'Elects the President in up to two rounds. Each state has House seats + 4 electors (DC 3); electors are shared proportionally. 502 of 1,003 wins.',
+    'Electoral College': 'Elects the President, every six years, in up to two rounds. Each state has House seats + 4 electors (DC 3); electors are shared proportionally. 502 of 1,003 wins.',
     'electors': 'Members of the Electoral College: House seats + 4 per state, DC 3, allocated proportionally within states.',
     'red line': 'A party refuses to sit in cabinet with another party. Softer for confidence and supply.',
     'red lines': 'Parties that refuse to sit in cabinet together. Softer for confidence and supply.',
