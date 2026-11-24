@@ -14,7 +14,7 @@ This document follows the brief's §22 checklist: unresolved rules and their def
 | Electors per state | House seats + 4 (one per senator); DC = 3; total 1,003, majority 502 | `rules.president.electors` |
 | Elector allocation | Proportional (largest remainder) within each state; winner-take-all is a switch | `rules.president.allocation` |
 | Presidential runoff | Top two by round-one electors; round two re-runs every state as a two-way race | `rules.president.runoff` |
-| Presidential term | **6 years** (designer canon): Clinton elected 1992 and 1998; next election November 2004, then 2010 and 2016. Two-term limit. A President may resign so that an early presidential election is held with a general election (Clinton's 1999 option), which restarts the cycle | `rules.president` |
+| Presidential term | **6 years** (designer canon): Clinton elected 1992; elections November 1998, 2004, 2010, 2016. Two-term limit. A President may resign so that an early presidential election is held with a general election (Clinton's 1999 option), which restarts the cycle | `rules.president` |
 | Senate direct seat | Two classes of states; each direct seat is contested every second general election | `rules.senate.directClasses` |
 | Appointed senators | Re-appointed after each general election from the new state governments (governor picks own party; chambers pick the largest member of the most compatible majority) | `engine/elections.js` |
 | State elections | Held alongside federal general elections | `rules.stateElections` |
@@ -54,7 +54,7 @@ Decided by the designer:
 3. **No United Left in 1999.** The far left is fragmented: Greens (Nader, exactly 4 MPs), CPUSA, DSA, Working Families, the Vermont Progressives, and the small revolutionary parties. A Sanders leadership win in the Communist Party (an event, not a fixed date) opens United Left talks. Each party decides whether to join, the player can try to keep the Greens out, and the talks can fail and be retried after 18 months. Once the UL exists, its seats are split among its members by their weight when it formed. The Greens can later walk out if UL unity falls.
 4. **The ACP does not exist until the 2020s.** It can be launched from 2021, more likely when discontent is high.
 5. **Party colours** follow the designer's reference map.
-6. **Regional stand-down agreements.** In 1999 the SDLP does not run district candidates in New England and the Atlantic states, and the LDP stands aside in the Rust Belt. The CDP stands aside in the South, and the CC in the liberal states. About 70% of the stood-down party's voters go to the partner, 15% choose by ideology and 15% stay home. Agreements can be negotiated or ended with the "Regional electoral agreements" card, and they collapse if the partners' relations fall below 28. Region definitions are in `engine/elections.js` (`REGION_SETS`). The "liberal states" are taken to be New England, NY, NJ, DE, MD, DC, the Pacific coast and Illinois (a design choice). Agreements apply to House districts only, not to list seats or statewide races.
+6. **Regional stand-down agreements.** At the start the SDLP does not run district candidates in New England and the Atlantic states, and the LDP stands aside in the Rust Belt. The CDP stands aside in the South, and the CC in the liberal states. About 70% of the stood-down party's voters go to the partner, 15% choose by ideology and 15% stay home. Agreements can be negotiated or ended with the "Regional electoral agreements" card, and they collapse if the partners' relations fall below 28. Region definitions are in `engine/elections.js` (`REGION_SETS`). The "liberal states" are taken to be New England, NY, NJ, DE, MD, DC, the Pacific coast and Illinois (a design choice). Agreements apply to House districts only, not to list seats or statewide races.
 7. **435 real districts, 365 list seats** (designer change). The House uses the real congressional district map: the 2012 boundaries from the @unitedstates/districts project, which is public domain and derived from Census data. These give 435 districts apportioned as after the 2010 census. To keep the House at 801, the statewide list seats are reduced to 365, apportioned by population with at least one per state. Each district has a fixed character (urbanity from its area, plus persistent local demographic variation), so safe seats exist. The 1992–2002 boundaries would match a 1999 start more closely, but no source for them was reachable from the build environment. `tools/build_districts.js` rebuilds the map.
 8. **1998 partisan lean** (designer request). Each district's vote is shaped by its real partisan lean, computed by `tools/build_lean.js`. It is the two-party Democratic margin relative to the nation, 75% from 1996 and 25% from 1992 presidential results. County results (Dave Leip's Atlas via the public `cilekagaci/us-presidential-county-1960-2016` dataset) are area-weighted into the district boundaries. Virginia uses 2000 county results (MIT Election Data + Science Lab), because the 1990s Virginia data is missing from that set; Alaska has a single district and needs none. In play, left parties gain in districts that lean Democratic relative to their state and right parties gain in Republican-leaning ones, scaled by how far left or right each party is (`V.leanShift`, `V.leftWeight` in `engine/votes.js`). State totals, and so the list seats, are unaffected. Limitation: counties are uniform inside, so districts within one county (such as New York City's boroughs) share their county's lean.
 
@@ -79,11 +79,17 @@ Still flagged:
 - Competence, charisma and loyalty ratings are derived deterministically from the name. They are game values, not judgements about the real people.
 - The American Communist Party has only four names: the real party was founded in 2024, and the game activates it only in the 2020s.
 
-## 4d. 1998 background (designer canon)
+## 4d. Opening (designer canon, revised)
 
-- The Lewinsky scandal broke in January 1998, during Clinton's re-election campaign. He was re-elected in November 1998 regardless; the scandal is ongoing at the start (a small scandal penalty on government approval).
-- Donald Trump endorsed the Reform Party in the 1998 presidential election. In autumn 1999 he may explore Reform's 2000 nomination (an event).
-- February 1999 event: Clinton considers resigning so that a presidential election is held on the same day as the general election, to win a fresh mandate and move the news on from the scandal. If he does, he stands again.
+- The game starts in **January 1997** (the brief said 1999; changed by the designer).
+- The government is a **coalition of the LDP and the SDLP** under Prime Minister Al Gore, with Reform's confidence and supply. It replaces the brief's LDP–SDLP–CDP Grand Coalition; the CDP is in opposition.
+- Presidential elections are on a six-year cycle: Clinton was elected in 1992 and faces re-election in **November 1998**.
+
+## 4e. 1998 background (designer canon)
+
+- January 1998: the Lewinsky scandal breaks during Clinton's re-election campaign (a fixed event; the LDP can stand by him, keep its distance, or push him not to run).
+- September 1998: Donald Trump endorses the Reform Party in the presidential election (a fixed event). In autumn 1999 he may explore Reform's next nomination.
+- February 1999 (only if Clinton won in 1998): Clinton considers resigning so that a presidential election is held on the same day as the general election, to win a fresh mandate and move the news on from the scandal. If he does, he stands again.
 
 ## 5. Not yet built (next steps)
 

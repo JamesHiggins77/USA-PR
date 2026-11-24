@@ -2,21 +2,23 @@ const test = require('node:test'), assert = require('node:assert');
 const U = require('./load.js');
 const sum = o => Object.values(o).reduce((s, v) => s + v, 0);
 
-test('the 1999 opening matches the canon', () => {
+test('the 1997 opening matches the canon', () => {
   const Q = U.Game.newGame(7);
   assert.strictEqual(sum(Q.house), 801);
   assert.strictEqual(Q.senateSeats.length, 200);
   assert.strictEqual(Q.president.name, 'Bill Clinton');
   assert.strictEqual(Q.gov.pm, 'Al Gore');
-  assert.deepStrictEqual(Q.gov.coalition, ['ldp', 'sdlp', 'cdp']);
+  assert.deepStrictEqual(Q.gov.coalition, ['ldp', 'sdlp']);
   assert.deepStrictEqual(Q.gov.cs, ['reform']);
-  assert.ok(Q.dormant.ul && Q.dormant.acp, 'no United Left or ACP in 1999');
+  assert.ok(Q.dormant.ul && Q.dormant.acp, 'no United Left or ACP at the start');
   assert.strictEqual(Q.house.grn, 4, 'Nader is one of four Green MPs');
-  const g = ['ldp', 'sdlp', 'cdp'];
+  const g = ['ldp', 'sdlp'];
   assert.ok(g.reduce((s, p) => s + Q.house[p], 0) >= 401, 'government controls the House');
   const sen = U.Elections.senateCount(Q);
   assert.ok(g.reduce((s, p) => s + (sen[p] || 0), 0) >= 101, 'government controls the Senate');
   assert.strictEqual(Q.player, 'ldp');
+  assert.strictEqual(Q.year, 1997);
+  assert.strictEqual(Q.nextPres, U.monthIndex(1998, 11), 'presidential election in November 1998');
 });
 
 test('Nebraska is unicameral and its governor appoints three senators', () => {

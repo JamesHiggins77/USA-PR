@@ -8,8 +8,8 @@
 
   // ---- people (party, background). Non-canon roles are scenario assumptions.
   var PEOPLE = {
-    'Bill Clinton': ['ldp', 'President since 1993, re-elected in November 1998 for a second six-year term, despite the Lewinsky scandal breaking in January 1998, mid-campaign. Still popular. Head of state with constitutional powers, but not the head of government.'],
-    'Al Gore': ['ldp', 'Leader of the Liberal Democrats and Prime Minister of the Grand Coalition in 1999. Holds the effective executive power.'],
+    'Bill Clinton': ['ldp', 'President since 1993, elected in 1992 for a six-year term; faces re-election in November 1998. Head of state with constitutional powers, but not the head of government.'],
+    'Al Gore': ['ldp', 'Leader of the Liberal Democrats and Prime Minister of the LDP\u2013SDLP coalition. Holds the effective executive power.'],
     'Bill Bradley': ['sdlp', 'Leader of the Social Democratic Labor Party. Former basketball star and senator; pushes for universal healthcare.'],
     'Ralph Nader': ['grn', 'Consumer advocate turned Green leader, one of the party’s four MPs in 1999. Drives the Green surge.'],
     'Bernie Sanders': ['cpusa', 'Vermont socialist. If he wins the Communist Party leadership, he may try to build a United Left.'],
@@ -34,7 +34,7 @@
     'Speaker': 'Presides over the House. Can be offered to a partner in coalition talks.',
     'Vice President': 'Elected with the President on a joint ticket. A running mate from another party can bring that party on board, at the cost of your own members\u2019 hopes.',
     'President pro tempore of the Senate': 'The Senate\u2019s presiding officer: a senior senator from the largest governing party in the Senate.',
-    'Grand Coalition': 'A government of the large centre-left and centre-right parties together: in 1999, LDP + SDLP + CDP.',
+    'Grand Coalition': 'A government of the large centre-left and centre-right parties together, such as the LDP with the CDP or CC.',
     'confidence and supply': 'A party outside the cabinet agrees to back the government on confidence votes and budgets, usually in return for concessions. It gets no ministers.',
     'Confidence and supply': 'A party outside the cabinet agrees to back the government on confidence votes and budgets, usually in return for concessions. It gets no ministers.',
     'C&S': 'Confidence and supply: support on confidence votes and budgets from outside the cabinet.',

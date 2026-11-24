@@ -1,6 +1,6 @@
 # The American Republic: 1999–2024
 
-A turn-based political strategy game set in an alternate United States with proportional representation, two-round elections and coalition government. You lead the **Liberal Democratic Party** from January 1999, inside Al Gore's Grand Coalition, with a general election due by September 2000.
+A turn-based political strategy game set in an alternate United States with proportional representation, two-round elections and coalition government. You lead the **Liberal Democratic Party** from January 1997, as the senior partner in Al Gore's LDP–SDLP coalition, with a presidential election in November 1998 and a general election due by September 2000.
 
 Built in the style of the *Social Democracy* Spain mod: a monthly hand of action cards, authored and systemic events, faction dissent, voter-group polling, and investiture votes, on top of a real electoral engine.
 

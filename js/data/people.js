@@ -19,7 +19,7 @@
       'Christine Todd Whitman', 'George Pataki', 'Tom Ridge', 'Colin Powell', 'Elizabeth Dole', 'Arlen Specter', 'Mitt Romney'],
     cc: ['George W. Bush', 'Newt Gingrich', 'Dick Armey', 'Tom DeLay', 'Trent Lott', 'Ted Stevens', 'Jesse Helms', 'Phil Gramm',
       'Dick Cheney', 'Donald Rumsfeld', 'John Ashcroft', 'Jeb Bush', 'Bob Dole', 'Jack Kemp', 'Haley Barbour', 'Mitch McConnell', 'Bill Frist',
-      'Zell Miller', 'Sam Nunn', 'Mike Pence', 'John Kasich', 'Lindsey Graham', 'Rick Santorum', 'Condoleezza Rice', 'Dan Quayle'],
+      'Zell Miller', 'Sam Nunn', 'Mike Pence', 'John Kasich', 'Lindsey Graham', 'Rick Santorum', 'Condoleezza Rice', 'Dan Quayle', 'George H. W. Bush'],
     asp: ['Orrin Hatch', 'Mike Leavitt', 'Jon Huntsman Jr.', 'Bob Casey Jr.', 'Bart Stupak', 'Lincoln Chafee', 'Jim Jeffords', 'Sam Brownback'],
     reform: ['Ross Perot', 'Pat Buchanan', 'Jesse Ventura', 'Russ Verney', 'Pat Choate', 'Dean Barkley', 'Jack Gargan'],
     grn: ['Ralph Nader', 'Winona LaDuke', 'Medea Benjamin', 'Peter Camejo', 'Howie Hawkins', 'Jello Biafra', 'Cynthia McKinney'],

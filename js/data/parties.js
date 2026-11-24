@@ -125,7 +125,7 @@
   // LDP internal factions (player party). Scenario assumption.
   U.LDP_FACTIONS = {
     newdem: { name: 'New Democrats', figure: 'Joe Lieberman', econ: 2, soc: -2, strength: 34, dissent: 15,
-      wants: 'fiscal discipline, business-friendly growth, Grand Coalition' },
+      wants: 'fiscal discipline, business-friendly growth, openness to the CDP' },
     proglib: { name: 'Progressive Liberals', figure: 'Ted Kennedy', econ: -5, soc: -6, strength: 30, dissent: 25,
       wants: 'universal healthcare, closer ties with the SDLP, fight the Greens' },
     civil: { name: 'Civil Rights Caucus', figure: 'John Lewis', econ: -4, soc: -5, strength: 18, dissent: 15,

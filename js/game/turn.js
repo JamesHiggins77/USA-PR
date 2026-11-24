@@ -163,7 +163,7 @@
       V.campaign(Q, S.greenId(Q), { young: 0.35, prof: 0.18, union: 0.05 }, null);
       V.campaign(Q, 'ldp', { young: -0.06, prof: -0.04 }, 'Nader’s Green surge');
     }
-    // Discontent accumulates under long grand coalitions and weak economies
+    // Discontent accumulates under long, broad coalitions and weak economies
     var gc = Q.gov && Q.gov.coalition.length >= 3 ? 0.15 : 0;
     Q.discontent = U.clamp(Q.discontent + gc + (Q.econ.unemp - 5.5) * 0.1 + (40 - Q.govApproval) * 0.01, 0, 100);
     // Reform fades after the Perot era; if it stays weak it joins the ASP
