@@ -8,8 +8,7 @@ How this America got here. The story diverges from ours with the deadlocked elec
 |---|---|
 | 1789–1912 | The same republic as ours: a President elected every four years, a House elected by districts, and two dominant parties, the Democrats and the Republicans. |
 | 1912 | Theodore Roosevelt’s breakaway Progressive Party beats the Republicans for second place. Woodrow Wilson wins the presidency with 42% of the vote, and no party controls the House. A year of deadlock follows: three appropriations bills fail, and the Army goes unpaid for six weeks. |
-| 1913–1914 | The Reconstruction Amendments of 1914. A Prime Minister, chosen by and answerable to the House, takes over the day-to-day running of the government. The House is elected by statewide proportional representation. The President serves a six-year term, elected in two rounds: a national popular vote, then an Electoral College runoff between the top two. Three senators per state are elected by proportional representation and the fourth by the state house. Wilson resigns to seek a fresh mandate under the new rules and wins in November 1914. |
-| 1951 | Presidents are limited to two terms after Franklin Roosevelt wins twice in a row (1932, 1938) and is pressed to run a third time in 1944. |
+| 1913–1914 | The Reconstruction Amendments of 1914. A Prime Minister, chosen by and answerable to the House, takes over the day-to-day running of the government. The House is elected by statewide proportional representation. The President serves a six-year term, elected in two rounds: a national popular vote, then an Electoral College runoff between the top two. Three senators per state are elected by proportional representation and the fourth by the state house. Presidents may serve two terms. Wilson resigns to seek a fresh mandate under the new rules, and loses the runoff to Theodore Roosevelt. |
 | 1974 | After a decade in which a dozen parties sat in the House, the House is fixed at 600 seats: 500 state list seats with no threshold, and 100 national list seats for parties with at least 5% of the nationwide vote. |
 | 1990s | Regional parties are on the rise and the far left is fragmented. The presidency remains the one office every voter fills on the same day. |
 
@@ -17,43 +16,45 @@ How this America got here. The story diverges from ours with the deadlocked elec
 
 | Elected | President | Party | Notes |
 |---|---|---|---|
-| 1914 | Woodrow Wilson | Democratic | Beat Theodore Roosevelt (Progressive) in the first runoff. Led the country through the Great War. |
-| 1920 | Charles Evans Hughes | Republican | A return to normalcy after the war and the League of Nations fight. |
-| 1926 | Calvin Coolidge | Republican | Prosperity, then the 1929 crash. |
-| 1932 | Franklin D. Roosevelt | Democratic | Won a landslide in the depths of the Depression. |
-| 1938 | Franklin D. Roosevelt | Democratic | Re-elected. Led the country into the Second World War. |
-| 1944 | Thomas E. Dewey | Republican | Narrowly beat Henry Wallace (Progressive) in the runoff after Roosevelt stood aside. |
-| 1950 | Dwight D. Eisenhower | Independent (Republican and CDP backing) | The war hero ran above parties, backed by both. |
-| 1956 | Dwight D. Eisenhower | Independent (Republican and CDP backing) | Re-elected. |
-| 1962 | John F. Kennedy | Democratic | Assassinated in November 1963. Vice President Hubert Humphrey served out the term. |
-| 1968 | Richard Nixon | Republican | Beat Hubert Humphrey (LDP) in the runoff after George Wallace (SRP) won 17% of the first-round vote. Resigned in August 1974 over Watergate, three months before his term ended. Vice President Spiro Agnew had already resigned, so Speaker Carl Albert acted as President until the election. |
-| 1974 | Jimmy Carter | Liberal Democratic | The outsider who won the post-Watergate election. |
-| 1980 | Ronald Reagan | Conservative Coalition | Beat Carter in the runoff and made the new CC the main party of the right. |
-| 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Walter Mondale (LDP). |
-| 1992 | Bill Clinton | Liberal Democratic | Beat George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote. |
+| 1914 | Theodore Roosevelt | Progressive | Beat Woodrow Wilson in the first runoff under the new constitution, after Wilson resigned to seek a fresh mandate. Died in office in January 1919; Vice President Hiram Johnson served out the term. |
+| 1920 | Charles Evans Hughes | Republican | Won on a promise of calm after the war and the fight over the League of Nations. |
+| 1926 | Al Smith | Democratic | The first Catholic President. The Wall Street crash came three years into his term. |
+| 1932 | Franklin D. Roosevelt | Democratic | Won in the depths of the Depression, while his rival Huey Long ran the House as Prime Minister. |
+| 1938 | Robert La Follette Jr. | Progressive | Beat Roosevelt, who was worn down by the court-packing fight and the 1937 recession, in a runoff that split the New Deal coalition. |
+| 1944 | Wendell Willkie | Republican | Survived the heart attack that killed him in our history, and won as a wartime unity candidate. |
+| 1950 | Adlai Stevenson | Democratic | Beat Robert Taft, then serving as Prime Minister, in the runoff. |
+| 1956 | Dwight D. Eisenhower | Independent (CDP and Republican backing) | The war hero ran above parties and beat Stevenson’s bid for a second term. |
+| 1962 | John F. Kennedy | Democratic | Shared power with a Republican Prime Minister, Richard Nixon, who had beaten him for the premiership a year earlier. Survived the 1963 Dallas assassination attempt. |
+| 1968 | Robert F. Kennedy | Liberal Democratic | Beat George Wallace (SRP) in a runoff that pitted the new LDP against the old South. |
+| 1974 | Nelson Rockefeller | Christian Democratic | The CDP’s only President, elected as a unifier after years of turmoil. |
+| 1980 | Ronald Reagan | Conservative Coalition | His runoff win over Walter Mondale made the new CC the main party of the right. |
+| 1986 | Mario Cuomo | Liberal Democratic | Beat Vice President George H. W. Bush, ending the CC’s hold on the presidency after one term. |
+| 1992 | Bill Clinton | Liberal Democratic | Beat George H. W. Bush (CC) in the runoff after Cuomo declined a second run. Ross Perot won 19% of the first-round vote. |
 | 1998 | — |  | The next election, due in November 1998. |
 
 ## Prime Ministers and governments
 
 | Years | Prime Minister | Party | Government |
 |---|---|---|---|
-| 1915–1919 | Champ Clark | Democratic | Democratic–Progressive coalition |
-| 1919–1923 | Henry Cabot Lodge | Republican | Republicans with conservative Democrats; rejected the League of Nations |
+| 1915–1919 | Champ Clark | Democratic | Democratic–Progressive coalition under President Roosevelt |
+| 1919–1923 | Warren G. Harding | Republican | Republicans with conservative Democrats; died in office |
 | 1923–1927 | Robert La Follette, then George Norris | Progressive | Progressive–Democratic–Farmer-Labor coalition |
-| 1927–1931 | Nicholas Longworth | Republican | Republican minority government |
-| 1931–1933 | John Nance Garner | Democratic | Democratic minority government during the Depression |
-| 1933–1942 | Sam Rayburn | Democratic | The New Deal coalition: Democrats, Progressives, Farmer-Labor, American Labor |
-| 1942–1946 | Sam Rayburn | Democratic | Wartime national unity government with the Republicans |
-| 1946–1953 | Robert A. Taft | Republican | Republican–CDP coalition, with southern Democrats supporting it on many votes |
-| 1953–1957 | Joseph W. Martin | Republican | Republican–CDP coalition |
-| 1957–1966 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition; Civil Rights Act (1964), Voting Rights Act (1965) |
-| 1966–1968 | Lyndon B. Johnson | Liberal Democratic | LDP–SDLP coalition after the Democratic split |
-| 1968–1972 | Gerald Ford | Republican | Republicans, southern Democrats and the CDP |
-| 1972–1976 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP Watergate grand coalition |
-| 1976–1980 | Walter Mondale | Liberal Democratic | LDP–SDLP coalition |
-| 1980–1984 | Howard Baker | Conservative Coalition | CC–CDP coalition |
-| 1984–1988 | Bob Dole | Conservative Coalition | CC–CDP–Libertarian coalition |
-| 1988–1992 | Lloyd Bentsen | Liberal Democratic | LDP–CDP grand coalition |
+| 1927–1931 | Nicholas Longworth | Republican | Republican minority government under President Smith |
+| 1931–1935 | John Nance Garner | Democratic | Democratic–Progressive coalition |
+| 1935–1941 | Huey Long | Democratic | Long’s Share Our Wealth coalition of populist Democrats, Progressives and Farmer-Labor, at war with President Roosevelt |
+| 1941–1946 | Sam Rayburn | Democratic | Wartime national unity government |
+| 1946–1952 | Robert A. Taft | Republican | Republican–CDP coalition |
+| 1952–1957 | Estes Kefauver | Democratic | Democratic–SDLP coalition |
+| 1957–1961 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition |
+| 1961–1965 | Richard Nixon | Republican | Republican–CDP coalition, sharing power with President Kennedy |
+| 1965–1966 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition; passed the Civil Rights and Voting Rights Acts, splitting the Democratic Party |
+| 1966–1970 | Hubert Humphrey | Liberal Democratic | LDP–SDLP coalition |
+| 1970–1974 | Gerald Ford | Republican | Republicans, the rump southern Democrats and the CDP |
+| 1974–1978 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP grand coalition under President Rockefeller |
+| 1978–1982 | Walter Mondale | Liberal Democratic | LDP–SDLP coalition |
+| 1982–1986 | Bob Dole | Conservative Coalition | CC–CDP coalition under President Reagan |
+| 1986–1990 | Jack Kemp | Conservative Coalition | CC–CDP–Libertarian coalition, sharing power with President Cuomo |
+| 1990–1992 | Lloyd Bentsen | Liberal Democratic | LDP–CDP grand coalition |
 | 1992–1994 | Tom Foley | Liberal Democratic | LDP–SDLP coalition, with ASP confidence and supply |
 | 1994–1996 | Newt Gingrich | Conservative Coalition | CC–CDP coalition; fell after the 1995–96 government shutdown |
 | 1996– | Al Gore | Liberal Democratic | LDP–SDLP coalition, with Reform confidence and supply |
