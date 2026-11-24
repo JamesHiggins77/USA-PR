@@ -58,6 +58,10 @@
       score += P.office * 25 + (posts - fair) * 4;
       reasons.push(posts + ' cabinet posts offered (proportional share: ' + fair + ')');
       score -= 18; // cost of shared responsibility
+    } else if (role === 'abstain') {
+      // abstaining is a small favour: no responsibility for the government
+      if (U.vetoes(p, pm)) { score -= 30; reasons.push('Abstaining would still let a ' + U.PARTIES[pm].short + ' Prime Minister in'); }
+      score += 5;
     } else {
       if (veto.length && veto.indexOf(pm) >= 0) { score -= 60; reasons.push('Will not sustain a ' + U.PARTIES[pm].short + ' Prime Minister'); }
       else if (veto.length) { score -= 15; reasons.push('Dislikes the presence of ' + veto.map(function (q) { return U.PARTIES[q].short; }).join(', ')); }
@@ -75,8 +79,20 @@
     var trend = (Q.trend && Q.trend[p]) || 0;
     if (trend > 1.5) { score -= 8; reasons.push('Rising in the polls: tempted by opposition'); }
     // margin: positive = agrees, negative = refuses (and by how much)
-    var margin = Math.round(score - (role === 'coalition' ? 45 : 30));
+    var margin = Math.round(score - (role === 'coalition' ? 45 : role === 'abstain' ? 15 : 30));
     return { score: Math.round(score), margin: margin, ok: margin >= 0, reasons: reasons };
+  };
+
+  // Without any deal: goodwill toward the PM's party, reduced for large
+  // parties (they have their own ambitions) and distant ones.
+  // margin >= 0: votes yes unprompted; >= -15: abstains; otherwise no.
+  C.unprompted = function (Q, p, pm) {
+    var r = C.rel(Q, p, pm), cp = C.compat(Q, p, pm), seats = Q.house[p] || 0;
+    var sizeCost = Math.round(seats * 0.15), distCost = Math.round((1 - cp) * 55);
+    var m = Math.round(r - 40 - sizeCost - distCost);
+    if (U.vetoes(p, pm)) m -= 25;
+    var vote = m >= 0 ? 'yes' : m >= -15 ? 'abstain' : 'no';
+    return { margin: m, vote: vote, reasons: ['Relations ' + Math.round(r), 'Size: \u2212' + sizeCost + ' (larger parties expect something in return)', 'Policy distance: \u2212' + distCost].concat(U.vetoes(p, pm) ? ['Red line: \u221225'] : []) };
   };
 
   // How each party will vote on a PM candidate under a deal.
@@ -85,10 +101,11 @@
     U.ALL_PARTIES.forEach(function (p) {
       if (!Q.house[p]) return;
       if (deal.coalition.indexOf(p) >= 0 && p === deal.pm) { verdicts[p] = 'yes'; return; }
-      var inC = deal.coalition.indexOf(p) >= 0, inS = (deal.cs || []).indexOf(p) >= 0;
-      if (inC || inS) { verdicts[p] = C.assess(Q, p, deal, inC ? 'coalition' : 'cs').ok ? 'yes' : 'no'; return; }
-      var cp = C.compat(Q, p, deal.pm), r = C.rel(Q, p, deal.pm);
-      verdicts[p] = (cp > 0.62 && r > 55) ? 'abstain' : (cp > 0.5 && r > 45 ? 'abstain' : 'no');
+      var inC = deal.coalition.indexOf(p) >= 0, inS = (deal.cs || []).indexOf(p) >= 0, inA = (deal.abstain || []).indexOf(p) >= 0;
+      var un = C.unprompted(Q, p, deal.pm);
+      if (inC || inS) { verdicts[p] = C.assess(Q, p, deal, inC ? 'coalition' : 'cs').ok ? 'yes' : un.vote; return; }
+      if (inA) { verdicts[p] = un.vote === 'yes' ? 'yes' : C.assess(Q, p, deal, 'abstain').ok ? 'abstain' : un.vote; return; }
+      verdicts[p] = un.vote;
     });
     return U.Parliament.count(Q, 'house', function (p, sub) {
       var v = verdicts[p] || 'no';

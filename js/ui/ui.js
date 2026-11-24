@@ -160,22 +160,25 @@
     F.normalisePosts(Q, deal);
     var parties = U.ALL_PARTIES.filter(function (p) { return p !== Q.player && Q.house[p]; }).sort(function (a, b) { return Q.house[b] - Q.house[a]; });
     var postsUsed = U.sum(deal.posts);
-    var h = '<div class="date">Government formation</div><h1>The negotiating table</h1><p>Build a government for <b>' + esc(Q.leader.name) + '</b>. Give each party a role, share out the 20 cabinet posts, and offer concessions (including the Speakership of the House). Each party shows a score: <b class="up">positive means it agrees</b>, <b class="down">negative means it refuses</b>, by that margin.</p>';
+    var h = '<div class="date">Government formation</div><h1>The negotiating table</h1><p>Build a government for <b>' + esc(Q.leader.name) + '</b>. Give each party a role (an agreement to abstain is enough on the second ballot), share out the 20 cabinet posts, and offer concessions (including the Speakership of the House). Each party shows a score: <b class="up">positive means it agrees</b>, <b class="down">negative means it refuses</b>, by that margin.</p>';
     h += '<div class="negs">';
     parties.forEach(function (p) {
-      var role = deal.coalition.indexOf(p) >= 0 ? 'coalition' : deal.cs.indexOf(p) >= 0 ? 'cs' : 'none';
-      var a = role === 'none' ? null : C.assess(Q, p, deal, role);
+      deal.abstain = deal.abstain || [];
+      var role = deal.coalition.indexOf(p) >= 0 ? 'coalition' : deal.cs.indexOf(p) >= 0 ? 'cs' : deal.abstain.indexOf(p) >= 0 ? 'abstain' : 'none';
+      var a = role === 'none' ? null : C.assess(Q, p, deal, role), un = C.unprompted(Q, p, Q.player);
       h += '<div class="neg"><div class="neghead"><span>' + chip(p) + '<b>' + esc(P(p).name) + '</b> <span class="muted small">' + Q.house[p] + ' seats</span></span>' +
-        (a ? '<span class="margin ' + (a.ok ? 'yes' : 'no') + '">' + (a.margin > 0 ? '+' : '') + a.margin + '</span>' : '') + '</div>';
-      h += '<div class="seg">' + [['none', 'Opposition'], ['cs', 'Confidence & supply'], ['coalition', 'Coalition']].map(function (r) { return '<button data-role="' + p + '|' + r[0] + '" class="' + (role === r[0] ? 'on' : '') + '">' + r[1] + '</button>'; }).join('') + '</div>';
+        (a ? '<span class="margin ' + (a.ok ? 'yes' : 'no') + '">' + (a.margin > 0 ? '+' : '') + a.margin + '</span>' : '<span class="small">Without a deal: <b class="' + (un.vote === 'yes' ? 'up' : un.vote === 'no' ? 'down' : '') + '">' + { yes: 'votes yes', abstain: 'abstains', no: 'votes no' }[un.vote] + '</b> <span class="muted">(' + (un.margin > 0 ? '+' : '') + un.margin + ')</span></span>') + '</div>';
+      h += '<div class="seg">' + [['none', 'No deal'], ['abstain', 'Abstain'], ['cs', 'Confidence & supply'], ['coalition', 'Coalition']].map(function (r) { return '<button data-role="' + p + '|' + r[0] + '" class="' + (role === r[0] ? 'on' : '') + '">' + r[1] + '</button>'; }).join('') + '</div>';
       if (role === 'coalition') h += '<div class="row small" style="margin-top:6px">Cabinet posts <button class="mini" data-posts="' + p + '|-1">−</button><b>' + (deal.posts[p] || 0) + '</b><button class="mini" data-posts="' + p + '|1"' + (postsUsed >= 20 ? ' disabled' : '') + '>+</button></div>';
       if (role !== 'none') {
         h += '<div class="concs">' + C.demandsOf(p).concat([{ id: 'speaker', text: 'Speaker of the House' }]).map(function (d) {
           var on = (deal.concessions[p] || []).indexOf(d.id) >= 0, taken = d.id === 'speaker' && !on && F.speakerOffered(deal);
           return '<button class="conc' + (on ? ' on' : '') + '" data-conc="' + p + '|' + d.id + '"' + (taken ? ' disabled title="Already offered to another party"' : '') + '>' + (on ? '✓ ' : '+ ') + esc(d.text) + '</button>';
         }).join('') + '</div>';
+        if (role === 'abstain' && un.vote === 'yes') a.reasons.unshift('Would vote yes anyway');
         h += '<ul class="reasons">' + a.reasons.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
       }
+      else h += '<ul class="reasons">' + un.reasons.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
       h += '</div>';
     });
     h += '</div>';
@@ -350,7 +353,7 @@
     document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
     document.querySelectorAll('[data-map]').forEach(function (b) { b.onclick = function () { mapMode = b.dataset.map; render(); }; });
     document.querySelectorAll('.tile').forEach(function (t) { t.onclick = function () { mapSel = t.dataset.state; render(); var d = $('statedetail'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
-    document.querySelectorAll('[data-role]').forEach(function (b) { b.onclick = function () { var a = b.dataset.role.split('|'), p = a[0]; deal.coalition = deal.coalition.filter(function (x) { return x !== p; }); deal.cs = deal.cs.filter(function (x) { return x !== p; }); delete deal.posts[p]; if (a[1] === 'coalition') deal.coalition.push(p); if (a[1] === 'cs') deal.cs.push(p); if (a[1] === 'none') delete deal.concessions[p]; else if (!deal.concessions[p]) deal.concessions[p] = []; deal.posts = {}; render(); }; });
+    document.querySelectorAll('[data-role]').forEach(function (b) { b.onclick = function () { var a = b.dataset.role.split('|'), p = a[0]; deal.coalition = deal.coalition.filter(function (x) { return x !== p; }); deal.cs = deal.cs.filter(function (x) { return x !== p; }); deal.abstain = (deal.abstain || []).filter(function (x) { return x !== p; }); delete deal.posts[p]; if (a[1] === 'coalition') deal.coalition.push(p); if (a[1] === 'cs') deal.cs.push(p); if (a[1] === 'abstain') deal.abstain.push(p); if (a[1] === 'none') delete deal.concessions[p]; else if (!deal.concessions[p]) deal.concessions[p] = []; deal.posts = {}; render(); }; });
     document.querySelectorAll('[data-posts]').forEach(function (b) { b.onclick = function () { var a = b.dataset.posts.split('|'); deal.posts[a[0]] = U.clamp((deal.posts[a[0]] || 0) + +a[1], 1, 12); var mine = deal.posts[Q.player] || 0; if (+a[1] > 0 && U.sum(deal.posts) > 20 && mine > 1) deal.posts[Q.player] = mine - 1; if (+a[1] < 0) deal.posts[Q.player] = mine + 1; render(); }; });
     document.querySelectorAll('[data-conc]').forEach(function (b) { b.onclick = function () { var a = b.dataset.conc.split('|'), l = deal.concessions[a[0]] = deal.concessions[a[0]] || [], i = l.indexOf(a[1]); if (i >= 0) l.splice(i, 1); else l.push(a[1]); render(); }; });
     document.querySelectorAll('[data-act]').forEach(function (b) {

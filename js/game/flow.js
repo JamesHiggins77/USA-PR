@@ -95,7 +95,7 @@
     return !!Q.formation && !Q.formation.offer && (Q.house[Q.player] || 0) >= 40 && !(Q.timers.negotiate > 0);
   };
   F.speakerOffered = function (deal) { for (var p in deal.concessions) if (deal.concessions[p].indexOf('speaker') >= 0) return p; return null; };
-  F.blankDeal = function (Q) { return { pm: Q.player, coalition: [Q.player], cs: [], posts: {}, concessions: {} }; };
+  F.blankDeal = function (Q) { return { pm: Q.player, coalition: [Q.player], cs: [], abstain: [], posts: {}, concessions: {} }; };
   F.normalisePosts = function (Q, deal) {
     var tot = C.seats(Q, deal.coalition);
     deal.coalition.forEach(function (p) { if (deal.posts[p] == null) deal.posts[p] = Math.max(1, Math.round(20 * Q.house[p] / tot)); });

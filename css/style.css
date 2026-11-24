@@ -119,3 +119,4 @@ table.seats { max-width: 420px; margin-top: 6px; }
 .zoomctl button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: 600 16px system-ui, sans-serif; cursor: pointer; }
 #mapcard { position: absolute; z-index: 60; min-width: 190px; max-width: 300px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 11px; font: 12.5px/1.45 system-ui, sans-serif; box-shadow: 0 4px 16px rgba(0,0,0,.2); pointer-events: none; display: none; }
 #mapcard .muted { color: var(--muted); }
+.seg button { font-size: 12px; padding: 5px 2px; }
