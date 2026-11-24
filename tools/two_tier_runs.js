@@ -2,7 +2,7 @@
 // combination of national threshold (national tier) and state threshold
 // (state tier). Usage: node tools/two_tier_runs.js [seed]
 const U = require('../tests/load.js');
-U.RULES.house.system = 'two-tier'; U.RULES.house.total = 600; U.Elections.resetApportion();
+U.RULES.house.system = 'two-tier'; U.RULES.house.nationalTierSeats = 300; U.RULES.house.stateTierSeats = 300; U.Elections.resetApportion();
 const Q = U.Game.newGame(+(process.argv[2] || 3));
 const NAT = [0, 0.02, 0.05, 0.08], ST = [0, 0.02, 0.05, 0.10];
 const opening = { ldp: 3, sdlp: 2, cdp: 0.5, grn: -6, cc: -1, reform: 1 };

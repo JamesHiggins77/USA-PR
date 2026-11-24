@@ -28,7 +28,11 @@ This document follows the brief's §22 checklist: unresolved rules and their def
 | Presidential veto | A President outside the government may veto distant bills; override needs absolute majorities in both chambers | `game/content.js` |
 | Turn length | Monthly, 3 actions (4 during a campaign) | `rules.government.actionsPerMonth` |
 
-### House: pure proportional representation (designer change)
+### House: two-tier proportional representation (designer choice)
+
+The House has **600 seats in two tiers, added together**: **100 national list seats**, shared by Sainte-Laguë on the nationwide vote among parties with at least **5%** nationally, and **500 state list seats**, shared among the 50 states and DC by population (minimum 1) and allocated within each state with **no threshold**. A majority is 301; on a 300–300 tie the President casts the deciding vote. Alternatives (single-tier 600, other thresholds, 300 + 300) were compared in `docs/threshold_runs.md` and `docs/two_tier_runs.md` and remain available in `js/rules.js`.
+
+### Earlier option: single-tier pure proportional representation
 
 The House has **600 seats**, all elected by statewide party-list PR (Sainte-Laguë). They are shared among the 50 states and DC by population, with at least one each. A majority is 301; on a 300–300 tie the President casts the deciding vote, following their party's line. Thresholds are set in `rules.house.nationalThreshold` and `rules.house.stateThreshold`; the default is none until the designer picks one. `docs/threshold_runs.md` compares the options. The earlier mixed system (435 districts + 365 list seats + DC) is still available as `rules.house.system = 'mixed'`. Under pure PR, district stand-down agreements and the district map are switched off.
 

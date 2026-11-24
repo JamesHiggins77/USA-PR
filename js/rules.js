@@ -7,11 +7,11 @@
     house: {
       // designer change: pure proportional representation, 600 seats shared
       // among the states and DC by population, statewide party lists.
-      system: 'pure-pr',                // 'pure-pr' | 'two-tier' | 'mixed' (435 two-round districts + 365 list seats + DC)
-      nationalTierSeats: 300, stateTierSeats: 300, // two-tier: a national list and state lists, added together
+      system: 'two-tier',                // 'pure-pr' | 'two-tier' | 'mixed' (435 two-round districts + 365 list seats + DC)
+      nationalTierSeats: 100, stateTierSeats: 500, // designer choice: 100 national list seats + 500 state list seats, added together
       total: 600, pureSeats: 600,         // majority 301; on a 300-300 tie the President casts the deciding vote
-      nationalThreshold: 0,             // share of the national vote needed to win any seats (e.g. 0.05)
-      stateThreshold: 0,                // share of a state's vote needed to win seats there
+      nationalThreshold: 0.05,          // two-tier: applies to the national list only
+      stateThreshold: 0,                // two-tier: applies to the state lists
       thresholdExemptRegional: false,   // if true, regional parties skip the national threshold
       mixedTotal: 801, districtSeats: 435, prSeats: 365, dcSeats: 1,
       apportionment: 'map',             // districts: the real (2012) district map; PR: largest remainder on population, min 1

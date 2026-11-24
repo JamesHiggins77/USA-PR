@@ -1,6 +1,7 @@
 // Compares pure-PR House outcomes under different thresholds.
 // Usage: node tools/threshold_runs.js [seed]
 const U = require('../tests/load.js');
+U.RULES.house.system = 'pure-pr'; U.Elections.resetApportion();
 const seed = +(process.argv[2] || 3);
 const Q = U.Game.newGame(seed);
 const configs = [
@@ -18,7 +19,7 @@ function run(label, mods) {
   for (const p in mods) Q.mods[p] = U.Votes.all(mods[p]);
   const nat = U.Votes.national(Q);
   const rows = configs.map(([name, opt]) => {
-    const h = U.Elections.housePure(Q, opt).house, tot = Object.values(h).reduce((a, b) => a + b, 0);
+    const h = U.Elections.housePure(Q, Object.assign({ nationalThreshold: 0, stateThreshold: 0 }, opt)).house, tot = Object.values(h).reduce((a, b) => a + b, 0);
     const parties = Object.keys(h).filter(p => h[p]).length;
     const enp = 1 / Object.values(h).reduce((a, s) => a + (s / tot) ** 2, 0);
     const lsq = Math.sqrt(0.5 * Object.keys(nat).reduce((a, p) => a + (nat[p] - (h[p] || 0) / tot * 100) ** 2, 0));
