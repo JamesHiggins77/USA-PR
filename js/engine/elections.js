@@ -191,25 +191,34 @@
     }
     return E.hamilton(votes, electors, 0);
   };
-  X.president = function (Q, cands) {
-    var app = X.apportion(), total = 0, r1 = {}, pop1 = {}, byState = {};
+  // Rank candidates by electors, then national popular vote, then a coin flip.
+  function rank(Q, ev, pop, ids) {
+    var coin = {}; ids.forEach(function (c) { coin[c] = U.rng(Q); });
+    return ids.slice().sort(function (a, b) { return (ev[b] || 0) - (ev[a] || 0) || (pop[b] || 0) - (pop[a] || 0) || coin[b] - coin[a]; });
+  }
+  function round(Q, cands) {
+    var app = X.apportion(), ev = {}, pop = {}, bs = {}, total = 0;
     V.allStates().forEach(function (s) {
       var v = X.candidateVotes(Q, s, cands), el = app.electors[s.id]; total += el;
-      var a = X.allocate(v, el); byState[s.id] = { votes: v, ev: a };
-      for (var c in a) r1[c] = (r1[c] || 0) + a[c];
-      for (c in v) pop1[c] = (pop1[c] || 0) + v[c] * s.pop;
+      var a = X.allocate(v, el); bs[s.id] = { votes: v, ev: a };
+      for (var c in a) ev[c] = (ev[c] || 0) + a[c];
+      for (c in v) pop[c] = (pop[c] || 0) + v[c] * s.pop;
     });
-    var need = Math.floor(total * R.president.majority) + 1;
-    var order = Object.keys(r1).sort(function (a, b) { return r1[b] - r1[a]; });
-    var res = { total: total, need: need, r1: r1, pop1: pop1, byState: byState, cands: cands };
-    if (r1[order[0]] >= need) { res.winner = order[0]; res.round = 1; return res; }
-    var fin = cands.filter(function (c) { return c.id === order[0] || c.id === order[1]; }), r2 = {}, bs2 = {};
-    V.allStates().forEach(function (s) {
-      var v = X.candidateVotes(Q, s, fin), a = X.allocate(v, app.electors[s.id]); bs2[s.id] = { votes: v, ev: a };
-      for (var c in a) r2[c] = (r2[c] || 0) + a[c];
-    });
-    res.r2 = r2; res.byState2 = bs2; res.round = 2;
-    res.winner = (r2[fin[0].id] || 0) >= (r2[fin[1].id] || 0) ? fin[0].id : fin[1].id;
+    var P = 0; V.allStates().forEach(function (s) { P += s.pop; });
+    for (var c in pop) pop[c] /= P;
+    return { ev: ev, pop: pop, byState: bs, total: total };
+  }
+  // The presidential election always has two rounds: the top two in electors
+  // meet head to head, and the winner of that round takes the presidency.
+  X.president = function (Q, cands) {
+    var r = round(Q, cands), ids = cands.map(function (c) { return c.id; });
+    var order = rank(Q, r.ev, r.pop, ids);
+    var res = { total: r.total, need: Math.floor(r.total / 2) + 1, r1: r.ev, pop1: r.pop, byState: r.byState, cands: cands, order1: order };
+    var fin = cands.filter(function (c) { return c.id === order[0] || c.id === order[1]; });
+    if (fin.length < 2) { res.winner = order[0]; res.round = 1; return res; }
+    var r2 = round(Q, fin), o2 = rank(Q, r2.ev, r2.pop, fin.map(function (c) { return c.id; }));
+    res.r2 = r2.ev; res.pop2 = r2.pop; res.byState2 = r2.byState; res.round = 2; res.winner = o2[0];
+    res.tiebreak = (r2.ev[o2[0]] || 0) === (r2.ev[o2[1]] || 0) ? ((r2.pop[o2[0]] || 0) === (r2.pop[o2[1]] || 0) ? 'coin' : 'popular vote') : null;
     return res;
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

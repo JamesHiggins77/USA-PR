@@ -121,3 +121,6 @@ table.seats { max-width: 420px; margin-top: 6px; }
 #mapcard .muted { color: var(--muted); }
 .seg button { font-size: 12px; padding: 5px 2px; }
 .seg button:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+#nt-map path.called, #nt-map rect.called { stroke: var(--ink); stroke-width: 2.2px; }
+#nt-dmap path.dist.called { stroke: var(--ink); stroke-width: 0.9px; }
+#nt-map path, #nt-map rect, #nt-dmap path { transition: fill .4s, fill-opacity .4s; }

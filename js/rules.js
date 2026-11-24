@@ -25,9 +25,9 @@
       termLimit: 2,
       electors: 'house-plus-senate',    // state electors = House seats + 4; DC = 3
       dcElectors: 3,
-      allocation: 'proportional',       // 'proportional' | 'winner-take-all'
-      majority: 0.5,                    // strictly more than half of electors
-      runoff: 'top-two-popular'         // round 2: statewide two-way vote, same allocation
+      allocation: 'winner-take-all',    // designer canon: a state's plurality winner takes all its electors
+      alwaysRunoff: true,               // designer canon: there is always a second round
+      runoff: 'top-two-electors'        // top two by electors; ties: national popular vote, then a coin flip
     },
     government: {
       investitureFirstBallot: 'absolute', // 401 of 801
