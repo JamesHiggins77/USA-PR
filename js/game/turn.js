@@ -145,7 +145,7 @@
       if (Q.dormant[p]) return;
       var m = Q.mods[p] = Q.mods[p] || {};
       U.GROUPS.forEach(function (g) {
-        m[g] = (m[g] || 0) * 0.985 + (p === Q.player ? 0 : U.gauss(Q) * 0.12);
+        m[g] = (m[g] || 0) * 0.985 + (p === Q.player ? 0 : U.gauss(Q) * 0.2);
       });
       Q.fatigue && Q.fatigue[p] && (Q.fatigue[p] *= 0.8);
       // AI parties campaign too: a monthly push among their best groups,
@@ -158,11 +158,11 @@
       }
       if (U.PARTIES[p].home) Q.homeMult[p] = U.clamp((Q.homeMult[p] == null ? 1 : Q.homeMult[p]) + U.gauss(Q) * 0.015, 0.3, 3);
     });
-    // The Green surge: Nader's profile pulls young and professional voters to the UL
-    if (Q.flags.naderSurge && S.now(Q) < Q.flags.naderSurge + 24) {
-      V.campaign(Q, S.greenId(Q), { young: 0.35, prof: 0.18, union: 0.05 }, null);
-      V.campaign(Q, 'ldp', { young: -0.06, prof: -0.04 }, 'Nader’s Green surge');
-    }
+    // The Nader surge (designer canon): through 1999-2000 the Greens, or the
+    // United Left if the Greens have joined it, climb towards a target of
+    // 6-9% (Q.naderTarget, moved by the LDP's responses), drawing mainly on
+    // LDP and SDLP voters. The pull fades after 2000.
+    S.naderSurge(Q);
     // Discontent accumulates under long, broad coalitions and weak economies
     var gc = Q.gov && Q.gov.coalition.length >= 3 ? 0.15 : 0;
     Q.discontent = U.clamp(Q.discontent + gc + (Q.econ.unemp - 5.5) * 0.1 + (40 - Q.govApproval) * 0.01, 0, 100);
@@ -199,6 +199,20 @@
     // Dormant populist right can emerge from 2015 if conditions allow
     if (Q.dormant.maga && Q.year >= 2015 && Q.month >= 6 && Q.discontent > 45 && U.rng(Q) < 0.15) S.activate(Q, 'maga', 4 + Q.discontent / 10);
     if (Q.dormant.afp && !Q.dormant.maga && Q.year >= 2018 && S.inGov(Q, 'maga') && U.rng(Q) < 0.05) S.activate(Q, 'afp', 2);
+  };
+
+  S.naderSurge = function (Q) {
+    var start = U.monthIndex(1999, 1), peak = U.monthIndex(2000, 7), end = U.monthIndex(2000, 12), now = S.now(Q);
+    var sw = Q.surge = Q.surge || { frac: 0 };
+    sw.to = S.greenId(Q);
+    if (now > end) { sw.frac *= 0.98; return; }           // after 2000 the switchers drift back slowly
+    if (now < start) return;
+    if (sw.to === 'ul' && !(Q.ulMembers && Q.ulMembers.grn)) { sw.frac *= 0.9; return; } // Nader is not in the UL
+    if (Q.naderTarget == null) Q.naderTarget = 7.5;
+    var tgt = U.clamp(Q.naderTarget, 6, 9), base = 2.5;
+    var want = base + (tgt - base) * Math.min(1, (now - start) / (peak - start));
+    var n = V.national(Q), cur = n[sw.to] || 0, pool = (n.ldp || 0) + (n.sdlp || 0);
+    if (pool > 0) sw.frac = U.clamp(sw.frac + (want - cur) / pool * 0.6 + U.gauss(Q) * 0.002, 0, 0.35);
   };
 
   S.activate = function (Q, p, share) {

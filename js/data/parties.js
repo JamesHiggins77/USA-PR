@@ -16,16 +16,16 @@
   // calibrated to `target` at game start).
   var P = {
     ldp: { name: 'Liberal Democratic Party', short: 'LDP', color: '#ffa500', kind: 'party', econ: -2, soc: -4, fed: -2,
-      target: 23, office: .8, leader: 'Al Gore', founded: '1960s (Democratic split over civil rights)',
+      target: 21, office: .8, leader: 'Al Gore', founded: '1960s (Democratic split over civil rights)',
       pref: { prof: 34, suburb: 22, union: 12, rural: 6, relig: 6, black: 40, hisp: 30, young: 24, retire: 18 } },
     sdlp: { name: 'Social Democratic Labor Party', short: 'SDLP', color: '#ff1a75', kind: 'party', econ: -6, soc: -2, fed: -3,
-      target: 18, office: .8, leader: 'Bill Bradley', founded: '1950s (Progressive + labor merger)',
+      target: 16.5, office: .8, leader: 'Bill Bradley', founded: '1950s (Progressive + labor merger)',
       pref: { prof: 10, suburb: 14, union: 44, rural: 16, relig: 8, black: 30, hisp: 26, young: 12, retire: 22 } },
     cdp: { name: 'Christian Democratic Party', short: 'CDP', color: '#1a7a7a', kind: 'party', econ: 3, soc: 4, fed: 1,
-      target: 13.5, office: .8, leader: 'John McCain',
+      target: 15, office: .8, leader: 'John McCain',
       pref: { prof: 14, suburb: 22, union: 8, rural: 22, relig: 30, black: 5, hisp: 14, young: 7, retire: 20 } },
     cc: { name: 'Conservative Coalition', short: 'CC', color: '#0047ab', kind: 'party', econ: 6, soc: 6, fed: 4,
-      target: 20, office: .9, leader: 'George W. Bush', founded: 'late 1970s (Southern Democrats + Republicans)',
+      target: 22, office: .9, leader: 'George W. Bush', founded: 'late 1970s (Southern Democrats + Republicans)',
       pref: { prof: 16, suburb: 24, union: 12, rural: 32, relig: 30, black: 3, hisp: 10, young: 10, retire: 22 } },
     asp: { name: 'American Solidarity Party', short: 'ASP', color: '#e07b16', kind: 'alliance', econ: -3, soc: 5, fed: 3,
       target: 3.8, office: .6, leader: 'Coalition chair',
@@ -94,6 +94,10 @@
     nyfp: { name: 'New York Freedom Party', short: 'NYFP', color: '#8c8c3a', kind: 'regional', econ: 1, soc: -2, fed: 7,
       office: .4, leader: 'Party chair (Albany)', home: { NY: 3 }, secession: .05 }
   };
+  // The general election that elected the opening parliament (late 1996).
+  // Fixed, so the opening seats do not move when the 1997 polling is tuned.
+  // Scenario assumption.
+  U.ELECTION_1996 = { ldp: 24.9, sdlp: 19.0, cdp: 14.5, cc: 18.2, asp: 3.8, reform: 4.0, grn: 0.9, cpusa: 0.8, dsa: 1.1, wfp: 0.9, revsoc: 0.7, lib: 3.0, con: 2.5 };
   U.PARTIES = P;
   U.NATIONAL = ['ldp', 'sdlp', 'cdp', 'cc', 'asp', 'reform', 'ul', 'grn', 'cpusa', 'dsa', 'wfp', 'revsoc', 'acp', 'lib', 'con'];
   U.REGIONAL = ['aga', 'lsp', 'srp', 'cnp', 'cfc', 'alk', 'aloha', 'raza', 'nenp', 'nyfp', 'vpp'];

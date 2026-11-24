@@ -93,6 +93,10 @@ Still flagged:
 - The government is a **coalition of the LDP and the SDLP** under Prime Minister Al Gore, with Reform's confidence and supply. It replaces the brief's LDP–SDLP–CDP Grand Coalition; the CDP is in opposition.
 - Presidential elections are on a six-year cycle: Clinton was elected in 1992 and faces re-election in **November 1998**.
 
+- The **opening parliament is fixed**: it was elected in late 1996 on fixed national shares (`U.ELECTION_1996` in `data/parties.js`) with no random swings, so every game starts with the same legislature (LDP + SDLP 300 of 600 in the House, needing Reform; 101 of 200 in the Senate). The 1997 polling is calibrated separately.
+- **A tight race** (designer request): the 1997 polling targets put the CC ahead of the LDP (22% to 21%) and the CDP at 15%, so at the 2000 election the left (including the Greens) and CC + CDP each hold about 260 seats and smaller parties hold the balance. `node tools/election_spread.js` reruns this check.
+- **The Nader surge** (designer canon): from 1999 to mid-2000, a growing share of LDP and SDLP voters switch to the Greens (or to the United Left, if the Greens have joined it, with Nader as its leader), aiming for a target of 6–9% (7.5% by default). The LDP's responses move the target: ignoring Nader raises it; adopting his agenda, winning a debate with him, or passing the climate bill lowers it. After 2000 the switchers drift back slowly.
+
 ## 4e. 1998 background (designer canon)
 
 - January 1998: the Lewinsky scandal breaks during Clinton's re-election campaign (a fixed event; the LDP can stand by him, keep its distance, or push him not to run).

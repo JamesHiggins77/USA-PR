@@ -242,7 +242,7 @@
       H.camp(Q, pol.groups, 'Legislation: ' + pol.name);
       H.fac(Q, pol.fac); Q.spending = (Q.spending || 0) + pol.cost; Q.policyGrowth = (Q.policyGrowth || 0) + (pol.growth || 0);
       if (pol.funds) Q.funds += pol.funds;
-      if (pol.ulDrain) V.campaign(Q, S.greenId(Q), { young: -0.4, prof: -0.3 }, null);
+      if (pol.ulDrain) { V.campaign(Q, S.greenId(Q), { young: -0.4, prof: -0.3 }, null); Q.naderTarget = (Q.naderTarget || 7.5) - 0.6; }
       if (pol.regional) U.REGIONAL.forEach(function (p) { C.addRel(Q, Q.player, p, 6); });
       (Q.pendingConcessions || []).forEach(function (c) { if (!c.done && c.text.toLowerCase().indexOf(pol.name.split(' ')[0].toLowerCase()) >= 0) { c.done = true; C.addRel(Q, Q.player, c.party, 10); } });
       Q.govApproval += 1;

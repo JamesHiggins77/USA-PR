@@ -26,10 +26,9 @@
     [['ldp', 'sdlp', 66], ['ldp', 'cdp', 50], ['sdlp', 'cdp', 42], ['ldp', 'reform', 56], ['ldp', 'asp', 50], ['ldp', 'grn', 32],
      ['sdlp', 'grn', 40], ['sdlp', 'wfp', 60], ['sdlp', 'dsa', 50], ['reform', 'asp', 55], ['cc', 'cdp', 50], ['cc', 'ldp', 30]].forEach(function (r) { U.Coalition.addRel(Q, r[0], r[1], r[2] - U.Coalition.rel(Q, r[0], r[1])); });
 
-    // Generate the opening parliament from the 1996-style electorate that elected it:
-    // the governing parties stronger, the Greens before Nader's surge.
-    var tmp = { ldp: 3, sdlp: 2, cdp: 0.5, grn: -6, cc: -1, reform: 1 };
-    for (var p in tmp) Q.mods[p] = V.all(tmp[p]);
+    // The opening parliament was elected in late 1996, on fixed vote shares
+    // (U.ELECTION_1996), independent of the 1997 polling calibrated below.
+    var calib1997 = Q.calib; V.calibrate(Q, U.ELECTION_1996); Q.noNoise = true; // the same opening in every game
     var h = X.house(Q); Q.house = h.house; Q.houseByState = S.delegations(h);
     Q.lastDistricts = h.districts.map(function (d) { return { s: d.state, n: d.n, w: d.winner, round: d.round, f: d.finalists }; });
     // canon: Ralph Nader is one of exactly four Green MPs
@@ -46,7 +45,7 @@
       ['pr', 'pr', 'pr', 'house'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
     });
     X.senate(Q);
-    for (p in tmp) Q.mods[p] = {};
+    Q.calib = calib1997; delete Q.noNoise;
     Q.lastSenate = X.senateCount(Q);
 
     // the 1992 presidential result (generated) so every state has a last vote

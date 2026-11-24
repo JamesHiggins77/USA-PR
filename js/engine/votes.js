@@ -69,6 +69,11 @@
     U.REGIONAL.forEach(function (p) { if (Q.dormant && Q.dormant[p]) return; var h = V.homeShare(Q, p, s.id); if (h > 0) { out[p] = h; reg += h; } });
     reg = Math.min(reg, 60);
     for (var p in raw) out[p] = raw[p] / tot * (100 - reg);
+    // the Nader surge: a share of LDP and SDLP voters switch to the Greens / UL
+    var sw = Q.surge;
+    if (sw && sw.frac > 0 && out[sw.to] != null) {
+      ['ldp', 'sdlp'].forEach(function (q) { if (out[q]) { var m = out[q] * sw.frac * (q === 'ldp' ? 1.1 : 0.9); out[q] -= m; out[sw.to] += m; } });
+    }
     return out;
   };
 
@@ -83,13 +88,15 @@
   };
 
   // Calibrate national parties to their target shares (run once at start).
-  V.calibrate = function (Q) {
+  // targets: {party: national %} (defaults to each party's 1997 polling target)
+  V.calibrate = function (Q, targets) {
     Q.calib = {}; U.NATIONAL.forEach(function (p) { Q.calib[p] = 1; });
     var live = U.NATIONAL.filter(function (p) { return !(Q.dormant && Q.dormant[p]); });
-    var tTot = live.reduce(function (s, p) { return s + U.PARTIES[p].target; }, 0);
+    var T = function (p) { return targets && targets[p] != null ? targets[p] : U.PARTIES[p].target; };
+    var tTot = live.reduce(function (s, p) { return s + T(p); }, 0);
     for (var it = 0; it < 6; it++) {
       var n = V.national(Q), nTot = live.reduce(function (s, p) { return s + (n[p] || 0); }, 0);
-      live.forEach(function (p) { Q.calib[p] *= (U.PARTIES[p].target / tTot) / (n[p] / nTot); });
+      live.forEach(function (p) { Q.calib[p] *= (T(p) / tTot) / (n[p] / nTot); });
     }
   };
 
@@ -151,7 +158,7 @@
       var v = base[p] != null ? base[p] : sh[p];
       v *= Math.exp(0.013 * lean * V.leftWeight(Q, p));
       // local strongholds and the candidate on the ballot
-      v *= (1 + hg(s.id + i + p) * 0.15) * (noNoise ? 1 : 1 + U.gauss(Q) * 0.08);
+      v *= (1 + hg(s.id + i + p) * 0.15) * (noNoise || Q.noNoise ? 1 : 1 + U.gauss(Q) * 0.08);
       out[p] = Math.max(0.01, v); tot += out[p];
     }
     for (p in out) out[p] = out[p] / tot * 100;

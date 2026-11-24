@@ -143,7 +143,7 @@
     var sh = V.stateShares(Q, s), pos = X.pos(Q), g = {};
     var gs = U.clone(sh);
     if (prev && prev.governor && gs[prev.governor]) gs[prev.governor] *= 1.12; // incumbency
-    for (var p in gs) gs[p] *= 1 + 0.15 * U.gauss(Q) / 2;
+    if (!Q.noNoise) for (var p in gs) gs[p] *= 1 + 0.15 * U.gauss(Q) / 2;
     g.govRace = E.twoRound(gs, pos, { majority: R.governor.firstRoundMajority, pactWith: X.pactFn(Q) });
     g.governor = g.govRace.winner;
     g.house = {};

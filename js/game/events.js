@@ -50,12 +50,12 @@
         { label: 'Attack the Reform Party as unserious', sub: 'Reform relations down; may matter for its confidence-and-supply votes.', act: function (Q) { H.rel(Q, 'reform', -8); H.camp(Q, { suburb: 0.3, prof: 0.2 }, 'Response to Trump and Reform'); return 'The LDP calls Reform a vanity project. Perot\u2019s people remember it.'; } }
       ] },
 
-    { id: 'nader', title: 'Nader on campus', when: function (Q) { return at(Q, 1999, 3) && chance(Q, 0.5); },
+    { id: 'nader', title: 'Nader on campus', when: function (Q) { return at(Q, 1999, 3); },
       body: function () { return 'Ralph Nader, one of only four Green MPs, is filling university halls. His message: the LDP\u2013SDLP coalition is a single corporate party with two logos. Students are listening, and so are some of your own activists.'; },
       options: [
-        { label: 'Ignore him: he has four seats', act: function (Q) { Q.flags.naderSurge = S.now(Q); return 'The surge continues. The Greens’ numbers climb slowly but steadily.'; } },
-        { label: 'Adopt part of his agenda', sub: 'Campaign finance and environment. Moves the LDP left.', act: function (Q) { Q.flags.naderSurge = S.now(Q) + 6; H.shift(Q, -0.6, -0.4); H.camp(Q, { young: 0.6, prof: 0.4 }, 'Response to the Green surge'); H.fac(Q, { proglib: -5, newdem: 5 }); return 'The LDP takes some of the Greens’ clothes. Nader calls it theft; his surge slows.'; } },
-        { label: 'Debate him publicly', sub: 'Risky: raises his profile.', act: function (Q) { var r = U.gauss(Q) + Q.leader.charisma * 0.3; Q.flags.naderSurge = S.now(Q) + (r > 0 ? 8 : -4); H.camp(Q, { young: r * 0.5, prof: r * 0.4 }, 'Response to the Green surge'); return r > 0 ? 'A clear win for ' + Q.leader.name + '. Nader looks like a protest candidate.' : 'Nader wins the room and the headlines. The Greens surge.'; } }
+        { label: 'Ignore him: he has four seats', sub: 'The surge runs its course.', act: function (Q) { Q.flags.naderSurge = S.now(Q); Q.naderTarget = (Q.naderTarget || 7.5) + 0.8; return 'The surge continues. The Greens’ numbers climb slowly but steadily.'; } },
+        { label: 'Adopt part of his agenda', sub: 'Campaign finance and environment. Moves the LDP left.', act: function (Q) { Q.flags.naderSurge = S.now(Q) + 6; Q.naderTarget = (Q.naderTarget || 7.5) - 1.3; H.shift(Q, -0.6, -0.4); H.camp(Q, { young: 0.6, prof: 0.4 }, 'Response to the Green surge'); H.fac(Q, { proglib: -5, newdem: 5 }); return 'The LDP takes some of the Greens’ clothes. Nader calls it theft; his surge slows.'; } },
+        { label: 'Debate him publicly', sub: 'Risky: raises his profile.', act: function (Q) { var r = U.gauss(Q) + Q.leader.charisma * 0.3; Q.flags.naderSurge = S.now(Q) + (r > 0 ? 8 : -4); Q.naderTarget = (Q.naderTarget || 7.5) + (r > 0 ? -1.2 : 1.3); H.camp(Q, { young: r * 0.5, prof: r * 0.4 }, 'Response to the Green surge'); return r > 0 ? 'A clear win for ' + Q.leader.name + '. Nader looks like a protest candidate.' : 'Nader wins the room and the headlines. The Greens surge.'; } }
       ] },
 
     { id: 'bradley_health', title: 'Bradley’s healthcare ultimatum', when: function (Q) { return at(Q, 1999, 5) && S.inGov(Q) && S.inGov(Q, 'sdlp'); },
@@ -254,6 +254,7 @@
     }
     var w = S.mergeInto(Q, join, 'ul', 1.08);
     Q.ulMembers = {}; for (var p in w) Q.ulMembers[p] = w[p];
+    if (Q.ulMembers.grn && Q.year <= 2000) Q.leaders.ul = 'Ralph Nader';
     Q.ulUnity = 65;
     S.note(Q, 'The United Left is founded under Bernie Sanders: ' + join.map(function (p) { return U.PARTIES[p].short; }).join(', ') + ' will run joint lists.' + (join.indexOf('grn') < 0 && !Q.dormant.grn ? ' The Greens stay out.' : ''));
     return '<b>The United Left is born.</b> ' + join.map(function (p) { return U.PARTIES[p].name; }).join(', ') + ' agree to run as one alliance.' + (join.indexOf('grn') < 0 && !Q.dormant.grn ? ' Nader\u2019s Greens stay out.' : '');
