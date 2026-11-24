@@ -12,7 +12,7 @@
   // poll closing times, minutes after 7pm Eastern
   var CLOSE = { NE: 0, MA: 30, SO: 60, MW: 60, PL: 120, TX: 120, MT: 120, PC: 240 };
   var SPECIAL = { GA: 0, VA: 0, IN: 0, KY: 0, SC: 0, VT: 0, FL: 30, OH: 30, NC: 30, WV: 30, AZ: 120, CO: 120, NM: 120, NV: 180, UT: 180, ID: 180, MT: 180, AK: 300, HI: 300, DC: 60 };
-  var END1 = 600; // 7pm to 5am Eastern
+  var END1 = 720; // 7pm to 7am Eastern
   var CURVE = 1.3; // the count is quick at first, then slows
 
   function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10000) / 10000; }
@@ -24,9 +24,11 @@
   // Counting window and call time. margin: final lead in points (bigger = earlier call)
   function timing(item, margin) {
     var k = item.state + item.label;
-    item.t0 = closeOf(item.state) + Math.floor(hash(k + 'o') * 12);
-    item.t1 = Math.min(END1 - 2, item.t0 + 70 + Math.floor(hash(k + 'd') * 170));
-    var need = U.clamp(100 - margin * 6, 3, 99);
+    // first returns 10-40 minutes after polls close; the count takes 2.5-6 hours
+    item.t0 = closeOf(item.state) + 10 + Math.floor(hash(k + 'o') * 30);
+    item.t1 = Math.min(END1 - 5, item.t0 + 150 + Math.floor(hash(k + 'd') * 210));
+    // even a blowout waits for about a quarter of the count; close races need 90%+
+    var need = U.clamp(97 - margin * 2.4, 25, 99);
     item.need = need;
     item.t = Math.max(item.t0 + 2, Math.round(item.t0 + (item.t1 - item.t0) * Math.pow(need / 100, CURVE)));
   }
