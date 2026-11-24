@@ -18,18 +18,18 @@ How this America got here. The story diverges from ours with the deadlocked elec
 |---|---|---|---|
 | 1914 | Theodore Roosevelt | Progressive | Beat Woodrow Wilson in the first runoff under the new constitution, after Wilson resigned to seek a fresh mandate. Died in office in January 1919; Vice President Hiram Johnson served out the term. |
 | 1920 | Charles Evans Hughes | Republican | Won on a promise of calm after the war and the fight over the League of Nations. |
-| 1926 | Al Smith | Democratic | The first Catholic President. The Wall Street crash came three years into his term. |
-| 1932 | Franklin D. Roosevelt | Democratic | Won in the depths of the Depression, while his rival Huey Long ran the House as Prime Minister. |
-| 1938 | Robert La Follette Jr. | Progressive | Beat Roosevelt, who was worn down by the court-packing fight and the 1937 recession, in a runoff that split the New Deal coalition. |
-| 1944 | Wendell Willkie | Republican | Survived the heart attack that killed him in our history, and won as a wartime unity candidate. |
-| 1950 | Adlai Stevenson | Democratic | Beat Robert Taft, then serving as Prime Minister, in the runoff. |
-| 1956 | Dwight D. Eisenhower | Independent (CDP and Republican backing) | The war hero ran above parties and beat Stevenson’s bid for a second term. |
-| 1962 | John F. Kennedy | Democratic | Shared power with a Republican Prime Minister, Richard Nixon, who had beaten him for the premiership a year earlier. Survived the 1963 Dallas assassination attempt. |
-| 1968 | Robert F. Kennedy | Liberal Democratic | Beat George Wallace (SRP) in a runoff that pitted the new LDP against the old South. |
-| 1974 | Nelson Rockefeller | Christian Democratic | The CDP’s only President, elected as a unifier after years of turmoil. |
-| 1980 | Ronald Reagan | Conservative Coalition | His runoff win over Walter Mondale made the new CC the main party of the right. |
-| 1986 | Mario Cuomo | Liberal Democratic | Beat Vice President George H. W. Bush, ending the CC’s hold on the presidency after one term. |
-| 1992 | Bill Clinton | Liberal Democratic | Beat George H. W. Bush (CC) in the runoff after Cuomo declined a second run. Ross Perot won 19% of the first-round vote. |
+| 1926 | Frank Lowden | Republican | The Illinois governor and farm-relief champion, the choice of the farm belt. The Wall Street crash came three years into his term. |
+| 1932 | Huey Long | Democratic | The Louisiana Kingfish swept to power on Share Our Wealth in the depths of the Depression, and spent his first term at war with his own party’s Prime Minister, Al Smith. |
+| 1938 | Huey Long | Democratic | Re-elected. Survived a 1935 shooting in the Louisiana capitol that killed him in our history. |
+| 1944 | John Nance Garner | Democratic | Cactus Jack, the Texan conservative, won as a steady wartime choice. |
+| 1950 | Thomas E. Dewey | Republican | The New York governor won at the start of the Cold War. |
+| 1956 | Thomas E. Dewey | Republican | Re-elected. |
+| 1962 | John F. Kennedy | Democratic | Shared power with a Republican Prime Minister, Richard Nixon, for his whole term. Survived the 1963 Dallas assassination attempt. |
+| 1968 | Nelson Rockefeller | Christian Democratic | Beat George Wallace (SRP), who topped the first round in a year of riots and assassinations, in the runoff. The CDP’s first President. |
+| 1974 | Robert F. Kennedy | Liberal Democratic | Avenged his brother’s narrow loss of the premiership in 1962 and brought the LDP its first presidency. |
+| 1980 | Ronald Reagan | Conservative Coalition | His runoff win over Jimmy Carter (LDP) made the new CC the main party of the right. |
+| 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Walter Mondale (LDP). |
+| 1992 | Bill Clinton | Liberal Democratic | Beat Vice President George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote. |
 | 1998 | — |  | The next election, due in November 1998. |
 
 ## Prime Ministers and governments
@@ -39,21 +39,19 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1915–1919 | Champ Clark | Democratic | Democratic–Progressive coalition under President Roosevelt |
 | 1919–1923 | Warren G. Harding | Republican | Republicans with conservative Democrats; died in office |
 | 1923–1927 | Robert La Follette, then George Norris | Progressive | Progressive–Democratic–Farmer-Labor coalition |
-| 1927–1931 | Nicholas Longworth | Republican | Republican minority government under President Smith |
-| 1931–1935 | John Nance Garner | Democratic | Democratic–Progressive coalition |
-| 1935–1941 | Huey Long | Democratic | Long’s Share Our Wealth coalition of populist Democrats, Progressives and Farmer-Labor, at war with President Roosevelt |
-| 1941–1946 | Sam Rayburn | Democratic | Wartime national unity government |
-| 1946–1952 | Robert A. Taft | Republican | Republican–CDP coalition |
-| 1952–1957 | Estes Kefauver | Democratic | Democratic–SDLP coalition |
-| 1957–1961 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition |
-| 1961–1965 | Richard Nixon | Republican | Republican–CDP coalition, sharing power with President Kennedy |
-| 1965–1966 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition; passed the Civil Rights and Voting Rights Acts, splitting the Democratic Party |
-| 1966–1970 | Hubert Humphrey | Liberal Democratic | LDP–SDLP coalition |
-| 1970–1974 | Gerald Ford | Republican | Republicans, the rump southern Democrats and the CDP |
-| 1974–1978 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP grand coalition under President Rockefeller |
+| 1927–1932 | Nicholas Longworth | Republican | Republican-led government under President Lowden |
+| 1932–1938 | Al Smith | Democratic | Democratic–Progressive coalition; the New Deal, written by Smith’s cabinet and fought over with President Long |
+| 1939–1944 | Henry A. Wallace | Progressive | Progressive–Democratic–Farmer-Labor coalition; took the country into the Second World War |
+| 1945–1950 | Alben W. Barkley | Democratic | Democratic–Progressive coalition; demobilisation and the start of the Cold War |
+| 1950–1953 | Robert A. Taft | Republican | Republican–CDP coalition; Taft died in office |
+| 1953–1958 | Estes Kefauver | Democratic | Democratic–SDLP coalition |
+| 1958–1962 | Lyndon B. Johnson | Democratic | Democratic–SDLP coalition |
+| 1962–1971 | Richard Nixon | Republican | Republican–CDP coalition, sharing power with President Kennedy, then serving under President Rockefeller. Passed the Civil Rights and Voting Rights Acts with northern Democratic votes, which split the Democratic Party in 1966. |
+| 1971–1975 | Hubert Humphrey | Liberal Democratic | LDP–SDLP coalition |
+| 1975–1978 | Edmund Muskie | Liberal Democratic | LDP–SDLP–CDP grand coalition under President Robert Kennedy |
 | 1978–1982 | Walter Mondale | Liberal Democratic | LDP–SDLP coalition |
 | 1982–1986 | Bob Dole | Conservative Coalition | CC–CDP coalition under President Reagan |
-| 1986–1990 | Jack Kemp | Conservative Coalition | CC–CDP–Libertarian coalition, sharing power with President Cuomo |
+| 1986–1990 | Jack Kemp | Conservative Coalition | CC–CDP–Libertarian coalition |
 | 1990–1992 | Lloyd Bentsen | Liberal Democratic | LDP–CDP grand coalition |
 | 1992–1994 | Tom Foley | Liberal Democratic | LDP–SDLP coalition, with ASP confidence and supply |
 | 1994–1996 | Newt Gingrich | Conservative Coalition | CC–CDP coalition; fell after the 1995–96 government shutdown |
@@ -63,7 +61,7 @@ How this America got here. The story diverges from ours with the deadlocked elec
 
 ### Liberal Democratic Party (LDP)
 
-*Founded 1966.* Born when the old Democratic Party broke apart over the Civil Rights and Voting Rights Acts. Lyndon Johnson and Hubert Humphrey led the northern, western and Black Democratic wings out of a party whose southern caucus had blocked them for a decade. The conservative southern Democrats who stayed behind later merged into the Conservative Coalition.
+*Founded 1966.* Born when the old Democratic Party broke apart over the Civil Rights and Voting Rights Acts, which passed under Nixon’s government with northern Democratic votes. Lyndon Johnson and Hubert Humphrey led the northern, western and Black Democratic wings out of a party whose southern caucus had fought the laws to the end. The conservative southern Democrats who stayed behind later merged into the Conservative Coalition.
 
 **Ideology:** Liberal and socially progressive; pro-market but committed to a welfare state; internationalist. A broad church running from Third Way New Democrats to civil-rights liberals, held together by opposition to segregation and later by government office.
 
