@@ -23,6 +23,17 @@
       '<text x="220" y="224" text-anchor="middle" font-size="11" fill="currentColor">majority ' + maj + '</text></svg>';
   };
 
+  // seat list as a table, largest party first (the chart itself runs left to right)
+  Ch.seatTable = function (Q, seats, change) {
+    var tot = U.sum(seats), maj = Math.floor(tot / 2) + 1;
+    var rows = Object.keys(seats).filter(function (p) { return seats[p]; }).sort(function (a, b) { return seats[b] - seats[a] || (a < b ? -1 : 1); });
+    return '<table class="seats"><tr><th>Party</th><th>Seats</th><th>Share</th>' + (change ? '<th>+/\u2212</th>' : '') + '</tr>' + rows.map(function (p) {
+      var d = change ? change(p) : 0;
+      return '<tr><td><i class="chip" style="background:' + U.PARTIES[p].color + '"></i>' + U.PARTIES[p].name + '</td><td><b>' + seats[p] + '</b></td><td>' + (seats[p] / tot * 100).toFixed(1) + '%</td>' +
+        (change ? '<td class="' + (d > 0 ? 'up' : d < 0 ? 'down' : '') + '">' + (d > 0 ? '+' : '') + d + '</td>' : '') + '</tr>';
+    }).join('') + '<tr><td class="muted">Total (majority ' + maj + ')</td><td><b>' + tot + '</b></td><td></td>' + (change ? '<td></td>' : '') + '</tr></table>';
+  };
+
   Ch.legend = function (Q, seats, extra) {
     return '<div class="legend">' + ORDER(Q).filter(function (p) { return seats[p]; }).map(function (p) {
       return '<span><i class="chip" style="background:' + U.PARTIES[p].color + '"></i>' + U.PARTIES[p].short + ' <b>' + seats[p] + '</b>' + (extra ? extra(p) : '') + '</span>';

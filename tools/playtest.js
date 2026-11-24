@@ -10,12 +10,12 @@ while (Q.year < endY) {
     const d = U.Coalition.aiDeal(Q, Q.player); const res = U.Flow.submitDeal(Q, d);
     console.log(U.dateStr(Q), 'player investiture', res.passed, res.inv.first.yes, res.inv.first.no, 'coal', d.coalition, 'cs', d.cs);
   }
-  for (let i = 0; i < 4 && Q.actionsLeft > 0; i++) {
-    const cs = U.Flow.cards(Q); if (!cs.length) break; const c = cs[Math.floor(r() * cs.length)];
-    const ops = U.Flow.options(Q, c).map((o, i) => [o, i]).filter(x => x[0].ok); if (!ops.length) continue;
-    U.Flow.playCard(Q, c, ops[Math.floor(r() * ops.length)][1]);
-  }
-  const out = U.Flow.end(Q);
+  U.Flow.autoDraw(Q, ds => ds[Math.floor(r() * ds.length)]);
+  let res = null;
+  const slots = [0, 1, 2, 3, 4].filter(i => U.Flow.cardUsable(Q, i) === true);
+  if (slots.length && r() < 0.9) { const sl = slots[Math.floor(r() * slots.length)]; const ops = U.Flow.options(Q, U.Flow.cardAt(Q, sl)).map((o, i) => [o, i]).filter(x => x[0].ok); res = U.Flow.playHand(Q, sl, ops[Math.floor(r() * ops.length)][1]); }
+  else res = r() < 0.5 ? U.Flow.discard(Q, 0) : U.Flow.discardAll(Q);
+  const out = res ? res.out : {};
   if (out.general) { const g = out.general; console.log(g.date, 'ELECTION', Object.entries(g.house).sort((a, b) => b[1] - a[1]).map(([p, n]) => p + ' ' + n).join(', '), '| senate', JSON.stringify(g.senate)); }
   if (out.presidential) { const p = out.presidential; console.log(p.date, 'PRESIDENT', p.winnerName, p.winnerParty, 'round', p.round, JSON.stringify(p.r1)); }
 }

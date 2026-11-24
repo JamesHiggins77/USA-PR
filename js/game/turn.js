@@ -424,12 +424,11 @@
     });
     // factions drift and the leader's standing follows the polls
     for (var k in Q.factions) Q.factions[k].dissent = U.clamp(Q.factions[k].dissent + U.gauss(Q) * 1.2 - 0.3, 0, 100);
-    Q.funds = U.round1(Q.funds + 0.6 + Q.morale / 200);
+    Q.funds = U.round1(Q.funds + 0.35 + Q.morale / 400);
     Q.leader.approval = U.clamp(Q.leader.approval + ((Q.trend[Q.player] || 0) * 1.2) + U.gauss(Q) * 1.2 - 0.1, 5, 90);
     for (var t in Q.timers) if (Q.timers[t] > 0) Q.timers[t] -= 1;
     // advance the calendar
     Q.month += 1; if (Q.month > 12) { Q.month = 1; Q.year += 1; }
-    Q.actionsLeft = U.RULES.government.actionsPerMonth + (Q.electionAt ? 1 : 0);
     S.recordPoll(Q);
     var after = V.national(Q)[Q.player];
     Q.lastMonthDelta = after - before;

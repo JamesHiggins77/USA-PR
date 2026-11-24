@@ -35,7 +35,8 @@
       maxTermMonths: 48,
       noConfidence: 'absolute',           // 401 votes against topples the PM
       budgetSenate: 'must-pass-or-override', // House can override Senate with 401
-      actionsPerMonth: 3
+      handSize: 5,                      // cards held; one card played or discarded per month
+      cardBoost: 2.0                    // card effect multiplier (one action a month)
     },
     governor: { firstRoundMajority: 0.5, termYears: 4 },
     stateHouse: { formula: 'dhondt', magnitude: 5, threshold: 0 },

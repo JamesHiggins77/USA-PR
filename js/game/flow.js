@@ -6,13 +6,15 @@
   function val(x, Q) { return typeof x === 'function' ? x(Q) : x; }
   F.val = val;
 
-  F.begin = function (Q) { Q.pendingEvent = Q.pendingEvent || Ev.next(Q); return Q.pendingEvent; };
+  F.begin = function (Q) { F.ensureDecks(Q); Q.pendingEvent = Q.pendingEvent || Ev.next(Q); return Q.pendingEvent; };
 
-  F.cards = function (Q) {
-    return K.CARDS.filter(function (c) {
-      if (c.cond && !c.cond(Q)) return false;
-      return !(Q.timers['card_' + c.id] > 0);
-    });
+  // ---- the hand ----
+  F.ensureDecks = function (Q) { if (!Q.decks) U.Decks.init(Q); };
+  F.cardAt = function (Q, slot) { var h = Q.hand[slot]; return h ? U.Decks.card(h.id) : null; };
+  F.cardUsable = function (Q, slot) {
+    var c = F.cardAt(Q, slot); if (!c) return false;
+    if (c.cond && !c.cond(Q)) return 'Not playable at the moment.';
+    return F.options(Q, c).some(function (o) { return o.ok; }) ? true : 'No option is available right now.';
   };
   F.options = function (Q, scene) {
     return val(scene.options, Q).map(function (o) {
@@ -20,12 +22,34 @@
       return { label: val(o.label, Q), sub: val(o.sub, Q), ok: ok === true, why: ok === true ? '' : ok, raw: o };
     });
   };
-  F.playCard = function (Q, card, idx) {
-    var o = F.options(Q, card)[idx];
-    if (!o || !o.ok || Q.actionsLeft <= 0) return null;
-    Q.actionsLeft -= 1; Q.timers['card_' + card.id] = card.cooldown || 0;
-    var t = o.raw.act(Q); F.clampAll(Q); return t;
+  // Play option idx of the card in a slot; the month then advances.
+  F.playHand = function (Q, slot, idx) {
+    var c = F.cardAt(Q, slot), o = c && F.options(Q, c)[idx];
+    if (!o || !o.ok || Q.pendingEvent) return null;
+    Q.cardBoost = U.RULES.government.cardBoost;
+    var t = o.raw.act(Q); Q.cardBoost = 1; F.clampAll(Q);
+    Q.log.push({ t: U.dateStr(Q), text: c.title + ': ' + o.label + '.' });
+    U.Decks.toDiscard(Q, slot);
+    return { text: t, out: F.end(Q) };
   };
+  F.discard = function (Q, slot) {
+    if (!Q.hand[slot] || Q.pendingEvent) return null;
+    U.Decks.toDiscard(Q, slot);
+    return { text: 'You set the card aside.', out: F.end(Q) };
+  };
+  F.discardAll = function (Q) {
+    if (Q.pendingEvent) return null;
+    for (var i = 0; i < Q.hand.length; i++) U.Decks.toDiscard(Q, i);
+    return { text: 'You clear your desk and let the month pass.', out: F.end(Q) };
+  };
+  // Fill empty slots automatically, cycling through the decks (used by playtests).
+  F.autoDraw = function (Q, pick) {
+    for (var i = 0; i < Q.hand.length; i++) if (!Q.hand[i]) {
+      var ds = U.Decks.ORDER.filter(function (d) { return U.Decks.canDraw(Q, d) === true; });
+      if (!ds.length) return; U.Decks.draw(Q, pick ? pick(ds) : ds[i % ds.length], i);
+    }
+  };
+
   F.answerEvent = function (Q, idx) {
     var e = Ev.byId(Q.pendingEvent), o = F.options(Q, e)[idx];
     if (!o || !o.ok) return null;
@@ -60,6 +84,7 @@
     var tot = C.seats(Q, deal.coalition);
     deal.coalition.forEach(function (p) { if (deal.posts[p] == null) deal.posts[p] = Math.max(1, Math.round(20 * Q.house[p] / tot)); });
     for (var p in deal.posts) if (deal.coalition.indexOf(p) < 0) delete deal.posts[p];
+    if (U.sum(deal.posts) > 20) C.fitPosts(deal);
   };
   F.submitDeal = function (Q, deal) {
     Q.timers.negotiate = 1;

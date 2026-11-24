@@ -32,6 +32,13 @@
   };
   C.demandsOf = function (p) { if (U.LEFT_MEMBERS[p] && p !== 'vpp') return C.DEMANDS.ul; return C.DEMANDS[p] || C.DEMANDS.default; };
 
+  // keep the cabinet at 20 posts: trim the party holding most, then pad the PM's
+  C.fitPosts = function (deal) {
+    var sum = function () { return U.sum(deal.posts); }, guard = 0;
+    while (sum() > 20 && guard++ < 100) { var big = Object.keys(deal.posts).sort(function (a, b) { return deal.posts[b] - deal.posts[a]; })[0]; if (deal.posts[big] <= 1) break; deal.posts[big]--; }
+    if (sum() < 20 && deal.posts[deal.pm] != null) deal.posts[deal.pm] += 20 - sum();
+    return deal;
+  };
   C.seats = function (Q, list) { return list.reduce(function (s, p) { return s + (Q.house[p] || 0); }, 0); };
 
   // deal: {pm, coalition:[...incl pm], cs:[...], posts:{p:n}, concessions:{p:[ids]}}
@@ -110,6 +117,7 @@
     function alloc() {
       var tot = C.seats(Q, deal.coalition); deal.posts = {};
       deal.coalition.forEach(function (p) { deal.posts[p] = Math.max(1, Math.round(20 * Q.house[p] / tot)); });
+      C.fitPosts(deal);
     }
     cands.forEach(function (p) {
       if (C.seats(Q, deal.coalition) >= need) return;

@@ -9,7 +9,7 @@
       version: 1, seed: (seed || Date.now()) >>> 0, year: 1999, month: 1, player: 'ldp',
       mods: {}, stateMods: {}, homeMult: {}, causes: {}, rel: {}, pos: {}, trend: {},
       dormant: { maga: true, afp: true, ul: true, acp: true }, ulMembers: null, flags: {}, timers: {}, log: [], polls: [], pacts: [],
-      funds: 10, unity: 60, morale: 55, actionsLeft: U.RULES.government.actionsPerMonth,
+      funds: 10, unity: 60, morale: 55, seen: {},
       factions: U.clone(U.LDP_FACTIONS), leader: { name: 'Al Gore', approval: 58, charisma: 1 },
       electionNo: 0, deadline: U.monthIndex(2000, 9), electionAt: null, formation: null,
       ulUnity: 60, discontent: 20

@@ -62,7 +62,7 @@ test('the campaign runs headless to 2005 without errors and MAGA stays dormant b
   while (Q.year < 2005 && guard++ < 2000) {
     if (Q.pendingEvent) { const ops = U.Flow.options(Q, U.Events.byId(Q.pendingEvent)); U.Flow.answerEvent(Q, ops.findIndex(o => o.ok)); continue; }
     if (U.Flow.canNegotiate(Q)) U.Flow.submitDeal(Q, U.Coalition.aiDeal(Q, Q.player));
-    U.Flow.end(Q);
+    U.Flow.autoDraw(Q); U.Flow.discardAll(Q);
   }
   assert.ok(Q.year >= 2005);
   assert.strictEqual(Q.dormant.maga, true);
@@ -88,4 +88,24 @@ test('Reform is absorbed into the ASP, keeping its seats and its C&S role', () =
   assert.strictEqual(Q.house.asp, r + a); assert.ok(Q.dormant.reform);
   assert.ok(Q.gov.cs.indexOf('asp') >= 0 && Q.gov.cs.indexOf('reform') < 0);
   assert.ok(!Q.senateSeats.some(x => x.party === 'reform'));
+});
+
+test('the hand holds five cards from five decks; playing or discarding advances one month', () => {
+  const Q = U.Game.newGame(21); U.Flow.begin(Q);
+  while (Q.pendingEvent) U.Flow.answerEvent(Q, U.Flow.options(Q, U.Events.byId(Q.pendingEvent)).findIndex(o => o.ok));
+  assert.strictEqual(Object.keys(Q.decks).length, 5);
+  for (const d of ['national', 'party', 'state', 'coalition']) U.Decks.draw(Q, d, Q.hand.indexOf(null));
+  U.Flow.autoDraw(Q);
+  assert.ok(Q.hand.every(Boolean), 'five cards held');
+  assert.ok(new Set(Q.hand.map(h => h.id)).size === 5, 'no duplicates in hand');
+  const m = U.monthIndex(Q.year, Q.month);
+  const slot = [0, 1, 2, 3, 4].find(i => U.Flow.cardUsable(Q, i) === true);
+  const idx = U.Flow.options(Q, U.Flow.cardAt(Q, slot)).findIndex(o => o.ok);
+  U.Flow.playHand(Q, slot, idx);
+  assert.strictEqual(U.monthIndex(Q.year, Q.month), m + 1);
+  assert.strictEqual(Q.hand.filter(Boolean).length, 4);
+  while (Q.pendingEvent) U.Flow.answerEvent(Q, U.Flow.options(Q, U.Events.byId(Q.pendingEvent)).findIndex(o => o.ok));
+  U.Flow.discardAll(Q);
+  assert.strictEqual(U.monthIndex(Q.year, Q.month), m + 2);
+  assert.ok(Q.hand.every(h => h === null));
 });

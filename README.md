@@ -8,7 +8,9 @@ Built in the style of the *Social Democracy* Spain mod: a monthly hand of action
 
 Open `index.html` in a browser. No build step and no dependencies. The game autosaves at the end of every month (browser storage); the **Game** tab exports and imports save files.
 
-Each month you get three actions (four during a campaign). Use them on cards: interviews, rallies, ads, fundraising, platform changes, faction meetings, courting other parties, electoral pacts, bills, budgets. Then **End month**: other parties act, the economy moves, events fire, and elections and government formation happen when due.
+You hold a **hand of five cards**, drawn from five decks: **National Politics**, **Party Politics**, **State Politics**, **Coalition & Government** and **Campaign**. You choose which deck to draw from to fill each empty slot; only cards that are useful right now are drawn.
+
+Each month you either **play one card** (choose one of its options) or **discard one card**, and the month then advances: other parties act, the economy moves, events fire, and elections and government formation happen when due. You can also **discard the whole hand** to let a month pass without acting and draw five fresh cards.
 
 ## What is simulated
 
@@ -28,7 +30,7 @@ Each month you get three actions (four during a campaign). Use them on cards: in
 js/rules.js            all constitutional/electoral settings (brief §4.9)
 js/data/               states, parties, factions (scenario data)
 js/engine/             electoral maths, vote model, elections, parliament, coalitions
-js/game/               game state, monthly turn, cards, events, flow controller
+js/game/               game state, monthly turn, cards, decks and hand, events, flow controller
 js/ui/                 interface and SVG charts
 tests/                 node --test suite
 tools/playtest.js      headless random playthrough: node tools/playtest.js <seed> <endYear>

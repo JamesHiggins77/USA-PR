@@ -6,16 +6,18 @@
 
   // ---- effect helpers ----
   var H = K.H = {
-    camp: function (Q, groups, reason) { V.campaign(Q, Q.player, groups, reason); },
-    other: function (Q, p, groups) { V.campaign(Q, p, groups, null); },
+    // card effects are scaled by Q.cardBoost: one card a month replaces the old three actions
+    camp: function (Q, groups, reason) { V.campaign(Q, Q.player, H.scale(Q, groups), reason); },
+    other: function (Q, p, groups) { V.campaign(Q, p, H.scale(Q, groups), null); },
+    scale: function (Q, g) { var k = Q.cardBoost || 1, o = {}; for (var x in g) o[x] = g[x] * k; return o; },
     fac: function (Q, o) { for (var k in o) Q.factions[k].dissent = U.clamp(Q.factions[k].dissent + o[k], 0, 100); },
     str: function (Q, o) { for (var k in o) Q.factions[k].strength = U.clamp(Q.factions[k].strength + o[k], 5, 70); },
     rel: function (Q, p, d) { C.addRel(Q, Q.player, p, d); },
-    shift: function (Q, e, s) { var P = Q.pos[Q.player]; P.econ = U.clamp(P.econ + e, -10, 10); P.soc = U.clamp(P.soc + s, -10, 10); },
+    shift: function (Q, e, s, f) { var P = Q.pos[Q.player]; P.econ = U.clamp(P.econ + e, -10, 10); P.soc = U.clamp(P.soc + s, -10, 10); if (f) P.fed = U.clamp(P.fed + f, -10, 10); },
     region: function (Q, reg, v, reason) {
       var before = V.national(Q)[Q.player];
       Q.stateMods[Q.player] = Q.stateMods[Q.player] || {};
-      for (var sid in U.STATES) if (U.STATES[sid].region === reg) Q.stateMods[Q.player][sid] = (Q.stateMods[Q.player][sid] || 0) + v;
+      for (var sid in U.STATES) if (U.STATES[sid].region === reg) Q.stateMods[Q.player][sid] = (Q.stateMods[Q.player][sid] || 0) + v * (Q.cardBoost || 1);
       Q.causes[reason] = (Q.causes[reason] || 0) + V.national(Q)[Q.player] - before;
     },
     funds: function (Q, n) { return Q.funds >= n ? true : 'Not enough party funds (need ' + n + ').'; },
@@ -27,7 +29,7 @@
   var REG_OPTS = ['NE', 'MA', 'SO', 'MW', 'PL', 'MT', 'PC', 'TX'];
 
   K.CARDS = [
-    { id: 'interview', title: 'A prime-time interview', tag: 'Media', cooldown: 2,
+    { id: 'interview', title: 'A prime-time interview', tag: 'Media',
       body: function (Q) { return 'The networks want ' + Q.leader.name + ' on the Sunday shows' + (H.era(Q) >= 1 ? ', and the political blogs will dissect every word.' : '.') + ' What is the message?'; },
       options: [
         { label: 'Prosperity and competence', sub: 'Suburban, retired and professional voters. Pleases the New Democrats.',
@@ -42,7 +44,7 @@
           act: function (Q) { H.camp(Q, { suburb: 0.5, prof: 0.4, black: 0.3 }, 'Attacks on the CC'); H.other(Q, 'cc', { suburb: -0.4 }); H.rel(Q, 'cc', -6); H.rel(Q, 'cdp', -2); return 'The CC accuses you of fear-mongering. The CDP, which sits in cabinet with you and courts the same suburbs, says nothing.'; } }
       ] },
 
-    { id: 'rally', title: 'A rally', tag: 'Campaign', cooldown: 2,
+    { id: 'rally', title: 'A rally', tag: 'Campaign',
       body: function (Q) { return 'The hall is booked. Where does ' + Q.leader.name + ' speak? A big rally costs 1 in party funds.'; },
       options: REG_OPTS.map(function (r) {
         return { label: U.REGIONS[r], sub: 'Lifts the LDP in ' + U.REGIONS[r] + '. Costs 1.',
@@ -51,7 +53,7 @@
             return 'A packed hall in ' + U.REGIONS[r] + '. Local press coverage is good.'; } };
       }) },
 
-    { id: 'ads', title: 'An advertising campaign', tag: 'Campaign', cooldown: 2,
+    { id: 'ads', title: 'An advertising campaign', tag: 'Campaign',
       body: function (Q) { return ['Television airtime is expensive but reaches everyone.', 'Television still dominates, but online ads are cheaper and reach younger voters.', 'Social-media ads can be targeted precisely, and can backfire publicly.'][H.era(Q)] + ' Who is the target?'; },
       options: U.GROUPS.map(function (g) {
         return { label: U.GROUP_NAMES[g], sub: 'Costs 2.', cond: function (Q) { return H.funds(Q, 2); },
@@ -60,7 +62,7 @@
             o[g] = eff; H.camp(Q, o, 'Advertising'); return 'The campaign runs for three weeks. Focus groups say it was noticed.'; } };
       }) },
 
-    { id: 'funds', title: 'Fundraising', tag: 'Party', cooldown: 2,
+    { id: 'funds', title: 'Fundraising', tag: 'Party',
       body: function (Q) { return 'The treasurer reports ' + Q.funds.toFixed(1) + ' in the war chest. How do you raise more?'; },
       options: [
         { label: 'A dinner with major donors', sub: '+3 funds. The Progressive Liberals dislike it.', act: function (Q) { Q.funds += 3; H.fac(Q, { proglib: 5, newdem: -2 }); if (U.rng(Q) < 0.08) { Q.scandal = (Q.scandal || 0) + 3; H.camp(Q, V.all(-0.3), 'Donor controversy'); return 'A reporter publishes the guest list. Questions follow about access.'; } return 'Wall Street and Silicon Valley are generous this year.'; } },
@@ -68,7 +70,7 @@
         { label: 'Union political funds', sub: '+2 funds. Pulls the party toward labor; the SDLP notices.', act: function (Q) { Q.funds += 2; H.shift(Q, -0.3, 0); H.rel(Q, 'sdlp', -3); H.fac(Q, { newdem: 3, proglib: -2 }); return 'The unions give, and they will remember.'; } }
       ] },
 
-    { id: 'platform', title: 'Policy platform', tag: 'Party', cooldown: 4,
+    { id: 'platform', title: 'Policy platform', tag: 'Party',
       body: function (Q) { var p = Q.pos[Q.player]; return 'The LDP’s current position: economy ' + p.econ.toFixed(1) + ' (left − / right +), society ' + p.soc.toFixed(1) + ' (liberal − / traditional +). Positions shape coalition compatibility and which voters you reach. What does the next policy paper say?'; },
       options: [
         { label: 'Move left on the economy', sub: 'Closer to the SDLP and United Left. Progressive Liberals pleased; New Democrats not.', act: function (Q) { H.shift(Q, -1, 0); H.camp(Q, { union: 0.6, young: 0.4, prof: -0.3, suburb: -0.2 }, 'Platform changes'); H.fac(Q, { proglib: -6, newdem: 6 }); return 'The paper promises public investment and labor protections.'; } },
@@ -77,7 +79,7 @@
         { label: 'A more traditional social tone', sub: 'Faith and family language. Closer to the CDP and ASP.', act: function (Q) { H.shift(Q, 0, 1); H.camp(Q, { relig: 0.6, rural: 0.4, young: -0.4, prof: -0.3 }, 'Platform changes'); H.fac(Q, { heartland: -6, civil: 4, proglib: 3 }); return 'The paper talks about values. The CDP calls it imitation.'; } }
       ] },
 
-    { id: 'faction', title: 'Meet a faction', tag: 'Party', cooldown: 1,
+    { id: 'faction', title: 'Meet a faction', tag: 'Party',
       body: function (Q) { return 'Each faction wants something. Meeting one costs a little standing with the others.'; },
       options: ['newdem', 'proglib', 'civil', 'heartland'].map(function (k) {
         return { label: function (Q) { return U.LDP_FACTIONS[k].name + ' (' + U.LDP_FACTIONS[k].figure + ')'; },
@@ -85,14 +87,14 @@
           act: function (Q) { var o = { newdem: 1, proglib: 1, civil: 1, heartland: 1 }; o[k] = -12; H.fac(Q, o); Q.unity += 1; return U.LDP_FACTIONS[k].figure + ' leaves the meeting satisfied, for now.'; } };
       }) },
 
-    { id: 'whip', title: 'Party discipline', tag: 'Party', cooldown: 6,
+    { id: 'whip', title: 'Party discipline', tag: 'Party',
       body: function () { return 'The whips report grumbling in the parliamentary group. Rebels cost votes on confidence motions and budgets.'; },
       options: [
         { label: 'Crack down on rebels', sub: '+10 unity; the most rebellious faction resents it.', act: function (Q) { Q.unity += 10; var worst = Object.keys(Q.factions).sort(function (a, b) { return Q.factions[b].dissent - Q.factions[a].dissent; })[0]; Q.factions[worst].dissent += 8; return 'The whip’s office is busy. ' + U.LDP_FACTIONS[worst].name + ' complain loudly.'; } },
         { label: 'A members’ conference', sub: 'Costs 1. +4 unity, +5 morale, all factions a little calmer.', cond: function (Q) { return H.funds(Q, 1); }, act: function (Q) { H.spend(Q, 1); Q.unity += 4; Q.morale += 5; H.fac(Q, { newdem: -3, proglib: -3, civil: -3, heartland: -3 }); return 'A weekend of speeches and workshops. Nobody storms out.'; } }
       ] },
 
-    { id: 'candidates', title: 'Candidate recruitment', tag: 'Party', cooldown: 6,
+    { id: 'candidates', title: 'Candidate recruitment', tag: 'Party',
       body: function () { return 'Strong local candidates win runoffs. Recruitment costs money, and the factions want their people.'; },
       options: [
         { label: 'Recruit across the country', sub: 'Costs 2. Small boost everywhere.', cond: function (Q) { return H.funds(Q, 2); }, act: function (Q) { H.spend(Q, 2); REG_OPTS.forEach(function (r) { H.region(Q, r, 0.25, 'Candidate recruitment'); }); return 'A class of mayors, veterans and teachers sign up.'; } },
@@ -100,7 +102,7 @@
         { label: 'Diverse urban candidates', sub: 'Costs 2. Civil Rights Caucus pleased.', cond: function (Q) { return H.funds(Q, 2); }, act: function (Q) { H.spend(Q, 2); H.camp(Q, { black: 0.6, hisp: 0.6, young: 0.3 }, 'Candidate recruitment'); H.fac(Q, { civil: -6, heartland: 2 }); return 'The new candidates look like the cities they want to represent.'; } }
       ] },
 
-    { id: 'court', title: 'Court another party', tag: 'Coalition', cooldown: 2,
+    { id: 'court', title: 'Court another party', tag: 'Coalition',
       body: function (Q) { return 'Relations matter in negotiations. Who do you invite for dinner?'; },
       options: function (Q) { return ['sdlp', 'cdp', 'reform', 'asp', 'grn', 'ul', 'cpusa', 'wfp', 'cc', 'aga', 'lsp', 'srp', 'lib'].filter(function (p) { return !Q.dormant[p]; }).map(function (p) {
         return { label: function (Q) { return U.PARTIES[p].name + ' (relations ' + Math.round(C.rel(Q, Q.player, p)) + ')'; },
@@ -113,7 +115,7 @@
           } };
       }); } },
 
-    { id: 'pact', title: 'An electoral pact', tag: 'Coalition', cooldown: 3,
+    { id: 'pact', title: 'An electoral pact', tag: 'Coalition',
       cond: function (Q) { return S.now(Q) >= Q.deadline - 14 || Q.electionAt; },
       body: function (Q) { var cur = (Q.pacts || []).map(function (p) { return p.parties.map(function (x) { return U.PARTIES[x].short; }).join('+') + ' (' + p.type + ')'; }).join(', ');
         return 'District runoffs reward parties that cooperate. A transfer pact asks voters to back the partner in the runoff; a joint-candidate pact means the weaker party stands down in each district. Voters do not always follow. ' + (cur ? 'Current pacts: ' + cur + '.' : 'No pacts yet.'); },
@@ -128,7 +130,7 @@
             return 'The pact is signed. Local party branches start working out the details, and some of them object.'; } };
       }); } },
 
-    { id: 'organise', title: 'Build the state parties', tag: 'Party', cooldown: 4,
+    { id: 'organise', title: 'Build the state parties', tag: 'Party',
       body: function () { return 'A permanent organisation in a region lasts longer than a rally. Costs 2.'; },
       options: REG_OPTS.map(function (r) {
         return { label: U.REGIONS[r], sub: 'Costs 2. Lasting gain in ' + U.REGIONS[r] + '.', cond: function (Q) { return H.funds(Q, 2); },
@@ -136,14 +138,14 @@
       }) },
 
     // ---- government ----
-    { id: 'bill', title: 'Push a bill', tag: 'Government', cooldown: 2,
+    { id: 'bill', title: 'Push a bill', tag: 'Government',
       cond: function (Q) { return S.inGov(Q) && !Q.formation; },
       body: function (Q) { return 'As a governing party, the LDP can put legislation on the coalition agenda. Partners can resist, and the President can refuse to sign.'; },
       options: function (Q) { return K.POLICIES.filter(function (p) { return !(Q.passed || {})[p.id]; }).map(function (pol) {
         return { label: pol.name, sub: pol.sub, act: function (Q) { return K.legislate(Q, pol); } };
       }); } },
 
-    { id: 'summit', title: 'Coalition summit', tag: 'Government', cooldown: 3,
+    { id: 'summit', title: 'Coalition summit', tag: 'Government',
       cond: function (Q) { return S.inGov(Q) && !Q.formation && Q.gov.coalition.length > 1; },
       body: function (Q) { return 'Partners’ trust: ' + Q.gov.coalition.concat(Q.gov.cs).filter(function (p) { return p !== Q.player; }).map(function (p) { return U.PARTIES[p].short + ' ' + Math.round(C.rel(Q, Q.player, p)); }).join(', ') + '.'; },
       options: [
@@ -153,7 +155,7 @@
           act: function (Q) { var c = Q.pendingConcessions.filter(function (x) { return !x.done; })[0]; c.done = true; H.rel(Q, c.party, 12); Q.spending = (Q.spending || 0) + 0.1; return 'The ' + U.PARTIES[c.party].short + ' gets what it was promised: ' + c.text + '.'; } }
       ] },
 
-    { id: 'budget', title: 'The budget', tag: 'Government', cooldown: 0,
+    { id: 'budget', title: 'The budget', tag: 'Government',
       cond: function (Q) { return S.pmIsPlayer(Q) && !Q.formation && Q.month >= 9 && Q.month <= 11 && Q.budgetYear !== Q.year; },
       body: function (Q) { return 'The fiscal year starts in October. Deficit: ' + Q.econ.deficit.toFixed(1) + '% of GDP (negative = surplus). Debt ' + Q.econ.debt.toFixed(0) + '%. Which budget does the Treasury present?'; },
       options: [
@@ -162,7 +164,7 @@
         { label: 'Middle-class tax cut', sub: 'Popular in the suburbs. CDP pleased, Progressive Liberals not.', act: function (Q) { return K.budget(Q, { name: 'taxcut', spending: 0.6, growth: 0.15, groups: { suburb: 0.8, retire: 0.2, rural: 0.2 }, lean: function (p) { return U.PARTIES[p].econ > 4 ? 0.12 : 0; }, rel: { cdp: 4, sdlp: -3 }, fac: { newdem: -3, proglib: 5 } }); } }
       ] },
 
-    { id: 'dissolve', title: 'Ask the Prime Minister to dissolve', tag: 'Government', cooldown: 2,
+    { id: 'dissolve', title: 'Ask the Prime Minister to dissolve', tag: 'Government',
       cond: function (Q) { return S.pmIsPlayer(Q) && !Q.electionAt && !Q.formation && S.now(Q) >= Q.gov.since + 12; },
       body: function (Q) { var d = Q.deadline, y = Math.floor(d / 12), m = d % 12 + 1; return Q.gov.pm + ' leads the government. The election must be called by ' + U.MONTHS[m - 1] + ' ' + y + '. Calling early can catch opponents unprepared, but partners may resent it.'; },
       options: [
@@ -170,7 +172,7 @@
       ] },
 
     // ---- opposition ----
-    { id: 'noconf', title: 'A motion of no confidence', tag: 'Opposition', cooldown: 6,
+    { id: 'noconf', title: 'A motion of no confidence', tag: 'Opposition',
       cond: function (Q) { return Q.gov && !S.supportsGov(Q) && !Q.formation && !Q.electionAt; },
       body: function (Q) { return 'The government relies on ' + S.govSeats(Q) + ' of 801 seats. A motion needs 401 votes.'; },
       options: [
@@ -181,7 +183,7 @@
       ] },
 
     // ---- campaign season ----
-    { id: 'debate', title: 'The televised debate', tag: 'Campaign', cooldown: 99,
+    { id: 'debate', title: 'The televised debate', tag: 'Campaign',
       cond: function (Q) { return Q.electionAt && !Q.flags['debate' + Q.electionAt]; },
       body: function (Q) { return 'Five party leaders on one stage. ' + Q.leader.name + ' has to stand out without looking arrogant.'; },
       options: [
@@ -189,7 +191,7 @@
         { label: 'Go on the attack', sub: 'Higher risk, higher reward.', act: function (Q) { Q.flags['debate' + Q.electionAt] = 1; var r = U.gauss(Q) * 1.8 + 0.2 + Q.leader.charisma * 0.3; H.camp(Q, V.all(r * 0.35), 'Televised debate'); Q.leader.approval += r * 4; return r > 0.8 ? 'A line from the debate leads every news bulletin. It is yours.' : r < -0.5 ? 'The attack looks petty. The moderators pile on.' : 'Lively, but no knockout.'; } }
       ] },
 
-    { id: 'gotv', title: 'Get out the vote', tag: 'Campaign', cooldown: 1,
+    { id: 'gotv', title: 'Get out the vote', tag: 'Campaign',
       cond: function (Q) { return !!Q.electionAt; },
       body: function () { return 'Turnout decides runoffs. Costs 2.'; },
       options: [

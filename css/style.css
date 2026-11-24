@@ -69,3 +69,17 @@ select { background: var(--card); color: var(--ink); border: 1px solid var(--lin
 #tipbox { position: absolute; z-index: 50; max-width: 320px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px;
   padding: 8px 11px; font: 12.5px/1.45 system-ui, sans-serif; box-shadow: 0 4px 16px rgba(0,0,0,.18); display: none; }
 #tipbox .muted { color: var(--muted); }
+.hand { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+@media (max-width: 1100px) { .hand { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .hand { grid-template-columns: 1fr 1fr; } }
+.slot { background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--deck, var(--line)); border-radius: 8px; padding: 10px 12px; min-height: 210px; display: flex; flex-direction: column; box-shadow: var(--shadow); }
+.slot .tag { font-family: system-ui, sans-serif; font-size: 10.5px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
+.slot .t { font-weight: bold; font-size: 15.5px; margin: 3px 0 6px; line-height: 1.25; }
+.slot .cardtext { font-size: 12px; line-height: 1.4; }
+.slot .btn { padding: 5px 10px; font-size: 13px; }
+.slot.empty { border-style: dashed; border-top-width: 1px; background: none; }
+.deckbtn { display: block; width: 100%; margin: 3px 0; text-align: left; padding: 5px 8px; border-radius: 4px; border: 1px solid var(--line); border-left: 4px solid var(--deck); background: var(--bg); color: var(--ink); cursor: pointer; font: 12.5px system-ui, sans-serif; }
+.deckbtn:hover:not(:disabled) { border-color: var(--deck); }
+.deckbtn:disabled { opacity: .4; cursor: default; }
+.deck-national { --deck: #2f6fd6; } .deck-party { --deck: #ffa500; } .deck-state { --deck: #228b22; } .deck-coalition { --deck: #8e44ad; } .deck-campaign { --deck: #d63a3a; }
+table.seats { max-width: 420px; margin-top: 6px; }
