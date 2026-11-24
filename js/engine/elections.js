@@ -10,7 +10,7 @@
     var d = {}, pr = {}, el = {};
     if (U.pure()) {
       var all = U.clone(pops); all.DC = U.DC.pop;
-      pr = E.hamilton(all, R.house.pureSeats, 1);
+      pr = E.hamilton(all, R.house.system === 'two-tier' ? R.house.stateTierSeats : R.house.pureSeats, 1);
       for (k in U.STATES) d[k] = 0;
       for (k in U.STATES) el[k] = pr[k] + R.senate.perState;
       el.DC = R.president.dcElectors;
@@ -100,8 +100,23 @@
     return { house: house, districts: [], pr: prOut, byState: byState };
   };
 
+  // Two tiers, added together (not compensatory): a national list elected on
+  // the nationwide vote with a national threshold, plus state lists with a
+  // state threshold. opt: {nationalThreshold, stateThreshold}
+  X.houseTwoTier = function (Q, opt) {
+    opt = opt || {};
+    var nt = opt.nationalThreshold != null ? opt.nationalThreshold : R.house.nationalThreshold;
+    var st = opt.stateThreshold != null ? opt.stateThreshold : R.house.stateThreshold;
+    var stateTier = X.housePure(Q, { nationalThreshold: 0, stateThreshold: st }), nat = V.national(Q);
+    var natTier = E.divisor(nat, R.house.nationalTierSeats, R.house.prFormula, nt);
+    var house = U.clone(stateTier.house);
+    for (var p in natTier) if (natTier[p]) house[p] = (house[p] || 0) + natTier[p];
+    return { house: house, districts: [], pr: stateTier.pr, national: natTier, byState: stateTier.byState };
+  };
+
   // Full House election. Returns {house, districts, pr, byState}.
   X.house = function (Q) {
+    if (R.house.system === 'two-tier') return X.houseTwoTier(Q);
     if (U.pure()) return X.housePure(Q);
     var app = X.apportion(), pos = X.pos(Q), pact = X.pactFn(Q), house = {}, byState = {}, districts = [], prOut = {};
     function add(p, n) { house[p] = (house[p] || 0) + n; }

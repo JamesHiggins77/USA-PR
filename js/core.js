@@ -23,7 +23,7 @@
   // (res.pres: how the President's party voted).
   U.absolute = function (res) { var m = U.majority(); return res.yes >= m || (U.RULES.house.total % 2 === 0 && res.yes === m - 1 && res.pres === 'yes'); };
   U.simple = function (res) { return res.yes > res.no || (res.yes === res.no && res.yes > 0 && res.pres === 'yes'); };
-  U.pure = function () { return U.RULES.house.system === 'pure-pr'; };
+  U.pure = function () { return U.RULES.house.system === 'pure-pr' || U.RULES.house.system === 'two-tier'; };
   U.clone = function (o) { return JSON.parse(JSON.stringify(o)); };
   U.MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
     'August', 'September', 'October', 'November', 'December'];

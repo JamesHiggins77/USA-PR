@@ -42,3 +42,13 @@ test('two-round: an absolute majority wins outright, otherwise the top two meet'
   assert.strictEqual(r.round, 2); assert.deepStrictEqual(r.finalists.sort(), ['a', 'b']);
   assert.strictEqual(r.winner, 'a', 'c voters are closer to a and transfer to it');
 });
+
+test('two-tier House: 300 national + 300 state seats', () => {
+  const sum = o => Object.values(o).reduce((s, v) => s + v, 0);
+  const sys = U.RULES.house.system; U.RULES.house.system = 'two-tier'; U.Elections.resetApportion();
+  try {
+    const Q = U.Game.newGame(3), r = U.Elections.houseTwoTier(Q, { nationalThreshold: 0.05, stateThreshold: 0.05 });
+    assert.strictEqual(sum(r.national), 300); assert.strictEqual(sum(r.house), 600);
+    assert.ok(!r.national.lsp && r.house.lsp > 0, 'a regional party can win state seats without national ones');
+  } finally { U.RULES.house.system = sys; U.Elections.resetApportion(); }
+});
