@@ -332,6 +332,8 @@
     for (sid in U.STATES) if (Q.states[sid].govRace) detail.governors.push(slim(Q.states[sid].govRace, sid));
     Q.lastDistricts = detail.districts.map(function (d) { return { s: d.s, n: d.n, w: d.w, round: d.round, f: d.f }; });
     Q.lastElection = res;
+    Q.history = Q.history || [];
+    Q.history.push({ kind: 'general', date: res.date, shares: (function () { var o = {}; for (var p in shares) if (shares[p] >= 0.3) o[p] = Math.round(shares[p] * 10) / 10; return o; })(), house: U.clone(res.house), senate: U.clone(res.senate) });
     res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];
     Q.deadline = S.now(Q) + U.RULES.government.maxTermMonths;
@@ -379,6 +381,11 @@
     var w = cands.filter(function (c) { return c.id === res.winner; })[0];
     res.winnerName = w.name; res.winnerParty = w.party; res.date = U.dateStr(Q);
     Q.lastPresidential = res;
+    Q.history = Q.history || [];
+    Q.history.push({ kind: 'pres', date: res.date, total: res.total, winner: res.winner, tiebreak: res.tiebreak || null,
+      cands: cands.map(function (c) { return { id: c.id, name: c.name, party: c.party }; }),
+      r1: U.clone(res.r1), r2: U.clone(res.r2 || {}), pop2: U.clone(res.pop2 || {}),
+      map: (function () { var o = {}, bs = res.byState2 || res.byState; for (var s in bs) { var e = bs[s].ev, w = Object.keys(e).filter(function (k) { return e[k]; })[0]; if (w) o[s] = w; } return o; })() });
     var oldPres = Q.president;
     var vp = (mine && mine.party === Q.player && w.party === Q.player && mine.vp) ? mine.vp : { name: w.party === Q.player ? 'an LDP running mate' : S.pickPerson(Q, w.party, (function () { var e = {}; e[w.name] = 1; return e; })(), 'charisma'), party: w.party };
     Q.offices = Q.offices || {}; Q.offices.vp = vp;

@@ -26,7 +26,7 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1956 | Thomas E. Dewey | Republican | Re-elected. |
 | 1962 | John F. Kennedy | Democratic | Shared power with a Republican Prime Minister, Richard Nixon, for his whole term. Survived the 1963 Dallas assassination attempt. |
 | 1968 | Nelson Rockefeller | Christian Democratic | Beat George Wallace (SRP), who topped the first round in a year of riots and assassinations, in the runoff. The CDP’s first President. |
-| 1974 | Robert F. Kennedy | Liberal Democratic | Avenged his brother’s narrow loss of the premiership in 1962 and brought the LDP its first presidency. |
+| 1974 | Robert F. Kennedy | Liberal Democratic | Beat Gerald Ford in the post-Watergate runoff and brought the LDP its first presidency, twelve years after his brother won it as a Democrat. |
 | 1980 | Ronald Reagan | Conservative Coalition | His runoff win over Jimmy Carter (LDP) made the new CC the main party of the right. |
 | 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Walter Mondale (LDP). |
 | 1992 | Bill Clinton | Liberal Democratic | Beat Vice President George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote. |
@@ -56,6 +56,254 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1992–1994 | Tom Foley | Liberal Democratic | LDP–SDLP coalition, with ASP confidence and supply |
 | 1994–1996 | Newt Gingrich | Conservative Coalition | CC–CDP coalition; fell after the 1995–96 government shutdown |
 | 1996– | Al Gore | Liberal Democratic | LDP–SDLP coalition, with Reform confidence and supply |
+
+## Presidential elections
+
+Round one is a national popular vote; the top two meet in an Electoral College runoff, where each state's winner takes all its electors.
+
+### 1914
+
+Republicans backed Roosevelt in the runoff; the South held for Wilson.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Woodrow Wilson | Democratic Party | 36.1% |
+| Theodore Roosevelt | Progressive Party | 33.4% |
+| Elihu Root | Republican Party | 22.0% |
+| Eugene V. Debs | Socialist Party of America | 6.2% |
+| Others |  | 2.3% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Theodore Roosevelt | Progressive Party | 356 | 51.8% |
+| Woodrow Wilson | Democratic Party | 271 | 48.2% |
+
+### 1920
+
+A vote for calm after the war and the League of Nations fight.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Charles Evans Hughes | Republican Party | 34.8% |
+| William McAdoo | Democratic Party | 27.5% |
+| Hiram Johnson | Progressive Party | 24.1% |
+| Eugene V. Debs | Socialist Party of America | 6.0% |
+| Others |  | 7.6% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Charles Evans Hughes | Republican Party | 389 | 55.6% |
+| William McAdoo | Democratic Party | 238 | 44.4% |
+
+### 1926
+
+Farm-belt Progressives swung behind Lowden, the farm-relief champion, over the New York Catholic.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Frank Lowden | Republican Party | 31.2% |
+| Al Smith | Democratic Party | 29.6% |
+| Robert La Follette Jr. | Progressive Party | 25.9% |
+| Norman Thomas | Socialist Party of America | 4.1% |
+| Others |  | 9.2% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Frank Lowden | Republican Party | 334 | 51.2% |
+| Al Smith | Democratic Party | 293 | 48.8% |
+
+### 1932
+
+A Depression landslide on Share Our Wealth.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Huey Long | Democratic Party | 34.7% |
+| Frank Lowden | Republican Party | 26.3% |
+| Floyd Olson | Progressive Party | 21.0% |
+| Norman Thomas | Socialist Party of America | 8.8% |
+| William Z. Foster | CPUSA | 2.1% |
+| Others |  | 7.1% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Huey Long | Democratic Party | 451 | 61.4% |
+| Frank Lowden | Republican Party | 176 | 38.6% |
+
+### 1938
+
+Re-elected despite the 1937 recession and his feud with Prime Minister Smith.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Huey Long | Democratic Party | 38.2% |
+| Robert A. Taft | Republican Party | 28.5% |
+| Robert La Follette Jr. | Progressive Party | 19.4% |
+| Norman Thomas | Socialist Party of America | 5.0% |
+| Others |  | 8.9% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Huey Long | Democratic Party | 388 | 55.9% |
+| Robert A. Taft | Republican Party | 239 | 44.1% |
+
+### 1944
+
+A wartime cliffhanger: Ohio decided the runoff by 41,000 votes.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| John Nance Garner | Democratic Party | 33.0% |
+| Thomas E. Dewey | Republican Party | 31.6% |
+| Henry A. Wallace | Progressive Party | 24.8% |
+| Norman Thomas | Socialist Party of America | 3.2% |
+| Others |  | 7.4% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| John Nance Garner | Democratic Party | 322 | 50.6% |
+| Thomas E. Dewey | Republican Party | 305 | 49.4% |
+
+### 1950
+
+The Dixiecrats’ Strom Thurmond carried four southern states’ first-round votes.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Thomas E. Dewey | Republican Party | 34.1% |
+| Adlai Stevenson | Democratic Party | 28.4% |
+| Henry A. Wallace | Progressive Party | 14.9% |
+| Strom Thurmond | SRP | 8.7% |
+| Robert Taft (CDP backing) | CDP | 9.6% |
+| Others |  | 4.3% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Thomas E. Dewey | Republican Party | 401 | 56.8% |
+| Adlai Stevenson | Democratic Party | 226 | 43.2% |
+
+### 1956
+
+Re-elected in the first presidential race for the new SDLP.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Thomas E. Dewey | Republican Party | 36.8% |
+| Estes Kefauver | Democratic Party | 27.2% |
+| Walter Reuther | SDLP | 18.6% |
+| Strom Thurmond | SRP | 7.9% |
+| Others |  | 9.5% |
+
+| Runoff (627 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Thomas E. Dewey | Republican Party | 365 | 54.4% |
+| Estes Kefauver | Democratic Party | 262 | 45.6% |
+
+### 1962
+
+CDP voters split; Kennedy won the runoff by carrying Illinois and Texas.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| John F. Kennedy | Democratic Party | 31.5% |
+| Barry Goldwater | Republican Party | 26.0% |
+| Nelson Rockefeller | CDP | 18.7% |
+| Walter Reuther | SDLP | 14.2% |
+| Others |  | 9.6% |
+
+| Runoff (638 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| John F. Kennedy | Democratic Party | 331 | 51.4% |
+| Barry Goldwater | Republican Party | 307 | 48.6% |
+
+### 1968
+
+Wallace topped a five-way first round; the LDP, SDLP and Republicans all backed Rockefeller in the runoff.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| George Wallace | SRP | 23.9% |
+| Nelson Rockefeller | CDP | 23.1% |
+| Hubert Humphrey | LDP | 22.4% |
+| Ronald Reagan | Republican Party | 17.3% |
+| Eugene McCarthy | SDLP | 9.6% |
+| Others |  | 3.7% |
+
+| Runoff (638 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Nelson Rockefeller | CDP | 451 | 63.5% |
+| George Wallace | SRP | 187 | 36.5% |
+
+### 1974
+
+Rockefeller fell to third; the post-Watergate mood carried Kennedy.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Robert F. Kennedy | LDP | 32.6% |
+| Gerald Ford | Republican Party | 24.4% |
+| Nelson Rockefeller | CDP | 17.0% |
+| George McGovern | SDLP | 13.1% |
+| George Wallace | SRP | 8.8% |
+| Others |  | 4.1% |
+
+| Runoff (701 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Robert F. Kennedy | LDP | 417 | 55.3% |
+| Gerald Ford | Republican Party | 284 | 44.7% |
+
+### 1980
+
+The new CC’s breakthrough.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Ronald Reagan | CC | 35.4% |
+| Jimmy Carter | LDP | 26.2% |
+| Ted Kennedy | SDLP | 14.8% |
+| John B. Anderson | CDP | 12.1% |
+| Ed Clark | LIB | 3.6% |
+| Others |  | 7.9% |
+
+| Runoff (701 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Ronald Reagan | CC | 452 | 56.9% |
+| Jimmy Carter | LDP | 249 | 43.1% |
+
+### 1986
+
+Re-elected comfortably.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Ronald Reagan | CC | 37.9% |
+| Walter Mondale | LDP | 27.5% |
+| Jesse Jackson | SDLP | 13.4% |
+| Bob Dole (CDP backing) | CDP | 10.2% |
+| Others |  | 11.0% |
+
+| Runoff (701 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Ronald Reagan | CC | 463 | 57.8% |
+| Walter Mondale | LDP | 238 | 42.2% |
+
+### 1992
+
+Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’s votes.
+
+| Round one | Party | Vote |
+|---|---|---:|
+| Bill Clinton | LDP | 29.1% |
+| George H. W. Bush | CC | 25.3% |
+| Ross Perot | Independent | 19.0% |
+| Bill Bradley | SDLP | 12.4% |
+| CDP nominee | CDP | 8.6% |
+| Others |  | 5.6% |
+
+| Runoff (701 electors) | Party | Electors | Vote |
+|---|---|---:|---:|
+| Bill Clinton | LDP | 386 | 53.1% |
+| George H. W. Bush | CC | 315 | 46.9% |
 
 ## The parties
 

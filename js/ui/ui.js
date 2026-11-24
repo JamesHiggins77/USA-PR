@@ -2,7 +2,7 @@
 (function (G) {
   'use strict';
   var U = G.USA, S = U.Game, F = U.Flow, C = U.Coalition, V = U.Votes, Ch = U.Charts, K = U.Content, Ev = U.Events;
-  var sideOpen = typeof matchMedia === 'function' ? !matchMedia('(max-width: 820px)').matches : true, mapHover = null, Q = null, view = 'office', openCard = null, openSlot = null, Dk = U.Decks, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
+  var electSel = null, sideOpen = typeof matchMedia === 'function' ? !matchMedia('(max-width: 820px)').matches : true, mapHover = null, Q = null, view = 'office', openCard = null, openSlot = null, Dk = U.Decks, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
   var $ = function (id) { return document.getElementById(id); };
   var P = function (p) { return U.PARTIES[p]; };
   var chip = function (p) { return '<i class="chip" style="background:' + P(p).color + '"></i>'; };
@@ -10,7 +10,7 @@
   var pct = function (v) { return v.toFixed(1) + '%'; };
   var sign = function (v, d) { var s = v.toFixed(d == null ? 1 : d); return (v > 0 ? '+' : '') + s; };
 
-  var TABS = [['office', 'Office'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party'], ['history', 'History'], ['log', 'Timeline'], ['system', 'Game']];
+  var TABS = [['office', 'Office'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party'], ['history', 'History'], ['elections', 'Elections'], ['log', 'Timeline'], ['system', 'Game']];
 
   function save() { if (Q) S.save(Q); }
   function go(v) { if (U.Night) U.Night.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
@@ -20,7 +20,7 @@
     $('tabs').innerHTML = TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (view === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('');
     renderSide();
     var m = $('main');
-    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, log: log, system: system, history: history, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night }[view];
+    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, log: log, system: system, history: history, elections: elections, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night }[view];
     m.innerHTML = fn();
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
@@ -349,6 +349,40 @@
     return h;
   }
 
+  // ---------- past elections ----------
+  function oldParty(k) { var o = U.LORE.oldParties[k]; return o ? { name: o[0], short: o[0], color: o[1] } : U.PARTIES[k] ? { name: P(k).name, short: P(k).short, color: P(k).color } : { name: '', short: '', color: '#888' }; }
+  function ochip(k) { return '<i class="chip" style="background:' + oldParty(k).color + '"></i>'; }
+  function bar(pct, color) { return '<div class="bar" style="margin:2px 0 0"><i style="width:' + U.clamp(pct, 0, 100) + '%;background:' + color + '"></i></div>'; }
+  function elections() {
+    var hist = U.LORE.presElections.map(function (e, i) { return { key: 'h' + i, label: e.year + ' presidential', rec: e, kind: 'hist' }; });
+    var game = (Q.history || []).map(function (e, i) { return { key: 'g' + i, label: e.date + (e.kind === 'pres' ? ' presidential' : ' general'), rec: e, kind: e.kind }; });
+    var all = hist.concat(game);
+    if (!electSel || !all.some(function (x) { return x.key === electSel; })) electSel = all[all.length - 1].key;
+    var h = '<h1>Elections</h1><div class="row" style="margin-bottom:8px"><span class="small">Before the game:</span>' + hist.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + x.rec.year + '</button>'; }).join('') + '</div>';
+    h += '<div class="row" style="margin-bottom:12px"><span class="small">In this game:</span>' + (game.length ? game.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + esc(x.label) + '</button>'; }).join('') : '<span class="small muted">Elections you play will be kept here.</span>') + '</div>';
+    var sel = all.filter(function (x) { return x.key === electSel; })[0], r = sel.rec;
+    if (sel.kind === 'hist') {
+      var w = r.r2[0];
+      h += '<div class="panel"><h2 style="margin-top:0">' + r.year + ' presidential election</h2><p><b>' + esc(w[0]) + '</b> (' + esc(oldParty(w[1]).name) + ') elected. ' + esc(r.note) + '</p>';
+      h += '<h3>Round one: national popular vote</h3><table class="seats">' + r.r1.map(function (c, i) { return '<tr><td>' + (c[1] ? ochip(c[1]) : '') + esc(c[0]) + (c[1] ? ' <span class="small muted">' + esc(oldParty(c[1]).short) + '</span>' : '') + (i < 2 ? ' <span class="pill yes">advances</span>' : '') + bar(c[2] * 2.5, c[1] ? oldParty(c[1]).color : '#888') + '</td><td><b>' + c[2].toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
+      h += '<h3>Round two: Electoral College (' + r.total + ' electors)</h3><table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + r.r2.map(function (c) { return '<tr><td>' + ochip(c[1]) + esc(c[0]) + bar(c[2] / r.total * 100, oldParty(c[1]).color) + '</td><td><b>' + c[2] + '</b></td><td>' + c[3].toFixed(1) + '%</td></tr>'; }).join('') + '</table></div>';
+      return h;
+    }
+    if (sel.kind === 'pres') {
+      var cm = {}; r.cands.forEach(function (c) { cm[c.id] = c; });
+      var order1 = Object.keys(r.r1).sort(function (a, b) { return r.r1[b] - r.r1[a]; });
+      h += '<div class="panel"><h2 style="margin-top:0">' + esc(r.date) + ' presidential election</h2><p><b>' + esc(cm[r.winner].name) + '</b> (' + esc(P(cm[r.winner].party).name) + ') elected' + (r.tiebreak ? ' (tie broken by ' + r.tiebreak + ')' : '') + '.</p>';
+      h += '<h3>Round one: national popular vote</h3><table class="seats">' + order1.map(function (k, i) { var c = cm[k]; return '<tr><td>' + chip(c.party) + esc(c.name) + (i < 2 ? ' <span class="pill yes">advances</span>' : '') + bar(r.r1[k] * 2.5, P(c.party).color) + '</td><td><b>' + (+r.r1[k]).toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
+      h += '<h3>Round two: Electoral College (' + r.total + ' electors)</h3><table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + Object.keys(r.r2).sort(function (a, b) { return r.r2[b] - r.r2[a]; }).map(function (k) { var c = cm[k]; return '<tr><td>' + chip(c.party) + esc(c.name) + '</td><td><b>' + r.r2[k] + '</b></td><td>' + (r.pop2[k] != null ? r.pop2[k].toFixed(1) + '%' : '') + '</td></tr>'; }).join('') + '</table>';
+      h += '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, function (sid) { var k = r.map[sid]; return k && cm[k] ? P(cm[k].party).color : '#9aa0a6'; }, function (sid) { var k = r.map[sid]; return k && cm[k] ? P(cm[k].party).short : ''; }) + '</div><p class="small muted">Runoff winner in each state.</p></div>';
+      return h;
+    }
+    var order = Object.keys(r.house).sort(function (a, b) { return r.house[b] - r.house[a]; });
+    h += '<div class="panel"><h2 style="margin-top:0">' + esc(r.date) + ' general election</h2><div class="grid2"><div><h3>House</h3>' + Ch.hemicycle(Q, r.house) + '</div><div><table class="seats"><tr><th>Party</th><th>Vote</th><th>Seats</th></tr>' + order.map(function (p) { return '<tr><td>' + chip(p) + P(p).name + '</td><td>' + (r.shares[p] != null ? r.shares[p].toFixed(1) + '%' : '') + '</td><td><b>' + r.house[p] + '</b></td></tr>'; }).join('') + '</table></div></div>';
+    h += '<h3>Senate</h3>' + Ch.seatTable(Q, r.senate) + '</div>';
+    return h;
+  }
+
   function log() {
     return '<h1>Timeline</h1><div class="log">' + Q.log.slice().reverse().map(function (l) { return '<p><span class="t">' + esc(l.t) + '</span>' + esc(l.text) + '</p>'; }).join('') + '</div>';
   }
@@ -376,6 +410,7 @@
     document.querySelectorAll('.scene button[data-card]').forEach(function (b) { b.onclick = function () { var slot = openSlot; openCard = null; openSlot = null; after(F.playHand(Q, slot, +b.dataset.card)); }; });
     document.querySelectorAll('button[data-event]').forEach(function (b) { b.onclick = function () { lastText = F.answerEvent(Q, +b.dataset.event); save(); render(); }; });
     document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
+    document.querySelectorAll('[data-elect]').forEach(function (b) { b.onclick = function () { electSel = b.dataset.elect; render(); }; });
     document.querySelectorAll('[data-map]').forEach(function (b) { b.onclick = function () { mapMode = b.dataset.map; render(); }; });
     document.querySelectorAll('.tile').forEach(function (t) { t.onclick = function () { mapSel = t.dataset.state; render(); var d = $('statedetail'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
     document.querySelectorAll('[data-role]').forEach(function (b) { b.onclick = function () { var a = b.dataset.role.split('|'), p = a[0]; deal.coalition = deal.coalition.filter(function (x) { return x !== p; }); deal.cs = deal.cs.filter(function (x) { return x !== p; }); deal.abstain = (deal.abstain || []).filter(function (x) { return x !== p; }); delete deal.posts[p]; if (a[1] === 'coalition') deal.coalition.push(p); if (a[1] === 'cs') deal.cs.push(p); if (a[1] === 'abstain') deal.abstain.push(p); if (a[1] === 'none') delete deal.concessions[p]; else if (!deal.concessions[p]) deal.concessions[p] = []; deal.posts = {}; render(); }; });

@@ -86,7 +86,7 @@
     ['1956', 'Thomas E. Dewey', 'Republican', 'Re-elected.'],
     ['1962', 'John F. Kennedy', 'Democratic', 'Shared power with a Republican Prime Minister, Richard Nixon, for his whole term. Survived the 1963 Dallas assassination attempt.'],
     ['1968', 'Nelson Rockefeller', 'Christian Democratic', 'Beat George Wallace (SRP), who topped the first round in a year of riots and assassinations, in the runoff. The CDP’s first President.'],
-    ['1974', 'Robert F. Kennedy', 'Liberal Democratic', 'Avenged his brother’s narrow loss of the premiership in 1962 and brought the LDP its first presidency.'],
+    ['1974', 'Robert F. Kennedy', 'Liberal Democratic', 'Beat Gerald Ford in the post-Watergate runoff and brought the LDP its first presidency, twelve years after his brother won it as a Democrat.'],
     ['1980', 'Ronald Reagan', 'Conservative Coalition', 'His runoff win over Jimmy Carter (LDP) made the new CC the main party of the right.'],
     ['1986', 'Ronald Reagan', 'Conservative Coalition', 'Re-elected over Walter Mondale (LDP).'],
     ['1992', 'Bill Clinton', 'Liberal Democratic', 'Beat Vice President George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote.'],
@@ -116,6 +116,42 @@
     ['1994–1996', 'Newt Gingrich', 'Conservative Coalition', 'CC–CDP coalition; fell after the 1995–96 government shutdown'],
     ['1996–', 'Al Gore', 'Liberal Democratic', 'LDP–SDLP coalition, with Reform confidence and supply']
   ];
+
+  // Historical presidential elections: round one is a national popular vote
+  // (top two advance); round two is the Electoral College, winner-take-all by
+  // state. r1: [name, party, %]; r2: [[name, party, electors, % of two-way vote], ...]
+  U.LORE.presElections = [
+    { year: 1914, total: 627, r1: [['Woodrow Wilson', 'dem', 36.1], ['Theodore Roosevelt', 'prog', 33.4], ['Elihu Root', 'rep', 22.0], ['Eugene V. Debs', 'soc', 6.2], ['Others', null, 2.3]],
+      r2: [['Theodore Roosevelt', 'prog', 356, 51.8], ['Woodrow Wilson', 'dem', 271, 48.2]], note: 'Republicans backed Roosevelt in the runoff; the South held for Wilson.' },
+    { year: 1920, total: 627, r1: [['Charles Evans Hughes', 'rep', 34.8], ['William McAdoo', 'dem', 27.5], ['Hiram Johnson', 'prog', 24.1], ['Eugene V. Debs', 'soc', 6.0], ['Others', null, 7.6]],
+      r2: [['Charles Evans Hughes', 'rep', 389, 55.6], ['William McAdoo', 'dem', 238, 44.4]], note: 'A vote for calm after the war and the League of Nations fight.' },
+    { year: 1926, total: 627, r1: [['Frank Lowden', 'rep', 31.2], ['Al Smith', 'dem', 29.6], ['Robert La Follette Jr.', 'prog', 25.9], ['Norman Thomas', 'soc', 4.1], ['Others', null, 9.2]],
+      r2: [['Frank Lowden', 'rep', 334, 51.2], ['Al Smith', 'dem', 293, 48.8]], note: 'Farm-belt Progressives swung behind Lowden, the farm-relief champion, over the New York Catholic.' },
+    { year: 1932, total: 627, r1: [['Huey Long', 'dem', 34.7], ['Frank Lowden', 'rep', 26.3], ['Floyd Olson', 'prog', 21.0], ['Norman Thomas', 'soc', 8.8], ['William Z. Foster', 'cpusa', 2.1], ['Others', null, 7.1]],
+      r2: [['Huey Long', 'dem', 451, 61.4], ['Frank Lowden', 'rep', 176, 38.6]], note: 'A Depression landslide on Share Our Wealth.' },
+    { year: 1938, total: 627, r1: [['Huey Long', 'dem', 38.2], ['Robert A. Taft', 'rep', 28.5], ['Robert La Follette Jr.', 'prog', 19.4], ['Norman Thomas', 'soc', 5.0], ['Others', null, 8.9]],
+      r2: [['Huey Long', 'dem', 388, 55.9], ['Robert A. Taft', 'rep', 239, 44.1]], note: 'Re-elected despite the 1937 recession and his feud with Prime Minister Smith.' },
+    { year: 1944, total: 627, r1: [['John Nance Garner', 'dem', 33.0], ['Thomas E. Dewey', 'rep', 31.6], ['Henry A. Wallace', 'prog', 24.8], ['Norman Thomas', 'soc', 3.2], ['Others', null, 7.4]],
+      r2: [['John Nance Garner', 'dem', 322, 50.6], ['Thomas E. Dewey', 'rep', 305, 49.4]], note: 'A wartime cliffhanger: Ohio decided the runoff by 41,000 votes.' },
+    { year: 1950, total: 627, r1: [['Thomas E. Dewey', 'rep', 34.1], ['Adlai Stevenson', 'dem', 28.4], ['Henry A. Wallace', 'prog', 14.9], ['Strom Thurmond', 'srp', 8.7], ['Robert Taft (CDP backing)', 'cdp', 9.6], ['Others', null, 4.3]],
+      r2: [['Thomas E. Dewey', 'rep', 401, 56.8], ['Adlai Stevenson', 'dem', 226, 43.2]], note: 'The Dixiecrats’ Strom Thurmond carried four southern states’ first-round votes.' },
+    { year: 1956, total: 627, r1: [['Thomas E. Dewey', 'rep', 36.8], ['Estes Kefauver', 'dem', 27.2], ['Walter Reuther', 'sdlp', 18.6], ['Strom Thurmond', 'srp', 7.9], ['Others', null, 9.5]],
+      r2: [['Thomas E. Dewey', 'rep', 365, 54.4], ['Estes Kefauver', 'dem', 262, 45.6]], note: 'Re-elected in the first presidential race for the new SDLP.' },
+    { year: 1962, total: 638, r1: [['John F. Kennedy', 'dem', 31.5], ['Barry Goldwater', 'rep', 26.0], ['Nelson Rockefeller', 'cdp', 18.7], ['Walter Reuther', 'sdlp', 14.2], ['Others', null, 9.6]],
+      r2: [['John F. Kennedy', 'dem', 331, 51.4], ['Barry Goldwater', 'rep', 307, 48.6]], note: 'CDP voters split; Kennedy won the runoff by carrying Illinois and Texas.' },
+    { year: 1968, total: 638, r1: [['George Wallace', 'srp', 23.9], ['Nelson Rockefeller', 'cdp', 23.1], ['Hubert Humphrey', 'ldp', 22.4], ['Ronald Reagan', 'rep', 17.3], ['Eugene McCarthy', 'sdlp', 9.6], ['Others', null, 3.7]],
+      r2: [['Nelson Rockefeller', 'cdp', 451, 63.5], ['George Wallace', 'srp', 187, 36.5]], note: 'Wallace topped a five-way first round; the LDP, SDLP and Republicans all backed Rockefeller in the runoff.' },
+    { year: 1974, total: 701, r1: [['Robert F. Kennedy', 'ldp', 32.6], ['Gerald Ford', 'rep', 24.4], ['Nelson Rockefeller', 'cdp', 17.0], ['George McGovern', 'sdlp', 13.1], ['George Wallace', 'srp', 8.8], ['Others', null, 4.1]],
+      r2: [['Robert F. Kennedy', 'ldp', 417, 55.3], ['Gerald Ford', 'rep', 284, 44.7]], note: 'Rockefeller fell to third; the post-Watergate mood carried Kennedy.' },
+    { year: 1980, total: 701, r1: [['Ronald Reagan', 'cc', 35.4], ['Jimmy Carter', 'ldp', 26.2], ['Ted Kennedy', 'sdlp', 14.8], ['John B. Anderson', 'cdp', 12.1], ['Ed Clark', 'lib', 3.6], ['Others', null, 7.9]],
+      r2: [['Ronald Reagan', 'cc', 452, 56.9], ['Jimmy Carter', 'ldp', 249, 43.1]], note: 'The new CC’s breakthrough.' },
+    { year: 1986, total: 701, r1: [['Ronald Reagan', 'cc', 37.9], ['Walter Mondale', 'ldp', 27.5], ['Jesse Jackson', 'sdlp', 13.4], ['Bob Dole (CDP backing)', 'cdp', 10.2], ['Others', null, 11.0]],
+      r2: [['Ronald Reagan', 'cc', 463, 57.8], ['Walter Mondale', 'ldp', 238, 42.2]], note: 'Re-elected comfortably.' },
+    { year: 1992, total: 701, r1: [['Bill Clinton', 'ldp', 29.1], ['George H. W. Bush', 'cc', 25.3], ['Ross Perot', 'ind', 19.0], ['Bill Bradley', 'sdlp', 12.4], ['CDP nominee', 'cdp', 8.6], ['Others', null, 5.6]],
+      r2: [['Bill Clinton', 'ldp', 386, 53.1], ['George H. W. Bush', 'cc', 315, 46.9]], note: 'Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’s votes.' }
+  ];
+  // Historical parties that no longer exist (for colours in the election records)
+  U.LORE.oldParties = { dem: ['Democratic Party', '#3b6fb6'], rep: ['Republican Party', '#c0392b'], prog: ['Progressive Party', '#2e8b57'], soc: ['Socialist Party of America', '#b22222'], ind: ['Independent', '#888888'] };
 
   U.LORE.future = 'In the default timeline, Donald Trump founds the MAGA Party and wins the presidency in 2016, and Mike Pence (CC) leads a broad-right coalition of the CC, MAGA, CDP, ASP and Libertarians. In this game, none of that is guaranteed.';
 })(typeof globalThis !== 'undefined' ? globalThis : window);
