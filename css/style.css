@@ -99,7 +99,7 @@ table.seats { max-width: 420px; margin-top: 6px; }
 .deck .why { opacity: .9; font-size: 11px; }
 .slot.empty { align-items: center; justify-content: center; min-height: 150px; }
 .endbar .btn + .btn { margin-left: 0; }
-.negs { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 10px; margin: 12px 0; }
+.negs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr)); gap: 10px; margin: 12px 0; }
 .neg { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
 .neghead { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
 .margin { font: 700 18px system-ui, sans-serif; padding: 0 8px; border-radius: 6px; }
@@ -124,3 +124,42 @@ table.seats { max-width: 420px; margin-top: 6px; }
 #nt-map path.called, #nt-map rect.called { stroke: var(--ink); stroke-width: 2.2px; }
 #nt-dmap path.dist.called { stroke: var(--ink); stroke-width: 0.9px; }
 #nt-map path, #nt-map rect, #nt-dmap path { transition: fill .4s, fill-opacity .4s; }
+
+/* ---- status panel (collapsible on phones) ---- */
+.sidebox > summary { display: none; }
+.sidebox:not([open]) > .side { display: block; }
+@media (max-width: 820px) {
+  #top { position: static; padding: 8px 12px; gap: 6px; }
+  .brand { font-size: 16px; }
+  #tabs { flex-wrap: nowrap; overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  #tabs button { white-space: nowrap; flex: none; padding: 6px 10px; }
+  #side { padding: 0; }
+  .sidebox > summary { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; list-style: none; font-weight: 600; }
+  .sidebox > summary::-webkit-details-marker { display: none; }
+  .sidebox > summary::after { content: '\25BE'; color: var(--muted); }
+  .sidebox[open] > summary::after { content: '\25B4'; }
+  .sidebox:not([open]) > .side { display: none; }
+  .sidebox > .side { padding: 0 12px 12px; }
+  #main { padding: 14px 12px 40px; }
+  h1 { font-size: 22px; }
+  #main table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .negs { grid-template-columns: 1fr; }
+  .seg button { font-size: 11.5px; }
+  .decks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .deck { min-height: 70px; }
+  .slot { min-height: 0; }
+  .slot.empty { min-height: 60px; }
+  .endbar .btn { flex: 1 1 auto; }
+  .endbar [data-act=discardall] { margin-left: 0 !important; }
+  .nightbar .clock { margin-left: 0; font-size: 18px; }
+  .nightbar label { width: 100%; }
+  .nightbar input[type=range] { width: 60%; }
+  .scene { padding: 14px; }
+  .choice small { font-size: 12px; }
+  #tipbox, #mapcard { max-width: calc(100vw - 24px); }
+}
+@media (max-width: 820px) {
+  .zoomctl { right: auto; left: 6px; top: auto; bottom: 6px; flex-direction: row; }
+  .zoomctl button { width: 30px; height: 30px; font-size: 15px; opacity: .92; }
+  #main .row .btn { padding: 6px 10px; font-size: 13px; }
+}

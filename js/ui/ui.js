@@ -2,7 +2,7 @@
 (function (G) {
   'use strict';
   var U = G.USA, S = U.Game, F = U.Flow, C = U.Coalition, V = U.Votes, Ch = U.Charts, K = U.Content, Ev = U.Events;
-  var mapHover = null, Q = null, view = 'office', openCard = null, openSlot = null, Dk = U.Decks, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
+  var sideOpen = typeof matchMedia === 'function' ? !matchMedia('(max-width: 820px)').matches : true, mapHover = null, Q = null, view = 'office', openCard = null, openSlot = null, Dk = U.Decks, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
   var $ = function (id) { return document.getElementById(id); };
   var P = function (p) { return U.PARTIES[p]; };
   var chip = function (p) { return '<i class="chip" style="background:' + P(p).color + '"></i>'; };
@@ -50,7 +50,7 @@
     h += '<div class="kv"><span>Cards in hand</span><b>' + Q.hand.filter(Boolean).length + ' / ' + Dk.HAND + '</b></div>';
     h += '<h4>Government</h4>';
     if (Q.formation) h += '<div>Caretaker. <b>Government formation</b> under way (' + Q.formation.monthsLeft + ' months before a repeat election).</div>';
-    else if (g) h += '<div>PM <b>' + esc(g.pm) + '</b> (' + P(g.pmParty).short + ')</div><div class="small">' + g.coalition.map(function (p) { return chip(p) + P(p).short; }).join(' ') + (g.cs.length ? ' &middot; C&amp;S: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') : '') + '</div><div class="kv"><span>Seats</span><b>' + S.govSeats(Q) + ' / 801</b></div>';
+    else if (g) h += '<div>PM <b>' + esc(g.pm) + '</b> (' + P(g.pmParty).short + ')</div><div class="small">' + g.coalition.map(function (p) { return chip(p) + P(p).short; }).join(' ') + (g.cs.length ? ' &middot; C&amp;S: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') : '') + '</div><div class="kv"><span>Seats</span><b>' + S.govSeats(Q) + ' / ' + U.RULES.house.total + '</b></div>';
     h += '<div class="kv"><span>Gov. approval</span><b>' + Math.round(Q.govApproval) + '%</b></div>';
     h += '<div class="kv"><span>President</span><b>' + esc(Q.president.name) + ' (' + P(Q.president.party).short + ')</b></div>';
     if (Q.offices) h += '<div class="kv"><span>Vice President</span><b>' + esc(Q.offices.vp.name) + ' (' + P(Q.offices.vp.party).short + ')</b></div><div class="kv"><span>Speaker</span><b>' + esc(Q.offices.speaker.name) + ' (' + P(Q.offices.speaker.party).short + ')</b></div>';
@@ -67,7 +67,10 @@
     h += '<h4>Factions (dissent)</h4>';
     for (var k in Q.factions) { var f = Q.factions[k]; h += '<div class="kv"><span>' + U.LDP_FACTIONS[k].name + '</span><b>' + Math.round(f.dissent) + '</b></div>' + Ch.bar(f.dissent, 100, f.dissent > 70 ? 'bad' : f.dissent > 50 ? 'warn' : ''); }
     h += '<h4>Economy</h4><div class="kv"><span>Growth</span><b>' + Q.econ.growth.toFixed(1) + '%</b></div><div class="kv"><span>Unemployment</span><b>' + Q.econ.unemp.toFixed(1) + '%</b></div><div class="kv"><span>Inflation</span><b>' + Q.econ.infl.toFixed(1) + '%</b></div><div class="kv"><span>Deficit</span><b>' + Q.econ.deficit.toFixed(1) + '% GDP</b></div>';
-    $('side').innerHTML = '<div class="side">' + h + '</div>';
+    // on phones the sidebar is a collapsible status panel with a one-line summary
+    var summary = esc(U.dateStr(Q)) + ' \u00b7 ' + P(Q.player).short + ' ' + pct(n[Q.player] || 0) + (g && !Q.formation ? ' \u00b7 Gov. ' + S.govSeats(Q) + '/' + U.RULES.house.total : Q.formation ? ' \u00b7 Forming a government' : '');
+    $('side').innerHTML = '<details class="sidebox"' + (sideOpen ? ' open' : '') + '><summary><span>Status</span><span class="small">' + summary + '</span></summary><div class="side">' + h + '</div></details>';
+    $('side').querySelector('details').ontoggle = function (e) { sideOpen = e.target.open; };
   }
 
   // ---------- office: events, cards, month end ----------
@@ -269,7 +272,7 @@
     };
     var mp = mapMode === 'districts' ? Ch.districtMap(Q, function (sid, n) { var w = dw[sid + '-' + n]; return w ? P(w).color : '#9aa0a6'; }, '', dTitle) + '<p class="small muted">Winners at the last general election. Boundaries are the real congressional districts drawn after the 2010 census (2012 maps, from the public-domain @unitedstates/districts project). Hover over a district for its 1998 partisan lean and estimated vote. Each district\u2019s vote follows its real lean from the 1992 and 1996 presidential elections.</p>'
       : mapStyle === 'geo' ? Ch.geoMap(Q, colorOf, labelOf) : Ch.map(Q, colorOf, labelOf);
-    h += '<div id="mapbox" style="margin-top:10px' + (mapStyle === 'geo' || mapMode === 'districts' ? '' : ';max-width:640px') + '">' + mp + '</div><p class="small muted">Scroll or use + / \u2212 to zoom, drag to pan. Hover for details; click a state for its full results and delegations.</p><div id="statedetail" class="panel">' + stateDetail(mapSel || 'CA', sh) + '</div>';
+    h += '<div id="mapbox" style="margin-top:10px' + (mapStyle === 'geo' || mapMode === 'districts' ? '' : ';max-width:640px') + '">' + mp + '</div><p class="small muted">Scroll, or use + / \u2212 buttons to zoom, drag to pan. Hover (or tap) for details; click a state for its full results and delegations.</p><div id="statedetail" class="panel">' + stateDetail(mapSel || 'CA', sh) + '</div>';
     return h;
   }
   function seatTable(o) {
@@ -279,7 +282,7 @@
   function stateDetail(id, sh) {
     var s = U.STATES[id] || U.DC, o = sh[id], app = U.Elections.apportion(), sg = Q.states[id];
     var order = Object.keys(o).sort(function (a, b) { return o[b] - o[a]; });
-    var h = '<h2>' + s.name + '</h2><p class="small muted">' + U.REGIONS[s.region] + ' &middot; population ' + s.pop + 'm' + (U.STATES[id] ? ' &middot; ' + app.district[id] + ' districts, ' + app.pr[id] + ' list seats, ' + app.electors[id] + ' electors' + (s.unicameral ? ' &middot; unicameral legislature' : '') : ' &middot; 1 House seat, 3 electors') + '</p>';
+    var h = '<h2>' + s.name + '</h2><p class="small muted">' + U.REGIONS[s.region] + ' &middot; population ' + s.pop + 'm' + (U.STATES[id] ? ' &middot; ' + (U.pure() ? app.pr[id] + ' state list seats, ' : app.district[id] + ' districts, ' + app.pr[id] + ' list seats, ') + app.electors[id] + ' electors' + (s.unicameral ? ' &middot; unicameral legislature' : '') : ' &middot; 1 House seat, 3 electors') + '</p>';
     h += '<div class="grid2">';
     // last presidential election
     var lp = Q.lastPresidential, box = '';

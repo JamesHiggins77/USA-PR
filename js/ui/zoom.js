@@ -46,6 +46,12 @@
         if (html) Z.card(html, e.clientX, e.clientY); else Z.hide();
       });
       svg.addEventListener('mouseleave', Z.hide);
+      // touch: a tap (not a drag) shows the card; tapping outside hides it
+      svg.addEventListener('pointerup', function (e) {
+        if (e.pointerType !== 'touch' || svg.__justDragged) return;
+        var t = e.target.closest && e.target.closest('.dist, .tile'), html = t ? hover(t, e) : null;
+        if (html) Z.card(html, e.clientX, e.clientY); else Z.hide();
+      });
     }
   };
 
