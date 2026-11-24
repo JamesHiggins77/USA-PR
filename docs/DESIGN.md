@@ -6,7 +6,7 @@ This document follows the brief's §22 checklist: unresolved rules and their def
 
 | Area | Default chosen | Where |
 |---|---|---|
-| District/PR apportionment | Hamilton (largest remainder) on 2000 census population, minimum 1 district + 1 list seat per state | `rules.house.apportionment` |
+| District/PR apportionment | Districts: the real 435-district map (2012 boundaries). List seats: 365, Hamilton (largest remainder) on 2000 census population, minimum 1 per state | `rules.house.apportionment` |
 | District first round | Absolute majority of valid votes; otherwise top two go to a runoff | `rules.house.districtFirstRoundMajority` |
 | Runoff transfers | Eliminated parties' voters split by ideological distance; voters far from both finalists abstain; pacts boost transfers ×2.5 | `engine/electoral.js` |
 | House PR formula / threshold | Sainte-Laguë, **no threshold** (state-senate 5% is not applied) | `rules.house.prFormula`, `prThreshold` |
@@ -55,7 +55,7 @@ Decided by the designer:
 4. **The ACP does not exist until the 2020s.** It can be launched from 2021, more likely when discontent is high.
 5. **Party colours** follow the designer's reference map.
 6. **Regional stand-down agreements.** In 1999 the SDLP does not run district candidates in New England and the Atlantic states, and the LDP stands aside in the Rust Belt. The CDP stands aside in the South, and the CC in the liberal states. About 70% of the stood-down party's voters go to the partner, 15% choose by ideology and 15% stay home. Agreements can be negotiated or ended with the "Regional electoral agreements" card, and they collapse if the partners' relations fall below 28. Region definitions are in `engine/elections.js` (`REGION_SETS`). The "liberal states" are taken to be New England, NY, NJ, DE, MD, DC, the Pacific coast and Illinois (a design choice). Agreements apply to House districts only, not to list seats or statewide races.
-7. **District map.** Real 1990s boundaries do not fit the game's 400-district apportionment, so `tools/build_districts.js` generates districts for each state: small ones around the major cities, large ones in rural areas. Each district has a fixed urbanity and demographic character that persists between elections, so safe seats exist.
+7. **435 real districts, 365 list seats** (designer change). The House uses the real congressional district map: the 2012 boundaries from the @unitedstates/districts project, which is public domain and derived from Census data. These give 435 districts apportioned as after the 2010 census. To keep the House at 801, the statewide list seats are reduced to 365, apportioned by population with at least one per state. Each district has a fixed character (urbanity from its area, plus persistent local demographic variation), so safe seats exist. The 1992–2002 boundaries would match a 1999 start more closely, but no source for them was reachable from the build environment. `tools/build_districts.js` rebuilds the map.
 
 Still flagged:
 - "The Communist Party" that Sanders leads is taken to be the **CPUSA** (a UL member), not the ACP.

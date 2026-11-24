@@ -42,7 +42,7 @@
     'runoff': 'Second round between the top two candidates when nobody wins an absolute majority in the first. Eliminated parties’ voters move by ideological closeness, or stay home.',
     'runoffs': 'Second rounds between the top two candidates. Electoral pacts change how voters transfer.',
     'two-round': 'If no candidate wins over 50% in the first round, the top two meet in a runoff. Used for districts, governors, direct senators and the President.',
-    'list seats': 'The 400 statewide proportional seats in the House, shared among parties by vote share within each state.',
+    'list seats': 'The 365 statewide proportional seats in the House, shared among parties by vote share within each state.',
     'Sainte-Laguë': 'A proportional seat formula (divisors 1, 3, 5…) that treats small and large parties evenly.',
     'sainte-lague': 'A proportional seat formula (divisors 1, 3, 5…) that treats small and large parties evenly.',
     "D'Hondt": 'A proportional seat formula (divisors 1, 2, 3…) that slightly favours larger parties.',

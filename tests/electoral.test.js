@@ -1,10 +1,11 @@
 const test = require('node:test'), assert = require('node:assert');
 const U = require('./load.js'), E = U.Electoral;
 
-test('apportionment fills exactly 400 + 400 seats, every state at least one of each', () => {
+test('apportionment fills exactly 435 districts (real map) + 365 list seats, every state at least one of each', () => {
   const a = U.Elections.apportion();
   const sum = o => Object.values(o).reduce((s, v) => s + v, 0);
-  assert.strictEqual(sum(a.district), 400); assert.strictEqual(sum(a.pr), 400);
+  assert.strictEqual(sum(a.district), 435); assert.strictEqual(sum(a.pr), 365);
+  assert.strictEqual(a.district.CA, 53); assert.strictEqual(a.district.WY, 1);
   for (const k in U.STATES) { assert.ok(a.district[k] >= 1); assert.ok(a.pr[k] >= 1); }
 });
 

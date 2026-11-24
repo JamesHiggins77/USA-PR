@@ -5,8 +5,8 @@
   'use strict';
   G.USA.RULES = {
     house: {
-      total: 801, districtSeats: 400, prSeats: 400, dcSeats: 1,
-      apportionment: 'hamilton',        // largest remainder on population, min 1 per state
+      total: 801, districtSeats: 435, prSeats: 365, dcSeats: 1,   // designer change: real 435 districts, PR reduced to 365
+      apportionment: 'map',             // districts: the real (2012) district map; PR: largest remainder on population, min 1
       minDistrictPerState: 1, minPrPerState: 1,
       districtFirstRoundMajority: 0.5,  // absolute majority of valid votes
       prFormula: 'sainte-lague',        // or 'dhondt'

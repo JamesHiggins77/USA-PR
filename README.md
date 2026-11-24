@@ -14,7 +14,7 @@ Each month you either **play one card** (choose one of its options) or **discard
 
 ## What is simulated
 
-- **House (801)**: 400 two-round districts + 400 statewide list seats (Sainte-Laguë) + DC, computed separately and added together.
+- **House (801)**: 435 two-round districts (real 2012 boundaries) + 365 statewide list seats (Sainte-Laguë) + DC, computed separately and added together.
 - **Senate (200)**: per state, one directly elected seat (two rounds, staggered), plus appointments by the governor, state house and state senate. Nebraska is unicameral, so its governor appoints three.
 - **States**: two-round governors, constituency-PR state houses, statewide-PR state senates with the fixed 5% threshold. State results determine Senate appointments.
 - **President**: a two-round Electoral College with proportional elector allocation, joint tickets and endorsements.
@@ -34,7 +34,7 @@ js/game/               game state, monthly turn, cards, decks and hand, events, 
 js/ui/                 interface and SVG charts
 tests/                 node --test suite
 tools/playtest.js      headless random playthrough: node tools/playtest.js <seed> <endYear>
-tools/build_districts.js  regenerates js/data/districts.js (the synthetic district map)
+tools/build_districts.js  rebuilds js/data/districts.js from the real district boundaries (see the script header)
 docs/DESIGN.md         rule defaults, data model, scenario assumptions, open questions
 ```
 

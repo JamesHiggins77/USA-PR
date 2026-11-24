@@ -1,4 +1,4 @@
-// Elections: House (400 districts + 400 statewide PR + DC), Senate (4 routes
+// Elections: House (435 districts + 365 statewide PR + DC), Senate (4 routes
 // per state), state governments, and the two-round Electoral College.
 (function (G) {
   'use strict';
@@ -7,7 +7,9 @@
   X.apportion = function () {
     if (X._app) return X._app;
     var pops = {}; for (var k in U.STATES) pops[k] = U.STATES[k].pop;
-    var d = E.hamilton(pops, R.house.districtSeats, R.house.minDistrictPerState);
+    var d = {};
+    if (R.house.apportionment === 'map' && U.DISTRICTS) { for (k in U.STATES) d[k] = U.DISTRICTS[k].cells.length; }
+    else d = E.hamilton(pops, R.house.districtSeats, R.house.minDistrictPerState);
     var pr = E.hamilton(pops, R.house.prSeats, R.house.minPrPerState);
     var el = {}; for (k in U.STATES) el[k] = R.president.electors === 'house-plus-senate' ? d[k] + pr[k] + R.senate.perState : d[k] + pr[k];
     el.DC = R.president.dcElectors;
