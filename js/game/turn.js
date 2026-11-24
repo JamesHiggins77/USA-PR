@@ -377,12 +377,6 @@
   };
 
   // ---- presiding officers ----
-  var OFFICE_NAMES = {
-    ldp: ['Dick Gephardt', 'Nancy Pelosi', 'Steny Hoyer'], sdlp: ['David Bonior', 'Marcy Kaptur', 'Sherrod Brown'],
-    cdp: ['Dennis Hastert', 'Chris Shays', 'Fred Upton'], cc: ['Newt Gingrich', 'Dick Armey', 'Tom DeLay'],
-    asp: ['Bart Stupak'], reform: ['Jesse Ventura'], ul: ['Bernie Sanders'], maga: ['Kevin McCarthy'],
-    ppt: { ldp: ['Robert Byrd', 'Pat Leahy'], sdlp: ['Paul Wellstone', 'Tom Harkin'], cdp: ['Pete Domenici', 'Richard Lugar'], cc: ['Strom Thurmond', 'Ted Stevens'] }
-  };
   // Someone from a party's roster who holds no other top job.
   S.busy = function (Q) {
     var b = {}; [Q.president, Q.offices && Q.offices.vp, Q.offices && Q.offices.speaker, Q.offices && Q.offices.ppt].forEach(function (o) { if (o) b[o.name] = 1; });
@@ -483,7 +477,7 @@
     if (Q.leaders && Q.leaders[p] && !(p === 'maga' && Q.year >= 2016 && Q.president.name === Q.leaders[p])) return Q.leaders[p];
     var y = Q.year;
     var n = { sdlp: 'Bill Bradley', cdp: y <= 2004 ? 'John McCain' : 'the CDP leader', cc: y <= 2004 ? 'George W. Bush' : 'the CC leader',
-      maga: y >= 2016 ? 'Mike Pence' : 'the MAGA leader' }[p];
+      maga: 'the MAGA leader' }[p];
     return n || ('the ' + U.PARTIES[p].short + ' leader');
   };
 

@@ -25,7 +25,7 @@
     'Evan Bayh': ['ldp', 'Leads the Heartland Liberals, the LDP’s moderate rural and small-town wing.'],
     'Howard Dean': ['ldp', 'Governor of Vermont. Energises the LDP’s left and its younger activists.'],
     'Donald Trump': ['maga', 'New York businessman and celebrity. Founds the MAGA Party only if conditions allow.'],
-    'Mike Pence': ['maga', 'Prime Minister of the broad-right coalition in the default timeline. Not guaranteed in a sandbox run.']
+    'Mike Pence': ['cc', 'Conservative Coalition figure; Prime Minister of the broad-right coalition in the default timeline. Not guaranteed in a sandbox run.']
   };
 
   // ---- key terms
