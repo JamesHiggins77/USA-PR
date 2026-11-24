@@ -126,18 +126,32 @@
       id: s.id, region: s.region,
       urban: U.clamp(s.urban - d * 0.7 + g('u', 0.12), 0.03, 1),
       relig: U.clamp(s.relig + d * 0.3 + g('r', 0.14), 0.05, 1),
-      union: U.clamp(s.union * (1 + g('n', 0.7)), 0.01, 0.7),
-      black: U.clamp(s.black * (1 - d * 1.1 + g('b', 0.8)), 0, 0.85),
-      hisp: U.clamp(s.hisp * (1 - d * 0.8 + g('h', 0.8)), 0, 0.85),
+      union: U.clamp(s.union * (1 + g('n', 0.5)), 0.01, 0.7),
+      black: U.clamp(s.black * (1 - d * 1.1 + g('b', 0.5)), 0, 0.85),
+      hisp: U.clamp(s.hisp * (1 - d * 0.8 + g('h', 0.5)), 0, 0.85),
       old: U.clamp(s.old + g('o', 0.04), 0.04, 0.32)
     };
   };
-  V.districtShares = function (Q, s, sh, i, n) {
-    var base = V.stateShares(Q, V.districtProfile(s, i, n)), out = {}, tot = 0;
+  // Real partisan lean (FiveThirtyEight, from presidential and legislative
+  // results) relative to the state's average district: left parties gain
+  // where the district votes more Democratic, right parties where it votes
+  // more Republican. State totals are unaffected; variation within the state
+  // follows real voting patterns.
+  V.leanShift = function (s, i) {
+    var L = U.DISTRICT_LEAN && U.DISTRICT_LEAN[s.id];
+    if (!L || L[i] == null) return 0;
+    var m = 0; L.forEach(function (x) { m += x; }); m /= L.length;
+    return L[i] - m;
+  };
+  V.leftWeight = function (Q, p) { var P = (Q.pos && Q.pos[p]) || U.PARTIES[p]; return U.clamp(-(P.econ + P.soc) / 12, -1, 1); };
+  // noNoise: deterministic estimate (for display; does not use the game RNG)
+  V.districtShares = function (Q, s, sh, i, n, noNoise) {
+    var base = V.stateShares(Q, V.districtProfile(s, i, n)), out = {}, tot = 0, lean = V.leanShift(s, i);
     for (var p in sh) {
       var v = base[p] != null ? base[p] : sh[p];
+      v *= Math.exp(0.013 * lean * V.leftWeight(Q, p));
       // local strongholds and the candidate on the ballot
-      v *= (1 + hg(s.id + i + p) * 0.18) * (1 + U.gauss(Q) * 0.08);
+      v *= (1 + hg(s.id + i + p) * 0.15) * (noNoise ? 1 : 1 + U.gauss(Q) * 0.08);
       out[p] = Math.max(0.01, v); tot += out[p];
     }
     for (p in out) out[p] = out[p] / tot * 100;

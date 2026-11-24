@@ -219,7 +219,14 @@
     var h = '<h1>The states</h1><div class="row"><span class="small">Show:</span>' + [['lead', 'Leading party'], ['ldp', 'LDP strength'], ['gov', 'Governors'], ['districts', 'House districts']].map(function (m) { return '<button class="btn ' + (mapMode === m[0] ? '' : 'ghost') + '" data-map="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
     h += '<span class="small" style="margin-left:12px">Map:</span>' + [['geo', 'Geographical'], ['topo', 'Topographical']].map(function (m) { return '<button class="btn ' + (mapStyle === m[0] ? '' : 'ghost') + '" data-mapstyle="' + m[0] + '">' + m[1] + '</button>'; }).join('');
     var dw = {}; (Q.lastDistricts || []).forEach(function (d) { dw[d.s + '-' + d.n] = d.w; });
-    var mp = mapMode === 'districts' ? Ch.districtMap(Q, function (sid, n) { var w = dw[sid + '-' + n]; return w ? P(w).color : '#9aa0a6'; }) + '<p class="small muted">Winners at the last general election. Boundaries are the real congressional districts drawn after the 2010 census (2012 maps, from the public-domain @unitedstates/districts project).</p>'
+    var leanTxt = function (v) { return v == null ? 'n/a' : (v >= 0 ? 'D+' : 'R+') + Math.abs(v).toFixed(1); };
+    var dTitle = function (sid, n) {
+      var st = U.STATES[sid] || U.DC, L = U.DISTRICT_LEAN && U.DISTRICT_LEAN[sid], nd = U.DISTRICTS[sid] ? U.DISTRICTS[sid].cells.length : 1;
+      var est = V.districtShares(Q, st, sh[sid], n - 1, nd, true), top = Object.keys(est).sort(function (a, b) { return est[b] - est[a]; }).slice(0, 4);
+      return st.name + ' ' + (nd === 1 ? 'at-large' : 'district ' + n) + '\n1998 lean (1992/96 presidential): ' + leanTxt(L && L[n - 1]) +
+        '\nLast winner: ' + (dw[sid + '-' + n] ? P(dw[sid + '-' + n]).short : 'n/a') + '\nEstimated first round now: ' + top.map(function (p) { return P(p).short + ' ' + est[p].toFixed(0) + '%'; }).join(', ');
+    };
+    var mp = mapMode === 'districts' ? Ch.districtMap(Q, function (sid, n) { var w = dw[sid + '-' + n]; return w ? P(w).color : '#9aa0a6'; }, '', dTitle) + '<p class="small muted">Winners at the last general election. Boundaries are the real congressional districts drawn after the 2010 census (2012 maps, from the public-domain @unitedstates/districts project). Hover over a district for its 1998 partisan lean and estimated vote. Each district\u2019s vote follows its real lean from the 1992 and 1996 presidential elections.</p>'
       : mapStyle === 'geo' ? Ch.geoMap(Q, colorOf, labelOf) : Ch.map(Q, colorOf, labelOf);
     h += '<div style="margin-top:10px' + (mapStyle === 'geo' ? '' : ';max-width:640px') + '">' + mp + '</div><p class="small muted">Click a state for its results and delegations.</p><div id="statedetail" class="panel">' + stateDetail(mapSel || 'CA', sh) + '</div>';
     return h;

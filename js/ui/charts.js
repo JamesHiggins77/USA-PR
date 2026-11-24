@@ -78,14 +78,14 @@
 
   // District map: each state's synthetic districts clipped to its outline.
   // colorOf(stateId, districtNumber) -> fill (colour or url(#pattern)).
-  Ch.districtMap = function (Q, colorOf, defs) {
+  Ch.districtMap = function (Q, colorOf, defs, titleOf) {
     var G = U.GEO, D = U.DISTRICTS, clips = '', out = '';
     Object.keys(G).forEach(function (sid) {
       var cells = D[sid] ? D[sid].cells : [null], st = U.STATES[sid] || U.DC;
       clips += '<clipPath id="clip-' + sid + '"><path d="' + G[sid].d + '"/></clipPath>';
       out += '<g class="tile" data-state="' + sid + '" clip-path="url(#clip-' + sid + ')">';
       cells.forEach(function (c, i) {
-        out += '<path class="dist" data-d="' + sid + '-' + (i + 1) + '" d="' + (c || G[sid].d) + '" fill="' + (colorOf(sid, i + 1) || '#9aa0a6') + '" stroke="var(--card)" stroke-width="0.35"><title>' + st.name + ' district ' + (i + 1) + '</title></path>';
+        out += '<path class="dist" data-d="' + sid + '-' + (i + 1) + '" d="' + (c || G[sid].d) + '" fill="' + (colorOf(sid, i + 1) || '#9aa0a6') + '" stroke="var(--card)" stroke-width="0.35"><title>' + (titleOf ? titleOf(sid, i + 1) : st.name + ' district ' + (i + 1)) + '</title></path>';
       });
       out += '</g><path d="' + G[sid].d + '" fill="none" stroke="var(--ink)" stroke-opacity=".55" stroke-width="0.9" pointer-events="none"/>';
     });
