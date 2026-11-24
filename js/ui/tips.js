@@ -8,7 +8,7 @@
 
   // ---- people (party, background). Non-canon roles are scenario assumptions.
   var PEOPLE = {
-    'Bill Clinton': ['ldp', 'President since 1993, re-elected in 1998 for a second six-year term; popular despite the Lewinsky scandal. Head of state with constitutional powers, but not the head of government.'],
+    'Bill Clinton': ['ldp', 'President since 1993, re-elected in November 1998 for a second six-year term, despite the Lewinsky scandal breaking in January 1998, mid-campaign. Still popular. Head of state with constitutional powers, but not the head of government.'],
     'Al Gore': ['ldp', 'Leader of the Liberal Democrats and Prime Minister of the Grand Coalition in 1999. Holds the effective executive power.'],
     'Bill Bradley': ['sdlp', 'Leader of the Social Democratic Labor Party. Former basketball star and senator; pushes for universal healthcare.'],
     'Ralph Nader': ['grn', 'Consumer advocate turned Green leader, one of the party’s four MPs in 1999. Drives the Green surge.'],

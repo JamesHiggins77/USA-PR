@@ -71,7 +71,7 @@
       'Will voters credit Clinton, Gore, the LDP, or the coalition as a whole for the good times?',
       'Can Nader turn his popularity into seats? The far left is split between the Greens, the Communists, the DSA, Working Families and a dozen revolutionary groups: will anyone unite it?',
       'Can the CDP stay centre-right while governing with social democrats, and can the Conservative Coalition become the alternative again?',
-      'President Clinton won a second six-year term in November 1998, but the Lewinsky scandal still fills the news. In that presidential election, Donald Trump publicly endorsed the Reform Party. Perot\u2019s Reform Party props up the government, but its best days may be behind it. What will it, and the regionalists, demand for their votes?'];
+      'The Lewinsky scandal broke in January 1998, in the middle of President Clinton\u2019s re-election campaign. He won a second six-year term in November anyway, but the scandal still fills the news. In that presidential election, Donald Trump publicly endorsed the Reform Party. Perot\u2019s Reform Party props up the government, but its best days may be behind it. What will it, and the regionalists, demand for their votes?'];
     Q.log.push({ t: U.dateStr(Q), text: 'The campaign begins. Al Gore’s Grand Coalition governs; the general election must be called by September 2000.' });
     return Q;
   };

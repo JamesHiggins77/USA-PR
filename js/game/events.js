@@ -8,7 +8,7 @@
 
   Ev.LIST = [
     { id: 'clinton_early', title: 'Clinton wants a fresh mandate', when: function (Q) { return at(Q, 1999, 2) && Q.president.name === 'Bill Clinton' && !Q.electionAt; },
-      body: function () { return 'The Lewinsky scandal will not go away. Every press conference is about it. President Clinton tells his closest advisers, and then a reporter, that he is thinking of cutting his term short: he would resign the presidency so that a presidential election is held on the same day as the general election, and stand again. A fresh mandate, he argues, would end the talk of impeachment and let the country move on. He wants the Liberal Democrats’ backing.'; },
+      body: function () { return 'The Lewinsky scandal broke in January 1998, in the middle of the presidential campaign. Clinton survived it to win re-election, but it will not go away: every press conference is still about it. President Clinton tells his closest advisers, and then a reporter, that he is thinking of cutting his term short: he would resign the presidency so that a presidential election is held on the same day as the general election, and stand again. A fresh mandate, he argues, would end the talk of impeachment and let the country move on. He wants the Liberal Democrats’ backing.'; },
       options: [
         { label: 'Back him: a joint election with Clinton on the ballot', sub: 'Clinton runs again alongside the general election. SDLP pleased; the scandal fades from the headlines, or the election becomes about it.', act: function (Q) {
           Q.flags.clintonEarly = 1; H.rel(Q, 'sdlp', 3); H.rel(Q, 'cdp', -4); Q.scandal = Math.max(0, (Q.scandal || 0) - 2);

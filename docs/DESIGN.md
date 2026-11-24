@@ -81,7 +81,7 @@ Still flagged:
 
 ## 4d. 1998 background (designer canon)
 
-- Clinton was re-elected President in November 1998; the Lewinsky scandal is ongoing at the start (a small scandal penalty on government approval).
+- The Lewinsky scandal broke in January 1998, during Clinton's re-election campaign. He was re-elected in November 1998 regardless; the scandal is ongoing at the start (a small scandal penalty on government approval).
 - Donald Trump endorsed the Reform Party in the 1998 presidential election. In autumn 1999 he may explore Reform's 2000 nomination (an event).
 - February 1999 event: Clinton considers resigning so that a presidential election is held on the same day as the general election, to win a fresh mandate and move the news on from the scandal. If he does, he stands again.
 
