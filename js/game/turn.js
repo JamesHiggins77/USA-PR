@@ -172,8 +172,9 @@
       var rs = V.national(Q).reform || 0;
       Q.reformLow = rs < 2.6 ? (Q.reformLow || 0) + 1 : 0;
       if (Q.reformLow >= 6) {
-        S.mergeInto(Q, ['reform'], 'asp', 0.85);
-        S.note(Q, 'With its polling below 3% for six months, the Reform Party votes to join the American Solidarity Party as a constituent party. Its MPs now sit with the ASP.');
+        var rInto = Q.dormant.asp ? 'cdp' : 'asp';
+        S.mergeInto(Q, ['reform'], rInto, 0.85);
+        S.note(Q, 'With its polling below 3% for six months, the Reform Party votes to join the ' + U.PARTIES[rInto].name + (rInto === 'asp' ? ' as a constituent party' : '') + '. Its MPs now sit with the ' + U.PARTIES[rInto].short + '.');
         Q.flags.reformAbsorbed = S.now(Q);
       }
     }
@@ -187,8 +188,9 @@
       var rs = V.national(Q).reform || 0;
       Q.reformLow = rs < 2.6 ? (Q.reformLow || 0) + 1 : 0;
       if (Q.reformLow >= 6) {
-        S.mergeInto(Q, ['reform'], 'asp', 0.85);
-        S.note(Q, 'With its polling below 3% for six months, the Reform Party votes to join the American Solidarity Party as a constituent party. Its MPs now sit with the ASP.');
+        var rInto = Q.dormant.asp ? 'cdp' : 'asp';
+        S.mergeInto(Q, ['reform'], rInto, 0.85);
+        S.note(Q, 'With its polling below 3% for six months, the Reform Party votes to join the ' + U.PARTIES[rInto].name + (rInto === 'asp' ? ' as a constituent party' : '') + '. Its MPs now sit with the ' + U.PARTIES[rInto].short + '.');
         Q.flags.reformAbsorbed = S.now(Q);
       }
     }

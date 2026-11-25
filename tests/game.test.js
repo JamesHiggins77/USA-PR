@@ -206,3 +206,10 @@ test('polling regions cover every state exactly once', () => {
   const seen = {}; for (const r of U.Crosstab.REGIONS) for (const s of r[1].split(' ')) { assert.ok(!seen[s], s); seen[s] = 1; }
   for (const s of Object.keys(U.STATES).concat(['DC'])) assert.ok(seen[s], s);
 });
+
+test('mergers: the plan rolls the United Left and Green decisions; joint lists pass the threshold together', () => {
+  let ul = 0; for (let s = 1; s <= 200; s++) { const Q = U.Game.newGame(s); if (U.Game.plan(Q).ul2000) ul++; }
+  assert.ok(ul > 130 && ul < 170, 'about 75% unite: ' + ul);
+  const Q = U.Game.newGame(5); Q.pacts = [{ parties: ['wfp', 'dsa'], type: 'list' }];
+  const h = U.Elections.houseTwoTier(Q); assert.ok(h.house);
+});
