@@ -395,7 +395,11 @@
     var h = '<h1>Polls and voters</h1>' + blocButtons();
     if (blocMode === 'party') h += Ch.polls(Q, top);
     else { var bq = { polls: Q.polls.map(function (e) { var c = Object.assign({}, e); c.v = B(e.v); return c; }) }; h += Ch.polls(bq, U.BLOC_ORDER[blocMode]); }
-    if (blocMode !== 'party') { var nb = B(n); h += '<p class="small">' + U.BLOC_ORDER[blocMode].map(function (b) { return chip(b) + P(b).name + ' <b>' + nb[b].toFixed(1) + '%</b>'; }).join(' \u00b7 ') + '</p><p class="small muted">Blocs: ' + U.BLOC_ORDER[blocMode].map(function (b) { return P(b).name + ': ' + U.ALL_PARTIES.filter(function (p) { return !Q.dormant[p] && U.blocOf(p, blocMode, Q) === b; }).map(function (p) { return P(p).short; }).join(', '); }).join('; ') + '.</p>'; }
+    if (blocMode !== 'party') { var nb = B(n);
+      h += '<div class="bloclist">' + U.BLOC_ORDER[blocMode].map(function (b) {
+        var mem = U.ALL_PARTIES.filter(function (p) { return !Q.dormant[p] && U.blocOf(p, blocMode, Q) === b; }).sort(function (a, c) { return (n[c] || 0) - (n[a] || 0); });
+        return '<div class="blocrow" style="border-left-color:' + P(b).color + '"><div class="blochead"><span style="color:' + P(b).color + '">' + esc(P(b).name) + '</span><b>' + nb[b].toFixed(1) + '%</b></div><div class="blocmem">' +
+          mem.map(function (p) { return '<span class="blocparty">' + chip(p) + esc(P(p).short) + ' <span class="muted">' + (n[p] || 0).toFixed(1) + '%</span></span>'; }).join('') + '</div></div>'; }).join('') + '</div>'; }
     h += demoTables(top);
     return h;
   }

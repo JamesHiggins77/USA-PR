@@ -208,3 +208,10 @@ table.demo td:last-child, table.demo td:first-child { white-space: nowrap; }
 .nvtoggle { justify-content: flex-end; } .nvtoggle span { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); padding: 6px 0; }
 .regionmap { max-width: 720px; }
 table.seats tr.sub td { font-size: 12.5px; background: color-mix(in srgb, var(--panel) 85%, var(--line)); }
+
+/* bloc membership list */
+.bloclist { margin: 8px 0 14px; border-top: 1px solid var(--line); }
+.blocrow { border-left: 6px solid; border-bottom: 1px solid var(--line); padding: 6px 10px; }
+.blochead { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; }
+.blocmem { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 3px; font-size: 12.5px; }
+.blocparty { white-space: nowrap; }
