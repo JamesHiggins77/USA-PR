@@ -198,7 +198,7 @@
     for (var p in sh) { t0 += sh[p]; out[p] = sh[p] * (1 + 0.4 * (hash01(k + p) - 0.5)) * (held[p] ? 1.08 : 1); t1 += out[p]; }
     // Bernie Sanders\u2019s personal vote in Vermont (Vermont Progressives, or the United Left once it absorbs them)
     var bern = Q.dormant && Q.dormant.vpp && !Q.dormant.ul ? 'ul' : 'vpp';
-    if (sid === 'VT' && out[bern] && (Q.year || 1997) >= 2006 && !(Q.flags && Q.flags.sandersRetired)) { t1 += out[bern] * 1.6; out[bern] *= 2.6; }
+    if (sid === 'VT' && out[bern] && ((Q.year || 1997) >= 2006 || (Q.flags && Q.flags.sandersSenator)) && !(Q.flags && Q.flags.sandersRetired)) { t1 += out[bern] * 1.6; out[bern] *= 2.6; }
     for (p in out) out[p] = out[p] * t0 / t1;
     Q.senateShares = Q.senateShares || {}; Q.senateShares[sid] = {}; for (p in out) if (out[p] >= 0.5) Q.senateShares[sid][p] = Math.round(out[p] * 10) / 10;
     return out;

@@ -442,8 +442,10 @@
   S.senLeaderOf = function (Q, p) {
     if (p === 'revsoc') return '(fragmented)';
     Q.senLeaders = Q.senLeaders || {};
-    var cur = Q.senLeaders[p] || ((p === 'vpp' || p === 'ul') && (Q.year || 1997) < 2006 ? null : SEN0[p]), house = S.leaderOf(Q, p);
-    if (!cur || cur === house || (Q.president && cur === Q.president.name) || (Q.retired && Q.retired[cur]) || (U.activeIn && !U.activeIn(cur, Q.year))) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
+    var bs = (p === 'vpp' || p === 'ul'), senator = Q.flags && Q.flags.sandersSenator && !(Q.retired && Q.retired['Bernie Sanders']);
+    var cur = bs && senator ? 'Bernie Sanders' : Q.senLeaders[p] || (bs ? null : SEN0[p]), house = S.leaderOf(Q, p);
+    if (bs && !senator && cur === 'Bernie Sanders') cur = null;
+    if (!cur || (cur === house && !(bs && senator)) || (Q.president && cur === Q.president.name) || (Q.retired && Q.retired[cur]) || (U.activeIn && !U.activeIn(cur, Q.year))) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
     Q.senLeaders[p] = cur; return cur;
   };
   S.leaderOf = function (Q, p) { return p === Q.player ? Q.leader.name : (Q.leaders && Q.leaders[p]) || U.PARTIES[p].leader; };

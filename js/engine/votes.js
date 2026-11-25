@@ -88,9 +88,9 @@
     U.REGIONAL.forEach(function (p) { if (Q.dormant && Q.dormant[p]) return; var h = V.homeShare(Q, p, s.id); if (h > 0) { out[p] = h; reg += h; } });
     reg = Math.min(reg, 60);
     for (var p in raw) out[p] = raw[p] / tot * (100 - reg);
-    // Bernie Sanders's personal vote for the House in Vermont, until he moves to the Senate in 2006
+    // Bernie Sanders's personal vote for the House in Vermont, until he wins a Senate seat
     var bern = Q.dormant && Q.dormant.vpp && !Q.dormant.ul ? 'ul' : 'vpp';
-    if (s.id === 'VT' && out[bern] && (Q.year || 1997) < 2006 && !(opt && opt.senate)) { var extra = out[bern] * 1.3, t2 = 0; out[bern] += extra; for (p in out) t2 += out[p]; for (p in out) out[p] = out[p] * 100 / t2; }
+    if (s.id === 'VT' && out[bern] && !(Q.flags && (Q.flags.sandersSenator || Q.flags.sandersRetired)) && !(opt && opt.senate)) { var extra = out[bern] * 1.3, t2 = 0; out[bern] += extra; for (p in out) t2 += out[p]; for (p in out) out[p] = out[p] * 100 / t2; }
     // the Nader surge: a share of LDP and SDLP voters switch to the Greens / UL
     var sw = Q.surge;
     if (sw && sw.frac > 0 && out[sw.to] != null) {

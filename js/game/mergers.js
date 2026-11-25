@@ -139,6 +139,17 @@
     if (outs.length) S.note(Q, 'Leaving national politics this year: ' + outs.join(', ') + '.');
     if (ins.length) S.note(Q, 'New faces on the national scene: ' + ins.join(', ') + '.');
   };
+  // Sanders runs for the Senate from 2006 and moves there only if his party wins a Vermont seat
+  var runGen = S.runGeneralElection;
+  S.runGeneralElection = function (Q) {
+    var r = runGen(Q);
+    if (!Q.flags.sandersSenator && Q.year >= 2006) {
+      var won = (Q.senateSeats || []).some(function (x) { return x.state === 'VT' && x.type === 'pr' && (x.party === 'vpp' || x.party === 'ul'); });
+      if (won) { Q.flags.sandersSenator = S.now(Q); S.note(Q, 'Bernie Sanders wins a Senate seat for Vermont and leaves the House.'); }
+      else if (!Q.flags.sandersLost) { Q.flags.sandersLost = S.now(Q); S.note(Q, 'Bernie Sanders\u2019s run for the Senate falls short; he remains in the House.'); }
+    }
+    return r;
+  };
   S.aiParties = function (Q) { aiParties(Q); S.mergers(Q); S.smallPacts(Q); S.tidyGov(Q); S.careers(Q); };
 
   // joint national lists: combined votes pass the threshold together; seats are split by votes

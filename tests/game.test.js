@@ -244,3 +244,7 @@ test('opening parliament: Sanders holds a Vermont House seat for the VPP, the Gr
   const o = Q.open1996, sum = {}; for (const s in o.states) for (const p in o.states[s].seats) sum[p] = (sum[p] || 0) + o.states[s].seats[p]; for (const p in o.national) sum[p] = (sum[p] || 0) + o.national[p];
   assert.deepStrictEqual(sum, Object.fromEntries(Object.entries(o.house).filter(e => e[1])));
 });
+
+test('Sanders is only a senator once his party wins a Vermont Senate seat', () => {
+  const Q = U.Game.newGame(1); assert.notStrictEqual(U.Game.senLeaderOf(Q, 'vpp'), 'Bernie Sanders'); assert.ok(!Q.flags.sandersSenator);
+});
