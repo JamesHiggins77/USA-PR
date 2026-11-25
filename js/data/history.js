@@ -63,7 +63,7 @@
     ['1990–1992', 'Lloyd Bentsen', 'Liberal Democratic', 'LDP–CDP minority with SDLP confidence and supply; Reagan’s second nominee, confirmed by simple majority'],
     ['1992–1994', 'Tom Foley', 'Liberal Democratic', 'LDP–SDLP coalition with ASP confidence and supply, nominated by President Clinton'],
     ['1994–1996', 'Newt Gingrich', 'Conservative Coalition', 'CC–CDP coalition with Libertarian and Lone Star support; the CDP walked out over the 1995–96 shutdown'],
-    ['1996–', 'Al Gore', 'Liberal Democratic', 'LDP–SDLP coalition with Reform confidence and supply']
+    ['1996–', 'Al Gore', 'Liberal Democratic', 'LDP–CDP–SDLP coalition, built on the Clinton–Powell alliance of 1992']
   ];
 
   // party histories that mention Kennedy’s fate
