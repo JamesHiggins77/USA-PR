@@ -27,8 +27,26 @@
   // Utah/Idaho Mormon vote boosts the ASP (its Mormon Unity constituent).
   var STATE_AFF = { ASP_UT: 2.2, ASP_ID: 1.5 };
 
+  // The year the vote model is working in (set from the game state).
+  V.year = 1997;
+  V.setYear = function (Q) { V.year = Q && Q.year ? Q.year + ((Q.month || 1) - 1) / 12 : 1997; };
+  // Population change since 1997: more Hispanic voters and retirees, fewer young voters
+  V.growth = function (g) { var t = Math.max(0, V.year - 1997); return { hisp: 1 + 0.035 * t, retire: 1 + 0.012 * t, black: 1 + 0.004 * t, young: 1 - 0.004 * t }[g] || 1; };
+  // Realignment: drift in each party's support within a group (pref points per year, from a start year)
+  var DRIFT = {
+    prof: { from: 1997, ldp: 0.25, cc: -0.2, cdp: -0.05 },
+    suburb: { from: 2008, ldp: 0.25, cc: -0.2 },
+    rural: { from: 1997, cc: 0.2, sdlp: -0.18, ldp: -0.08 },
+    union: { from: 2004, sdlp: -0.15, cc: 0.15 },
+    hisp: { from: 2012, cc: 0.3, ldp: -0.25 },
+    young: { from: 2004, ldp: 0.1, grn: 0.08, dsa: 0.08, cc: -0.12 },
+    relig: { from: 1997, cc: 0.1, cdp: -0.05 }
+  };
+  V.drift = function (p, g) { var d = DRIFT[g]; if (!d || d[p] == null || V.year <= d.from) return 0; return d[p] * (V.year - d.from); };
+  V.DRIFT = DRIFT;
+
   V.mix = function (s) {
-    var young = 0.09 + 0.06 * s.urban, m = { black: s.black, hisp: s.hisp, retire: s.old, young: young };
+    var young = (0.09 + 0.06 * s.urban) * V.growth('young'), m = { black: s.black * V.growth('black'), hisp: s.hisp * V.growth('hisp'), retire: s.old * V.growth('retire'), young: young };
     var rest = Math.max(0.15, 1 - s.black - s.hisp - s.old - young);
     m.relig = rest * U.clamp((s.relig - 0.35) * 0.65, 0, 0.4);
     m.union = rest * s.union * 1.3;
@@ -52,12 +70,13 @@
 
   // Vote shares (pct) of every active party in a state.
   V.stateShares = function (Q, s) {
+    V.setYear(Q);
     var mix = V.mix(s), raw = {}, tot = 0, reg = 0, out = {};
     U.NATIONAL.forEach(function (p) {
       if (Q.dormant && Q.dormant[p]) return;
       var P = U.PARTIES[p], v = 0;
       U.GROUPS.forEach(function (g) {
-        var pref = P.pref[g] + ((Q.mods && Q.mods[p] && Q.mods[p][g]) || 0);
+        var pref = P.pref[g] + ((Q.mods && Q.mods[p] && Q.mods[p][g]) || 0) + V.drift(p, g);
         v += mix[g] * Math.max(0.05, pref);
       });
       v *= (Q.calib ? Q.calib[p] : 1) * ((REGION_AFF[p] && REGION_AFF[p][s.region]) || 1);
@@ -119,6 +138,7 @@
   // Demographic breakdown of the national vote: each voter group's share of the
   // electorate and how it votes, and how each region votes.
   V.demographics = function (Q) {
+    V.setYear(Q);
     var st = allStates(), popT = 0, size = {}, regions = {}, nat = V.national(Q), regional = 0;
     U.GROUPS.forEach(function (g) { size[g] = 0; });
     st.forEach(function (s) {
@@ -131,7 +151,7 @@
     var groups = {};
     U.GROUPS.forEach(function (g) {
       var raw = {}, tot = 0;
-      U.NATIONAL.forEach(function (p) { if (Q.dormant && Q.dormant[p]) return; var P = U.PARTIES[p]; raw[p] = Math.max(0.05, P.pref[g] + ((Q.mods && Q.mods[p] || {})[g] || 0)) * ((Q.calib && Q.calib[p]) || 1); tot += raw[p]; });
+      U.NATIONAL.forEach(function (p) { if (Q.dormant && Q.dormant[p]) return; var P = U.PARTIES[p]; raw[p] = Math.max(0.05, P.pref[g] + ((Q.mods && Q.mods[p] || {})[g] || 0) + V.drift(p, g)) * ((Q.calib && Q.calib[p]) || 1); tot += raw[p]; });
       var o = {}; for (var q in raw) o[q] = raw[q] / tot * (100 - regional); if (regional) o.regional = regional;
       groups[g] = { size: size[g] / popT * 100, shares: o };
     });

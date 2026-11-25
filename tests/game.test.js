@@ -172,7 +172,7 @@ test('LDP factions and placed figures are consistent', () => {
 test('demographic categories add up and every segment has a vote', () => {
   const Q = U.Game.newGame(1), D = U.Votes.demographics(Q);
   for (const c of U.DEMO_CATEGORIES) {
-    assert.ok(Math.abs(c.segs.reduce((a, s) => a + s[1], 0) - 100) < 0.01, c.name);
+    for (const y of [1997, 2010, 2024]) assert.ok(Math.abs(c.segs.reduce((a, s) => a + U.segSize(s, y), 0) - 100) < 0.01, c.name + ' ' + y);
     for (const s of c.segs) { const v = U.segmentVote(D, c, s); assert.ok(Math.abs(Object.values(v).reduce((a, b) => a + b, 0) - 100) < 0.01, s[0]); }
   }
 });
@@ -185,4 +185,12 @@ test('crosstab: single segments keep their size; combinations shrink and still s
   assert.ok(r.size > 0 && r.size < 1);
   assert.ok(Math.abs(Object.values(r.shares).reduce((a, b) => a + b, 0) - 100) < 0.01);
   for (const reg of U.Crosstab.REGIONS) assert.ok(U.Crosstab.query(P, 'R:' + reg[0], []).shares);
+});
+
+test('demographics change over time', () => {
+  const Q = U.Game.newGame(1); const idx = (c, n) => [c, U.DEMO_CATEGORIES.find(x => x.id === c).segs.findIndex(s => s[0].startsWith(n))];
+  const at = (y, q) => { Q.year = y; return U.Crosstab.query(U.Crosstab.prepare(Q), 'US', q); };
+  assert.ok(at(2024, [idx('race', 'Hisp')]).size > at(1997, [idx('race', 'Hisp')]).size * 1.8);
+  assert.ok(at(2024, [idx('education', 'Post')]).shares.ldp > at(1997, [idx('education', 'Post')]).shares.ldp + 5);
+  assert.ok(at(2024, [idx('education', 'High')]).shares.cc > at(1997, [idx('education', 'High')]).shares.cc + 5);
 });

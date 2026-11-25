@@ -57,7 +57,7 @@
       return { mix: mix, shares: shares, pop: pop, name: name };
     };
     var natGeo = agg(Object.keys(per), 'United States');
-    return { nat: nat, natGeo: natGeo, geo: function (key) {
+    return { nat: nat, natGeo: natGeo, year: Q.year + (Q.month - 1) / 12, geo: function (key) {
       if (!key || key === 'US') return natGeo;
       if (key.indexOf('R:') === 0) { var r = X.REGIONS.filter(function (x) { return x[0] === key.slice(2); })[0]; return agg(r[1].split(' '), r[0]); }
       var st = U.STATES[key] || (key === 'DC' ? U.DC : null);
@@ -66,11 +66,11 @@
   };
 
   // P(group | segment), normalised; 'rest' segments use the national leftover
-  X.segMix = function (nat, cat, seg) {
+  X.segMix = function (nat, cat, seg, year) {
     var mix = seg[2], out = {}, t = 0, g;
     if (mix === 'rest') {
       var used = {}; mix = {};
-      cat.segs.forEach(function (o) { if (o[2] === 'rest') return; for (var k in o[2]) used[k] = (used[k] || 0) + o[2][k] * o[1]; });
+      cat.segs.forEach(function (o) { if (o[2] === 'rest') return; for (var k in o[2]) used[k] = (used[k] || 0) + o[2][k] * U.segSize(o, year); });
       U.GROUPS.forEach(function (k) { mix[k] = Math.max(0.002, nat.groups[k].size - (used[k] || 0)); });
     }
     U.GROUPS.forEach(function (k) { out[k] = mix[k] || 0; t += out[k]; });
@@ -87,9 +87,9 @@
     U.GROUPS.forEach(function (g) { w[g] = geo.mix[g]; gsize[g] = P.nat.groups[g].size / 100; });
     (picks || []).forEach(function (pk) {
       var cat = U.DEMO_CATEGORIES.filter(function (c) { return c.id === pk[0]; })[0], seg = cat && cat.segs[pk[1]]; if (!seg) return;
-      var m = X.segMix(P.nat, cat, seg);
-      U.GROUPS.forEach(function (g) { w[g] *= (seg[1] / 100) * m[g] / (gsize[g] || 1e-6); }); // P(segment | group), approximately
-      for (var p in seg[3]) tilt[p] = (tilt[p] || 1) * seg[3][p];
+      var m = X.segMix(P.nat, cat, seg, P.year), sz = U.segSize(seg, P.year), tl = U.segTilt(seg, P.year);
+      U.GROUPS.forEach(function (g) { w[g] *= (sz / 100) * m[g] / (gsize[g] || 1e-6); }); // P(segment | group), approximately
+      for (var p in tl) tilt[p] = (tilt[p] || 1) * tl[p];
     });
     var size = 0; U.GROUPS.forEach(function (g) { size += w[g]; });
     var out = {}, tot = 0;
