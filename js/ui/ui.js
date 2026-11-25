@@ -365,9 +365,13 @@
   function elections() {
     var hist = U.LORE.presElections.map(function (e, i) { return { key: 'h' + i, label: e.year + ' presidential', rec: e, kind: 'hist' }; });
     var game = (Q.history || []).map(function (e, i) { return { key: 'g' + i, label: e.date + (e.kind === 'pres' ? ' presidential' : ' general'), rec: e, kind: e.kind }; });
-    var all = hist.concat(game);
+    var gens = U.LORE.generalElections.map(function (e, i) { return { key: 'e' + i, label: String(e.year), rec: e, kind: 'histgen' }; });
+    if (Q.open1996) gens.push({ key: 'e96', label: '1996', rec: { year: 1996, seats: 600, shares: U.ELECTION_1996, house: Q.open1996.house, byState: Q.open1996.byState, gov: ['ldp', 'sdlp'], cs: ['reform'], pm: 'Al Gore', modern: true,
+      note: 'Called after the government shutdown brought down Gingrich. The CC fell to its worst result since its founding, losing votes to the new Reform Party and the Constitution Party, and Al Gore formed an LDP\u2013SDLP government with Reform confidence and supply. This is the parliament the game starts with.' }, kind: 'histgen' });
+    var all = hist.concat(gens, game);
     if (!electSel || !all.some(function (x) { return x.key === electSel; })) electSel = all[all.length - 1].key;
     var h = '<h1>Elections</h1><div class="row" style="margin-bottom:8px"><span class="small">Before the game:</span>' + hist.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + x.rec.year + '</button>'; }).join('') + '</div>';
+    h += '<div class="row" style="margin-bottom:8px"><span class="small">General, before the game:</span>' + gens.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + x.label + '</button>'; }).join('') + '</div>';
     h += '<div class="row" style="margin-bottom:12px"><span class="small">In this game:</span>' + (game.length ? game.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + esc(x.label) + '</button>'; }).join('') : '<span class="small muted">Elections you play will be kept here.</span>') + '</div>';
     var sel = all.filter(function (x) { return x.key === electSel; })[0], r = sel.rec;
     if (sel.kind === 'hist') {
@@ -379,6 +383,21 @@
       var el = r.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[r.era], lose = r.lose.split(' ');
       var colorOfH = function (sid) { return el[sid] == null ? '#d6d2c8' : oldParty(lose.indexOf(sid) >= 0 ? r.r2[1][1] : r.r2[0][1]).color; };
       h += '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, colorOfH, function (sid) { return el[sid] == null ? '' : String(el[sid]); }) + '</div><p class="small muted">Runoff winner in each state, with its electors.' + (el.AK == null ? ' Alaska and Hawaii were not yet states, and DC had no electors.' : '') + '</p></div>';
+      return h;
+    }
+    if (sel.kind === 'histgen') {
+      var seats = r.house || U.LORE.generalSeats(r), maj = Math.floor(r.seats / 2) + 1;
+      var ord = Object.keys(r.shares).filter(function (k) { return k !== 'oth'; }).sort(function (a, b) { return (seats[b] || 0) - (seats[a] || 0) || (r.shares[b] || 0) - (r.shares[a] || 0); });
+      var gs = r.gov.reduce(function (a, k) { return a + (seats[k] || 0); }, 0), cs = (r.cs || []).reduce(function (a, k) { return a + (seats[k] || 0); }, 0);
+      var AB = { dem: 'DEM', rep: 'REP', prog: 'PROG', soc: 'SOC', fl: 'FLP' }, nm = function (k) { return esc(AB[k] || oldParty(k).short); };
+      h += '<div class="panel"><h2 style="margin-top:0">' + r.year + ' general election</h2><p>' + esc(r.note) + '</p>';
+      h += '<p><b>Government:</b> ' + esc(r.pm) + ' (' + r.gov.map(nm).join('\u2013') + ', ' + gs + ' seats' + (r.cs ? '; confidence and supply from ' + r.cs.map(nm).join(' and ') + ', ' + (gs + cs) + ' in all' : '') + '). Majority: ' + maj + ' of ' + r.seats + '.</p>';
+      h += '<div class="bar" style="height:14px;display:flex;margin:6px 0">' + ord.map(function (k) { return seats[k] ? '<i style="position:static;display:block;height:100%;width:' + (seats[k] / r.seats * 100) + '%;background:' + oldParty(k).color + '" title="' + esc(oldParty(k).name) + '"></i>' : ''; }).join('') + '</div>';
+      h += '<table class="seats"><tr><th>Party</th><th>Vote</th><th>Seats</th></tr>' + ord.map(function (k) { return '<tr><td>' + ochip(k) + esc(oldParty(k).name) + (r.gov.indexOf(k) >= 0 ? ' <span class="pill yes">gov</span>' : '') + '</td><td>' + (r.shares[k] != null ? (+r.shares[k]).toFixed(1) + '%' : '') + '</td><td><b>' + (seats[k] || 0) + '</b></td></tr>'; }).join('') + (r.shares.oth ? '<tr><td class="muted">Others</td><td>' + r.shares.oth.toFixed(1) + '%</td><td>0</td></tr>' : '') + '</table>';
+      var topH;
+      if (r.byState) topH = function (sid) { var d = r.byState[sid]; if (!d) return null; return Object.keys(d).sort(function (a, b) { return d[b] - d[a]; })[0]; };
+      else { var mp = {}; for (var k in r.map) r.map[k].split(' ').forEach(function (sid) { if (sid) mp[sid] = k; }); topH = function (sid) { return (r.seats < 600 && (sid === 'AK' || sid === 'HI') && r.year < 1959) ? null : (mp[sid] || r.top); }; }
+      h += '<h3>Largest party by state</h3><div id="electmap">' + Ch.geoMap(Q, function (sid) { var t = topH(sid); return t ? oldParty(t).color : '#d6d2c8'; }, function (sid) { var t = topH(sid); return t ? nm(t) : ''; }) + '</div><p class="small muted">' + (r.byState ? 'The party with the most House seats in each state.' : 'The party with the most votes in each state.') + (r.year < 1959 ? ' Alaska and Hawaii were not yet states.' : '') + '</p></div>';
       return h;
     }
     if (sel.kind === 'pres') {

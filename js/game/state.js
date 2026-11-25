@@ -37,7 +37,7 @@
     ['CA', 'OR', 'WA', 'MA', 'NY', 'VT', 'MN', 'WI', 'IL', 'NJ'].forEach(function (sid) {
       var d = Q.houseByState[sid]; if (!gd || !d) return;
       if (gd > 0 && d.ldp > 0) { d.ldp--; d.grn = (d.grn || 0) + 1; gd--; } else if (gd < 0 && d.grn > 0) { d.grn--; d.ldp = (d.ldp || 0) + 1; gd++; }
-    }); Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h);
+    }); Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h); Q.open1996 = { house: U.clone(Q.house), byState: U.clone(Q.houseByState) };
     Q.states = {};
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
     Q.senateSeats = [];

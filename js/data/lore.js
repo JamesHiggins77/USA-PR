@@ -114,9 +114,9 @@
     ['1978–1982', 'Walter Mondale', 'Liberal Democratic', 'LDP–SDLP coalition'],
     ['1982–1986', 'Bob Dole', 'Conservative Coalition', 'CC–CDP coalition under President Reagan'],
     ['1986–1990', 'Jack Kemp', 'Conservative Coalition', 'CC–CDP–Libertarian coalition'],
-    ['1990–1992', 'Lloyd Bentsen', 'Liberal Democratic', 'LDP–CDP grand coalition'],
+    ['1990–1992', 'Lloyd Bentsen', 'Liberal Democratic', 'LDP–CDP coalition, with SDLP confidence and supply'],
     ['1992–1994', 'Tom Foley', 'Liberal Democratic', 'LDP–SDLP coalition, with ASP confidence and supply'],
-    ['1994–1996', 'Newt Gingrich', 'Conservative Coalition', 'CC–CDP coalition; fell after the 1995–96 government shutdown'],
+    ['1994–1996', 'Newt Gingrich', 'Conservative Coalition', 'CC–CDP coalition with Libertarian and Lone Star support; fell after the 1995–96 government shutdown'],
     ['1996–', 'Al Gore', 'Liberal Democratic', 'LDP–SDLP coalition, with Reform confidence and supply']
   ];
 

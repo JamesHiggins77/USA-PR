@@ -130,3 +130,13 @@ test('historical election maps add up to the stated electors', () => {
     assert.ok(Math.abs(e.r1.reduce((a, c) => a + c[2], 0) - 100) < 0.05, e.year + ' round one adds to 100%');
   }
 });
+
+test('historical general elections: every government holds a majority', () => {
+  for (const e of U.LORE.generalElections) {
+    const s = U.LORE.generalSeats(e), n = Object.values(s).reduce((a, b) => a + b, 0);
+    assert.strictEqual(n, e.seats, e.year + ' seats');
+    assert.ok(Math.abs(Object.values(e.shares).reduce((a, b) => a + b, 0) - 100) < 0.05, e.year + ' shares add to 100');
+    const g = e.gov.concat(e.cs || []).reduce((a, p) => a + (s[p] || 0), 0);
+    assert.ok(g > e.seats / 2, e.year + ' government majority');
+  }
+});
