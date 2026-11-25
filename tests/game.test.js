@@ -8,12 +8,13 @@ test('the 1997 opening matches the canon', () => {
   assert.strictEqual(Q.senateSeats.length, 200);
   assert.strictEqual(Q.president.name, 'Bill Clinton');
   assert.strictEqual(Q.gov.pm, 'Al Gore');
-  assert.deepStrictEqual(Q.gov.coalition, ['ldp', 'sdlp']);
-  assert.deepStrictEqual(Q.gov.cs, ['reform']);
+  assert.deepStrictEqual(Q.gov.coalition, ['ldp', 'cdp', 'sdlp']);
+  assert.deepStrictEqual(Q.gov.cs, []);
+  assert.strictEqual(Q.offices.vp.name, 'Colin Powell');
   assert.ok(Q.dormant.ul && Q.dormant.acp, 'no United Left or ACP at the start');
   assert.strictEqual(Q.house.grn, 4, 'Nader is one of four Green MPs');
-  const g = ['ldp', 'sdlp'];
-  assert.ok(g.concat(['reform']).reduce((s, p) => s + Q.house[p], 0) >= U.majority(), 'government and its confidence-and-supply partner control the House');
+  const g = ['ldp', 'cdp', 'sdlp'];
+  assert.ok(g.reduce((s, p) => s + Q.house[p], 0) >= U.majority(), 'the government controls the House');
   const sen = U.Elections.senateCount(Q);
   assert.ok(g.reduce((s, p) => s + (sen[p] || 0), 0) >= 101, 'government controls the Senate');
   assert.strictEqual(Q.player, 'ldp');
@@ -88,7 +89,7 @@ test('the far left can unite into the United Left, and the Greens can leave it',
 });
 
 test('Reform is absorbed into the ASP, keeping its seats and its C&S role', () => {
-  const Q = U.Game.newGame(4);
+  const Q = U.Game.newGame(4); Q.gov.cs = ['reform'];
   const r = Q.house.reform, a = Q.house.asp || 0;
   U.Game.mergeInto(Q, ['reform'], 'asp', 0.85);
   assert.strictEqual(Q.house.asp, r + a); assert.ok(Q.dormant.reform);

@@ -34,7 +34,7 @@
     ['1974', 'Robert F. Kennedy', 'Social Democratic Labor', 'Re-elected over Gerald Ford (Republican). Signed the 1974 reform and was the first President to nominate a Prime Minister under it.'],
     ['1980', 'Ronald Reagan', 'Conservative Coalition', 'Beat Ted Kennedy (SDLP) in a close runoff, 361 electors to 340. Many CC voters for Reagan backed independents or the CDP for the House.'],
     ['1986', 'Ronald Reagan', 'Conservative Coalition', 'Re-elected over Jesse Jackson (SDLP). In 1990 his first nominee for Prime Minister, Jack Kemp, failed the absolute-majority vote, and Reagan turned to the Texan Lloyd Bentsen (LDP).'],
-    ['1992', 'Bill Clinton', 'Liberal Democratic', 'Beat George H. W. Bush (CC) in the runoff; Ross Perot took 18.6% of the first round, mostly from voters who did not vote in the House election.'],
+    ['1992', 'Bill Clinton', 'Liberal Democratic', 'Ran on a joint ticket with the CDP, with Colin Powell as Vice President, and beat George H. W. Bush (CC) in the runoff. The first LDP candidate to finish ahead of the SDLP in a first round since 1968; Ross Perot won 18.9%.'],
     ['1998', '—', '', 'The next election, due in November 1998.']
   ];
 

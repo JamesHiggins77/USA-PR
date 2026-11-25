@@ -33,7 +33,7 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1974 | Robert F. Kennedy | Social Democratic Labor | Re-elected over Gerald Ford (Republican). Signed the 1974 reform and was the first President to nominate a Prime Minister under it. |
 | 1980 | Ronald Reagan | Conservative Coalition | Beat Ted Kennedy (SDLP) in a close runoff, 361 electors to 340. Many CC voters for Reagan backed independents or the CDP for the House. |
 | 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Jesse Jackson (SDLP). In 1990 his first nominee for Prime Minister, Jack Kemp, failed the absolute-majority vote, and Reagan turned to the Texan Lloyd Bentsen (LDP). |
-| 1992 | Bill Clinton | Liberal Democratic | Beat George H. W. Bush (CC) in the runoff; Ross Perot took 18.6% of the first round, mostly from voters who did not vote in the House election. |
+| 1992 | Bill Clinton | Liberal Democratic | Ran on a joint ticket with the CDP, with Colin Powell as Vice President, and beat George H. W. Bush (CC) in the runoff. The first LDP candidate to finish ahead of the SDLP in a first round since 1968; Ross Perot won 18.9%. |
 | 1998 | — |  | The next election, due in November 1998. |
 
 ## Prime Ministers and governments
@@ -298,16 +298,15 @@ Jesse Jackson’s Rainbow Coalition pushed the LDP’s Mondale into third, but R
 
 ### 1992
 
-Clinton’s popularity put the LDP ahead of the SDLP in a presidential first round for the first time since Robert Kennedy’s 1968 win. SDLP voters swung behind him in the runoff.
+Clinton made a deal with the Christian Democrats: the CDP stood no candidate and Colin Powell ran as his Vice President. The joint ticket put the LDP ahead of the SDLP in a presidential first round for the first time since Robert Kennedy’s 1968 win, and SDLP voters swung behind it in the runoff.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| Bill Clinton | LDP | 27.8% |
-| George H. W. Bush | CC | 25.1% |
-| Ross Perot | Independent | 18.6% |
-| Bill Bradley | SDLP | 17.0% |
-| CDP nominee | CDP | 7.2% |
-| Others |  | 4.3% |
+| Bill Clinton (with CDP backing) | LDP | 33.6% |
+| George H. W. Bush | CC | 25.4% |
+| Ross Perot | Independent | 18.9% |
+| Bill Bradley | SDLP | 17.6% |
+| Others |  | 4.5% |
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|

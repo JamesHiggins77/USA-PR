@@ -119,7 +119,7 @@
     ['1990–1992', 'Lloyd Bentsen', 'Liberal Democratic', 'LDP–CDP coalition, with SDLP confidence and supply'],
     ['1992–1994', 'Tom Foley', 'Liberal Democratic', 'LDP–SDLP coalition, with ASP confidence and supply'],
     ['1994–1996', 'Newt Gingrich', 'Conservative Coalition', 'CC–CDP coalition with Libertarian and Lone Star support; fell after the 1995–96 government shutdown'],
-    ['1996–', 'Al Gore', 'Liberal Democratic', 'LDP–SDLP coalition, with Reform confidence and supply']
+    ['1996–', 'Al Gore', 'Liberal Democratic', 'LDP–CDP–SDLP coalition']
   ];
 
   // Historical presidential elections: round one is a national popular vote
@@ -152,8 +152,8 @@
       r2: [['Ronald Reagan', 'cc', 361, 50.8], ['Ted Kennedy', 'sdlp', 340, 49.2]], era: 'modern', lose: 'MA RI CT NY NJ PA MI OH IL WI MN WV MD DE DC HI WA OR VT ME IA MO NM CO NV NH', note: 'Ted Kennedy edged out Carter for second place, and the runoff went down to the wire: Reagan held California, Texas and the South, and Kennedy fell 21 electors short.' },
     { year: 1986, total: 701, r1: [['Ronald Reagan', 'cc', 38.1], ['Jesse Jackson', 'sdlp', 24.4], ['Walter Mondale', 'ldp', 23.0], ['Bob Dole (CDP backing)', 'cdp', 9.2], ['Others', null, 5.3]],
       r2: [['Ronald Reagan', 'cc', 505, 56.5], ['Jesse Jackson', 'sdlp', 196, 43.5]], era: 'modern', lose: 'NY IL MI MD DC MA RI NJ MN HI PA WI', note: 'Jesse Jackson\u2019s Rainbow Coalition pushed the LDP\u2019s Mondale into third, but Reagan won the runoff comfortably.' },
-    { year: 1992, total: 701, r1: [['Bill Clinton', 'ldp', 27.8], ['George H. W. Bush', 'cc', 25.1], ['Ross Perot', 'ind', 18.6], ['Bill Bradley', 'sdlp', 17.0], ['CDP nominee', 'cdp', 7.2], ['Others', null, 4.3]],
-      r2: [['Bill Clinton', 'ldp', 420, 53.1], ['George H. W. Bush', 'cc', 281, 46.9]], era: 'modern', lose: 'AL FL GA MS NC SC TN TX VA OK KS NE SD ND MT WY ID UT AZ IN KY AK', note: 'Clinton\u2019s popularity put the LDP ahead of the SDLP in a presidential first round for the first time since Robert Kennedy\u2019s 1968 win. SDLP voters swung behind him in the runoff.' }
+    { year: 1992, total: 701, r1: [['Bill Clinton (with CDP backing)', 'ldp', 33.6], ['George H. W. Bush', 'cc', 25.4], ['Ross Perot', 'ind', 18.9], ['Bill Bradley', 'sdlp', 17.6], ['Others', null, 4.5]],
+      r2: [['Bill Clinton', 'ldp', 420, 53.1], ['George H. W. Bush', 'cc', 281, 46.9]], era: 'modern', lose: 'AL FL GA MS NC SC TN TX VA OK KS NE SD ND MT WY ID UT AZ IN KY AK', note: 'Clinton made a deal with the Christian Democrats: the CDP stood no candidate and Colin Powell ran as his Vice President. The joint ticket put the LDP ahead of the SDLP in a presidential first round for the first time since Robert Kennedy\u2019s 1968 win, and SDLP voters swung behind it in the runoff.' }
   ];
   // Electors per state by apportionment era (the real Electoral College plus 2 per state for the
   // four-senator Senate; DC 3 from 1962). 'modern' (1974 on) uses the game's own apportionment.

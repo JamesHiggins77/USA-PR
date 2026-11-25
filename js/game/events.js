@@ -35,11 +35,11 @@
       options: [
         { label: 'Back him: a joint election with Clinton on the ballot', sub: 'Clinton runs again alongside the general election. SDLP pleased; the scandal fades from the headlines, or the election becomes about it.', act: function (Q) {
           Q.flags.clintonEarly = 1; H.rel(Q, 'sdlp', 3); H.rel(Q, 'cdp', -4); Q.scandal = Math.max(0, (Q.scandal || 0) - 2);
-          Q.presCandidate = { party: Q.player, name: 'Bill Clinton', appeal: 3, backers: [], vp: { name: 'Bob Kerrey', party: Q.player } };
+          Q.presCandidate = { party: Q.player, name: 'Bill Clinton', appeal: 3, backers: [], vp: { name: 'Colin Powell', party: 'cdp' } };
           if (Q.electionAt) { Q.nextPres = Q.electionAt; Q.flags.clintonEarly = 2; }
           return 'The LDP backs the President. When the general election is called, Clinton will resign and run again on the same day. The opposition calls it a stunt; the cable news shows switch to the horse race.'; } },
         { label: 'Talk him out of it', sub: 'Clinton serves out his term to 2004. The scandal keeps dragging on the government.', act: function (Q) { Q.scandal = (Q.scandal || 0) + 2; Q.president.approval -= 3; H.fac(Q, { newdem: -3, proglib: 3 }); return 'Gore and the party leadership persuade him to stay. The President is sullen; the late-night jokes continue.'; } },
-        { label: 'Leave it to him', sub: 'He may do it anyway.', act: function (Q) { if (U.rng(Q) < 0.5) { Q.flags.clintonEarly = 1; Q.presCandidate = { party: Q.player, name: 'Bill Clinton', appeal: 2, backers: [], vp: { name: 'Bob Kerrey', party: Q.player } }; if (Q.electionAt) { Q.nextPres = Q.electionAt; Q.flags.clintonEarly = 2; } H.fac(Q, { newdem: 3 }); return 'Clinton announces he will resign when the general election is called and stand again. The LDP learns of it from CNN.'; } Q.scandal = (Q.scandal || 0) + 1; return 'After a week of headlines, Clinton decides to serve out his term.'; } }
+        { label: 'Leave it to him', sub: 'He may do it anyway.', act: function (Q) { if (U.rng(Q) < 0.5) { Q.flags.clintonEarly = 1; Q.presCandidate = { party: Q.player, name: 'Bill Clinton', appeal: 2, backers: [], vp: { name: 'Colin Powell', party: 'cdp' } }; if (Q.electionAt) { Q.nextPres = Q.electionAt; Q.flags.clintonEarly = 2; } H.fac(Q, { newdem: 3 }); return 'Clinton announces he will resign when the general election is called and stand again. The LDP learns of it from CNN.'; } Q.scandal = (Q.scandal || 0) + 1; return 'After a week of headlines, Clinton decides to serve out his term.'; } }
       ] },
 
     { id: 'trump_reform', title: 'Trump eyes the Reform nomination', when: function (Q) { return at(Q, 1999, 9) && Q.seen.trump_1998 && !Q.dormant.reform && chance(Q, 0.35); },

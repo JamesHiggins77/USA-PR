@@ -23,7 +23,7 @@
     U.ALL_PARTIES.forEach(function (a) { U.ALL_PARTIES.forEach(function (b) {
       if (a < b) Q.rel[a + '|' + b] = Math.round(25 + 45 * U.Coalition.compat(Q, a, b));
     }); });
-    [['ldp', 'sdlp', 66], ['ldp', 'cdp', 50], ['sdlp', 'cdp', 42], ['ldp', 'reform', 56], ['ldp', 'asp', 50], ['ldp', 'grn', 32],
+    [['ldp', 'sdlp', 66], ['ldp', 'cdp', 64], ['sdlp', 'cdp', 42], ['ldp', 'reform', 56], ['ldp', 'asp', 50], ['ldp', 'grn', 32],
      ['sdlp', 'grn', 40], ['sdlp', 'wfp', 60], ['sdlp', 'dsa', 50], ['reform', 'asp', 55], ['cc', 'cdp', 50], ['cc', 'ldp', 30]].forEach(function (r) { U.Coalition.addRel(Q, r[0], r[1], r[2] - U.Coalition.rel(Q, r[0], r[1])); });
 
     // The opening parliament was elected in late 1996, on fixed vote shares
@@ -52,10 +52,10 @@
 
     // the 1992 presidential result (generated) so every state has a last vote
     Q.lastPresidential = S.pres1992(Q);
-    Q.gov = { pm: 'Al Gore', pmParty: 'ldp', coalition: ['ldp', 'sdlp'], cs: ['reform'],
-      posts: { ldp: 12, sdlp: 8 }, concessions: { reform: ['transfers'] }, since: U.monthIndex(1996, 12), budgetFails: 0 };
+    Q.gov = { pm: 'Al Gore', pmParty: 'ldp', coalition: ['ldp', 'cdp', 'sdlp'], cs: [],
+      posts: { ldp: 10, sdlp: 6, cdp: 4 }, concessions: {}, since: U.monthIndex(1996, 12), budgetFails: 0 };
     // Presiding officers and the Vice President (names are scenario assumptions)
-    Q.offices = { speaker: { name: 'Dick Gephardt', party: 'ldp' }, ppt: { name: 'Ted Kennedy', party: 'ldp' }, vp: { name: 'Bob Kerrey', party: 'ldp' } };
+    Q.offices = { speaker: { name: 'Dick Gephardt', party: 'ldp' }, ppt: { name: 'Ted Kennedy', party: 'ldp' }, vp: { name: 'Colin Powell', party: 'cdp' } };
     // party leaders (first name in each roster)
     Q.leaders = {}; U.ALL_PARTIES.forEach(function (p) { if (U.PEOPLE[p]) Q.leaders[p] = U.PEOPLE[p][0]; });
     Q.leaders.ldp = 'Al Gore'; Q.leaders.ul = 'Bernie Sanders';
