@@ -168,6 +168,26 @@
       var nw = D.divisor(nv, 100, 'sainte-lague', 5 / (100 - oth)); for (var q in nw) if (nw[q]) { national[q] = nw[q]; house[q] = (house[q] || 0) + nw[q]; } }
     return (cache[e.year] = { states: states, senStates: senStates, house: house, senate: senate, national: e.seats === 600 ? national : null, mismatched: ids.filter(function (s) { return parties.reduce(function (a, b) { return v[s][b] > v[s][a] ? b : a; }) !== want[s]; }) });
   };
+  // First round of a historical presidential election, state by state.
+  // Candidates' parties carry the same regional affinities; the runoff
+  // winner's states lean to the winner and the loser's states to the loser.
+  var pcache = {};
+  U.LORE.presR1Detail = function (e) {
+    if (pcache[e.year]) return pcache[e.year];
+    var el = e.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[e.era], ids = Object.keys(el), W = 0;
+    var nat = {}, oth = 0; e.r1.forEach(function (c) { if (c[1]) nat[c[1]] = c[2]; else oth += c[2]; });
+    var parties = Object.keys(nat), win = e.r2[0][1], lose = e.r2[1][1], lost = e.lose.split(' '), A = {}, v = {};
+    ids.forEach(function (s) { W += el[s]; var st = U.STATES[s] || U.DC; A[s] = {};
+      parties.forEach(function (p) { A[s][p] = aff(p, st, e.year) * (0.85 + 0.3 * hash('p' + e.year + s + p)); });
+      A[s][lost.indexOf(s) >= 0 ? lose : win] *= 1.35; });
+    for (var it = 0; it < 40; it++) {
+      ids.forEach(function (s) { var t = 0; parties.forEach(function (p) { t += nat[p] * A[s][p]; }); v[s] = {}; parties.forEach(function (p) { v[s][p] = nat[p] * A[s][p] / t * (100 - oth); }); });
+      parties.forEach(function (p) { var n = 0; ids.forEach(function (s) { n += v[s][p] * el[s]; }); var f = nat[p] * W / n; ids.forEach(function (s) { A[s][p] *= f; }); });
+    }
+    var out = {}; ids.forEach(function (s) { var sh = {}; parties.forEach(function (p) { if (v[s][p] >= 0.5) sh[p] = Math.round(v[s][p] * 10) / 10; }); out[s] = { seats: {}, shares: sh }; });
+    return (pcache[e.year] = out);
+  };
+
   // seats for a historical election (the sum of the state results)
   U.LORE.generalSeats = function (e) { return U.LORE.generalDetail(e).house; };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

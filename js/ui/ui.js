@@ -28,7 +28,7 @@
       var PI = U.partyInfo, ochipK = function (p) { return '<i class="chip" style="background:' + PI(p).color + '"></i>'; };
       U.Zoom.attach($('genmap'), 'genmap', function (t) {
         var sid = t.dataset.state, st = genData && genData[sid]; if (!st) return null;
-        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b><div class="muted">' + U.sum(st.seats) + (genMode === 'senate' ? ' senators' : ' House seats') + '</div>' +
+        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(st.seats) ? '<div class="muted">' + U.sum(st.seats) + (genMode === 'senate' ? ' senators' : ' House seats') + '</div>' : '') +
           Object.keys(st.seats).sort(function (a, b) { return st.seats[b] - st.seats[a]; }).map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + st.seats[p] + '</b></div>'; }).join('') +
           '<div class="muted" style="margin-top:4px">Vote</div>' + Object.keys(st.shares).sort(function (a, b) { return st.shares[b] - st.shares[a]; }).map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + st.shares[p].toFixed(1) + '%</b></div>'; }).join('');
       });
@@ -401,7 +401,10 @@
       // runoff map: electors by state for the period; greyed states had no electors yet
       var el = r.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[r.era], lose = r.lose.split(' ');
       var colorOfH = function (sid) { return el[sid] == null ? '#d6d2c8' : oldParty(lose.indexOf(sid) >= 0 ? r.r2[1][1] : r.r2[0][1]).color; };
-      h += '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, colorOfH, function (sid) { return el[sid] == null ? '' : String(el[sid]); }) + '</div><p class="small muted">Runoff winner in each state, with its electors.' + (el.AK == null ? ' Alaska and Hawaii were not yet states, and DC had no electors.' : '') + '</p></div>';
+      h += '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, colorOfH, function (sid) { return el[sid] == null ? '' : String(el[sid]); }) + '</div><p class="small muted">Runoff winner in each state, with its electors.' + (el.AK == null ? ' Alaska and Hawaii were not yet states, and DC had no electors.' : '') + '</p>';
+      genData = U.LORE.presR1Detail(r);
+      h += '<h3>Round one by state</h3><div class="row small" style="gap:10px;flex-wrap:wrap">' + r.r1.filter(function (c) { return c[1]; }).map(function (c) { var pi = U.partyInfo(c[1]); return '<span><span class="lgname" style="background:' + pi.color + ';color:' + Ch.ink(pi.color) + '">' + esc(c[0]) + '</span><span class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(pi.color, b) + '"></i>'; }).join('') + '</span></span>'; }).join('') + '</div>' +
+        '<div id="genmap">' + Ch.resultMap(Q, genData) + '</div><p class="small muted">The candidate with the most first-round votes in each state, shaded ' + Ch.bandLabels.join(' · ') + '. Hover or tap a state for the full vote. State figures are reconstructed from the national result.</p></div>';
       return h;
     }
     if (sel.kind === 'histgen') {
