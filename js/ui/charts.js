@@ -93,7 +93,7 @@
     var n = list.length; if (!n) return { svg: '', h: 0 };
     var cols = Math.min(maxCols, Math.max(1, Math.ceil(Math.sqrt(n * 1.8)))), rows = Math.ceil(n / cols), s = 8, out = '';
     list.forEach(function (p, i) { var r = Math.floor(i / cols), c = i % cols, inRow = r === rows - 1 ? n - r * cols : cols;
-      out += '<circle cx="' + (cx + (c - (inRow - 1) / 2) * s) + '" cy="' + (cy + r * s) + '" r="3.3" fill="' + colorOf(p) + '" stroke="#fff" stroke-width="0.7"/>'; });
+      out += '<rect x="' + (cx + (c - (inRow - 1) / 2) * s - 3.2) + '" y="' + (cy + r * s - 3.2) + '" width="6.4" height="6.4" fill="' + colorOf(p) + '" stroke="#fff" stroke-width="1.4"/>'; });
     return { svg: out, h: rows * s };
   }
   // data: {sid: {seats: {p: n}, shares: {p: %}}}. Fill = party with most votes,
