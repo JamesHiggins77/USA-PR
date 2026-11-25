@@ -168,3 +168,11 @@ test('LDP factions and placed figures are consistent', () => {
   assert.deepStrictEqual(Object.keys(U.LDP_FACTIONS), ['newdem', 'proglib', 'chrlib', 'heartland']);
   for (const f of U.FIGURES) assert.ok(U.PARTY_PROFILES[f[1]].factions.some(x => x[0] === f[2]), f[0]);
 });
+
+test('demographic categories add up and every segment has a vote', () => {
+  const Q = U.Game.newGame(1), D = U.Votes.demographics(Q);
+  for (const c of U.DEMO_CATEGORIES) {
+    assert.ok(Math.abs(c.segs.reduce((a, s) => a + s[1], 0) - 100) < 0.01, c.name);
+    for (const s of c.segs) { const v = U.segmentVote(D, c, s); assert.ok(Math.abs(Object.values(v).reduce((a, b) => a + b, 0) - 100) < 0.01, s[0]); }
+  }
+});

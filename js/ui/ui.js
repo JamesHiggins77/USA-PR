@@ -339,8 +339,17 @@
     h += '</table></div><h2>How each region votes</h2><div class="tablewrap"><table class="seats demo">' + head.replace('Group', 'Region');
     Object.keys(D.regions).sort(function (a, b) { return D.regions[b].size - D.regions[a].size; }).forEach(function (r) { var d = D.regions[r];
       h += '<tr><td>' + U.REGIONS[r] + '</td><td>' + d.size.toFixed(1) + '%</td>' + cols.map(function (p) { return cell(d.shares[p], p); }).join('') + '<td>' + other(d.shares).toFixed(1) + '</td><td>' + lead(d.shares) + '</td></tr>'; });
+    h += '</table></div>';
+    // polling by demographic category
+    var cat = U.DEMO_CATEGORIES.filter(function (c) { return c.id === demoCat; })[0] || U.DEMO_CATEGORIES[0];
+    h += '<h2>Polling by demographic</h2><p class="small muted">Estimates for each category, built from the voter groups above with known gaps added (for example the gender gap, or Latter-day Saint support for the ASP).</p><div class="row" style="margin-bottom:8px;flex-wrap:wrap">' +
+      U.DEMO_CATEGORIES.map(function (c) { return '<button class="btn ' + (c === cat ? '' : 'ghost') + '" data-dcat="' + c.id + '">' + esc(c.name) + '</button>'; }).join('') + '</div>';
+    h += '<div class="tablewrap"><table class="seats demo">' + head.replace('Group', esc(cat.name));
+    cat.segs.forEach(function (sg) { var sh = U.segmentVote(D, cat, sg);
+      h += '<tr><td>' + esc(sg[0]) + '</td><td>' + sg[1] + '%</td>' + cols.map(function (p) { return cell(sh[p], p); }).join('') + '<td>' + other(sh).toFixed(1) + '</td><td>' + lead(sh) + '</td></tr>'; });
     return h + '</table></div>';
   }
+  var demoCat = 'gender';
   function hexA(c, a) { var m = /^#(..)(..)(..)$/.exec(c); return m ? 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + a.toFixed(2) + ')' : c; }
 
   // ---------- polls & voters ----------
@@ -534,6 +543,7 @@
     document.querySelectorAll('.scene button[data-card]').forEach(function (b) { b.onclick = function () { var slot = openSlot; openCard = null; openSlot = null; after(F.playHand(Q, slot, +b.dataset.card)); }; });
     document.querySelectorAll('button[data-event]').forEach(function (b) { b.onclick = function () { lastText = F.answerEvent(Q, +b.dataset.event); save(); render(); }; });
     document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
+    document.querySelectorAll('[data-dcat]').forEach(function (b) { b.onclick = function () { demoCat = b.dataset.dcat; render(); }; });
     document.querySelectorAll('[data-pfilter]').forEach(function (b) { b.onclick = function () { partyFilter = b.dataset.pfilter; render(); }; });
     document.querySelectorAll('[data-elect]').forEach(function (b) { b.onclick = function () { electSel = b.dataset.elect; render(); }; });
     document.querySelectorAll('[data-gmode]').forEach(function (b) { b.onclick = function () { genMode = b.dataset.gmode; render(); }; });
