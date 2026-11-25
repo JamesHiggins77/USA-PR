@@ -14,7 +14,7 @@
   };
   // seven bands of the score
   var BANDS = [[-6.0, 'FL'], [-3.8, 'L'], [-1.5, 'CL'], [1.5, 'C'], [4.5, 'CR'], [6.5, 'R'], [99, 'FR']];
-  U.BLOC7_OVERRIDE = { acp: 'FL' }; // the syncretic communists sit on the far left whatever their social views
+  U.BLOC7_OVERRIDE = { acp: 'FL', cpusa: 'FL', ul: 'FL', grn: 'L', dsa: 'L', maga: 'FR', nenp: 'C', lib: 'R' }; // designer placements that override the score
   U.bloc7 = function (p, Q) { if (p === 'regional') return 'C'; if (U.BLOC7_OVERRIDE[p]) return U.BLOC7_OVERRIDE[p]; var sc = U.blocScore(p, Q); for (var i = 0; i < BANDS.length; i++) if (sc < BANDS[i][0]) return BANDS[i][1]; return 'FR'; };
   // parties placed differently in the three-bloc view (the governing centre)
   U.BLOC3_OVERRIDE = { ldp: 'C', cdp: 'C' };
