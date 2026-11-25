@@ -215,3 +215,10 @@ table.seats tr.sub td { font-size: 12.5px; background: color-mix(in srgb, var(--
 .blochead { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; }
 .blocmem { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 3px; font-size: 12.5px; }
 .blocparty { white-space: nowrap; }
+
+/* negotiating table */
+.stance { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+.stance.yes { background: #2e8b57; color: #fff; } .stance.abstain { background: #d9a62e; color: #1a1a1a; } .stance.no { background: #b03a3a; color: #fff; }
+table.talks tr.sel td { background: color-mix(in srgb, var(--panel) 80%, #d9a62e); }
+.panel.offer { border-left: 4px solid #d9a62e; }
+table.talks { width: 100%; } table.talks td:nth-child(4) { text-align: left; min-width: 220px; } table.talks .btn { padding: 4px 10px; font-size: 13px; }

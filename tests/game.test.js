@@ -255,3 +255,15 @@ test('blocs and alliances: every party maps into 2, 3 and 5 blocs; alliances spl
   for (const m of ['2', '3', '5', '7']) { const b = U.blocAgg(n, m, Q); assert.ok(Math.abs(Object.values(b).reduce((a, c) => a + c, 0) - Object.values(n).reduce((a, c) => a + c, 0)) < 1e-6); assert.deepStrictEqual(Object.keys(b).sort(), U.BLOC_ORDER[m].slice().sort()); }
   const s = U.splitAlliances(Q, Q.house, 'house'); assert.strictEqual(Object.values(s).reduce((a, c) => a + c, 0), 600); assert.ok(!s.asp && s.mup && s.cath);
 });
+
+test('negotiating table: stances, five rounds, snubbing an expected partner, the House vote', () => {
+  const Q = U.Game.newGame(3), T = U.Talks; Q.formation = { start: 1, stage: 'open', round: 2, monthsLeft: 3, failed: [] };
+  const t = T.start(Q); assert.strictEqual(t.rounds, 5); assert.ok(T.expected(Q, 'sdlp')); assert.strictEqual(t.stance.sdlp, 'abstain');
+  const snub = T.offer(Q, 'sdlp', { bills: ['health'] }); assert.strictEqual(snub.after, 'no'); assert.strictEqual(t.rounds, 4);
+  const r = T.offer(Q, 'cdp', { posts: 5, bills: ['balanced'] }); assert.ok(['yes', 'abstain'].includes(r.after));
+  for (let i = 0; i < 3; i++) T.offer(Q, 'reform', { referendum: true, investment: true }); assert.strictEqual(t.rounds, 0); assert.strictEqual(T.offer(Q, 'asp', {}), null);
+  const v = T.vote(Q); assert.ok(typeof v.passed === 'boolean'); assert.strictEqual(Q.talks, null);
+});
+test('the presidential election date is fixed', () => {
+  const Q = U.Game.newGame(3); const np = Q.nextPres; U.Game.callElection(Q, 2); assert.strictEqual(Q.nextPres, np);
+});

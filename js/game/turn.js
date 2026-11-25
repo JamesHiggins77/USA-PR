@@ -296,7 +296,7 @@
   S.callElection = function (Q, monthsAhead) {
     if (Q.electionAt) return;
     Q.electionAt = S.now(Q) + (monthsAhead || 2);
-    if (Q.flags.clintonEarly === 1) { Q.nextPres = Q.electionAt; Q.flags.clintonEarly = 2; S.note(Q, 'As announced, President Clinton resigns his term early: a presidential election will be held on the same day.'); }
+    // the presidential election is on a fixed date and never moves with a general election
     var d = Q.electionAt, y = Math.floor(d / 12), m = d % 12 + 1;
     S.note(Q, 'A general election is called for ' + U.MONTHS[m - 1] + ' ' + y + '.');
   };

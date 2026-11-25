@@ -171,46 +171,39 @@
   function night() { return U.Night.html(Q, elec); }
 
   // ---------- negotiation ----------
+  // ---- the negotiating table: five rounds of talks, then the House votes ----
+  var negSel = null, negOffer = {}, negMsg = '';
   function negotiate() {
-    if (!deal) { deal = F.blankDeal(Q); }
-    F.normalisePosts(Q, deal);
-    var parties = U.ALL_PARTIES.filter(function (p) { return p !== Q.player && Q.house[p]; }).sort(function (a, b) { return Q.house[b] - Q.house[a]; });
-    var postsUsed = U.sum(deal.posts);
-    var h = '<div class="date">Government formation</div><h1>The negotiating table</h1><p>Build a government for <b>' + esc(Q.leader.name) + '</b>. Give each party a role (an agreement to abstain is enough on the second ballot), share out the 20 cabinet posts, and offer concessions (including the Speakership of the House). Each party shows a score: <b class="up">positive means it agrees</b>, <b class="down">negative means it refuses</b>, by that margin.</p>';
-    h += '<div class="negs">';
-    parties.forEach(function (p) {
-      deal.abstain = deal.abstain || [];
-      var role = deal.coalition.indexOf(p) >= 0 ? 'coalition' : deal.cs.indexOf(p) >= 0 ? 'cs' : deal.abstain.indexOf(p) >= 0 ? 'abstain' : 'none';
-      var a = role === 'none' ? null : C.assess(Q, p, deal, role), un = C.unprompted(Q, p, Q.player);
-      h += '<div class="neg"><div class="neghead"><span>' + chip(p) + '<b>' + esc(P(p).name) + '</b> <span class="muted small">' + Q.house[p] + ' seats</span></span>' +
-        (a ? '<span class="margin ' + (a.ok ? 'yes' : 'no') + '">' + (a.margin > 0 ? '+' : '') + a.margin + '</span>' : '<span class="small">Without a deal: <b class="' + (un.vote === 'yes' ? 'up' : un.vote === 'no' ? 'down' : '') + '">' + { yes: 'votes yes', abstain: 'abstains', no: 'votes no' }[un.vote] + '</b> <span class="muted">(' + (un.margin > 0 ? '+' : '') + un.margin + ')</span></span>') + '</div>';
-      // grey out roles the party will never accept, and pointless ones
-      var rank = { none: 0, abstain: 1, cs: 2, coalition: 3 }, given = un.vote === 'yes' ? 2 : un.vote === 'abstain' ? 1 : 0;
-      var noneLabel = un.vote === 'yes' ? 'Backs you anyway' : un.vote === 'abstain' ? 'Abstains anyway' : 'No deal';
-      h += '<div class="seg">' + [['none', noneLabel], ['abstain', 'Abstain'], ['cs', 'Confidence & supply'], ['coalition', 'Coalition']].map(function (r) {
-        var why = '';
-        if (r[0] !== 'none' && rank[r[0]] <= given && r[0] !== 'cs') why = 'Not needed: this party already ' + (un.vote === 'yes' ? 'votes for you' : 'abstains') + ' without a deal.';
-        else if (r[0] !== 'none' && C.bestCase(Q, deal, p, r[0]).margin < 0) why = 'Impossible: they refuse even with every concession on offer.';
-        return '<button data-role="' + p + '|' + r[0] + '" class="' + (role === r[0] ? 'on' : '') + '"' + (why && role !== r[0] ? ' disabled title="' + esc(why) + '"' : '') + '>' + r[1] + '</button>';
-      }).join('') + '</div>';
-      if (role === 'coalition') h += '<div class="row small" style="margin-top:6px">Cabinet posts <button class="mini" data-posts="' + p + '|-1">−</button><b>' + (deal.posts[p] || 0) + '</b><button class="mini" data-posts="' + p + '|1"' + (postsUsed >= 20 ? ' disabled' : '') + '>+</button></div>';
-      if (role !== 'none') {
-        h += '<div class="concs">' + C.demandsOf(p).concat([{ id: 'speaker', text: 'Speaker of the House' }]).map(function (d) {
-          var on = (deal.concessions[p] || []).indexOf(d.id) >= 0, taken = d.id === 'speaker' && !on && F.speakerOffered(deal);
-          return '<button class="conc' + (on ? ' on' : '') + '" data-conc="' + p + '|' + d.id + '"' + (taken ? ' disabled title="Already offered to another party"' : '') + '>' + (on ? '✓ ' : '+ ') + esc(d.text) + '</button>';
-        }).join('') + '</div>';
-        if (role === 'abstain' && un.vote === 'yes') a.reasons.unshift('Would vote yes anyway');
-        h += '<ul class="reasons">' + a.reasons.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
-      }
-      else h += '<ul class="reasons">' + un.reasons.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
-      h += '</div>';
-    });
-    h += '</div>';
-    h += '<p class="small muted">The LDP keeps ' + (deal.posts[Q.player] || 0) + ' posts; ' + postsUsed + ' of 20 allocated. Concessions become commitments: if they are not delivered, trust erodes.' + (F.speakerOffered(deal) ? '' : ' The Speakership stays with the LDP unless you offer it.') + '</p>';
-    var inv = C.investitureVote(Q, deal);
-    h += '<div class="panel"><b>Projected investiture vote:</b> ' + inv.yes + ' yes, ' + inv.no + ' no, ' + inv.abstain + ' abstaining. ' + (C.passes(inv, 1) ? '<span class="up">Passes on the first ballot.</span>' : C.passes(inv, 2) ? '<span class="up">Fails the first ballot, passes the second.</span>' : '<span class="down">Fails.</span>') +
-      '<div class="small muted" style="margin-top:4px">' + inv.by.filter(function (b) { return b.n; }).map(function (b) { return esc(b.label) + ' ' + b.n + ' ' + b.vote; }).join(' &middot; ') + '</div></div>';
-    h += '<div class="endbar"><button class="btn" data-act="submitdeal"' + (postsUsed > 20 ? ' disabled' : '') + '>Sign and go to the vote</button><button class="btn ghost" data-act="aideal">Suggest a deal</button><button class="btn ghost" data-act="back">Leave the table</button></div>';
+    var T = U.Talks; if (!Q.talks || Q.talks.key !== T.key(Q)) T.start(Q);
+    var t = Q.talks, parties = Object.keys(t.stance).sort(function (a, b) { return Q.house[b] - Q.house[a]; });
+    var c = T.count(Q), ballot = S.ballot ? S.ballot(Q) : 2, ok = C.passes(c, ballot);
+    var badge = function (st) { return '<span class="stance ' + st + '">' + { yes: 'Yes', abstain: 'Abstain', no: 'No' }[st] + '</span>'; };
+    var h = '<div class="date">Government formation</div><h1>The negotiating table</h1><p>Each party has said how it would vote on ' + esc(Q.leader.name) + ' as Prime Minister. You have <b>' + t.rounds + ' of ' + T.MAX_ROUNDS + '</b> rounds of talks left: in each, make one party an offer. Offers turn a no into an abstention or a yes, or an abstention into a yes. Parties that expect to share power want cabinet posts, and feel snubbed if they are not offered them.</p>';
+    if (negMsg) h += '<div class="result">' + negMsg + '</div>';
+    h += '<div class="panel"><b>If the House voted now:</b> <span class="small muted">(expected partners offered no cabinet posts would vote no)</span> ' + c.yes + ' yes, ' + c.no + ' no, ' + c.abstain + ' abstaining. ' + (ballot === 1 ? 'An absolute majority (' + U.majority() + ' yes votes) is needed.' : 'More yes than no votes are needed.') + ' ' + (ok ? '<span class="up"><b>It would pass.</b></span>' : '<span class="down"><b>It would fail.</b></span>') + '</div>';
+    if (negSel && t.stance[negSel] != null) {
+      var p = negSel, o = negOffer, used = 0; for (var q in t.offers) if (q !== p) used += t.offers[q].posts || 0;
+      var spTaken = Object.keys(t.offers).some(function (q) { return q !== p && t.offers[q].speaker; });
+      var tick = function (k, label, dis) { return '<button class="conc' + (o[k] ? ' on' : '') + '" data-offer="' + k + '"' + (dis ? ' disabled title="' + esc(dis) + '"' : '') + '>' + (o[k] ? '✓ ' : '+ ') + esc(label) + '</button>'; };
+      var val = T.value(Q, p, o), m = t.base[p] + val.value;
+      h += '<div class="panel offer"><h3 style="margin-top:0">Offer to the ' + esc(P(p).name) + '</h3>';
+      h += '<div class="row small">Cabinet posts <button class="mini" data-offn="posts|-1">−</button><b>' + (o.posts || 0) + '</b><button class="mini" data-offn="posts|1"' + ((o.posts || 0) + used >= T.MAX_POSTS_OFFERED ? ' disabled' : '') + '>+</button>' +
+        ' <span class="muted">(a fair share would be about ' + T.fair(Q, p) + ')</span>' +
+        ' &nbsp; Committee chairs <button class="mini" data-offn="chairs|-1">−</button><b>' + (o.chairs || 0) + '</b><button class="mini" data-offn="chairs|1">+</button></div><div class="concs">';
+      h += tick('speaker', 'Speaker of the House', spTaken ? 'Already promised to another party' : '');
+      T.bills(p).forEach(function (d) { var on = (o.bills || []).indexOf(d.id) >= 0; h += '<button class="conc' + (on ? ' on' : '') + '" data-offbill="' + d.id + '">' + (on ? '✓ ' : '+ ') + esc(d.text) + '</button>'; });
+      if (T.referendum(p)) h += tick('referendum', T.referendum(p));
+      h += tick('investment', 'Investment in its states');
+      if (T.canAutonomy(p)) h += tick('autonomy', 'More autonomy for its states');
+      if (T.canIndependence(p)) h += tick('indepRef', 'A referendum on independence');
+      h += '</div><p class="small">Their reading of this offer: ' + { yes: '<span class="up">they would vote yes</span>', abstain: 'they would abstain', no: '<span class="down">they would still vote no</span>' }[T.stanceOf(m)] +
+        (T.expected(Q, p) && (o.posts || 0) < Math.max(1, T.fair(Q, p) - 2) ? ' <span class="down">— but without a fair share of the cabinet they will feel snubbed and vote no</span>' : '') + '.</p>' +
+        '<div class="row"><button class="btn" data-act="makeoffer"' + (t.rounds <= 0 ? ' disabled' : '') + '>Make the offer (uses a round of talks)</button><button class="btn ghost" data-act="canceloffer">Cancel</button></div></div>';
+    }
+    h += '<table class="seats talks"><tr><th>Party</th><th>Seats</th><th>Stance</th><th>Why</th><th></th></tr>' + parties.map(function (p) {
+      return '<tr' + (negSel === p ? ' class="sel"' : '') + '><td>' + chip(p) + esc(P(p).name) + (T.expected(Q, p) ? ' <span class="pill">expected partner</span>' : '') + '</td><td>' + Q.house[p] + '</td><td>' + badge(t.stance[p]) + '</td><td class="small muted">' + esc(t.notes[p] || '') + '</td><td>' +
+        '<button class="btn ghost" data-negsel="' + p + '"' + (t.rounds <= 0 ? ' disabled' : '') + '>Negotiate</button></td></tr>'; }).join('') + '</table>';
+    h += '<div class="endbar"><button class="btn" data-act="talksvote">Go to the House vote</button><button class="btn ghost" data-act="back">Leave the table</button></div>';
     return h;
   }
 
@@ -594,6 +587,10 @@
     if (rmap) rmap.querySelectorAll('.tile').forEach(function (t) { t.style.cursor = 'pointer'; t.onclick = function () { var r = U.Crosstab.regionOf(t.dataset.state); if (r) { demoGeo = 'R:' + r[0]; render(); var x = document.querySelector('[data-dgeo]'); if (x) x.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }; var tt = t.querySelector('title'); var r0 = U.Crosstab.regionOf(t.dataset.state); if (tt && r0) tt.textContent = tt.textContent + ' \u2014 ' + r0[0]; });
     var dnv = document.querySelector('[data-dnv]'); if (dnv) dnv.onchange = function () { demoNV = dnv.checked; render(); };
     var dr = document.querySelector('[data-dreset]'); if (dr) dr.onclick = function () { demoPicks = {}; demoGeo = 'US'; render(); };
+    document.querySelectorAll('[data-negsel]').forEach(function (b) { b.onclick = function () { negSel = b.dataset.negsel; negOffer = U.clone((Q.talks && Q.talks.offers[negSel]) || {}); negMsg = ''; render(); }; });
+    document.querySelectorAll('[data-offer]').forEach(function (b) { b.onclick = function () { var k = b.dataset.offer; negOffer[k] = !negOffer[k]; render(); }; });
+    document.querySelectorAll('[data-offbill]').forEach(function (b) { b.onclick = function () { var id = b.dataset.offbill, l = negOffer.bills = negOffer.bills || [], i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.push(id); render(); }; });
+    document.querySelectorAll('[data-offn]').forEach(function (b) { b.onclick = function () { var a = b.dataset.offn.split('|'); negOffer[a[0]] = U.clamp((negOffer[a[0]] || 0) + +a[1], 0, a[0] === 'posts' ? 14 : 6); render(); }; });
     document.querySelectorAll('[data-dcat]').forEach(function (b) { b.onclick = function () { demoCat = b.dataset.dcat; render(); }; });
     document.querySelectorAll('[data-bloc]').forEach(function (b) { b.onclick = function () { blocMode = b.dataset.bloc; render(); }; });
     document.querySelectorAll('[data-parl]').forEach(function (b) { b.onclick = function () { parlMode = b.dataset.parl; render(); }; });
@@ -619,7 +616,10 @@
         if (a === 'seenight') { go('night'); }
         if (a === 'seefinal') { go('election'); }
         if (a === 'closeelec') { elec = null; go('office'); }
-        if (a === 'negotiate') { deal = null; go('negotiate'); }
+        if (a === 'negotiate') { deal = null; negSel = null; negOffer = {}; negMsg = ''; go('negotiate'); }
+        if (a === 'makeoffer') { var res = U.Talks.offer(Q, negSel, negOffer); negMsg = res ? (res.error || res.text) : ''; if (res && !res.error) { negSel = null; negOffer = {}; } save(); render(); }
+        if (a === 'canceloffer') { negSel = null; negOffer = {}; render(); }
+        if (a === 'talksvote') { var tv = U.Talks.vote(Q); negSel = null; negMsg = ''; lastText = tv.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister</b>, ' + tv.count.yes + ' votes to ' + tv.count.no + ' with ' + tv.count.abstain + ' abstaining.' : '<b>The investiture fails</b>: ' + tv.count.yes + ' yes, ' + tv.count.no + ' no, ' + tv.count.abstain + ' abstaining.'; save(); go('office'); }
         if (a === 'aideal') { deal = C.aiDeal(Q, Q.player); render(); }
         if (a === 'back') { go('office'); }
         if (a === 'submitdeal') { var r = F.submitDeal(Q, deal); deal = null; lastText = r.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister.</b> ' + (r.inv.second ? 'Second ballot: ' + r.inv.second.yes + ' yes, ' + r.inv.second.no + ' no.' : 'First ballot: ' + r.inv.first.yes + ' yes.') : '<b>The investiture fails.</b> ' + (r.inv.second || r.inv.first).yes + ' yes, ' + (r.inv.second || r.inv.first).no + ' no. Partners who were asked feel used; you can try again next month.'; save(); go('office'); }
