@@ -369,6 +369,7 @@
   var genMode = 'house', genData = null;
   function resultsBlock(r) {
     var P = U.partyInfo, sen = genMode === 'senate' && r.senStates, data = sen ? r.senStates : r.states, seats = sen ? r.senate : r.house, tot = U.sum(seats);
+    if (sen && r.senShares) r = Object.assign({}, r, { shares: r.senShares });
     var ord = Object.keys(seats).filter(function (p) { return seats[p] > 0; }).sort(function (a, b) { return seats[b] - seats[a] || (r.shares[b] || 0) - (r.shares[a] || 0); });
     var winners = {}; for (var sid in data) { var sh = data[sid].shares || {}, w = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a]; })[0]; if (w) winners[w] = 1; }
     var lead = r.leaders || Q.leaders || {};
@@ -390,7 +391,7 @@
     var game = (Q.history || []).map(function (e, i) { return { key: 'g' + i, label: e.date + (e.kind === 'pres' ? ' presidential' : ' general'), rec: e, kind: e.kind }; });
     var gens = U.LORE.generalElections.map(function (e, i) { return { key: 'e' + i, label: String(e.year), rec: e, kind: 'histgen' }; });
     if (Q.open1996) gens.push({ key: 'e96', label: '1996', rec: { year: 1996, seats: 600, shares: U.ELECTION_1996, house: Q.open1996.house, byState: Q.open1996.byState, open: Q.open1996, gov: ['ldp', 'sdlp'], cs: ['reform'], pm: 'Al Gore', modern: true,
-      note: 'Called after the government shutdown brought down Gingrich. The CC fell to its worst result since its founding, losing votes to the new Reform Party and the Constitution Party, and Al Gore formed an LDP\u2013SDLP government with Reform confidence and supply. This is the parliament the game starts with.' }, kind: 'histgen' });
+      note: 'The 1995\u201396 shutdown broke Gingrich\u2019s coalition: the CDP walked out, and a constructive vote to install Al Gore failed by four votes. With his budgets defeated in the House, Gingrich asked for an early election, gambling that voters would blame Clinton; both chambers agreed. The CC fell to its worst result since its founding, losing votes to the new Reform Party and the Constitution Party. Clinton nominated Gore, who won an absolute majority at the head of an LDP\u2013SDLP government with Reform confidence and supply. This is the parliament the game starts with.' }, kind: 'histgen' });
     var all = hist.concat(gens, game);
     if (!electSel || !all.some(function (x) { return x.key === electSel; })) electSel = all[all.length - 1].key;
     var h = '<h1>Elections</h1><div class="row" style="margin-bottom:8px"><span class="small">Before the game:</span>' + hist.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + x.rec.year + '</button>'; }).join('') + '</div>';
@@ -421,7 +422,7 @@
       h += '<div class="bar" style="height:14px;display:flex;margin:6px 0">' + ord.map(function (k) { return seats[k] ? '<i style="position:static;display:block;height:100%;width:' + (seats[k] / r.seats * 100) + '%;background:' + oldParty(k).color + '" title="' + esc(oldParty(k).name) + '"></i>' : ''; }).join('') + '</div>';
       h += '<table class="seats"><tr><th>Party</th><th>Vote</th><th>Seats</th></tr>' + ord.map(function (k) { return '<tr><td>' + ochip(k) + esc(oldParty(k).name) + (r.gov.indexOf(k) >= 0 ? ' <span class="pill yes">gov</span>' : '') + '</td><td>' + (r.shares[k] != null ? (+r.shares[k]).toFixed(1) + '%' : '') + '</td><td><b>' + (seats[k] || 0) + '</b></td></tr>'; }).join('') + (r.shares.oth ? '<tr><td class="muted">Others</td><td>' + r.shares.oth.toFixed(1) + '%</td><td>0</td></tr>' : '') + '</table>';
       var gd = U.LORE.generalDetail(r), lead = {}; lead[r.gov[0]] = r.pm;
-      return h + resultsBlock({ states: gd.states, senStates: gd.senStates, national: gd.national, house: gd.house, senate: gd.senate, shares: r.shares, leaders: lead, generated: true }) + '</div>';
+      return h + resultsBlock({ states: gd.states, senStates: gd.senStates, national: gd.national, house: gd.house, senate: gd.senate, shares: r.shares, senShares: gd.senShares, leaders: lead, generated: true }) + '</div>';
       var topH;
       if (r.byState) topH = function (sid) { var d = r.byState[sid]; if (!d) return null; return Object.keys(d).sort(function (a, b) { return d[b] - d[a]; })[0]; };
       else { var mp = {}; for (var k in r.map) r.map[k].split(' ').forEach(function (sid) { if (sid) mp[sid] = k; }); topH = function (sid) { return (r.seats < 600 && (sid === 'AK' || sid === 'HI') && r.year < 1959) ? null : (mp[sid] || r.top); }; }

@@ -15,82 +15,108 @@
   U.LORE.generalElections = [
     { year: 1914, seats: 435, shares: { dem: 35.0, prog: 31.0, rep: 24.0, soc: 7.0, oth: 3.0 }, gov: ['dem', 'prog'], pm: 'Champ Clark',
       top: 'prog', map: { dem: SOUTH + ' KY OK MO MD WV AZ NM', rep: 'ME VT NH CT RI DE NJ PA OH IN' },
-      note: 'The first House elected by statewide PR, held on the same day as the first presidential runoff and three months after war broke out in Europe. Democrats held the South; Roosevelt’s Progressives swept the West and the farm belt. Speaker Champ Clark became the first Prime Minister.' },
+      sen: {'prog': -3, 'dem': 2, 'rep': 1},
+      note: 'The first House elected by statewide PR, on the day of the first presidential runoff and three months into the war in Europe. Democrats held the South; Roosevelt\u2019s Progressives swept the West and the farm belt. Progressive Senate candidates, new names everywhere, ran behind their party. Roosevelt appointed Speaker Champ Clark as the first Prime Minister.' },
     { year: 1918, seats: 435, shares: { rep: 36.0, dem: 30.0, prog: 21.0, soc: 8.0, oth: 5.0 }, gov: ['rep', 'dem'], pm: 'Warren G. Harding',
       top: 'rep', map: { dem: SOUTH + ' KY OK MO MD', prog: 'CA WA OR ID MT ND SD MN WI' },
-      note: 'Held a week before the Armistice, in the middle of the influenza pandemic, with President Roosevelt gravely ill. Voters tired of wartime controls turned to the Republicans, who formed a government with conservative Democrats after the Progressives refused to join a ministry opposed to the League of Nations. Roosevelt died two months later.' },
+      sen: {'rep': 1, 'dem': 2, 'prog': -2},
+      note: 'Held a week before the Armistice, in the influenza pandemic, with President Roosevelt gravely ill. Voters tired of wartime controls turned to the Republicans. Roosevelt appointed Warren Harding at the head of a Republican government with conservative Democrats; two months later Roosevelt was dead, and President Hiram Johnson spent two years fighting his own Prime Minister over the League of Nations.' },
     { year: 1922, seats: 435, shares: { prog: 29.0, rep: 30.0, dem: 24.0, fl: 6.0, soc: 5.0, oth: 6.0 }, gov: ['prog', 'dem', 'fl'], pm: 'Robert La Follette',
       top: 'rep', map: { dem: SOUTH + ' KY OK', prog: 'CA WA OR ID MT WY CO ND SD NE KS IA WI', fl: 'MN' },
-      note: 'The postwar slump hit farms hardest, and wheat prices halved. The Republicans stayed the largest party, but Harding’s government lost its majority as the Progressives and Minnesota’s Farmer-Labor Party surged. Robert La Follette formed a Progressive–Democratic–Farmer-Labor coalition in early 1923; George Norris succeeded him in 1925.' },
+      sen: {'rep': 3, 'prog': -3},
+      note: 'The postwar slump halved wheat prices. Harding\u2019s government lost its majority to a farm revolt, and President Hughes had to appoint the Progressive Robert La Follette at the head of a Progressive\u2013Democratic-Farmer-Labor coalition. Republican senators, better known than their party, held up well.' },
     { year: 1926, seats: 435, shares: { rep: 37.0, dem: 27.0, prog: 21.0, fl: 5.0, soc: 4.0, oth: 6.0 }, gov: ['rep', 'prog'], pm: 'Nicholas Longworth',
       top: 'rep', map: { dem: SOUTH + ' KY OK MO', prog: 'WA OR ID MT ND SD NE WI', fl: 'MN' },
-      note: 'Held with the presidential election in the boom years. Frank Lowden’s promise of farm relief won over farm-belt Progressives, and Nicholas Longworth formed a Republican–Progressive government that passed the McNary–Haugen farm bill.' },
+      sen: {'rep': 1, 'fl': 1, 'dem': -1},
+      note: 'Held with Lowden\u2019s presidential win in the boom years. His promise of farm relief won over farm-belt Progressives, and Nicholas Longworth formed a Republican\u2013Progressive government that passed the McNary-Haugen farm bill.' },
     { year: 1930, seats: 435, shares: { dem: 30.0, rep: 29.0, prog: 19.0, soc: 7.5, fl: 6.0, cpusa: 2.0, oth: 6.5 }, gov: ['rep', 'prog'], cs: ['fl'], pm: 'Nicholas Longworth',
       top: 'dem', map: { rep: 'ME VT NH CT RI DE NJ PA OH IN MI IL', prog: 'WA OR ID MT ND SD NE WI', fl: 'MN' },
-      note: 'The first election after the Wall Street crash. The Democrats came first for the first time since 1914, but could not agree on a partner. Longworth held on with a minority government, kept alive by Farmer-Labor votes for farm credit, while unemployment passed 15%.' },
+      sen: {'rep': 2, 'dem': -1},
+      note: 'The first election after the Wall Street crash. The Democrats came first but could not agree on a partner, and President Lowden kept Longworth on at the head of a minority, kept alive by Farmer-Labor votes for farm credit. Lowden refused to dissolve again while unemployment passed 15%.' },
     { year: 1932, seats: 435, shares: { dem: 39.0, rep: 22.0, prog: 18.0, soc: 9.0, fl: 5.0, cpusa: 3.0, oth: 4.0 }, gov: ['dem', 'prog'], pm: 'Al Smith',
       top: 'dem', map: { rep: 'ME VT NH PA DE', prog: 'WA OR ID MT ND SD WI', fl: 'MN' },
-      note: 'Longworth’s government fell over relief spending, and the snap election was held with the presidential vote at the depth of the Depression. Huey Long’s landslide carried the Democrats to their best result. Al Smith formed a Democratic–Progressive government that wrote the New Deal, and spent six years fighting his own President.' },
+      sen: {'dem': -2, 'prog': 1, 'rep': 1},
+      note: 'Longworth\u2019s government fell over relief spending, and Lowden dissolved Congress to coincide with the presidential vote at the depth of the Depression. Huey Long\u2019s landslide carried the Democrats to their best result, though millions of Long voters chose Progressives or Socialists for the House. Long appointed Al Smith, his party\u2019s leader and his rival, at the head of a Democratic\u2013Progressive government.' },
     { year: 1936, seats: 435, shares: { dem: 37.0, rep: 23.0, prog: 20.0, soc: 6.0, fl: 6.0, cpusa: 3.0, oth: 5.0 }, gov: ['dem', 'prog'], pm: 'Al Smith',
       top: 'dem', map: { rep: 'ME VT NH PA DE CT KS', prog: 'WA OR ID MT ND SD WI CA', fl: 'MN' },
-      note: 'A verdict on the New Deal as the recovery took hold. The Smith coalition was returned, and the Progressives gained from Long’s attacks on Smith as a Wall Street Democrat.' },
+      sen: {'dem': -1, 'prog': 1}, senInd: {'NE': 34},
+      note: 'A verdict on the New Deal as recovery took hold. The Smith coalition was returned. In Nebraska, George Norris won as an independent senator after leaving the Progressives.' },
     { year: 1938, seats: 435, shares: { dem: 30.0, prog: 29.0, rep: 26.0, fl: 6.0, soc: 4.0, oth: 5.0 }, gov: ['prog', 'dem', 'fl'], pm: 'Henry A. Wallace',
       top: 'dem', map: { rep: 'ME VT NH CT DE PA OH IN MI KS', prog: 'CA WA OR ID MT WY CO ND SD NE IA WI IL NY', fl: 'MN' },
-      note: 'Held with Long’s re-election, a year into the 1937 recession and six weeks after Munich. The open war between Smith and Long cost the Democrats seven points. Henry Wallace, the Progressive agriculture secretary, formed a new coalition that rearmed the country and took it into the Second World War.' },
+      sen: {'dem': 1, 'prog': -1}, senInd: {'NE': 31},
+      note: 'In March Long dismissed Smith, appointed the Arkansas senator Hattie Caraway as caretaker and dissolved Congress for the November presidential vote. The feud cost the Democrats seven points, Munich was six weeks old, and Long, re-elected, appointed the Progressive Henry Wallace to lead a new coalition.' },
     { year: 1942, seats: 435, shares: { prog: 31.0, dem: 30.0, rep: 27.0, fl: 5.0, soc: 3.0, oth: 4.0 }, gov: ['prog', 'dem', 'fl'], pm: 'Henry A. Wallace',
       top: 'dem', map: { rep: 'ME VT NH CT DE PA OH IN KS NE', prog: 'CA WA OR ID MT WY CO ND SD IA WI IL NY MI', fl: 'MN' },
-      note: 'A wartime election, eleven months after Pearl Harbor. Parties agreed not to attack the war effort, and the Wallace coalition was returned almost unchanged.' },
+      sen: {'rep': 1},
+      note: 'A wartime election eleven months after Japan\u2019s attacks on Pearl Harbor and the Philippines. Parties agreed not to attack the war effort and the Wallace coalition was returned almost unchanged. Norris lost his Nebraska seat.' },
     { year: 1944, seats: 435, shares: { dem: 33.0, rep: 30.0, prog: 25.0, fl: 5.0, soc: 3.0, oth: 4.0 }, gov: ['dem', 'prog'], pm: 'Alben W. Barkley',
       top: 'dem', map: { rep: 'ME VT NH CT DE PA OH IN KS NE NJ', prog: 'CA WA OR ID MT ND SD WI', fl: 'MN' },
-      note: 'Held with Garner’s narrow presidential win, five months after D-Day. The Democrats moved back into first place, and Alben Barkley led a Democratic–Progressive coalition through victory and demobilisation.' },
+      sen: {'dem': -1, 'rep': 1},
+      note: 'Held with Garner\u2019s narrow presidential win, five months after D-Day. Garner, who carried Texas Republicans with him, did not carry the House: the Democrats only edged back into first place. He appointed Alben Barkley to lead a Democratic\u2013Progressive coalition through victory and demobilisation.' },
     { year: 1948, seats: 435, shares: { dem: 28.0, rep: 25.0, prog: 21.0, cdp: 9.0, srp: 9.0, fl: 3.0, soc: 2.0, cpusa: 1.0, oth: 2.0 }, gov: ['dem', 'prog', 'fl'], pm: 'Alben W. Barkley',
       top: 'dem', map: { rep: 'ME VT NH CT NJ PA OH IN KS NE', prog: 'CA WA OR ID MT ND SD WI NY', fl: 'MN', srp: 'AL MS SC LA', cdp: 'IA' },
-      note: 'Southern Democrats walked out over Barkley’s civil-rights platform and ran as the States’ Rights Democrats, winning four Deep South states. The new Christian Democrats took Midwestern Republicans and Catholic voters. Barkley held on, just, as the Berlin airlift began.' },
+      sen: {'srp': 2, 'prog': -2},
+      note: 'Barkley asked Garner for an early election after Southern Democrats walked out over his civil-rights platform; they ran as the States\u2019 Rights Democrats and won four Deep South states. The new Christian Democrats took Midwestern Republicans and Catholic voters. Barkley held on, just, as the Berlin airlift began.' },
     { year: 1950, seats: 435, shares: { rep: 35.0, cdp: 15.0, dem: 22.0, prog: 12.0, srp: 9.0, fl: 2.0, soc: 1.0, oth: 4.0 }, gov: ['rep', 'cdp'], pm: 'Robert A. Taft',
       top: 'rep', map: { dem: 'TX TN NC VA AR FL OK KY WV MO', srp: 'AL MS SC LA GA', prog: 'WA OR WI', cdp: 'IA MN' },
-      note: 'Held with Dewey’s first presidential win, five months into the Korean War and at the height of the Red Scare. Wallace’s opposition to the war cost the Progressives nine points. Robert Taft led the first Republican–Christian Democratic coalition.' },
+      sen: {'rep': 1, 'cdp': -1},
+      note: 'Held with Dewey\u2019s first presidential win, five months into the Korean War and at the height of the Red Scare. Wallace\u2019s opposition to the war cost the Progressives nine points. Dewey appointed Robert Taft at the head of the first Republican\u2013Christian Democratic coalition.' },
     { year: 1953, seats: 435, shares: { dem: 30.0, sdlp: 22.0, rep: 27.0, cdp: 11.0, srp: 7.0, oth: 3.0 }, gov: ['dem', 'sdlp'], pm: 'Estes Kefauver',
       top: 'dem', map: { rep: 'ME VT NH CT NJ PA OH IN KS NE CO WY ID UT AZ NV', sdlp: 'WA OR MN WI MI ND', srp: 'AL MS SC LA', cdp: 'IA' },
-      note: 'Taft’s death in July 1953 broke the coalition, and the snap election came days after the Korean armistice. It was the first for the new Social Democratic Labor Party, the merger of the Progressives, Socialists and Farmer-Labor. Estes Kefauver, the crime-busting Tennessean, formed a Democratic–SDLP government.' },
+      sen: {'rep': 1, 'sdlp': -1}, senInd: {'OR': 33},
+      note: 'Taft\u2019s death in July broke the coalition, and Dewey dissolved Congress days after the Korean armistice. It was the first election for the Social Democratic Labor Party, the merger of the Progressives, Socialists and Farmer-Labor. Dewey had to appoint the Tennessee Democrat Estes Kefauver at the head of a Democratic\u2013SDLP government. Wayne Morse, who had left the Republicans over Korea, held his Oregon Senate seat as an independent.' },
     { year: 1957, seats: 435, shares: { dem: 31.0, sdlp: 21.0, rep: 26.0, cdp: 12.0, srp: 7.0, oth: 3.0 }, gov: ['dem', 'sdlp'], pm: 'Estes Kefauver',
       top: 'dem', map: { rep: 'ME VT NH CT NJ PA OH IN KS NE CO WY ID UT AZ', sdlp: 'WA OR MN WI MI ND', srp: 'AL MS SC LA', cdp: 'IA' },
-      note: 'A month after Sputnik and two months after Little Rock. The government was narrowly returned on a promise of a crash science programme. Kefauver stood down the next year in favour of his Majority Leader, Lyndon Johnson.' },
+      sen: {'dem': 1}, senInd: {'OR': 30},
+      note: 'Called by Dewey a month after Sputnik and two months after Little Rock, hoping to evict Kefauver. The government was narrowly returned on a promise of a crash science programme; the next year Kefauver made way for his Majority Leader, Lyndon Johnson.' },
     { year: 1960, seats: 435, shares: { dem: 29.0, rep: 28.0, sdlp: 19.0, cdp: 12.0, srp: 8.0, oth: 4.0 }, gov: ['dem', 'sdlp', 'cdp'], pm: 'John F. Kennedy',
       top: 'dem', map: { rep: 'ME VT NH NJ PA OH IN KS NE CO WY ID UT AZ CA OR', sdlp: 'WA MN WI MI ND', srp: 'AL MS SC LA', cdp: 'IA' },
-      note: 'Johnson led the Democrats into the election, but the young Massachusetts senator John F. Kennedy ran the campaign and won the caucus vote afterwards. With the Democrats and SDLP short of a majority, Kennedy brought in the Christian Democrats: the first Catholic Prime Minister at the head of the first three-party government since the war.' },
+      sen: {'dem': -1, 'rep': 1},
+      note: 'Dewey dissolved Congress once more in his last year. Johnson led the Democrats, but John F. Kennedy ran the campaign and won the caucus vote afterwards. With the Democrats and SDLP short of a majority, Dewey appointed Kennedy, who brought in the Christian Democrats: the first Catholic Prime Minister.' },
     { year: 1963, seats: 435, shares: { dem: 32.0, sdlp: 21.0, rep: 27.0, cdp: 9.0, srp: 8.0, oth: 3.0 }, gov: ['dem', 'sdlp'], pm: 'John F. Kennedy',
       top: 'dem', map: { rep: 'ME VT NH NJ PA OH IN KS NE WY ID UT AZ', sdlp: 'WA MN WI MI ND', srp: 'AL MS SC LA GA', cdp: 'IA' },
-      note: 'President Nixon dismissed Kennedy after his civil-rights bill failed and the CDP walked out of the coalition. Kennedy forced a snap election in October, two months after the March on Washington, and won it. He returned at the head of a Democratic–SDLP majority and was assassinated in Dallas thirteen months later.' },
+      sen: {'dem': 1, 'rep': -1},
+      note: 'President Nixon dismissed Kennedy in June after his civil-rights bill failed, appointed Everett Dirksen as caretaker and dissolved Congress. Kennedy fought the October election on civil rights and won it, and Nixon had to reappoint him. In November Kennedy was shot in Dallas and survived; his health, never strong, gave way, and he retired in April 1964. Nixon appointed Lyndon Johnson.' },
     { year: 1966, seats: 435, shares: { ldp: 29.0, sdlp: 22.0, rep: 23.0, dem: 11.0, cdp: 8.0, srp: 4.0, oth: 3.0 }, gov: ['ldp', 'sdlp'], pm: 'Lyndon B. Johnson',
       top: 'ldp', map: { dem: 'TX GA NC SC TN AR FL VA OK', srp: 'AL MS LA', rep: 'KS NE WY ID UT AZ IN NH VT', sdlp: 'MN WI MI WA ND', cdp: 'IA' },
-      note: 'The first election after the Democratic split. Johnson and Humphrey’s Liberal Democrats took the northern, western and Black Democratic vote; the southern rump kept the Democratic name and the South. Johnson’s LDP–SDLP government had a slim majority, as the Vietnam build-up began.' },
+      sen: {'dem': 4, 'ldp': -2, 'sdlp': -1},
+      note: 'The first election after the Democratic split over the Civil Rights and Voting Rights Acts. Johnson\u2019s Liberal Democrats took the northern, western and Black Democratic vote; the southern rump kept the Democratic name, and its veteran senators ran far ahead of it. Johnson\u2019s LDP\u2013SDLP government had a slim majority as the Vietnam build-up began.' },
     { year: 1968, seats: 435, shares: { sdlp: 25.0, ldp: 26.0, rep: 22.0, srp: 11.0, dem: 7.0, cdp: 7.0, oth: 2.0 }, gov: ['ldp', 'sdlp'], pm: 'Hubert Humphrey',
       top: 'ldp', map: { srp: 'AL MS LA GA SC AR', dem: 'TX NC TN VA FL OK', rep: 'KS NE WY ID UT AZ IN NH VT SD MT CO', sdlp: 'MN WI MI WA ND OH PA WV', cdp: 'IA' },
-      note: 'Held with the presidential election after the Tet Offensive, the murders of Martin Luther King and the riots that followed. George Wallace took the SRP to 11%. Robert Kennedy’s coattails nearly made the SDLP the largest party; Hubert Humphrey kept the premiership in an uneasy coalition with the President who had beaten his party.' },
+      sen: {'srp': 2, 'sdlp': -2},
+      note: 'Held with the presidential election, after the Tet Offensive, the murder of Martin Luther King and the riots that followed. George Wallace took the SRP to 11%. Robert Kennedy\u2019s coattails nearly made the SDLP the largest party. Kennedy, who had beaten Johnson, appointed Hubert Humphrey to keep the LDP inside the government.' },
     { year: 1972, seats: 435, shares: { ldp: 27.0, sdlp: 25.0, rep: 23.0, srp: 8.0, cdp: 8.0, dem: 6.0, lib: 1.0, oth: 2.0 }, gov: ['ldp', 'sdlp'], pm: 'Hubert Humphrey',
       top: 'ldp', map: { srp: 'AL MS LA GA SC', dem: 'TX NC TN VA AR OK', rep: 'KS NE WY ID UT AZ IN NH VT SD MT CO FL', sdlp: 'MN WI MI WA ND OH PA WV', cdp: 'IA' },
-      note: 'Kennedy’s withdrawal from Vietnam and the opening to China kept the coalition in office. A House of a dozen parties and long nights of coalition talks led to the 1974 reform.' },
+      sen: {'dem': 1, 'srp': 1}, senInd: {'VA': 38},
+      note: 'Kennedy dissolved Congress after pulling out of Vietnam and opening to China, and the coalition held. In Virginia, Harry Byrd Jr. won as an independent senator. A House of a dozen parties and the next year\u2019s budget crisis led to the 1974 reform.' },
     { year: 1974, seats: 600, shares: { rep: 25.0, ldp: 24.0, sdlp: 22.0, cdp: 10.0, srp: 7.0, dem: 6.0, lib: 2.0, oth: 4.0 }, gov: ['ldp', 'sdlp', 'cdp'], pm: 'Edmund Muskie',
       top: 'ldp', map: { srp: 'AL MS LA GA SC', dem: 'TX NC TN AR', rep: 'KS NE WY ID UT AZ IN NH VT SD MT CO FL VA OK NV AK', sdlp: 'MN WI MI WA ND OH PA WV', cdp: 'IA' },
-      note: 'The first 600-seat House, held with Kennedy’s re-election a year after the Arab oil embargo. Stagflation pushed the Republicans into first place, but no right-wing majority was possible. Edmund Muskie formed an LDP–SDLP–CDP grand coalition.' },
+      sen: {'rep': 1, 'ldp': -1}, senInd: {'VA': 36},
+      note: 'The first 600-seat House, held with Kennedy\u2019s re-election a year after the oil embargo and the budget crisis. Stagflation put the Republicans first, but no right-wing majority was possible. Kennedy\u2019s nominee, Edmund Muskie, passed the new absolute-majority vote at the head of an LDP\u2013SDLP\u2013CDP grand coalition.' },
     { year: 1978, seats: 600, shares: { cc: 29.0, ldp: 28.0, sdlp: 22.0, cdp: 10.0, srp: 4.0, lib: 3.0, oth: 4.0 }, gov: ['ldp', 'sdlp'], pm: 'Walter Mondale',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD DE IL HI VT ME NH DC CO NM', sdlp: 'MN WI MI ND OH PA WV', srp: 'MS AL', cdp: 'IA' },
-      note: 'The first election for the Conservative Coalition, the merger of the Republicans and the southern Democrats, which topped the poll in the South and the West. The Camp David accords and falling oil prices let the left hold on: Walter Mondale formed an LDP–SDLP government with a narrow majority.' },
+      sen: {'cc': 3, 'ldp': -1, 'sdlp': -1}, senInd: {'VA': 34},
+      note: 'The four-year lock expired in November, and Muskie asked for an election. It was the first for the Conservative Coalition, the merger of the Republicans and the southern Democrats, which topped the poll in the South and West and did better still in Senate races. Kennedy nominated Walter Mondale, who scraped an absolute majority for an LDP\u2013SDLP government.' },
     { year: 1982, seats: 600, shares: { cc: 37.0, ldp: 21.0, sdlp: 17.0, cdp: 13.0, lib: 4.0, srp: 3.0, con: 1.5, dsa: 1.0, oth: 2.5 }, gov: ['cc', 'cdp'], pm: 'Bob Dole',
       top: 'cc', map: { ldp: 'MA RI NY HI DC', sdlp: 'MN WI MI WV', cdp: 'IA', srp: 'MS' },
-      note: 'The Iran hostage crisis had cost the left the presidency; the 1981–82 recession and the Volcker interest rates cost it the House. The CC won its best result, and Bob Dole formed a CC–CDP government under President Reagan.' },
+      sen: {'cc': -1, 'cdp': 1},
+      note: 'Reagan used his right as a new President to dissolve Congress in his second year, in the 1981\u201382 recession. The CC won its best result and Reagan\u2019s nominee, Bob Dole, won the absolute-majority vote at the head of a CC\u2013CDP government.' },
     { year: 1986, seats: 600, shares: { cc: 34.0, ldp: 20.0, sdlp: 19.0, cdp: 11.0, lib: 5.0, srp: 2.5, con: 2.0, lsp: 1.5, dsa: 1.5, grn: 0.8, oth: 2.7 }, gov: ['cc', 'cdp', 'lib'], pm: 'Jack Kemp',
       top: 'cc', map: { ldp: 'MA RI NY HI DC CA CT', sdlp: 'MN WI MI WV PA IL OH', cdp: 'IA' },
-      note: 'Held with Reagan’s re-election, with the economy booming everywhere but the oil patch. The Texas oil bust gave birth to the Lone Star Party. Dole made way for the tax-cutting Jack Kemp, who needed the Libertarians for a majority.' },
+      sen: {'cc': -1, 'lsp': 1},
+      note: 'The lock expired and Dole asked for an election to coincide with Reagan\u2019s re-election; both chambers agreed. The economy boomed everywhere but the oil patch, where the Texas oil bust gave birth to the Lone Star Party. Reagan nominated the tax-cutter Jack Kemp, who needed the Libertarians for a majority.' },
     { year: 1990, seats: 600, shares: { ldp: 27.0, cc: 26.0, sdlp: 17.0, cdp: 13.0, lib: 4.0, asp: 3.0, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.5, grn: 1.0, oth: 1.5 }, gov: ['ldp', 'cdp'], cs: ['sdlp'], pm: 'Lloyd Bentsen',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD DE IL HI VT ME NH DC CO NM', sdlp: 'MN WI MI WV PA OH', cdp: 'IA', lsp: 'TX', asp: 'UT' },
-      note: 'Held three months into the Gulf crisis, amid the savings-and-loan collapse and the Iran–Contra hearings. The LDP came first for the first time since 1966. The SDLP refused to serve under a Texan oilman, so Lloyd Bentsen formed an LDP–CDP government, with the SDLP voting for its budgets.' },
+      sen: {'cc': 2, 'ldp': -1}, senInd: {'CT': 33},
+      note: 'Called when the lock expired, three months into the Gulf crisis and amid the savings-and-loan collapse and Iran-Contra. The LDP came first for the first time since 1966. Reagan\u2019s first nominee, Kemp again, failed to win an absolute majority; his second, the Texan Lloyd Bentsen (LDP), passed by simple majority at the head of an LDP\u2013CDP minority with SDLP votes for its budgets. Lowell Weicker won Connecticut\u2019s Senate race as an independent.' },
     { year: 1992, seats: 600, shares: { ldp: 28.0, cc: 24.0, sdlp: 18.0, cdp: 11.0, asp: 4.0, lib: 3.5, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.2, cnp: 1.0, grn: 1.0, oth: 2.3 }, gov: ['ldp', 'sdlp'], cs: ['asp'], pm: 'Tom Foley',
       top: 'ldp', map: { cc: 'TX AL MS GA SC NC TN FL VA OK KS NE SD ND MT WY ID AZ IN KY AK', sdlp: 'MN WI MI WV PA OH', cdp: 'IA', asp: 'UT', lsp: '', srp: '' },
-      note: 'Held with Clinton’s presidential win, a year after the Los Angeles riots and the Gulf War. Ross Perot ran only for President, but his voters punished the CC. Tom Foley formed an LDP–SDLP government with ASP confidence and supply.' },
+      sen: {'ldp': -1, 'cc': 1},
+      note: 'Bentsen asked for an early election to coincide with the presidential vote, and both chambers agreed. Ross Perot ran only for President, and many of his voters skipped the House ballot. The newly elected Clinton nominated Tom Foley, who won an absolute majority for an LDP\u2013SDLP government with ASP support.' },
     { year: 1994, seats: 600, shares: { cc: 29.0, ldp: 21.0, cdp: 16.0, sdlp: 15.0, lib: 4.0, asp: 4.0, con: 2.5, lsp: 2.0, srp: 2.0, grn: 1.0, dsa: 1.0, cnp: 1.0, oth: 1.5 }, gov: ['cc', 'cdp'], cs: ['lib', 'lsp'], pm: 'Newt Gingrich',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD HI VT DC', sdlp: 'MN WI MI WV', cdp: 'IA DE', asp: 'UT', lsp: 'TX' },
-      note: 'The Foley government fell when its health-care bill failed. Newt Gingrich’s Contract with America won the snap election, and he formed a CC–CDP government kept in office by the Libertarians and the Lone Star Party. It fell after the 1995–96 government shutdown, which forced the 1996 election.' }
+      sen: {'cc': 1, 'cdp': 1, 'ldp': -1},
+      note: 'Foley\u2019s health-care bill died in the Senate, and the ASP withdrew its support. A constructive vote to replace him with Newt Gingrich fell twelve votes short, so with Congress deadlocked Foley asked for an early election and both chambers agreed. Gingrich\u2019s Contract with America won, and Clinton, after first nominating the CDP\u2019s Bob Dole, who could not win an absolute majority, had to nominate Gingrich, who passed by simple majority.' }
   ];
 
   // Party info for old parties as well as the game's own.
@@ -153,20 +179,25 @@
       ids.forEach(function (s) { var top = parties.reduce(function (a, b) { return v[s][b] > v[s][a] ? b : a; }); if (top !== want[s] && v[s][want[s]] != null) { bad++; A[s][want[s]] *= 1.1; A[s][top] *= 0.95; } });
       if (!bad) break;
     }
-    var states = {}, senStates = {}, house = {}, senate = {}, national = {};
+    var states = {}, senStates = {}, house = {}, senate = {}, national = {}, senW = {}, senT = 0;
     ids.forEach(function (s) {
       var sh = {}; parties.forEach(function (p) { if (v[s][p] >= 0.5) sh[p] = Math.round(v[s][p] * 10) / 10; });
       var won = D.divisor(v[s], seatsOf[s], 'sainte-lague', 0), seats = {}; for (var p in won) if (won[p]) { seats[p] = won[p]; house[p] = (house[p] || 0) + won[p]; }
       states[s] = { seats: seats, shares: sh };
       if (s === 'DC') return;
-      var sw = D.senateSeats(v[s]), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
+      // Senate races: national shifts (e.sen), candidates' personal votes, independents (e.senInd)
+      var sv = {}, st0 = 0, st1 = 0, ind = (e.senInd || {})[s] || 0;
+      parties.forEach(function (p) { st0 += v[s][p]; sv[p] = Math.max(0, v[s][p] * (1 + ((e.sen || {})[p] || 0) / e.shares[p]) * (1 + 0.4 * (hash('s' + e.year + s + p) - 0.5))); st1 += sv[p]; });
+      parties.forEach(function (p) { sv[p] = sv[p] * (st0 - ind) / st1; }); if (ind) sv.ind = ind;
+      var ssh = {}; for (p in sv) { if (sv[p] >= 0.5) ssh[p] = Math.round(sv[p] * 10) / 10; senW[p] = (senW[p] || 0) + sv[p] * seatsOf[s]; } senT += seatsOf[s];
+      var sw = D.senateSeats(sv), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
       var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0];
       for (p in ss) senate[p] = (senate[p] || 0) + ss[p];
-      senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: sh, leg: leg };
+      senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: ssh, leg: leg };
     });
     if (e.seats === 600) { var nv = {}; parties.forEach(function (p) { nv[p] = e.shares[p]; });
       var nw = D.divisor(nv, 100, 'sainte-lague', 5 / (100 - oth)); for (var q in nw) if (nw[q]) { national[q] = nw[q]; house[q] = (house[q] || 0) + nw[q]; } }
-    return (cache[e.year] = { states: states, senStates: senStates, house: house, senate: senate, national: e.seats === 600 ? national : null, mismatched: ids.filter(function (s) { return parties.reduce(function (a, b) { return v[s][b] > v[s][a] ? b : a; }) !== want[s]; }) });
+    return (cache[e.year] = { states: states, senStates: senStates, house: house, senate: senate, national: e.seats === 600 ? national : null, senShares: (function () { var o = {}; for (var k in senW) o[k] = Math.round(senW[k] / senT * 10) / 10; return o; })(), mismatched: ids.filter(function (s) { return parties.reduce(function (a, b) { return v[s][b] > v[s][a] ? b : a; }) !== want[s]; }) });
   };
   // First round of a historical presidential election, state by state.
   // Candidates' parties carry the same regional affinities; the runoff

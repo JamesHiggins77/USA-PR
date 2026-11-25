@@ -315,7 +315,7 @@
       for (var p in b.pr) if (b.pr[p]) seats[p] = b.pr[p];
       Object.keys(b.shares).sort(function (x, y) { return b.shares[y] - b.shares[x]; }).slice(0, 6).forEach(function (p) { if (b.shares[p] >= 0.5) sh[p] = Math.round(b.shares[p] * 10) / 10; });
       st[sid] = { seats: seats, shares: sh }; }
-    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: st[x.state] ? st[x.state].shares : {} }; if (x.type === 'house') o.leg = x.party; else o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
+    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: (Q.senateShares && Q.senateShares[x.state]) || (st[x.state] ? st[x.state].shares : {}) }; if (x.type === 'house') o.leg = x.party; else o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
     for (var q in Q.house) { var n = Q.house[q]; for (sid in st) n -= st[sid].seats[q] || 0; if (n > 0) nat[q] = n; }
     return { states: st, senStates: sen, national: nat };
   };
@@ -347,7 +347,8 @@
     Q.lastElection = res;
     Q.history = Q.history || [];
     Q.history.push({ kind: 'general', date: res.date, shares: (function () { var o = {}; for (var p in shares) if (shares[p] >= 0.3) o[p] = Math.round(shares[p] * 10) / 10; return o; })(), house: U.clone(res.house), senate: U.clone(res.senate),
-      states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders) });
+      states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders),
+      senShares: (function () { var w = {}, t = 0; for (var sid in (Q.senateShares || {})) { var pop = (U.STATES[sid] || {}).pop || 0; t += pop; for (var p in Q.senateShares[sid]) w[p] = (w[p] || 0) + Q.senateShares[sid][p] * pop; } for (p in w) w[p] = Math.round(w[p] / t * 10) / 10; return w; })() });
     res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];
     Q.deadline = S.now(Q) + U.RULES.government.maxTermMonths;

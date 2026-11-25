@@ -188,13 +188,26 @@
   // The state house's choice for the 4th Senate seat (Nebraska: its single chamber).
   X.legislatureSenator = function (Q, sid) { return X.chamberChoice(Q, Q.states[sid].house); };
 
+  // Senate races are not a copy of the House vote: candidates carry a personal
+  // vote (split tickets), and parties holding a state's seats get an incumbency
+  // edge. Deterministic per election, so the fixed opening stays fixed.
+  function hash01(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10007) / 10007; }
+  X.senateShares = function (Q, sid, sh, seats) {
+    var held = {}; (seats || []).forEach(function (x) { if (x.type === 'pr' && x.party) held[x.party] = 1; });
+    var out = {}, t0 = 0, t1 = 0, k = 'e' + (Q.electionNo || 0) + (Q.electionNo ? (Q.seed0 || '') : '') + sid;
+    for (var p in sh) { t0 += sh[p]; out[p] = sh[p] * (1 + 0.4 * (hash01(k + p) - 0.5)) * (held[p] ? 1.08 : 1); t1 += out[p]; }
+    for (p in out) out[p] = out[p] * t0 / t1;
+    Q.senateShares = Q.senateShares || {}; Q.senateShares[sid] = {}; for (p in out) if (out[p] >= 0.5) Q.senateShares[sid][p] = Math.round(out[p] * 10) / 10;
+    return out;
+  };
+
   // Senate after a general election: in every state, 3 seats by statewide PR
   // and 1 elected by the state house. Returns {state: {seats, shares}}.
   X.senate = function (Q) {
     var out = {};
     Object.keys(U.STATES).forEach(function (sid) {
       var seats = Q.senateSeats.filter(function (x) { return x.state === sid; });
-      var sh = V.stateShares(Q, U.STATES[sid]);
+      var sh = X.senateShares(Q, sid, V.stateShares(Q, U.STATES[sid]), seats);
       var won = E.senateSeats(sh), list = [];
       Object.keys(won).sort(function (a, b) { return won[b] - won[a] || sh[b] - sh[a]; }).forEach(function (p) { for (var i = 0; i < won[p]; i++) list.push(p); });
       seats.filter(function (x) { return x.type === 'pr'; }).forEach(function (x, i) { x.party = list[i]; });

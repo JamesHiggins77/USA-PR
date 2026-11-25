@@ -6,7 +6,7 @@
 
   S.newGame = function (seed) {
     var Q = {
-      version: 1, seed: (seed || Date.now()) >>> 0, year: 1997, month: 1, player: 'ldp',
+      version: 1, seed: (seed || Date.now()) >>> 0, seed0: (seed || 1) >>> 0, year: 1997, month: 1, player: 'ldp',
       mods: {}, stateMods: {}, homeMult: {}, causes: {}, rel: {}, pos: {}, trend: {},
       dormant: { maga: true, afp: true, ul: true, acp: true }, ulMembers: null, flags: {}, timers: {}, log: [], polls: [], pacts: [],
       funds: 10, unity: 60, morale: 55, seen: {},
