@@ -365,7 +365,11 @@
       var w = r.r2[0];
       h += '<div class="panel"><h2 style="margin-top:0">' + r.year + ' presidential election</h2><p><b>' + esc(w[0]) + '</b> (' + esc(oldParty(w[1]).name) + ') elected. ' + esc(r.note) + '</p>';
       h += '<h3>Round one: national popular vote</h3><table class="seats">' + r.r1.map(function (c, i) { return '<tr><td>' + (c[1] ? ochip(c[1]) : '') + esc(c[0]) + (c[1] ? ' <span class="small muted">' + esc(oldParty(c[1]).short) + '</span>' : '') + (i < 2 ? ' <span class="pill yes">advances</span>' : '') + bar(c[2] * 2.5, c[1] ? oldParty(c[1]).color : '#888') + '</td><td><b>' + c[2].toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
-      h += '<h3>Round two: Electoral College (' + r.total + ' electors)</h3><table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + r.r2.map(function (c) { return '<tr><td>' + ochip(c[1]) + esc(c[0]) + bar(c[2] / r.total * 100, oldParty(c[1]).color) + '</td><td><b>' + c[2] + '</b></td><td>' + c[3].toFixed(1) + '%</td></tr>'; }).join('') + '</table></div>';
+      h += '<h3>Round two: Electoral College (' + r.total + ' electors)</h3><table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + r.r2.map(function (c) { return '<tr><td>' + ochip(c[1]) + esc(c[0]) + bar(c[2] / r.total * 100, oldParty(c[1]).color) + '</td><td><b>' + c[2] + '</b></td><td>' + c[3].toFixed(1) + '%</td></tr>'; }).join('') + '</table>';
+      // runoff map: electors by state for the period; greyed states had no electors yet
+      var el = r.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[r.era], lose = r.lose.split(' ');
+      var colorOfH = function (sid) { return el[sid] == null ? '#d6d2c8' : oldParty(lose.indexOf(sid) >= 0 ? r.r2[1][1] : r.r2[0][1]).color; };
+      h += '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, colorOfH, function (sid) { return el[sid] == null ? '' : String(el[sid]); }) + '</div><p class="small muted">Runoff winner in each state, with its electors.' + (el.AK == null ? ' Alaska and Hawaii were not yet states, and DC had no electors.' : '') + '</p></div>';
       return h;
     }
     if (sel.kind === 'pres') {

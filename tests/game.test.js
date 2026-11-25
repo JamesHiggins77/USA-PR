@@ -115,3 +115,18 @@ test('the hand holds five cards from five decks; playing or discarding advances 
   assert.strictEqual(U.monthIndex(Q.year, Q.month), m + 2);
   assert.ok(Q.hand.every(h => h === null));
 });
+
+test('historical election maps add up to the stated electors', () => {
+  const L = U.LORE;
+  for (const e of L.presElections) {
+    const el = e.era === 'modern' ? U.Elections.apportion().electors : L.ecEras[e.era];
+    const lose = e.lose.split(' '), tot = Object.values(el).reduce((a, b) => a + b, 0);
+    for (const s of lose) assert.ok(el[s] != null, e.year + ': ' + s + ' had no electors');
+    const b = lose.reduce((a, s) => a + el[s], 0);
+    assert.strictEqual(e.total, tot, e.year + ' total');
+    assert.strictEqual(e.r2[1][2], b, e.year + ' runoff loser');
+    assert.strictEqual(e.r2[0][2], tot - b, e.year + ' runoff winner');
+    assert.ok(e.r2[0][2] > e.r2[1][2], e.year + ' winner has more electors');
+    assert.ok(Math.abs(e.r1.reduce((a, c) => a + c[2], 0) - 100) < 0.05, e.year + ' round one adds to 100%');
+  }
+});

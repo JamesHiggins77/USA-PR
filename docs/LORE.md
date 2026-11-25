@@ -78,8 +78,8 @@ Republicans backed Roosevelt in the runoff; the South held for Wilson.
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Theodore Roosevelt | Progressive Party | 356 | 51.8% |
-| Woodrow Wilson | Democratic Party | 271 | 48.2% |
+| Theodore Roosevelt | Progressive Party | 412 | 51.8% |
+| Woodrow Wilson | Democratic Party | 215 | 48.2% |
 
 ### 1920
 
@@ -95,8 +95,8 @@ A vote for calm after the war and the League of Nations fight.
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Charles Evans Hughes | Republican Party | 389 | 55.6% |
-| William McAdoo | Democratic Party | 238 | 44.4% |
+| Charles Evans Hughes | Republican Party | 452 | 55.6% |
+| William McAdoo | Democratic Party | 175 | 44.4% |
 
 ### 1926
 
@@ -112,8 +112,8 @@ Farm-belt Progressives swung behind Lowden, the farm-relief champion, over the N
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Frank Lowden | Republican Party | 334 | 51.2% |
-| Al Smith | Democratic Party | 293 | 48.8% |
+| Frank Lowden | Republican Party | 420 | 51.2% |
+| Al Smith | Democratic Party | 207 | 48.8% |
 
 ### 1932
 
@@ -130,8 +130,8 @@ A Depression landslide on Share Our Wealth.
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Huey Long | Democratic Party | 451 | 61.4% |
-| Frank Lowden | Republican Party | 176 | 38.6% |
+| Huey Long | Democratic Party | 556 | 61.4% |
+| Frank Lowden | Republican Party | 71 | 38.6% |
 
 ### 1938
 
@@ -147,8 +147,8 @@ Re-elected despite the 1937 recession and his feud with Prime Minister Smith.
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Huey Long | Democratic Party | 388 | 55.9% |
-| Robert A. Taft | Republican Party | 239 | 44.1% |
+| Huey Long | Democratic Party | 440 | 55.9% |
+| Robert A. Taft | Republican Party | 187 | 44.1% |
 
 ### 1944
 
@@ -164,8 +164,8 @@ A wartime cliffhanger: Ohio decided the runoff by 41,000 votes.
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| John Nance Garner | Democratic Party | 322 | 50.6% |
-| Thomas E. Dewey | Republican Party | 305 | 49.4% |
+| John Nance Garner | Democratic Party | 331 | 50.6% |
+| Thomas E. Dewey | Republican Party | 296 | 49.4% |
 
 ### 1950
 
@@ -182,8 +182,8 @@ The Dixiecrats’ Strom Thurmond carried four southern states’ first-round vot
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Thomas E. Dewey | Republican Party | 401 | 56.8% |
-| Adlai Stevenson | Democratic Party | 226 | 43.2% |
+| Thomas E. Dewey | Republican Party | 455 | 56.8% |
+| Adlai Stevenson | Democratic Party | 172 | 43.2% |
 
 ### 1956
 
@@ -199,8 +199,8 @@ Re-elected in the first presidential race for the new SDLP.
 
 | Runoff (627 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Thomas E. Dewey | Republican Party | 365 | 54.4% |
-| Estes Kefauver | Democratic Party | 262 | 45.6% |
+| Thomas E. Dewey | Republican Party | 440 | 54.4% |
+| Estes Kefauver | Democratic Party | 187 | 45.6% |
 
 ### 1962
 
@@ -216,8 +216,8 @@ Nixon won narrowly, and found himself sharing power with a Democratic Prime Mini
 
 | Runoff (638 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Richard Nixon | Republican Party | 337 | 51.6% |
-| Hubert Humphrey | Democratic Party | 301 | 48.4% |
+| Richard Nixon | Republican Party | 329 | 51.6% |
+| Hubert Humphrey | Democratic Party | 309 | 48.4% |
 
 ### 1968
 
@@ -234,8 +234,8 @@ Kennedy, beaten for the LDP nomination by Johnson, ran for the SDLP and topped a
 
 | Runoff (638 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Robert F. Kennedy | SDLP | 438 | 64.2% |
-| George Wallace | SRP | 200 | 35.8% |
+| Robert F. Kennedy | SDLP | 545 | 64.2% |
+| George Wallace | SRP | 93 | 35.8% |
 
 ### 1974
 
@@ -252,8 +252,8 @@ Re-elected comfortably; Watergate sank the Republicans’ hopes.
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Robert F. Kennedy | SDLP | 421 | 56.0% |
-| Gerald Ford | Republican Party | 280 | 44.0% |
+| Robert F. Kennedy | SDLP | 402 | 56.0% |
+| Gerald Ford | Republican Party | 299 | 44.0% |
 
 ### 1980
 
@@ -270,8 +270,8 @@ The new CC’s breakthrough.
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Ronald Reagan | CC | 452 | 56.9% |
-| Jimmy Carter | LDP | 249 | 43.1% |
+| Ronald Reagan | CC | 562 | 56.9% |
+| Jimmy Carter | LDP | 139 | 43.1% |
 
 ### 1986
 
@@ -287,8 +287,8 @@ Re-elected comfortably.
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Ronald Reagan | CC | 463 | 57.8% |
-| Walter Mondale | LDP | 238 | 42.2% |
+| Ronald Reagan | CC | 570 | 57.8% |
+| Walter Mondale | LDP | 131 | 42.2% |
 
 ### 1992
 
@@ -305,8 +305,8 @@ Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Bill Clinton | LDP | 386 | 53.1% |
-| George H. W. Bush | CC | 315 | 46.9% |
+| Bill Clinton | LDP | 420 | 53.1% |
+| George H. W. Bush | CC | 281 | 46.9% |
 
 ## The parties
 
