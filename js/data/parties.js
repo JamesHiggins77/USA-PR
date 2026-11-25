@@ -27,7 +27,7 @@
     cc: { name: 'Conservative Coalition', short: 'CC', color: '#0047ab', kind: 'party', econ: 6, soc: 6, fed: 4,
       target: 22, office: .9, leader: 'George W. Bush', founded: 'late 1970s (Southern Democrats + Republicans)',
       pref: { prof: 16, suburb: 24, union: 12, rural: 32, relig: 30, black: 3, hisp: 10, young: 10, retire: 22 } },
-    asp: { name: 'American Solidarity Union', short: 'ASP', color: '#e07b16', kind: 'alliance', econ: -3, soc: 5, fed: 3,
+    asp: { name: 'American Solidarity Union', short: 'ASU', color: '#e07b16', kind: 'alliance', econ: -3, soc: 5, fed: 3,
       target: 3.8, office: .6, leader: 'Coalition chair',
       members: { asp_core: 0.25, mormon: 0.25, catholic: 0.25, moderate: 0.25 },
       pref: { prof: 4, suburb: 7, union: 9, rural: 10, relig: 14, black: 6, hisp: 8, young: 4, retire: 8 } },

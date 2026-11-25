@@ -90,6 +90,7 @@
     T.memberKey = {};
     for (var ck in (U.CONSTITUENTS || {})) T.memberKey[U.CONSTITUENTS[ck].name] = ck;
     ['mup', 'cath', 'mod'].forEach(function (k) { if (U.FORMER_PARTIES && U.FORMER_PARTIES[k]) T.memberKey[U.FORMER_PARTIES[k].name] = k; });
+    var CH = ((U.PARTIES.aga || {}).chapters) || {}; for (var cs in CH) T.memberKey[CH[cs].name] = 'aga:' + cs;
     keys = keys.concat(Object.keys(T.memberKey));
     keys = keys.concat(Object.keys(T.partyKey));
     keys.sort(function (a, b) { return b.length - a.length; });
@@ -98,7 +99,17 @@
   }
 
   // a member party of an alliance
+  var CHAPTER_DESC = { AK: 'Alaska\u2019s Greens: environmentalists with a frontier libertarian streak.', RI: 'The most progressive chapter: urban, left-wing and close to the far left on economics.',
+    VA: 'A conservationist, fiscally conservative chapter: it campaigns for rail, against sprawl and for lower taxes, and often sides with the right on budgets.' };
+  function chapterCard(Q, sid) {
+    var ch = U.PARTIES.aga.chapters[sid], seats = Q && Q.agaSeats ? (Q.agaSeats[sid] || 0) : 0;
+    var lean = function (v, l, r) { return v <= -2 ? l : v >= 2 ? r : 'centrist'; };
+    return '<b>' + esc(ch.name) + '</b><br><span class="muted">State chapter of the American Green Alliance (' + sid + ')</span><br>' + esc(CHAPTER_DESC[sid] || '') + '<br>' +
+      'Economy: ' + lean(ch.econ, 'left', 'right') + ' \u00b7 society: ' + lean(ch.soc, 'progressive', 'conservative') + '<br>' +
+      (Q ? 'House seats: ' + seats + '<br>' : '') + '<span class="muted">Each chapter decides its own votes on confidence and budgets.</span>';
+  }
   function memberCard(Q, k) {
+    if (/^aga:/.test(k)) return chapterCard(Q, k.slice(4));
     var c = (U.CONSTITUENTS || {})[k], f = (U.FORMER_PARTIES || {})[k], pr = (U.PARTY_PROFILES || {})[k];
     var alliance = c ? c.alliance : 'asp', A = U.PARTIES[alliance], name = c ? c.name : f.name;
     var h = '<b>' + esc(name) + '</b><br><span class="muted">Member party of the ' + esc(A.name) + '</span><br>';
