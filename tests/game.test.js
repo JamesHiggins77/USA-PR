@@ -194,3 +194,10 @@ test('demographics change over time', () => {
   assert.ok(at(2024, [idx('education', 'Post')]).shares.ldp > at(1997, [idx('education', 'Post')]).shares.ldp + 5);
   assert.ok(at(2024, [idx('education', 'High')]).shares.cc > at(1997, [idx('education', 'High')]).shares.cc + 5);
 });
+
+test('crosstab with non-voters: party shares plus non-voters make 100%', () => {
+  const Q = U.Game.newGame(1), P = U.Crosstab.prepare(Q);
+  const r = U.Crosstab.query(P, 'US', [], true), y = U.Crosstab.query(P, 'US', [['age', 0]], true);
+  assert.ok(Math.abs(Object.values(r.shares).reduce((a, b) => a + b, 0) - 100) < 0.01);
+  assert.ok(r.turnout > 50 && r.turnout < 75); assert.ok(y.turnout < r.turnout);
+});

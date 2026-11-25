@@ -330,8 +330,8 @@
   function demoTables(top) {
     var D = V.demographics(Q), cols = top.slice(0, 8), h = '';
     var cell = function (v, p) { if (v == null) return '<td>–</td>'; var a = Math.min(0.85, v / 60); return '<td class="heat" style="background:' + hexA(P(p).color, a) + ';color:' + (a > 0.45 ? Ch.ink(P(p).color) : 'inherit') + '">' + v.toFixed(1) + '</td>'; };
-    var lead = function (sh) { var k = Object.keys(sh).filter(function (p) { return p !== 'regional'; }).sort(function (a, b) { return sh[b] - sh[a]; })[0]; return k ? chip(k) + P(k).short : ''; };
-    var other = function (sh) { var t = 0; for (var p in sh) if (cols.indexOf(p) < 0) t += sh[p]; return t; };
+    var lead = function (sh) { var k = Object.keys(sh).filter(function (p) { return p !== 'regional' && p !== 'nonvote'; }).sort(function (a, b) { return sh[b] - sh[a]; })[0]; return k ? chip(k) + P(k).short : ''; };
+    var other = function (sh) { var t = 0; for (var p in sh) if (cols.indexOf(p) < 0 && p !== 'nonvote') t += sh[p]; return t; };
     var head = '<tr><th>Group</th><th>Share of voters</th>' + cols.map(function (p) { return '<th>' + chip(p) + P(p).short + '</th>'; }).join('') + '<th>Others</th><th>Leads</th></tr>';
     h += '<h2>How each demographic votes</h2><p class="small muted">Estimated vote (%) in each voter group nationally, from the game’s voter model. Groups overlap in real life; here every voter is counted in one group. Regional parties are counted under Others.</p><div class="tablewrap"><table class="seats demo">' + head.replace('Group', 'Voter group');
     U.GROUPS.slice().sort(function (a, b) { return D.groups[b].size - D.groups[a].size; }).forEach(function (g) { var d = D.groups[g];
@@ -349,21 +349,23 @@
     h += '<h2>Polling explorer</h2><p class="small muted">Choose a place and any combination of demographics (one option per category). Estimates come from the voter model: the smaller the group, the rougher the estimate.</p><p class="small muted">The electorate changes as the years pass: figures are for ' + esc(U.dateStr(Q)) + '. Hispanic, Asian American, college-educated, older and non-religious voters grow as a share of the electorate while union, white, married and blue-collar voters shrink, and groups realign: graduates and suburbs drift to the LDP, non-graduates, rural and blue-collar voters to the right, and Hispanic voters rightward after 2012.</p>';
     h += '<div class="xtab"><label>Place<select data-dgeo>' + geoOpts + '</select></label>' + U.DEMO_CATEGORIES.map(function (c) {
       return '<label>' + esc(c.name) + '<select data-dpick="' + c.id + '"><option value="">Any</option>' + c.segs.map(function (sg, i) { return '<option value="' + i + '"' + (demoPicks[c.id] === i ? ' selected' : '') + '>' + esc(sg[0]) + '</option>'; }).join('') + '</select></label>'; }).join('') +
-      '<button class="btn ghost" data-dreset>Clear filters</button></div>';
-    var q = U.Crosstab.query(XP, demoGeo, picks), desc = picks.map(function (pk) { var c = U.DEMO_CATEGORIES.filter(function (x) { return x.id === pk[0]; })[0]; return c.segs[pk[1]][0]; });
-    var ord = Object.keys(q.shares).filter(function (p) { return q.shares[p] >= 0.5; }).sort(function (a, b) { return q.shares[b] - q.shares[a]; });
-    h += '<div class="panel"><b>' + esc(desc.length ? desc.join(' · ') : 'All voters') + '</b> in <b>' + esc(q.place) + '</b><div class="small muted">About ' + (q.size >= 1 ? q.size.toFixed(1) : q.size.toFixed(2)) + '% of voters there' + (q.size < 0.5 ? ' — a very small group: treat the estimate as rough' : '') + '.</div>' +
-      '<table class="seats">' + ord.map(function (p) { return '<tr><td>' + chip(p) + P(p).name + bar(q.shares[p] * 2, P(p).color) + '</td><td><b>' + q.shares[p].toFixed(1) + '%</b></td></tr>'; }).join('') + '</table></div>';
+      '<label class="nvtoggle"><span><input type="checkbox" data-dnv' + (demoNV ? ' checked' : '') + '> Include non-voters</span></label><button class="btn ghost" data-dreset>Clear filters</button></div>';
+    var q = U.Crosstab.query(XP, demoGeo, picks, demoNV), desc = picks.map(function (pk) { var c = U.DEMO_CATEGORIES.filter(function (x) { return x.id === pk[0]; })[0]; return c.segs[pk[1]][0]; });
+    var ord = Object.keys(q.shares).filter(function (p) { return p !== 'nonvote' && q.shares[p] >= 0.5; }).sort(function (a, b) { return q.shares[b] - q.shares[a]; });
+    if (demoNV) ord.unshift('nonvote');
+    var PN = function (p) { return p === 'nonvote' ? { name: 'Would not vote', color: '#9aa0a6' } : P(p); };
+    h += '<div class="panel"><b>' + esc(desc.length ? desc.join(' · ') : 'All voters') + '</b> in <b>' + esc(q.place) + '</b><div class="small muted">About ' + (q.size >= 1 ? q.size.toFixed(1) : q.size.toFixed(2)) + (demoNV ? '% of adults there; turnout ' + q.turnout.toFixed(0) + '%' : '% of voters there') + (q.size < 0.5 ? ' — a very small group: treat the estimate as rough' : '') + '.</div>' +
+      '<table class="seats">' + ord.map(function (p) { var pn = PN(p); return '<tr><td>' + (p === 'nonvote' ? '<i class="chip" style="background:#9aa0a6"></i>' : chip(p)) + pn.name + bar(q.shares[p] * (p === 'nonvote' ? 1 : 2), pn.color) + '</td><td><b>' + q.shares[p].toFixed(1) + '%</b></td></tr>'; }).join('') + '</table></div>';
     var cat = U.DEMO_CATEGORIES.filter(function (c) { return c.id === demoCat; })[0] || U.DEMO_CATEGORIES[0];
     var base = picks.filter(function (pk) { return pk[0] !== cat.id; });
-    h += '<h2>Breakdown by category</h2><p class="small muted">Each group of the chosen category in ' + esc(q.place) + (base.length ? ', within the filters above' : '') + '. Share: % of voters there.</p><div class="row" style="margin-bottom:8px;flex-wrap:wrap">' +
+    h += '<h2>Breakdown by category</h2><p class="small muted">Each group of the chosen category in ' + esc(q.place) + (base.length ? ', within the filters above' : '') + '. Share: % of ' + (demoNV ? 'adults' : 'voters') + ' there.</p><div class="row" style="margin-bottom:8px;flex-wrap:wrap">' +
       U.DEMO_CATEGORIES.map(function (c) { return '<button class="btn ' + (c === cat ? '' : 'ghost') + '" data-dcat="' + c.id + '">' + esc(c.name) + '</button>'; }).join('') + '</div>';
-    h += '<div class="tablewrap"><table class="seats demo">' + head.replace('Group', esc(cat.name)).replace('Share of voters', 'Share');
-    cat.segs.forEach(function (sg, i) { var r = U.Crosstab.query(XP, demoGeo, base.concat([[cat.id, i]])), sh = r.shares;
-      h += '<tr><td>' + esc(sg[0]) + '</td><td>' + (r.size >= 1 ? r.size.toFixed(1) : r.size.toFixed(2)) + '%</td>' + cols.map(function (p) { return cell(sh[p], p); }).join('') + '<td>' + other(sh).toFixed(1) + '</td><td>' + lead(sh) + '</td></tr>'; });
+    h += '<div class="tablewrap"><table class="seats demo">' + head.replace('Group', esc(cat.name)).replace('Share of voters', demoNV ? 'Share of adults' : 'Share').replace('<th>Others</th>', '<th>Others</th>' + (demoNV ? '<th>Not voting</th>' : ''));
+    cat.segs.forEach(function (sg, i) { var r = U.Crosstab.query(XP, demoGeo, base.concat([[cat.id, i]]), demoNV), sh = r.shares;
+      h += '<tr><td>' + esc(sg[0]) + '</td><td>' + (r.size >= 1 ? r.size.toFixed(1) : r.size.toFixed(2)) + '%</td>' + cols.map(function (p) { return cell(sh[p], p); }).join('') + '<td>' + other(sh).toFixed(1) + '</td>' + (demoNV ? '<td><b>' + sh.nonvote.toFixed(1) + '</b></td>' : '') + '<td>' + lead(sh) + '</td></tr>'; });
     return h + '</table></div>';
   }
-  var demoCat = 'gender', demoGeo = 'US', demoPicks = {};
+  var demoCat = 'gender', demoGeo = 'US', demoPicks = {}, demoNV = false;
   function hexA(c, a) { var m = /^#(..)(..)(..)$/.exec(c); return m ? 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + a.toFixed(2) + ')' : c; }
 
   // ---------- polls & voters ----------
@@ -559,6 +561,7 @@
     document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
     var dg = document.querySelector('[data-dgeo]'); if (dg) dg.onchange = function () { demoGeo = dg.value; render(); };
     document.querySelectorAll('[data-dpick]').forEach(function (sel) { sel.onchange = function () { if (sel.value === '') delete demoPicks[sel.dataset.dpick]; else demoPicks[sel.dataset.dpick] = +sel.value; render(); }; });
+    var dnv = document.querySelector('[data-dnv]'); if (dnv) dnv.onchange = function () { demoNV = dnv.checked; render(); };
     var dr = document.querySelector('[data-dreset]'); if (dr) dr.onclick = function () { demoPicks = {}; demoGeo = 'US'; render(); };
     document.querySelectorAll('[data-dcat]').forEach(function (b) { b.onclick = function () { demoCat = b.dataset.dcat; render(); }; });
     document.querySelectorAll('[data-pfilter]').forEach(function (b) { b.onclick = function () { partyFilter = b.dataset.pfilter; render(); }; });

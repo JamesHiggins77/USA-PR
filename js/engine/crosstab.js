@@ -81,8 +81,16 @@
     return out;
   };
 
+  // Turnout: share of each base group that votes, and adjustments for segments.
+  // National turnout under PR runs higher than in our history and rises over time.
+  X.TURNOUT = { prof: 0.78, suburb: 0.71, union: 0.68, rural: 0.63, relig: 0.74, black: 0.6, hisp: 0.48, young: 0.45, retire: 0.77 };
+  X.SEG_TURNOUT = { '18\u201324': 0.85, 'Postgraduate': 1.15, 'College graduate': 1.08, 'No high-school diploma': 0.72, 'Under $30,000': 0.82, 'Over $100,000': 1.12,
+    'Renter': 0.85, 'Homeowner': 1.07, 'Married': 1.06, 'Never married': 0.88, 'First generation (born abroad)': 0.72, 'Asian American': 0.85, 'Native American': 0.8,
+    'Military or veteran household': 1.08, 'Union household': 1.05, 'No religion': 0.9, 'Evangelical Protestant': 1.05, 'Student': 0.9, 'Other / non-binary': 0.9 };
+  X.turnoutYear = function (year) { return 1 + 0.003 * Math.max(0, Math.min(27, (year || 1997) - 1997)); };
+
   // picks: [[categoryId, segmentIndex], ...]. Returns {shares, size (% of the place's voters), small}
-  X.query = function (P, geoKey, picks) {
+  X.query = function (P, geoKey, picks, withNonvoters) {
     var geo = P.geo(geoKey), w = {}, tilt = {}, gsize = {};
     U.GROUPS.forEach(function (g) { w[g] = geo.mix[g]; gsize[g] = P.nat.groups[g].size / 100; });
     (picks || []).forEach(function (pk) {
@@ -96,6 +104,14 @@
     U.GROUPS.forEach(function (g) { var k = size ? w[g] / size : 0; for (var p in geo.shares[g]) out[p] = (out[p] || 0) + geo.shares[g][p] * k; });
     for (var p in out) { out[p] *= tilt[p] || 1; tot += out[p]; }
     for (p in out) out[p] = out[p] / tot * 100;
-    return { shares: out, size: Math.min(100, size * 100), place: geo.name };
+    if (!withNonvoters) return { shares: out, size: Math.min(100, size * 100), place: geo.name };
+    // the same people counted among all adults: groups that vote less are a larger share of adults
+    var adult = {}, at = 0, T = 0, segT = 1, ty = X.turnoutYear(P.year), base = {}, bt = 0;
+    U.GROUPS.forEach(function (g) { adult[g] = w[g] / X.TURNOUT[g]; at += adult[g]; base[g] = geo.mix[g] / X.TURNOUT[g]; bt += base[g]; });
+    U.GROUPS.forEach(function (g) { T += (at ? adult[g] / at : 0) * X.TURNOUT[g]; });
+    (picks || []).forEach(function (pk) { var cat = U.DEMO_CATEGORIES.filter(function (c) { return c.id === pk[0]; })[0], seg = cat && cat.segs[pk[1]]; if (seg && X.SEG_TURNOUT[seg[0]]) segT *= X.SEG_TURNOUT[seg[0]]; });
+    T = Math.min(0.97, T * segT * ty);
+    var o2 = {}; for (p in out) o2[p] = out[p] * T; o2.nonvote = 100 * (1 - T);
+    return { shares: o2, size: Math.min(100, (bt ? at / bt : 0) * 100), place: geo.name, turnout: T * 100 };
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
