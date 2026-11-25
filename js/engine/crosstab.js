@@ -10,15 +10,14 @@
 
   // Polling regions: every state belongs to exactly one. [name, states, map colour]
   X.REGIONS = [
-    ['New England', 'ME NH VT MA RI CT', '#6a8caf'],
-    ['East Coast', 'NY NJ PA DE MD DC VA', '#8e7cc3'],
-    ['Appalachia', 'WV KY TN NC', '#93a06a'],
-    ['The South', 'AL MS LA GA SC AR', '#c77d5b'],
-    ['Sunbelt', 'FL TX AZ NV NM', '#e0b04f'],
-    ['Midwest', 'OH MI IN IL WI MN IA MO', '#5f9e8f'],
-    ['Great Plains', 'ND SD NE KS OK', '#b8a36a'],
-    ['Rockies', 'MT ID WY CO UT', '#8f6f5a'],
-    ['Pacific', 'CA OR WA AK HI', '#4f8fc0']
+    ['New England', 'CT ME MA NH RI VT', '#6a8caf'],
+    ['Mid-Atlantic', 'DE MD NJ NY PA DC', '#8e7cc3'],
+    ['Great Lakes', 'IL IN MI OH WI', '#5f9e8f'],
+    ['Plains', 'IA KS MN MO NE ND SD', '#b8a36a'],
+    ['Southeast', 'AL AR FL GA KY LA MS NC SC TN VA WV', '#c77d5b'],
+    ['Southwest', 'AZ NM OK TX', '#e0b04f'],
+    ['Rocky Mountain', 'CO ID MT UT WY', '#8f6f5a'],
+    ['Far West', 'AK CA HI NV OR WA', '#4f8fc0']
   ];
   X.regionOf = function (sid) { for (var i = 0; i < X.REGIONS.length; i++) if ((' ' + X.REGIONS[i][1] + ' ').indexOf(' ' + sid + ' ') >= 0) return X.REGIONS[i]; return null; };
 
