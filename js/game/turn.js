@@ -347,7 +347,7 @@
     Q.lastElection = res;
     Q.history = Q.history || [];
     Q.history.push({ kind: 'general', date: res.date, shares: (function () { var o = {}; for (var p in shares) if (shares[p] >= 0.3) o[p] = Math.round(shares[p] * 10) / 10; return o; })(), house: U.clone(res.house), senate: U.clone(res.senate),
-      states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders),
+      states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders), senLeaders: (function () { var o = {}; for (var p in U.Elections.senateCount(Q)) o[p] = S.senLeaderOf(Q, p); for (p in Q.house) if (!o[p]) o[p] = S.senLeaderOf(Q, p); return o; })(),
       senShares: (function () { var w = {}, t = 0; for (var sid in (Q.senateShares || {})) { var pop = (U.STATES[sid] || {}).pop || 0; t += pop; for (var p in Q.senateShares[sid]) w[p] = (w[p] || 0) + Q.senateShares[sid][p] * pop; } for (p in w) w[p] = Math.round(w[p] / t * 10) / 10; return w; })() });
     res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];
@@ -433,6 +433,15 @@
   S.officeName = function (Q, office, p) {
     var o = Q.offices && Q.offices[office]; if (o) { var tmp = o.name; o.name = '\u0000'; var n = S.pickPerson(Q, p, null, 'competence'); o.name = tmp; return n; }
     return S.pickPerson(Q, p, null, 'competence');
+  };
+  // Senate party leaders: kept until they become the party's House leader or President
+  var SEN0 = { ldp: 'Ted Kennedy', cc: 'Trent Lott', cdp: 'Richard Lugar', sdlp: 'Paul Wellstone', srp: 'Strom Thurmond', asp: 'Orrin Hatch', lsp: 'Kinky Friedman', reform: 'Dean Barkley', grn: 'Winona LaDuke' };
+  S.senLeaderOf = function (Q, p) {
+    if (p === 'revsoc') return '(fragmented)';
+    Q.senLeaders = Q.senLeaders || {};
+    var cur = Q.senLeaders[p] || SEN0[p], house = S.leaderOf(Q, p);
+    if (!cur || cur === house || (Q.president && cur === Q.president.name)) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
+    Q.senLeaders[p] = cur; return cur;
   };
   S.leaderOf = function (Q, p) { return p === Q.player ? Q.leader.name : (Q.leaders && Q.leaders[p]) || U.PARTIES[p].leader; };
 

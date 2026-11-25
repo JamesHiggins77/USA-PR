@@ -72,3 +72,53 @@
     if (e.year === 1962) e.note = 'Nixon won, and inherited John F. Kennedy as his Prime Minister. Many Democratic voters backed Nixon in the runoff over Humphrey while voting Democratic for the House.';
   });
 })(typeof globalThis !== 'undefined' ? globalThis : window);
+
+// Party leaders in each chamber: [from year, House leader, Senate leader].
+(function (G) {
+  'use strict';
+  var L = G.USA.LORE;
+  L.partyLeaders = {
+    dem: [[1914, 'Champ Clark', 'John W. Kern'], [1918, 'Champ Clark', 'Thomas S. Martin'], [1922, 'Finis Garrett', 'Joseph T. Robinson'], [1930, 'John Nance Garner', 'Joseph T. Robinson'],
+      [1932, 'Al Smith', 'Joseph T. Robinson'], [1938, 'Sam Rayburn', 'Alben W. Barkley'], [1944, 'Alben W. Barkley', 'Scott Lucas'], [1950, 'Sam Rayburn', 'Ernest McFarland'],
+      [1953, 'Estes Kefauver', 'Lyndon B. Johnson'], [1960, 'Lyndon B. Johnson', 'Mike Mansfield'], [1963, 'John F. Kennedy', 'Mike Mansfield'],
+      [1966, 'Wilbur Mills', 'Richard Russell'], [1972, 'Wilbur Mills', 'James Eastland'], [1974, 'Jamie Whitten', 'James Eastland']],
+    rep: [[1914, 'James R. Mann', 'Jacob Gallinger'], [1918, 'Warren G. Harding', 'Henry Cabot Lodge'], [1922, 'Frederick Gillett', 'Henry Cabot Lodge'], [1926, 'Nicholas Longworth', 'Charles Curtis'],
+      [1930, 'Nicholas Longworth', 'James E. Watson'], [1932, 'Bertrand Snell', 'Charles McNary'], [1938, 'Joseph Martin', 'Charles McNary'], [1944, 'Joseph Martin', 'Wallace White'],
+      [1948, 'Joseph Martin', 'Robert A. Taft'], [1950, 'Robert A. Taft', 'Kenneth Wherry'], [1953, 'Joseph Martin', 'William Knowland'], [1960, 'Charles Halleck', 'Everett Dirksen'],
+      [1966, 'Gerald Ford', 'Everett Dirksen'], [1972, 'Gerald Ford', 'Hugh Scott'], [1974, 'John Rhodes', 'Hugh Scott']],
+    prog: [[1914, 'Victor Murdock', 'Miles Poindexter'], [1922, 'Robert La Follette', 'George Norris'], [1926, 'Robert La Follette Jr.', 'George Norris'], [1930, 'Fiorello La Guardia', 'George Norris'],
+      [1932, 'Fiorello La Guardia', 'Robert La Follette Jr.'], [1938, 'Henry A. Wallace', 'Robert La Follette Jr.'], [1948, 'Henry A. Wallace', 'Glen H. Taylor'], [1950, 'Vito Marcantonio', 'Glen H. Taylor']],
+    soc: [[1914, 'Meyer London', 'Emil Seidel'], [1918, 'Victor Berger', 'Emil Seidel'], [1922, 'Victor Berger', 'Daniel Hoan'], [1930, 'Norman Thomas', 'Daniel Hoan'], [1950, 'Norman Thomas', 'Jasper McLevy']],
+    fl: [[1922, 'Knud Wefald', 'Henrik Shipstead'], [1930, 'Floyd Olson', 'Henrik Shipstead'], [1936, 'Elmer Benson', 'Ernest Lundeen'], [1942, 'Elmer Benson', 'Henrik Shipstead'], [1950, 'John Blatnik', 'Henrik Shipstead']],
+    cpusa: [[1930, 'William Z. Foster', 'Earl Browder'], [1932, 'Earl Browder', 'William Z. Foster'], [1948, 'William Z. Foster', 'Benjamin J. Davis'], [1953, 'Gus Hall', 'Benjamin J. Davis'], [1974, 'Gus Hall', 'Angela Davis']],
+    srp: [[1948, 'Strom Thurmond', 'Fielding Wright'], [1953, 'John Bell Williams', 'Strom Thurmond'], [1966, 'George Wallace', 'Strom Thurmond'], [1978, 'Lester Maddox', 'Strom Thurmond']],
+    cdp: [[1948, 'Harold Stassen', 'Arthur Vandenberg'], [1953, 'Harold Stassen', 'Alexander Wiley'], [1957, 'Harold Stassen', 'John Sherman Cooper'], [1960, 'George Romney', 'John Sherman Cooper'],
+      [1963, 'George Romney', 'Jacob Javits'], [1968, 'Nelson Rockefeller', 'Jacob Javits'], [1974, 'John B. Anderson', 'Mark Hatfield'], [1986, 'Richard Lugar', 'Mark Hatfield'],
+      [1990, 'Richard Lugar', 'John Danforth'], [1994, 'John McCain', 'Richard Lugar']],
+    sdlp: [[1953, 'Walter Reuther', 'Paul Douglas'], [1968, 'George McGovern', 'Eugene McCarthy'], [1974, 'George McGovern', 'Philip Hart'], [1978, 'Tom Harkin', 'George McGovern'],
+      [1982, 'Tom Harkin', 'Howard Metzenbaum'], [1986, 'Jesse Jackson', 'Howard Metzenbaum'], [1990, 'Bill Bradley', 'Howard Metzenbaum'], [1992, 'Bill Bradley', 'Paul Wellstone']],
+    ldp: [[1966, 'Lyndon B. Johnson', 'Mike Mansfield'], [1968, 'Hubert Humphrey', 'Mike Mansfield'], [1974, 'Edmund Muskie', 'Mike Mansfield'], [1978, 'Walter Mondale', 'Robert Byrd'],
+      [1986, 'Jim Wright', 'Robert Byrd'], [1990, 'Lloyd Bentsen', 'George Mitchell'], [1992, 'Tom Foley', 'George Mitchell'], [1996, 'Al Gore', 'Ted Kennedy']],
+    cc: [[1978, 'John Connally', 'Howard Baker'], [1982, 'Bob Dole', 'Howard Baker'], [1986, 'Jack Kemp', 'Bob Dole'], [1992, 'Bob Michel', 'Bob Dole'], [1994, 'Newt Gingrich', 'Trent Lott']],
+    lib: [[1972, 'John Hospers', 'Roger MacBride'], [1974, 'Roger MacBride', 'David Nolan'], [1978, 'Ed Clark', 'David Koch'], [1982, 'David Bergland', 'David Koch'], [1990, 'Andre Marrou', 'Dick Randolph'], [1994, 'Harry Browne', 'Andre Marrou']],
+    con: [[1982, 'Howard Phillips', 'Larry McDonald'], [1986, 'Howard Phillips', 'Alan Keyes']],
+    lsp: [[1986, 'Ron Paul', 'Kinky Friedman']],
+    asp: [[1990, 'Mike Leavitt', 'Orrin Hatch']],
+    grn: [[1986, 'Barry Commoner', 'Winona LaDuke'], [1996, 'Ralph Nader', 'Winona LaDuke']],
+    dsa: [[1982, 'Michael Harrington', 'Ron Dellums'], [1992, 'Barbara Ehrenreich', 'Ron Dellums']],
+    cnp: [[1992, 'Jerry Brown', 'Tom Hayden']],
+    cfc: [[1978, 'Pete Wilson', 'Tom McClintock']],
+    reform: [[1996, 'Ross Perot', 'Dean Barkley']],
+    wfp: [[1996, 'Dan Cantor', 'Bertha Lewis']],
+    aga: [[1996, 'Jim Sykes', 'Greg Gerritt']],
+    vpp: [[1990, 'Peter Clavelle', 'Terry Bouricius']],
+    nyfp: [[1990, 'Tom Golisano', 'Lenora Fulani']]
+  };
+  // {house: {party: name}, senate: {party: name}} for an election year
+  L.leadersFor = function (year) {
+    var h = {}, s = {};
+    for (var p in L.partyLeaders) { var row = null; L.partyLeaders[p].forEach(function (r) { if (r[0] <= year) row = r; }); if (row) { h[p] = row[1]; s[p] = row[2]; } }
+    h.revsoc = s.revsoc = '(fragmented)';
+    return { house: h, senate: s };
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : window);

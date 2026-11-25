@@ -382,7 +382,7 @@ Clinton’s popularity put the LDP ahead of the SDLP in a presidential first rou
 
 **Ideology:** Labor-progressive: living wages, paid leave, affordable housing.
 
-### Revolutionary socialist parties (RSP)
+### Other radical left parties (fragmented) (ORL)
 
 *Founded various.* The fragmented revolutionary left: the Socialist Workers, Workers World, the Party for Socialism and Liberation, the Socialist Equality Party, the Black Panther Party and others, each with its own newspaper and its own split.
 

@@ -50,7 +50,7 @@
     wfp: { name: 'Working Families Party', short: 'WFP', color: '#7b2d8b', kind: 'party', econ: -7, soc: -3, fed: -2,
       target: 0.9, office: .4, leader: 'State chairs (New York)',
       pref: { prof: 1, suburb: 1.5, union: 6, rural: .5, relig: .5, black: 5, hisp: 4, young: 2, retire: 1.5 } },
-    revsoc: { name: 'Revolutionary socialist parties', short: 'RSP', color: '#4a0d1e', kind: 'bloc', econ: -10, soc: -5, fed: -3,
+    revsoc: { name: 'Other radical left parties (fragmented)', short: 'ORL', color: '#4a0d1e', kind: 'bloc', econ: -10, soc: -5, fed: -3,
       target: 0.7, office: .05, leader: 'Several (PSL, SWP, SEP, WWP, BPP and others)',
       note: 'Separate small parties (PSL, Black Panther Party, Socialist Workers, Socialist Equality, Workers World, Socialist Alternative and others) shown together for readability.',
       pref: { prof: 1, suburb: .3, union: 2, rural: .3, relig: .2, black: 3, hisp: 1.5, young: 4, retire: .3 } },

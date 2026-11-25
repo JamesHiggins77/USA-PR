@@ -116,7 +116,7 @@
     { year: 1994, seats: 600, shares: { cc: 29.0, ldp: 21.0, cdp: 16.0, sdlp: 15.0, lib: 4.0, asp: 4.0, con: 2.5, lsp: 2.0, srp: 2.0, grn: 1.0, dsa: 1.0, cnp: 1.0, oth: 1.5 }, gov: ['cc', 'cdp'], cs: ['lib', 'lsp'], pm: 'Newt Gingrich',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD HI VT DC', sdlp: 'MN WI MI WV', cdp: 'IA DE', asp: 'UT', lsp: 'TX' },
       sen: {'cc': 1, 'cdp': 1, 'ldp': -1},
-      note: 'Foley\u2019s health-care bill died in the Senate, and the ASP withdrew its support. A constructive vote to replace him with Newt Gingrich fell twelve votes short, so with Congress deadlocked Foley asked for an early election and both chambers agreed. Gingrich\u2019s Contract with America won, and Clinton, after first nominating the CDP\u2019s Bob Dole, who could not win an absolute majority, had to nominate Gingrich, who passed by simple majority.' }
+      note: 'Foley\u2019s health-care bill died in the Senate, and the ASP withdrew its support. A constructive vote to replace him with Newt Gingrich fell twelve votes short, so with Congress deadlocked Foley asked for an early election and both chambers agreed. Gingrich\u2019s Contract with America won, and Clinton, after first nominating the CDP\u2019s John McCain, who could not win an absolute majority, had to nominate Gingrich, who passed by simple majority.' }
   ];
 
   // Party info for old parties as well as the game's own.
