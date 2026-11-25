@@ -120,7 +120,26 @@
   // monthly hooks
   var aiParties = S.aiParties;
   S.tidyGov = function (Q) { var g = Q.gov; if (!g) return; g.cs = g.cs.filter(function (p, i) { return g.cs.indexOf(p) === i && g.coalition.indexOf(p) < 0 && p !== g.pmParty && !Q.dormant[p]; }); };
-  S.aiParties = function (Q) { aiParties(Q); S.mergers(Q); S.smallPacts(Q); S.tidyGov(Q); };
+  // careers: each January some figures enter national politics and others retire
+  S.careers = function (Q) {
+    if (Q.month !== 1 || Q.flags.careersYear === Q.year || !U.CAREERS) return;
+    Q.flags.careersYear = Q.year; Q.retired = Q.retired || {};
+    var holds = {}; [Q.president && Q.president.name, Q.gov && Q.gov.pm, Q.leader && Q.leader.name].concat(['speaker', 'ppt', 'vp'].map(function (o) { return Q.offices && Q.offices[o] && Q.offices[o].name; })).forEach(function (n) { if (n) holds[n] = 1; });
+    var party = function (n) { for (var p in U.PEOPLE) if (U.PEOPLE[p].indexOf(n) >= 0) return p; return null; };
+    var ins = [], outs = [];
+    for (var n in U.CAREERS) {
+      var c = U.CAREERS[n], p = party(n);
+      if (c[0] === Q.year && p && !Q.dormant[p]) ins.push(n + ' (' + U.PARTIES[p].short + ')');
+      if (c[1] && Q.year >= c[1] && !Q.retired[n] && !holds[n]) {
+        Q.retired[n] = 1; if (p) outs.push(n);
+        if (p && Q.leaders && Q.leaders[p] === n && p !== Q.player) { var ex = {}; ex[n] = 1; Q.leaders[p] = S.pickPerson(Q, p, ex, 'charisma'); S.note(Q, n + ' steps down as leader of the ' + U.PARTIES[p].short + '; ' + Q.leaders[p] + ' takes over.'); }
+        if (Q.senLeaders && Q.senLeaders[p] === n) delete Q.senLeaders[p];
+      }
+    }
+    if (outs.length) S.note(Q, 'Leaving national politics this year: ' + outs.join(', ') + '.');
+    if (ins.length) S.note(Q, 'New faces on the national scene: ' + ins.join(', ') + '.');
+  };
+  S.aiParties = function (Q) { aiParties(Q); S.mergers(Q); S.smallPacts(Q); S.tidyGov(Q); S.careers(Q); };
 
   // joint national lists: combined votes pass the threshold together; seats are split by votes
   var X = U.Elections, E = U.Electoral, R = U.RULES;

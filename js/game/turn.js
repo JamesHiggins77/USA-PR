@@ -428,8 +428,8 @@
   };
   S.pickPerson = function (Q, p, exclude, byStat) {
     var list = U.PEOPLE[p] || [], busy = S.busy(Q);
-    var free = list.filter(function (n) { return !busy[n] && !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]); });
-    if (!free.length) free = list.filter(function (n) { return !(exclude && exclude[n]); });
+    var yr = Q.year || 1997, free = list.filter(function (n) { return !busy[n] && !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && (!U.activeIn || U.activeIn(n, yr)); });
+    if (!free.length) free = list.filter(function (n) { return !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && (!U.activeIn || U.activeIn(n, yr)); });
     if (byStat) free.sort(function (a, b) { return U.personStats(b)[byStat] - U.personStats(a)[byStat]; });
     return free[0] || ('a senior ' + U.PARTIES[p].short + ' member');
   };
@@ -443,7 +443,7 @@
     if (p === 'revsoc') return '(fragmented)';
     Q.senLeaders = Q.senLeaders || {};
     var cur = Q.senLeaders[p] || SEN0[p], house = S.leaderOf(Q, p);
-    if (!cur || cur === house || (Q.president && cur === Q.president.name)) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
+    if (!cur || cur === house || (Q.president && cur === Q.president.name) || (Q.retired && Q.retired[cur]) || (U.activeIn && !U.activeIn(cur, Q.year))) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
     Q.senLeaders[p] = cur; return cur;
   };
   S.leaderOf = function (Q, p) { return p === Q.player ? Q.leader.name : (Q.leaders && Q.leaders[p]) || U.PARTIES[p].leader; };
