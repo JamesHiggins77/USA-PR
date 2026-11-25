@@ -315,7 +315,7 @@
       for (var p in b.pr) if (b.pr[p]) seats[p] = b.pr[p];
       Object.keys(b.shares).sort(function (x, y) { return b.shares[y] - b.shares[x]; }).slice(0, 6).forEach(function (p) { if (b.shares[p] >= 0.5) sh[p] = Math.round(b.shares[p] * 10) / 10; });
       st[sid] = { seats: seats, shares: sh }; }
-    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: st[x.state] ? st[x.state].shares : {} }; o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
+    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: st[x.state] ? st[x.state].shares : {} }; if (x.type === 'house') o.leg = x.party; else o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
     for (var q in Q.house) { var n = Q.house[q]; for (sid in st) n -= st[sid].seats[q] || 0; if (n > 0) nat[q] = n; }
     return { states: st, senStates: sen, national: nat };
   };

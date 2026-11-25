@@ -160,9 +160,9 @@
       states[s] = { seats: seats, shares: sh };
       if (s === 'DC') return;
       var sw = D.divisor(v[s], 3, 'sainte-lague', 0), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
-      var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0]; ss[leg] = (ss[leg] || 0) + 1;
+      var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0];
       for (p in ss) senate[p] = (senate[p] || 0) + ss[p];
-      senStates[s] = { seats: ss, shares: sh };
+      senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: sh, leg: leg };
     });
     if (e.seats === 600) { var nv = {}; parties.forEach(function (p) { nv[p] = e.shares[p]; });
       var nw = D.divisor(nv, 100, 'sainte-lague', 5 / (100 - oth)); for (var q in nw) if (nw[q]) { national[q] = nw[q]; house[q] = (house[q] || 0) + nw[q]; } }
