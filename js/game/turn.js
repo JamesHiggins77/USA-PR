@@ -333,7 +333,12 @@
     Q.lastDistricts = detail.districts.map(function (d) { return { s: d.s, n: d.n, w: d.w, round: d.round, f: d.f }; });
     Q.lastElection = res;
     Q.history = Q.history || [];
-    Q.history.push({ kind: 'general', date: res.date, shares: (function () { var o = {}; for (var p in shares) if (shares[p] >= 0.3) o[p] = Math.round(shares[p] * 10) / 10; return o; })(), house: U.clone(res.house), senate: U.clone(res.senate) });
+    Q.history.push({ kind: 'general', date: res.date, shares: (function () { var o = {}; for (var p in shares) if (shares[p] >= 0.3) o[p] = Math.round(shares[p] * 10) / 10; return o; })(), house: U.clone(res.house), senate: U.clone(res.senate),
+      // state by state: seats won there and the top vote shares (for the map)
+      states: (function () { var o = {}; for (var sid in h.byState) { var b = h.byState[sid], seats = {}, sh = {};
+        for (var p in b.pr) if (b.pr[p]) seats[p] = b.pr[p];
+        Object.keys(b.shares).sort(function (x, y) { return b.shares[y] - b.shares[x]; }).slice(0, 5).forEach(function (p) { sh[p] = Math.round(b.shares[p] * 10) / 10; });
+        o[sid] = { seats: seats, shares: sh }; } return o; })() });
     res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];
     Q.deadline = S.now(Q) + U.RULES.government.maxTermMonths;

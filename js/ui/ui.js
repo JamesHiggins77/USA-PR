@@ -24,6 +24,15 @@
     m.innerHTML = fn();
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
+    if (view === 'elections' && $('genmap')) {
+      var gsel = (Q.history || [])[+String(electSel).slice(1)];
+      U.Zoom.attach($('genmap'), 'genmap', function (t) {
+        var sid = t.dataset.state, st = gsel && gsel.states && gsel.states[sid]; if (!st) return null;
+        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b><div class="muted">' + U.sum(st.seats) + ' state list seats</div>' +
+          Object.keys(st.seats).sort(function (a, b) { return st.seats[b] - st.seats[a]; }).map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + st.seats[p] + '</b></div>'; }).join('') +
+          '<div class="muted" style="margin-top:4px">Vote</div>' + Object.keys(st.shares).map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + st.shares[p].toFixed(1) + '%</b></div>'; }).join('');
+      });
+    }
     if (view === 'map' && $('mapbox')) U.Zoom.attach($('mapbox'), 'states-' + mapMode + '-' + (mapMode === 'districts' ? 'geo' : mapStyle), mapHover);
     if (view === 'night') U.Night.start(Q, elec, function () { go('election'); });
   }
@@ -383,6 +392,10 @@
     }
     var order = Object.keys(r.house).sort(function (a, b) { return r.house[b] - r.house[a]; });
     h += '<div class="panel"><h2 style="margin-top:0">' + esc(r.date) + ' general election</h2><div class="grid2"><div><h3>House</h3>' + Ch.hemicycle(Q, r.house) + '</div><div><table class="seats"><tr><th>Party</th><th>Vote</th><th>Seats</th></tr>' + order.map(function (p) { return '<tr><td>' + chip(p) + P(p).name + '</td><td>' + (r.shares[p] != null ? r.shares[p].toFixed(1) + '%' : '') + '</td><td><b>' + r.house[p] + '</b></td></tr>'; }).join('') + '</table></div></div>';
+    if (r.states) {
+      var topOf = function (sid) { var st = r.states[sid]; if (!st) return null; var ks = Object.keys(st.seats); if (!ks.length) return Object.keys(st.shares)[0]; return ks.sort(function (x, y) { return st.seats[y] - st.seats[x] || (st.shares[y] || 0) - (st.shares[x] || 0); })[0]; };
+      h += '<h3>House seats by state</h3><div id="genmap">' + Ch.geoMap(Q, function (sid) { var t = topOf(sid); return t ? P(t).color : '#9aa0a6'; }, function (sid) { var st = r.states[sid], t = topOf(sid); return st && t ? (st.seats[t] || 0) + '/' + U.sum(st.seats) : ''; }) + '</div><p class="small muted">Each state is coloured by the party that won most of its state list seats (label: that party\u2019s seats / the state\u2019s seats). Hover or tap a state for details. The 100 national list seats are not shown on the map.</p>';
+    }
     h += '<h3>Senate</h3>' + Ch.seatTable(Q, r.senate) + '</div>';
     return h;
   }
