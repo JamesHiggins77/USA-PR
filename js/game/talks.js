@@ -66,7 +66,8 @@
       var un = C.unprompted(Q, p, Q.player);
       t.base[p] = un.margin;
       var st = un.vote;
-      if (T.expected(Q, p)) { st = 'abstain'; t.notes[p] = 'Expects to be offered a place in the cabinet'; }
+      if (p === 'cc') { st = 'no'; t.notes[p] = 'Will never back an LDP Prime Minister except in a grand coalition; might abstain to end a deadlock'; }
+      else if (T.expected(Q, p)) { st = 'abstain'; t.notes[p] = 'Expects to be offered a place in the cabinet'; }
       else t.notes[p] = st === 'yes' ? 'Ready to back an LDP Prime Minister' : st === 'abstain' ? 'Would abstain as things stand' : 'Will vote against as things stand';
       t.stance[p] = st;
     });
@@ -90,6 +91,7 @@
       return { party: p, before: before, after: 'no', text: 'The ' + short(p) + ' feels snubbed. It expected a real share of the cabinet, about ' + fair + ' posts, and now says it will vote no.' };
     }
     var st = T.stanceOf(m), rank = { no: 0, abstain: 1, yes: 2 };
+    if (p === 'cc' && !T.grand(Q, o)) { var dd = T.dist(Q, p); st = dd.abstain >= 0.5 ? 'abstain' : 'no'; }
     if (rank[st] < rank[before]) st = before; // an offer never makes things worse
     t.stance[p] = st; t.offers[p] = o;
     t.notes[p] = (st === 'yes' ? 'Will vote yes' : st === 'abstain' ? 'Will abstain' : 'Still voting no') + (val.why.length ? ': offered ' + val.why.join(', ') : '');
@@ -129,9 +131,19 @@
     var m = t.base[p] + (o ? T.value(Q, p, o).value : 0);
     var y = 1 / (1 + Math.exp(-m / 5)), n = 1 / (1 + Math.exp((m + 15) / 5)), ab = Math.max(0, 1 - y - n), tot = y + n + ab;
     var d = { yes: y / tot, abstain: ab / tot, no: n / tot, known: !!o };
-    if (!o) { var f = 0.35; d.yes = d.yes * (1 - f) + f / 3; d.abstain = d.abstain * (1 - f) + f / 3; d.no = d.no * (1 - f) + f / 3; }
+    if (p === 'cc' && !T.grand(Q, o)) {
+      // the CC never backs an LDP Prime Minister outside a grand coalition; it may abstain,
+      // for concessions, only to break a deadlock
+      var pa = U.clamp((m + 25) / 30, 0, 1) * (T.deadlock(Q) ? 0.8 : 0.1);
+      d = { yes: 0, abstain: pa, no: 1 - pa, known: true };
+    }
+    if (!o && p !== 'cc') { var f = 0.35; d.yes = d.yes * (1 - f) + f / 3; d.abstain = d.abstain * (1 - f) + f / 3; d.no = d.no * (1 - f) + f / 3; }
     return d;
   };
+  // a grand coalition with the CC: a fair share of the cabinet for it
+  T.grand = function (Q, o) { return !!(o && o.posts && o.posts >= Math.max(4, T.fair(Q, 'cc') - 1)); };
+  // deadlock: a second nomination, open talks, or repeated elections that settled nothing
+  T.deadlock = function (Q) { var f = Q.formation || {}; return f.stage === 'open' || f.round === 2 || (Q.flags.deadlockElections || 0) >= 1; };
   // rebels: MPs who will not back a government reaching too far from their party
   T.rebelShare = function (Q, p, coalition) {
     var pos = U.Elections.pos(Q), far = 0;

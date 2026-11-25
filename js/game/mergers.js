@@ -142,7 +142,8 @@
   // Sanders runs for the Senate from 2006 and moves there only if his party wins a Vermont seat
   var runGen = S.runGeneralElection;
   S.runGeneralElection = function (Q) {
-    var r = runGen(Q);
+    var wasDeadlocked = !!Q.formation; var r = runGen(Q);
+    Q.flags.deadlockElections = wasDeadlocked ? (Q.flags.deadlockElections || 0) + 1 : 0;
     if (!Q.flags.sandersSenator && Q.year >= 2006) {
       var won = (Q.senateSeats || []).some(function (x) { return x.state === 'VT' && x.type === 'pr' && (x.party === 'vpp' || x.party === 'ul'); });
       if (won) { Q.flags.sandersSenator = S.now(Q); S.note(Q, 'Bernie Sanders wins a Senate seat for Vermont and leaves the House.'); }

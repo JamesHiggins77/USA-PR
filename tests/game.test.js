@@ -274,3 +274,10 @@ test('talks odds: a fair coalition offer to the SDLP is near-certain; rebels app
   assert.ok(T.rebelShare(Q, 'sdlp', ['ldp', 'sdlp', 'cc']) > T.rebelShare(Q, 'sdlp', ['ldp', 'sdlp']));
   const pr = T.project(Q); assert.ok(pr.chance >= 0 && pr.chance <= 1);
 });
+
+test('the CC never votes for an LDP PM outside a grand coalition', () => {
+  const Q = U.Game.newGame(3), T = U.Talks; Q.formation = { start: 1, stage: 'nominee', round: 1, monthsLeft: 99, failed: [] }; T.start(Q);
+  T.offer(Q, 'cc', { bills: ['taxcut', 'defence'], speaker: true, chairs: 6 }); assert.strictEqual(T.dist(Q, 'cc').yes, 0); assert.ok(T.dist(Q, 'cc').abstain < 0.2);
+  Q.formation.stage = 'open'; assert.ok(T.dist(Q, 'cc').abstain > 0.2);
+  T.offer(Q, 'cc', { posts: 8, bills: ['taxcut'] }); assert.ok(T.dist(Q, 'cc').yes > 0.5);
+});
