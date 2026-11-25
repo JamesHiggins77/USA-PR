@@ -6,27 +6,29 @@
 
   // five-bloc placement of every party, current and former
   U.BLOC5 = {
-    cpusa: 'FL', dsa: 'FL', wfp: 'FL', revsoc: 'FL', ul: 'FL', grn: 'FL', acp: 'FL', vpp: 'FL', soc: 'FL',
-    ldp: 'L', sdlp: 'L', prog: 'L', fl: 'L', raza: 'L', aloha: 'L', cnp: 'L', alp: 'L', npl: 'L',
-    cdp: 'C', asp: 'C', reform: 'C', aga: 'C', nyfp: 'C', nenp: 'C', ind: 'C', dem: 'C', mup: 'C', cath: 'C', mod: 'C',
-    cc: 'R', lib: 'R', cfc: 'R', lsp: 'R', alk: 'R', rep: 'R',
-    con: 'FR', maga: 'FR', afp: 'FR', srp: 'FR'
+    cpusa: 'L', dsa: 'L', wfp: 'L', revsoc: 'L', ul: 'L', grn: 'L', acp: 'L', vpp: 'L', soc: 'L',
+    ldp: 'CL', sdlp: 'CL', prog: 'CL', fl: 'CL', raza: 'CL', aloha: 'CL', cnp: 'CL', alp: 'CL', npl: 'CL',
+    asp: 'C', reform: 'C', aga: 'C', nyfp: 'C', nenp: 'C', ind: 'C', dem: 'C', mup: 'C', cath: 'C', mod: 'C',
+    cdp: 'CR', cfc: 'CR', alk: 'CR',
+    cc: 'R', lib: 'R', lsp: 'R', rep: 'R', con: 'R', maga: 'R', afp: 'R', srp: 'R'
   };
+  // parties placed differently in the three-bloc view
+  U.BLOC3_OVERRIDE = { ldp: 'C' };
   U.BLOC_INFO = {
     b2L: { name: 'Left bloc', short: 'Left', color: '#d1495b', econ: -5 }, b2R: { name: 'Right bloc', short: 'Right', color: '#2f5d9e', econ: 5 },
     b3L: { name: 'Left', short: 'Left', color: '#d1495b', econ: -5 }, b3C: { name: 'Centre', short: 'Centre', color: '#d9a62e', econ: 0 }, b3R: { name: 'Right', short: 'Right', color: '#2f5d9e', econ: 5 },
-    b5FL: { name: 'Far left', short: 'Far left', color: '#8e1b2b', econ: -9 }, b5L: { name: 'Left', short: 'Left', color: '#e0697a', econ: -4 },
-    b5C: { name: 'Centre', short: 'Centre', color: '#d9a62e', econ: 0 }, b5R: { name: 'Right', short: 'Right', color: '#5b86c4', econ: 4 }, b5FR: { name: 'Far right', short: 'Far right', color: '#1b2f5a', econ: 9 }
+    b5L: { name: 'Left', short: 'Left', color: '#8e1b2b', econ: -9 }, b5CL: { name: 'Centre-left', short: 'Centre-left', color: '#e0697a', econ: -4 },
+    b5C: { name: 'Centre', short: 'Centre', color: '#d9a62e', econ: 0 }, b5CR: { name: 'Centre-right', short: 'Centre-right', color: '#5b86c4', econ: 4 }, b5R: { name: 'Right', short: 'Right', color: '#1b2f5a', econ: 9 }
   };
-  U.BLOC_ORDER = { 2: ['b2L', 'b2R'], 3: ['b3L', 'b3C', 'b3R'], 5: ['b5FL', 'b5L', 'b5C', 'b5R', 'b5FR'] };
+  U.BLOC_ORDER = { 2: ['b2L', 'b2R'], 3: ['b3L', 'b3C', 'b3R'], 5: ['b5L', 'b5CL', 'b5C', 'b5CR', 'b5R'] };
   var econOf = function (Q, p) { var x = (Q && Q.pos && Q.pos[p]) || (U.PARTIES && U.PARTIES[p]) || ((U.PARTY_PROFILES || {})[p] || {}).ax || { econ: 0 }; return x.econ || 0; };
   U.blocOf = function (p, mode, Q) {
     if (p === 'nonvote') return 'nonvote';
     var b = U.BLOC5[p] || (p === 'regional' ? 'C' : 'C');
     if (String(mode) === '5') return 'b5' + b;
-    if (String(mode) === '3') return b === 'FL' || b === 'L' ? 'b3L' : b === 'C' ? 'b3C' : 'b3R';
+    if (String(mode) === '3') { b = U.BLOC3_OVERRIDE[p] || b; return b === 'L' || b === 'CL' ? 'b3L' : b === 'C' ? 'b3C' : 'b3R'; }
     if (b === 'C') return econOf(Q, p) < 0 ? 'b2L' : 'b2R';
-    return b === 'FL' || b === 'L' ? 'b2L' : 'b2R';
+    return b === 'L' || b === 'CL' ? 'b2L' : 'b2R';
   };
   // shares (or seats) by party -> by bloc; mode 'party' returns the input
   U.blocAgg = function (sh, mode, Q) {
