@@ -97,7 +97,7 @@
   // The general election that elected the opening parliament (late 1996).
   // Fixed, so the opening seats do not move when the 1997 polling is tuned.
   // Scenario assumption.
-  U.ELECTION_1996 = { ldp: 24.9, sdlp: 19.0, cdp: 14.5, cc: 18.2, asp: 3.8, reform: 4.0, grn: 0.9, cpusa: 0.8, dsa: 1.1, wfp: 0.9, revsoc: 0.7, lib: 3.0, con: 2.5 };
+  U.ELECTION_1996 = { ldp: 24.9, sdlp: 19.0, cdp: 13.8, cc: 18.2, asp: 3.8, reform: 4.0, grn: 0.9, cpusa: 1.5, dsa: 1.1, wfp: 0.9, revsoc: 0.7, lib: 3.0, con: 2.5 };
   U.PARTIES = P;
   U.NATIONAL = ['ldp', 'sdlp', 'cdp', 'cc', 'asp', 'reform', 'ul', 'grn', 'cpusa', 'dsa', 'wfp', 'revsoc', 'acp', 'lib', 'con'];
   U.REGIONAL = ['aga', 'lsp', 'srp', 'cnp', 'cfc', 'alk', 'aloha', 'raza', 'nenp', 'nyfp', 'vpp'];
