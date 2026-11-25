@@ -200,3 +200,8 @@ table.demo { min-width: 640px; }
 table.demo td.heat { text-align: right; font-variant-numeric: tabular-nums; }
 table.demo th { white-space: nowrap; }
 table.demo td:last-child, table.demo td:first-child { white-space: nowrap; }
+
+/* polling explorer */
+.xtab { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px 12px; margin-bottom: 10px; align-items: end; }
+.xtab label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 2px; }
+.xtab select { font: inherit; font-size: 13px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); }

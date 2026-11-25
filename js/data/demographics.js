@@ -18,7 +18,8 @@
       ['Asian American', 2.3, { prof: 0.6, suburb: 0.3, young: 0.1 }, { ldp: 1.25, cc: 0.85, con: 0.3 }],
       ['Native American', 0.7, { rural: 0.5, young: 0.2, union: 0.3 }, { grn: 1.8, ldp: 1.6, sdlp: 1.3, cc: 0.55, con: 0.5 }]] },
     { id: 'age', name: 'Age', segs: [
-      ['18–29', 17, { young: 0.7, prof: 0.1, hisp: 0.1, black: 0.1 }, {}],
+      ['18–24', 10, { young: 0.8, hisp: 0.1, black: 0.1 }, {}],
+      ['25–29', 7, { young: 0.4, prof: 0.2, hisp: 0.15, black: 0.1, suburb: 0.15 }, {}],
       ['30–44', 31, { prof: 0.25, suburb: 0.25, union: 0.15, black: 0.12, hisp: 0.12, rural: 0.11 }, {}],
       ['45–64', 33, { suburb: 0.25, union: 0.15, rural: 0.15, relig: 0.15, prof: 0.1, black: 0.1, hisp: 0.1 }, {}],
       ['65+', 19, { retire: 0.8, relig: 0.1, rural: 0.1 }, {}]] },

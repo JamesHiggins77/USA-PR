@@ -176,3 +176,13 @@ test('demographic categories add up and every segment has a vote', () => {
     for (const s of c.segs) { const v = U.segmentVote(D, c, s); assert.ok(Math.abs(Object.values(v).reduce((a, b) => a + b, 0) - 100) < 0.01, s[0]); }
   }
 });
+
+test('crosstab: single segments keep their size; combinations shrink and still sum to 100%', () => {
+  const Q = U.Game.newGame(1), P = U.Crosstab.prepare(Q);
+  const idx = (c, n) => [c, U.DEMO_CATEGORIES.find(x => x.id === c).segs.findIndex(s => s[0].startsWith(n))];
+  assert.ok(Math.abs(U.Crosstab.query(P, 'US', [idx('union', 'Union')]).size - 23) < 0.5);
+  const r = U.Crosstab.query(P, 'TX', [idx('race', 'White'), idx('union', 'Union'), idx('religion', 'Catholic'), idx('age', '18'), idx('home', 'Renter')]);
+  assert.ok(r.size > 0 && r.size < 1);
+  assert.ok(Math.abs(Object.values(r.shares).reduce((a, b) => a + b, 0) - 100) < 0.01);
+  for (const reg of U.Crosstab.REGIONS) assert.ok(U.Crosstab.query(P, 'R:' + reg[0], []).shares);
+});
