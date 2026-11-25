@@ -142,7 +142,12 @@
       var name = S.pickPerson(Q, pp, used, 'competence');
       used[name] = 1;
       var presGov = S.supportsGov(Q, pp);
-      var s = S.senateCount(Q, function (p) { if (p === pp) return 'yes'; if (S.supportsGov(Q, p)) return presGov || C.compat(Q, p, pp) > 0.5 ? 'yes' : 'no'; return C.compat(Q, p, pp) > 0.6 ? 'yes' : 'no'; });
+      var decide = function (p) { if (p === pp) return 'yes'; if (S.supportsGov(Q, p)) return presGov || C.compat(Q, p, pp) > 0.5 ? 'yes' : 'no'; return C.compat(Q, p, pp) > 0.6 ? 'yes' : 'no'; };
+      var s = S.senateCount(Q, decide);
+      if (!s.passes) { // two-thirds of the House can overturn the Senate's rejection
+        var h = U.Parliament.count(Q, 'house', decide), need = Math.ceil(U.RULES.house.total * R().secretaryOverrideHouseShare);
+        if (h.yes >= need) { slot.name = name; slot.party = pp; slot.by = 'president'; S.note(Q, 'The Senate rejects ' + name + ' for ' + post + ' (' + s.yes + '–' + s.no + '), but the House overturns it with ' + h.yes + ' votes (' + need + ' needed).'); return; }
+      }
       if (s.passes) { slot.name = name; slot.party = pp; slot.by = 'president'; }
       else { slot.by = 'compromise'; S.note(Q, 'The Senate rejects the President’s nominee for ' + post + ', ' + name + ' (' + s.yes + '–' + s.no + '). ' + slot.name + ' is confirmed instead.'); }
     });

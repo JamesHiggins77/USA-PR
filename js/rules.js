@@ -37,6 +37,7 @@
       senateVetoShare: 2 / 3,           // the Senate kills a House bill with two-thirds
       senateDelayMonths: 24,            // or delays it with a simple majority
       vetoOverrideHouseShare: 2 / 3,    // a presidential veto falls to 2/3 of the House plus a simple Senate majority
+      secretaryOverrideHouseShare: 2 / 3, // the House can overturn the Senate's rejection of a Secretary
       impeachShare: 2 / 3,              // the Senate removes the President with two-thirds
       noConfidence: 'constructive'      // since 1974: the motion names a new PM, who needs an absolute majority
     },
