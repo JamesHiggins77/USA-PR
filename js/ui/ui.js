@@ -326,17 +326,28 @@
     return h;
   }
 
+  // How each demographic and region votes, as heat-mapped tables
+  function demoTables(top) {
+    var D = V.demographics(Q), cols = top.slice(0, 8), h = '';
+    var cell = function (v, p) { if (v == null) return '<td>–</td>'; var a = Math.min(0.85, v / 60); return '<td class="heat" style="background:' + hexA(P(p).color, a) + ';color:' + (a > 0.45 ? Ch.ink(P(p).color) : 'inherit') + '">' + v.toFixed(1) + '</td>'; };
+    var lead = function (sh) { var k = Object.keys(sh).filter(function (p) { return p !== 'regional'; }).sort(function (a, b) { return sh[b] - sh[a]; })[0]; return k ? chip(k) + P(k).short : ''; };
+    var other = function (sh) { var t = 0; for (var p in sh) if (cols.indexOf(p) < 0) t += sh[p]; return t; };
+    var head = '<tr><th>Group</th><th>Share of voters</th>' + cols.map(function (p) { return '<th>' + chip(p) + P(p).short + '</th>'; }).join('') + '<th>Others</th><th>Leads</th></tr>';
+    h += '<h2>How each demographic votes</h2><p class="small muted">Estimated vote (%) in each voter group nationally, from the game’s voter model. Groups overlap in real life; here every voter is counted in one group. Regional parties are counted under Others.</p><div class="tablewrap"><table class="seats demo">' + head.replace('Group', 'Voter group');
+    U.GROUPS.slice().sort(function (a, b) { return D.groups[b].size - D.groups[a].size; }).forEach(function (g) { var d = D.groups[g];
+      h += '<tr><td>' + U.GROUP_NAMES[g] + '</td><td>' + d.size.toFixed(1) + '%</td>' + cols.map(function (p) { return cell(d.shares[p], p); }).join('') + '<td>' + other(d.shares).toFixed(1) + '</td><td>' + lead(d.shares) + '</td></tr>'; });
+    h += '</table></div><h2>How each region votes</h2><div class="tablewrap"><table class="seats demo">' + head.replace('Group', 'Region');
+    Object.keys(D.regions).sort(function (a, b) { return D.regions[b].size - D.regions[a].size; }).forEach(function (r) { var d = D.regions[r];
+      h += '<tr><td>' + U.REGIONS[r] + '</td><td>' + d.size.toFixed(1) + '%</td>' + cols.map(function (p) { return cell(d.shares[p], p); }).join('') + '<td>' + other(d.shares).toFixed(1) + '</td><td>' + lead(d.shares) + '</td></tr>'; });
+    return h + '</table></div>';
+  }
+  function hexA(c, a) { var m = /^#(..)(..)(..)$/.exec(c); return m ? 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + a.toFixed(2) + ')' : c; }
+
   // ---------- polls & voters ----------
   function polls() {
     var n = V.national(Q), top = Object.keys(n).sort(function (a, b) { return n[b] - n[a]; }).slice(0, 8);
     var h = '<h1>Polls and voters</h1>' + Ch.polls(Q, top);
-    h += '<h2>Support by voter group</h2><p class="small muted">Estimated vote among each group nationally. Groups are not monolithic: these are averages.</p><table><tr><th>Group</th>' + top.slice(0, 7).map(function (p) { return '<th>' + P(p).short + '</th>'; }).join('') + '</tr>';
-    U.GROUPS.forEach(function (g) {
-      var raw = {}, tot = 0;
-      U.NATIONAL.forEach(function (p) { if (Q.dormant[p]) return; raw[p] = Math.max(0.05, P(p).pref[g] + ((Q.mods[p] || {})[g] || 0)) * Q.calib[p]; tot += raw[p]; });
-      h += '<tr><td>' + U.GROUP_NAMES[g] + '</td>' + top.slice(0, 7).map(function (p) { return '<td>' + (raw[p] ? pct(raw[p] / tot * 100) : '–') + '</td>'; }).join('') + '</tr>';
-    });
-    h += '</table>';
+    h += demoTables(top);
     return h;
   }
 
@@ -353,7 +364,18 @@
 
   // ---- every party and alliance: ideology, positions, factions ----
   var partyFilter = 'all';
+  var demoCache = null;
+  function baseLine(k) {
+    if (!U.PARTIES[k] || (Q.dormant && Q.dormant[k])) return '';
+    var D = demoCache || (demoCache = V.demographics(Q)), n = V.national(Q)[k] || 0;
+    if (U.REGIONAL.indexOf(k) >= 0) { var rs = Object.keys(D.regions).sort(function (a, b) { return (D.regions[b].shares[k] || 0) - (D.regions[a].shares[k] || 0); })[0]; return rs && D.regions[rs].shares[k] ? '<div class="small muted">Strongest region: ' + U.REGIONS[rs] + ' (' + D.regions[rs].shares[k].toFixed(1) + '%)</div>' : ''; }
+    var gs = U.GROUPS.filter(function (g) { return D.groups[g].shares[k] != null; }).sort(function (a, b) { return D.groups[b].shares[k] - D.groups[a].shares[k]; });
+    if (!gs.length) return '';
+    var f = function (g) { return U.GROUP_NAMES[g] + ' ' + D.groups[g].shares[k].toFixed(0) + '%'; };
+    return '<div class="small muted">Strongest with: ' + gs.slice(0, 2).map(f).join(', ') + ' \u00b7 weakest: ' + f(gs[gs.length - 1]) + ' (national ' + n.toFixed(1) + '%)</div>';
+  }
   function parties() {
+    demoCache = null;
     var PR = U.PARTY_PROFILES, groups = [['national', 'National parties'], ['alliance', 'Alliances and blocs'], ['regional', 'Regional parties'], ['future', 'Future parties (not yet founded in 1997)'], ['former', 'Former parties']];
     var info = function (k) { return U.PARTIES[k] ? { name: U.PARTIES[k].name, short: U.PARTIES[k].short, color: U.PARTIES[k].color } : U.FORMER_PARTIES[k]; };
     var h = '<h1>Parties</h1><p class="small muted">Every party and alliance, current and former, with its positions on seven axes and its internal factions.</p><div class="row" style="margin-bottom:10px">' +
@@ -369,7 +391,7 @@
         var dormant = Q.dormant && Q.dormant[k];
         h += '<div class="pcard" style="border-top:4px solid ' + i.color + '"><div class="row" style="justify-content:space-between;align-items:baseline"><b>' + esc(i.name) + '</b><span class="small muted">' + esc(i.short) + '</span></div>' +
           '<div class="small muted">' + esc(i.years || (lore ? 'Founded ' + lore[0] : '')) + (g[0] === 'former' ? '' : dormant ? ' · not active' : ' · ' + seats + ' House, ' + sen + ' Senate seats') + '</div>' +
-          '<p class="small" style="margin:6px 0"><b>' + esc(pr.ideology) + '</b></p>' +
+          '<p class="small" style="margin:6px 0"><b>' + esc(pr.ideology) + '</b></p>' + baseLine(k) +
           U.AXES.map(function (a) { var live = U.PARTIES[k] && (U.Elections.pos(Q) || {})[k], v = live && live[a[0]] != null ? live[a[0]] : pr.ax[a[0]], x = U.clamp((v + 10) / 20 * 100, 0, 100);
             return '<div class="axis"><div class="axl"><span>' + a[2] + '</span><b>' + a[1] + '</b><span>' + a[3] + '</span></div><div class="axbar"><i style="left:' + x + '%;background:' + i.color + '"></i></div></div>'; }).join('') +
           '<div class="small" style="margin-top:8px"><b>Factions</b></div><ul class="factions">' + pr.factions.map(function (f) { var more = (U.FIGURES || []).filter(function (x) { return x[1] === k && x[2] === f[0] && x[0] !== f[1]; }).map(function (x) { return x[0]; });

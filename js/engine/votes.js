@@ -116,6 +116,29 @@
       Q.causes[reason] = (Q.causes[reason] || 0) + d;
     }
   };
+  // Demographic breakdown of the national vote: each voter group's share of the
+  // electorate and how it votes, and how each region votes.
+  V.demographics = function (Q) {
+    var st = allStates(), popT = 0, size = {}, regions = {}, nat = V.national(Q), regional = 0;
+    U.GROUPS.forEach(function (g) { size[g] = 0; });
+    st.forEach(function (s) {
+      var m = V.mix(s), sh = V.stateShares(Q, s), r = s.region; popT += s.pop;
+      U.GROUPS.forEach(function (g) { size[g] += (m[g] || 0) * s.pop; });
+      var R0 = regions[r] = regions[r] || { pop: 0, shares: {} }; R0.pop += s.pop;
+      for (var p in sh) R0.shares[p] = (R0.shares[p] || 0) + sh[p] * s.pop;
+    });
+    for (var p in nat) if (U.REGIONAL.indexOf(p) >= 0) regional += nat[p];
+    var groups = {};
+    U.GROUPS.forEach(function (g) {
+      var raw = {}, tot = 0;
+      U.NATIONAL.forEach(function (p) { if (Q.dormant && Q.dormant[p]) return; var P = U.PARTIES[p]; raw[p] = Math.max(0.05, P.pref[g] + ((Q.mods && Q.mods[p] || {})[g] || 0)) * ((Q.calib && Q.calib[p]) || 1); tot += raw[p]; });
+      var o = {}; for (var q in raw) o[q] = raw[q] / tot * (100 - regional); if (regional) o.regional = regional;
+      groups[g] = { size: size[g] / popT * 100, shares: o };
+    });
+    for (var r in regions) { var R1 = regions[r]; for (p in R1.shares) R1.shares[p] /= R1.pop; R1.size = R1.pop / popT * 100; }
+    return { groups: groups, regions: regions };
+  };
+
   V.all = function (v) { var o = {}; U.GROUPS.forEach(function (g) { o[g] = v; }); return o; };
 
   // Shares by district: each district is a pseudo-state whose demography is

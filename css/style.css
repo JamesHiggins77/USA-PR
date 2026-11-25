@@ -193,3 +193,10 @@ table.seats { max-width: 420px; margin-top: 6px; }
 .figtable { width: 100%; max-width: 900px; }
 .figtable td, .figtable th { text-align: left !important; white-space: normal; }
 .figtable td:nth-child(2) { white-space: nowrap; }
+
+/* demographic heat tables */
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.demo { min-width: 640px; }
+table.demo td.heat { text-align: right; font-variant-numeric: tabular-nums; }
+table.demo th { white-space: nowrap; }
+table.demo td:last-child, table.demo td:first-child { white-space: nowrap; }
