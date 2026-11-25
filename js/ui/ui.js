@@ -4,7 +4,7 @@
   var U = G.USA, S = U.Game, F = U.Flow, C = U.Coalition, V = U.Votes, Ch = U.Charts, K = U.Content, Ev = U.Events;
   var electSel = null, sideOpen = typeof matchMedia === 'function' ? !matchMedia('(max-width: 820px)').matches : true, mapHover = null, Q = null, view = 'office', openCard = null, openSlot = null, Dk = U.Decks, lastText = null, elec = null, deal = null, mapMode = 'lead', mapSel = null, mapStyle = 'geo';
   var $ = function (id) { return document.getElementById(id); };
-  var P = function (p) { return U.PARTIES[p]; };
+  var P = function (p) { return U.PARTIES[p] || U.partyInfo(p); };
   var chip = function (p) { return '<i class="chip" style="background:' + P(p).color + '"></i>'; };
   var esc = function (s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); };
   var pct = function (v) { return v.toFixed(1) + '%'; };
@@ -215,12 +215,26 @@
   }
 
   // ---------- parliament ----------
+  // seat table; in alliance mode each alliance row expands into its parties
+  function seatTable2(seats, chamber) {
+    var tot = U.sum(seats), maj = Math.floor(tot / 2) + 1;
+    var rows = Object.keys(seats).filter(function (p) { return seats[p]; }).sort(function (a, b) { return seats[b] - seats[a] || (a < b ? -1 : 1); });
+    return '<table class="seats"><tr><th>Party</th><th>Seats</th><th>Share</th></tr>' + rows.map(function (p) {
+      var parts = parlMode === 'alliances' && U.ALLIANCES[p] && U.allianceParts(Q, p, seats[p], chamber), key = chamber + ':' + p, open = parlOpen[key];
+      var row = '<tr' + (parts ? ' class="exp" data-exp="' + key + '" style="cursor:pointer"' : '') + '><td>' + chip(p) + esc(P(p).name) + (parts ? ' <span class="small muted">' + (open ? '\u25be' : '\u25b8') + ' alliance</span>' : '') + '</td><td><b>' + seats[p] + '</b></td><td>' + (seats[p] / tot * 100).toFixed(1) + '%</td></tr>';
+      if (parts && open) row += Object.keys(parts).filter(function (q) { return parts[q]; }).sort(function (a, b) { return parts[b] - parts[a]; }).map(function (q) { return '<tr class="sub"><td style="padding-left:22px">' + chip(q) + esc(P(q).name) + '</td><td>' + parts[q] + '</td><td class="small muted">' + (parts[q] / tot * 100).toFixed(1) + '%</td></tr>'; }).join('');
+      return row;
+    }).join('') + '<tr><td class="muted">Total (majority ' + maj + ')</td><td><b>' + tot + '</b></td><td></td></tr></table>';
+  }
+
   function parliament() {
     var sen = U.Elections.senateCount(Q);
     var O = Q.offices || {}, off = function (label, o) { return o ? '<div class="kv"><span>' + label + '</span><b>' + esc(o.name) + ' ' + chip(o.party) + P(o.party).short + '</b></div>' : ''; };
     var h0 = '<div class="panel" style="max-width:560px"><b>Officeholders</b>' + off('President', Q.president) + off('Vice President', O.vp) + (Q.gov ? off('Prime Minister', { name: Q.gov.pm, party: Q.gov.pmParty }) : '') + off('Speaker of the House', O.speaker) + off('President pro tempore of the Senate', O.ppt) + '</div>';
-    var h = '<h1>Parliament</h1>' + h0 + '<div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, Q.house) + Ch.seatTable(Q, Q.house) + '<p class="small muted">' + (U.pure() ? U.RULES.house.total + ' seats by statewide proportional representation (' + U.RULES.house.prFormula + '; national threshold ' + (U.RULES.house.nationalThreshold * 100) + '%, state threshold ' + (U.RULES.house.stateThreshold * 100) + '%). Majority ' + U.majority() + '; the President breaks a tie.' : '435 two-round districts, 365 statewide list seats and the DC seat.') + '</p></div>' +
-      '<div><h2>Senate</h2>' + Ch.hemicycle(Q, sen) + Ch.seatTable(Q, sen) + '<p class="small muted">Four per state: three elected statewide by proportional representation at each general election, and one elected by the state house (in Nebraska, by its single-chamber legislature).</p></div></div>';
+    var hs = parlMode === 'parties' ? U.splitAlliances(Q, Q.house, 'house') : Q.house, ss = parlMode === 'parties' ? U.splitAlliances(Q, sen, 'senate') : sen;
+    var toggle = '<div class="row" style="margin:6px 0 10px"><span class="small">Show:</span>' + [['alliances', 'Alliances'], ['parties', 'Individual parties']].map(function (m) { return '<button class="btn ' + (parlMode === m[0] ? '' : 'ghost') + '" data-parl="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
+    var h = '<h1>Parliament</h1>' + h0 + toggle + '<div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, hs) + seatTable2(hs, 'house') + '<p class="small muted">' + (U.pure() ? U.RULES.house.total + ' seats by statewide proportional representation (' + U.RULES.house.prFormula + '; national threshold ' + (U.RULES.house.nationalThreshold * 100) + '%, state threshold ' + (U.RULES.house.stateThreshold * 100) + '%). Majority ' + U.majority() + '; the President breaks a tie.' : '435 two-round districts, 365 statewide list seats and the DC seat.') + '</p></div>' +
+      '<div><h2>Senate</h2>' + Ch.hemicycle(Q, ss) + seatTable2(ss, 'senate') + '<p class="small muted">Four per state: three elected statewide by proportional representation at each general election, and one elected by the state house (in Nebraska, by its single-chamber legislature).</p></div></div>';
     if (Q.house.ul) { var ul = U.Parliament.ulSplit(Q, Q.house.ul); h += '<h3>Inside the United Left</h3><p class="small">' + Object.keys(ul).filter(function (k) { return ul[k]; }).map(function (k) { return esc(P(k).name) + ' <b>' + ul[k] + '</b> <span class="muted">(' + U.LEFT_MEMBERS[k] + ')</span>'; }).join(' &middot; ') + ' &middot; Unity ' + Math.round(Q.ulUnity) + '</p>'; }
     if (Q.house.revsoc) h += '<p class="small muted">' + esc(P('revsoc').note) + '</p>';
     if (Q.house.aga) h += '<h3>American Green Alliance</h3><p class="small">A federation of autonomous state parties. House seats by state: ' + Object.keys(Q.agaSeats || {}).filter(function (s) { return Q.agaSeats[s]; }).map(function (s) { return s + ' ' + Q.agaSeats[s]; }).join(', ') + '. Each chapter decides its own votes on confidence and budgets.</p>';
@@ -255,11 +269,13 @@
     var colorOf, labelOf, sh = {};
     V.allStates().forEach(function (s) { sh[s.id] = V.stateShares(Q, s); });
     var lead = function (id) { var o = sh[id]; return Object.keys(o).sort(function (a, b) { return o[b] - o[a]; })[0]; };
+    if (blocMode !== 'party') { var lead0 = lead; lead = function (id) { var o = B(sh[id]); return Object.keys(o).sort(function (a, b) { return o[b] - o[a]; })[0]; }; }
     if (mapMode === 'lead') { colorOf = function (id) { return P(lead(id)).color; }; labelOf = function (id) { return P(lead(id)).short; }; }
     else if (mapMode === 'ldp') { colorOf = function (id) { var v = sh[id][Q.player] || 0; return 'rgba(255,165,0,' + U.clamp(v / 40, 0.12, 1) + ')'; }; labelOf = function (id) { return Math.round(sh[id][Q.player] || 0) + '%'; }; }
     else { colorOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).color : '#777'; }; labelOf = function (id) { return Q.states[id] ? P(Q.states[id].governor).short : 'DC'; }; }
     var h = '<h1>The states</h1><div class="row"><span class="small">Show:</span>' + [['lead', 'Leading party'], ['ldp', 'LDP strength'], ['gov', 'Governors']].concat(U.pure() ? [] : [['districts', 'House districts']]).map(function (m) { return '<button class="btn ' + (mapMode === m[0] ? '' : 'ghost') + '" data-map="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
     h += '<span class="small" style="margin-left:12px">Map:</span>' + [['geo', 'Geographical'], ['topo', 'Topographical']].map(function (m) { return '<button class="btn ' + (mapStyle === m[0] ? '' : 'ghost') + '" data-mapstyle="' + m[0] + '">' + m[1] + '</button>'; }).join('');
+    if (mapMode === 'lead') h += blocButtons();
     var dw = {}; (Q.lastDistricts || []).forEach(function (d) { dw[d.s + '-' + d.n] = d.w; });
     var leanTxt = function (v) { return v == null ? 'n/a' : (v >= 0 ? 'D+' : 'R+') + Math.abs(v).toFixed(1); };
     var dTitle = function (sid, n) {
@@ -328,17 +344,17 @@
 
   // How each demographic and region votes, as heat-mapped tables
   function demoTables(top) {
-    var D = V.demographics(Q), cols = top.slice(0, 8), h = '';
+    var D = V.demographics(Q), cols = blocMode === 'party' ? top.slice(0, 8) : U.BLOC_ORDER[blocMode], h = '';
     var cell = function (v, p) { if (v == null) return '<td>–</td>'; var a = Math.min(0.85, v / 60); return '<td class="heat" style="background:' + hexA(P(p).color, a) + ';color:' + (a > 0.45 ? Ch.ink(P(p).color) : 'inherit') + '">' + v.toFixed(1) + '</td>'; };
     var lead = function (sh) { var k = Object.keys(sh).filter(function (p) { return p !== 'regional' && p !== 'nonvote'; }).sort(function (a, b) { return sh[b] - sh[a]; })[0]; return k ? chip(k) + P(k).short : ''; };
     var other = function (sh) { var t = 0; for (var p in sh) if (cols.indexOf(p) < 0 && p !== 'nonvote') t += sh[p]; return t; };
     var head = '<tr><th>Group</th><th>Share of voters</th>' + cols.map(function (p) { return '<th>' + chip(p) + P(p).short + '</th>'; }).join('') + '<th>Others</th><th>Leads</th></tr>';
     h += '<h2>How each demographic votes</h2><p class="small muted">Estimated vote (%) in each voter group nationally, from the game’s voter model. Groups overlap in real life; here every voter is counted in one group. Regional parties are counted under Others.</p><div class="tablewrap"><table class="seats demo">' + head.replace('Group', 'Voter group');
     U.GROUPS.slice().sort(function (a, b) { return D.groups[b].size - D.groups[a].size; }).forEach(function (g) { var d = D.groups[g];
-      h += '<tr><td>' + U.GROUP_NAMES[g] + '</td><td>' + d.size.toFixed(1) + '%</td>' + cols.map(function (p) { return cell(d.shares[p], p); }).join('') + '<td>' + other(d.shares).toFixed(1) + '</td><td>' + lead(d.shares) + '</td></tr>'; });
+      var ds = B(d.shares); h += '<tr><td>' + U.GROUP_NAMES[g] + '</td><td>' + d.size.toFixed(1) + '%</td>' + cols.map(function (p) { return cell(ds[p], p); }).join('') + '<td>' + other(ds).toFixed(1) + '</td><td>' + lead(ds) + '</td></tr>'; });
     h += '</table></div><h2>How each region votes</h2><p class="small muted">Polling regions. Click a region on the map to open it in the polling explorer below.</p><div id="regionmap" class="regionmap">' + Ch.geoMap(Q, function (sid) { var r = U.Crosstab.regionOf(sid); return r ? r[2] : '#ccc'; }, function () { return ''; }) + '</div><div class="row small" style="flex-wrap:wrap;gap:4px 12px;margin:4px 0 10px">' + U.Crosstab.REGIONS.map(function (r) { return '<span><i class="chip" style="background:' + r[2] + '"></i>' + esc(r[0]) + '</span>'; }).join('') + '</div><div class="tablewrap"><table class="seats demo">' + head.replace('Group', 'Region');
     var XP0 = U.Crosstab.prepare(Q), usPop = XP0.natGeo.pop;
-    U.Crosstab.REGIONS.forEach(function (r) { var g = XP0.geo('R:' + r[0]), sh = U.Crosstab.query(XP0, 'R:' + r[0], []).shares;
+    U.Crosstab.REGIONS.forEach(function (r) { var g = XP0.geo('R:' + r[0]), sh = B(U.Crosstab.query(XP0, 'R:' + r[0], []).shares);
       h += '<tr><td>' + esc(r[0]) + '</td><td>' + (g.pop / usPop * 100).toFixed(1) + '%</td>' + cols.map(function (p) { return cell(sh[p], p); }).join('') + '<td>' + other(sh).toFixed(1) + '</td><td>' + lead(sh) + '</td></tr>'; });
     h += '</table></div>';
     // ---- crosstabs: any place, any combination of demographics ----
@@ -350,7 +366,7 @@
     h += '<div class="xtab"><label>Place<select data-dgeo>' + geoOpts + '</select></label>' + U.DEMO_CATEGORIES.map(function (c) {
       return '<label>' + esc(c.name) + '<select data-dpick="' + c.id + '"><option value="">Any</option>' + c.segs.map(function (sg, i) { return '<option value="' + i + '"' + (demoPicks[c.id] === i ? ' selected' : '') + '>' + esc(sg[0]) + '</option>'; }).join('') + '</select></label>'; }).join('') +
       '<label class="nvtoggle"><span><input type="checkbox" data-dnv' + (demoNV ? ' checked' : '') + '> Include non-voters</span></label><button class="btn ghost" data-dreset>Clear filters</button></div>';
-    var q = U.Crosstab.query(XP, demoGeo, picks, demoNV), desc = picks.map(function (pk) { var c = U.DEMO_CATEGORIES.filter(function (x) { return x.id === pk[0]; })[0]; return c.segs[pk[1]][0]; });
+    var q = U.Crosstab.query(XP, demoGeo, picks, demoNV); q.shares = B(q.shares); var desc = picks.map(function (pk) { var c = U.DEMO_CATEGORIES.filter(function (x) { return x.id === pk[0]; })[0]; return c.segs[pk[1]][0]; });
     var ord = Object.keys(q.shares).filter(function (p) { return p !== 'nonvote' && q.shares[p] >= 0.5; }).sort(function (a, b) { return q.shares[b] - q.shares[a]; });
     if (demoNV) ord.unshift('nonvote');
     var PN = function (p) { return p === 'nonvote' ? { name: 'Would not vote', color: '#9aa0a6' } : P(p); };
@@ -361,17 +377,25 @@
     h += '<h2>Breakdown by category</h2><p class="small muted">Each group of the chosen category in ' + esc(q.place) + (base.length ? ', within the filters above' : '') + '. Share: % of ' + (demoNV ? 'adults' : 'voters') + ' there.</p><div class="row" style="margin-bottom:8px;flex-wrap:wrap">' +
       U.DEMO_CATEGORIES.map(function (c) { return '<button class="btn ' + (c === cat ? '' : 'ghost') + '" data-dcat="' + c.id + '">' + esc(c.name) + '</button>'; }).join('') + '</div>';
     h += '<div class="tablewrap"><table class="seats demo">' + head.replace('Group', esc(cat.name)).replace('Share of voters', demoNV ? 'Share of adults' : 'Share').replace('<th>Others</th>', '<th>Others</th>' + (demoNV ? '<th>Not voting</th>' : ''));
-    cat.segs.forEach(function (sg, i) { var r = U.Crosstab.query(XP, demoGeo, base.concat([[cat.id, i]]), demoNV), sh = r.shares;
+    cat.segs.forEach(function (sg, i) { var r = U.Crosstab.query(XP, demoGeo, base.concat([[cat.id, i]]), demoNV), sh = B(r.shares);
       h += '<tr><td>' + esc(sg[0]) + '</td><td>' + (r.size >= 1 ? r.size.toFixed(1) : r.size.toFixed(2)) + '%</td>' + cols.map(function (p) { return cell(sh[p], p); }).join('') + '<td>' + other(sh).toFixed(1) + '</td>' + (demoNV ? '<td><b>' + sh.nonvote.toFixed(1) + '</b></td>' : '') + '<td>' + lead(sh) + '</td></tr>'; });
     return h + '</table></div>';
   }
-  var demoCat = 'gender', demoGeo = 'US', demoPicks = {}, demoNV = false;
+  var demoCat = 'gender', demoGeo = 'US', demoPicks = {}, demoNV = false, blocMode = 'party', parlMode = 'alliances', parlOpen = {};
+  function blocButtons() {
+    return '<div class="row" style="margin:6px 0 10px;flex-wrap:wrap"><span class="small">View:</span>' + [['party', 'By party'], ['2', 'Two blocs'], ['3', 'Three blocs'], ['5', 'Five blocs']].map(function (m) {
+      return '<button class="btn ' + (blocMode === m[0] ? '' : 'ghost') + '" data-bloc="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
+  }
+  var B = function (sh) { return U.blocAgg(sh, blocMode, Q); };
   function hexA(c, a) { var m = /^#(..)(..)(..)$/.exec(c); return m ? 'rgba(' + parseInt(m[1], 16) + ',' + parseInt(m[2], 16) + ',' + parseInt(m[3], 16) + ',' + a.toFixed(2) + ')' : c; }
 
   // ---------- polls & voters ----------
   function polls() {
     var n = V.national(Q), top = Object.keys(n).sort(function (a, b) { return n[b] - n[a]; }).slice(0, 8);
-    var h = '<h1>Polls and voters</h1>' + Ch.polls(Q, top);
+    var h = '<h1>Polls and voters</h1>' + blocButtons();
+    if (blocMode === 'party') h += Ch.polls(Q, top);
+    else { var bq = { polls: Q.polls.map(function (e) { var c = Object.assign({}, e); c.v = B(e.v); return c; }) }; h += Ch.polls(bq, U.BLOC_ORDER[blocMode]); }
+    if (blocMode !== 'party') { var nb = B(n); h += '<p class="small">' + U.BLOC_ORDER[blocMode].map(function (b) { return chip(b) + P(b).name + ' <b>' + nb[b].toFixed(1) + '%</b>'; }).join(' \u00b7 ') + '</p><p class="small muted">Blocs: ' + U.BLOC_ORDER[blocMode].map(function (b) { return P(b).name + ': ' + U.ALL_PARTIES.filter(function (p) { return !Q.dormant[p] && U.blocOf(p, blocMode, Q) === b; }).map(function (p) { return P(p).short; }).join(', '); }).join('; ') + '.</p>'; }
     h += demoTables(top);
     return h;
   }
@@ -567,6 +591,9 @@
     var dnv = document.querySelector('[data-dnv]'); if (dnv) dnv.onchange = function () { demoNV = dnv.checked; render(); };
     var dr = document.querySelector('[data-dreset]'); if (dr) dr.onclick = function () { demoPicks = {}; demoGeo = 'US'; render(); };
     document.querySelectorAll('[data-dcat]').forEach(function (b) { b.onclick = function () { demoCat = b.dataset.dcat; render(); }; });
+    document.querySelectorAll('[data-bloc]').forEach(function (b) { b.onclick = function () { blocMode = b.dataset.bloc; render(); }; });
+    document.querySelectorAll('[data-parl]').forEach(function (b) { b.onclick = function () { parlMode = b.dataset.parl; render(); }; });
+    document.querySelectorAll('[data-exp]').forEach(function (b) { b.onclick = function () { parlOpen[b.dataset.exp] = !parlOpen[b.dataset.exp]; render(); }; });
     document.querySelectorAll('[data-pfilter]').forEach(function (b) { b.onclick = function () { partyFilter = b.dataset.pfilter; render(); }; });
     document.querySelectorAll('[data-elect]').forEach(function (b) { b.onclick = function () { electSel = b.dataset.elect; render(); }; });
     document.querySelectorAll('[data-gmode]').forEach(function (b) { b.onclick = function () { genMode = b.dataset.gmode; render(); }; });

@@ -207,3 +207,4 @@ table.demo td:last-child, table.demo td:first-child { white-space: nowrap; }
 .xtab select { font: inherit; font-size: 13px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); }
 .nvtoggle { justify-content: flex-end; } .nvtoggle span { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); padding: 6px 0; }
 .regionmap { max-width: 720px; }
+table.seats tr.sub td { font-size: 12.5px; background: color-mix(in srgb, var(--panel) 85%, var(--line)); }

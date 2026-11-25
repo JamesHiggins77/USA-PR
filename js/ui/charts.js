@@ -6,6 +6,11 @@
   Ch.order = ORDER;
 
   // Hemicycle: seats arranged in concentric rows, parties left-to-right.
+  // seat order, left to right, for any keys (parties, constituents, blocs)
+  Ch.orderOf = function (Q, seats) {
+    var pos = function (p) { var A = (Q.pos && Q.pos[p]) || U.partyInfo(p); return (A.econ || 0) + (A.soc || 0) * 0.6; };
+    return Object.keys(seats).filter(function (p) { return seats[p]; }).sort(function (a, b) { return pos(a) - pos(b); });
+  };
   Ch.hemicycle = function (Q, seats, opts) {
     opts = opts || {};
     var total = U.sum(seats), rows = Math.max(total < 12 ? 1 : 2, Math.min(Math.round(Math.sqrt(total / 4.2)), 30)), R = 200, r0 = rows === 1 ? 200 : 70;
@@ -15,8 +20,8 @@
     var counts = rowR.map(function (r, i) { var n = i === rows - 1 ? left : Math.round(total * r / circ); left -= n; return n; });
     rowR.forEach(function (r, i) { for (var j = 0; j < counts[i]; j++) { var a = Math.PI - Math.PI * (counts[i] === 1 ? 0.5 : j / (counts[i] - 1)); pts.push({ a: a, x: 220 + r * Math.cos(a), y: 215 - r * Math.sin(a) }); } });
     pts.sort(function (p, q) { return q.a - p.a; });
-    var order = ORDER(Q).filter(function (p) { return seats[p]; }), idx = 0, dot = Math.min(16, Math.max(1.6, 150 / Math.sqrt(Math.max(1, total)) * 0.42)), out = '';
-    order.forEach(function (p) { for (var i = 0; i < seats[p]; i++) { var pt = pts[idx++]; if (pt) out += '<circle cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="' + dot.toFixed(2) + '" fill="' + U.PARTIES[p].color + '"><title>' + U.PARTIES[p].short + ' ' + seats[p] + '</title></circle>'; } });
+    var order = Ch.orderOf(Q, seats), idx = 0, dot = Math.min(16, Math.max(1.6, 150 / Math.sqrt(Math.max(1, total)) * 0.42)), out = '';
+    order.forEach(function (p) { for (var i = 0; i < seats[p]; i++) { var pt = pts[idx++]; if (pt) out += '<circle cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="' + dot.toFixed(2) + '" fill="' + U.partyInfo(p).color + '"><title>' + U.partyInfo(p).short + ' ' + seats[p] + '</title></circle>'; } });
     var maj = Math.floor(total / 2) + 1;
     return '<svg viewBox="0 0 440 230" width="100%" style="max-width:520px">' + out +
       '<text x="220" y="205" text-anchor="middle" font-size="22" font-weight="bold">' + total + '</text>' +
@@ -29,14 +34,14 @@
     var rows = Object.keys(seats).filter(function (p) { return seats[p]; }).sort(function (a, b) { return seats[b] - seats[a] || (a < b ? -1 : 1); });
     return '<table class="seats"><tr><th>Party</th><th>Seats</th><th>Share</th>' + (change ? '<th>+/\u2212</th>' : '') + '</tr>' + rows.map(function (p) {
       var d = change ? change(p) : 0;
-      return '<tr><td><i class="chip" style="background:' + U.PARTIES[p].color + '"></i>' + U.PARTIES[p].name + '</td><td><b>' + seats[p] + '</b></td><td>' + (seats[p] / tot * 100).toFixed(1) + '%</td>' +
+      return '<tr><td><i class="chip" style="background:' + U.partyInfo(p).color + '"></i>' + U.partyInfo(p).name + '</td><td><b>' + seats[p] + '</b></td><td>' + (seats[p] / tot * 100).toFixed(1) + '%</td>' +
         (change ? '<td class="' + (d > 0 ? 'up' : d < 0 ? 'down' : '') + '">' + (d > 0 ? '+' : '') + d + '</td>' : '') + '</tr>';
     }).join('') + '<tr><td class="muted">Total (majority ' + maj + ')</td><td><b>' + tot + '</b></td><td></td>' + (change ? '<td></td>' : '') + '</tr></table>';
   };
 
   Ch.legend = function (Q, seats, extra) {
     return '<div class="legend">' + ORDER(Q).filter(function (p) { return seats[p]; }).map(function (p) {
-      return '<span><i class="chip" style="background:' + U.PARTIES[p].color + '"></i>' + U.PARTIES[p].short + ' <b>' + seats[p] + '</b>' + (extra ? extra(p) : '') + '</span>';
+      return '<span><i class="chip" style="background:' + U.partyInfo(p).color + '"></i>' + U.partyInfo(p).short + ' <b>' + seats[p] + '</b>' + (extra ? extra(p) : '') + '</span>';
     }).join('') + '</div>';
   };
 
@@ -165,9 +170,9 @@
     for (var g = 0; g <= max; g += 5) out += '<line x1="' + pad + '" x2="' + (W - 10) + '" y1="' + y(g) + '" y2="' + y(g) + '" stroke="currentColor" stroke-opacity=".12"/><text x="' + (pad - 4) + '" y="' + (y(g) + 4) + '" font-size="10" text-anchor="end">' + g + '</text>';
     parties.forEach(function (q) {
       var d = P.map(function (p, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p.v[q] || 0).toFixed(1); }).join(' ');
-      out += '<path d="' + d + '" fill="none" stroke="' + U.PARTIES[q].color + '" stroke-width="2"/>';
+      out += '<path d="' + d + '" fill="none" stroke="' + U.partyInfo(q).color + '" stroke-width="2"/>';
       var last = P[P.length - 1].v[q] || 0;
-      out += '<text x="' + (W - 8) + '" y="' + (y(last) + 4) + '" font-size="10" text-anchor="end" style="fill:' + U.PARTIES[q].color + '">' + U.PARTIES[q].short + '</text>';
+      out += '<text x="' + (W - 8) + '" y="' + (y(last) + 4) + '" font-size="10" text-anchor="end" style="fill:' + U.partyInfo(q).color + '">' + U.partyInfo(q).short + '</text>';
     });
     out += '<text x="' + pad + '" y="' + (Hh + 6) + '" font-size="10">' + P[0].label + '</text><text x="' + (W - 10) + '" y="' + (Hh + 6) + '" font-size="10" text-anchor="end">' + P[P.length - 1].label + '</text>';
     return '<svg viewBox="0 0 ' + W + ' ' + (Hh + 12) + '" width="100%" style="color:var(--ink)">' + out + '</svg>';

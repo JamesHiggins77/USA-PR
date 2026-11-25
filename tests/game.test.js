@@ -249,3 +249,9 @@ test('opening parliament: Sanders holds a Vermont House seat for the VPP, the Gr
 test('Sanders is only a senator once his party wins a Vermont Senate seat', () => {
   const Q = U.Game.newGame(1); assert.notStrictEqual(U.Game.senLeaderOf(Q, 'vpp'), 'Bernie Sanders'); assert.ok(!Q.flags.sandersSenator);
 });
+
+test('blocs and alliances: every party maps into 2, 3 and 5 blocs; alliances split into their parties', () => {
+  const Q = U.Game.newGame(1), n = U.Votes.national(Q);
+  for (const m of ['2', '3', '5']) { const b = U.blocAgg(n, m, Q); assert.ok(Math.abs(Object.values(b).reduce((a, c) => a + c, 0) - Object.values(n).reduce((a, c) => a + c, 0)) < 1e-6); assert.deepStrictEqual(Object.keys(b).sort(), U.BLOC_ORDER[m].slice().sort()); }
+  const s = U.splitAlliances(Q, Q.house, 'house'); assert.strictEqual(Object.values(s).reduce((a, c) => a + c, 0), 600); assert.ok(!s.asp && s.mup && s.cath);
+});
