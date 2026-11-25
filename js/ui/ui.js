@@ -25,13 +25,12 @@
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
     if (view === 'elections' && $('genmap')) {
-      var gsel0 = electSel === 'e96' ? Q.open1996 : (Q.history || [])[+String(electSel).slice(1)];
-      var gsel = gsel0 && { states: genMode === 'senate' && gsel0.senStates ? gsel0.senStates : gsel0.states };
+      var PI = U.partyInfo, ochipK = function (p) { return '<i class="chip" style="background:' + PI(p).color + '"></i>'; };
       U.Zoom.attach($('genmap'), 'genmap', function (t) {
-        var sid = t.dataset.state, st = gsel && gsel.states && gsel.states[sid]; if (!st) return null;
-        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b><div class="muted">' + U.sum(st.seats) + (genMode === 'senate' ? ' senators' : ' state list seats') + '</div>' +
-          Object.keys(st.seats).sort(function (a, b) { return st.seats[b] - st.seats[a]; }).map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + st.seats[p] + '</b></div>'; }).join('') +
-          '<div class="muted" style="margin-top:4px">Vote</div>' + Object.keys(st.shares).map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + st.shares[p].toFixed(1) + '%</b></div>'; }).join('');
+        var sid = t.dataset.state, st = genData && genData[sid]; if (!st) return null;
+        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b><div class="muted">' + U.sum(st.seats) + (genMode === 'senate' ? ' senators' : ' House seats') + '</div>' +
+          Object.keys(st.seats).sort(function (a, b) { return st.seats[b] - st.seats[a]; }).map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + st.seats[p] + '</b></div>'; }).join('') +
+          '<div class="muted" style="margin-top:4px">Vote</div>' + Object.keys(st.shares).sort(function (a, b) { return st.shares[b] - st.shares[a]; }).map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + st.shares[p].toFixed(1) + '%</b></div>'; }).join('');
       });
     }
     if (view === 'map' && $('mapbox')) U.Zoom.attach($('mapbox'), 'states-' + mapMode + '-' + (mapMode === 'districts' ? 'geo' : mapStyle), mapHover);
@@ -364,9 +363,9 @@
   function ochip(k) { return '<i class="chip" style="background:' + oldParty(k).color + '"></i>'; }
   function bar(pct, color) { return '<div class="bar" style="margin:2px 0 0"><i style="width:' + U.clamp(pct, 0, 100) + '%;background:' + color + '"></i></div>'; }
   // Results map in the style of Spanish election maps: shaded winner, seat dots, legend, ring
-  var genMode = 'house';
+  var genMode = 'house', genData = null;
   function resultsBlock(r) {
-    var sen = genMode === 'senate' && r.senStates, data = sen ? r.senStates : r.states, seats = sen ? r.senate : r.house, tot = U.sum(seats);
+    var P = U.partyInfo, sen = genMode === 'senate' && r.senStates, data = sen ? r.senStates : r.states, seats = sen ? r.senate : r.house, tot = U.sum(seats);
     var ord = Object.keys(seats).filter(function (p) { return seats[p] > 0; }).sort(function (a, b) { return seats[b] - seats[a] || (r.shares[b] || 0) - (r.shares[a] || 0); });
     var winners = {}; for (var sid in data) { var sh = data[sid].shares || {}, w = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a]; })[0]; if (w) winners[w] = 1; }
     var lead = r.leaders || Q.leaders || {};
@@ -376,8 +375,9 @@
       ord.map(function (p) { return '<tr><td><span class="lgname" style="background:' + P(p).color + ';color:' + Ch.ink(P(p).color) + '">' + P(p).short + '</span>' +
         (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(lead[p] || '') + '</i></td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td><b>' + seats[p] + '</b></td></tr>'; }).join('') +
       '<tr><td colspan="4" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
-    h += '<div id="genmap">' + Ch.resultMap(Q, data, sen ? null : { inset: { title: 'National list (' + U.sum(r.national || {}) + ' seats)', seats: r.national || {} } }) + '</div>';
-    h += '<p class="small muted">' + (sen ? 'Each dot is a senator: three elected by PR and one chosen by the state house (' + tot + ' in all).' : 'Each dot is a state list seat; the 100 national list seats are shown in the box.') + ' Hover or tap a state for details.</p>';
+    genData = data;
+    h += '<div id="genmap">' + Ch.resultMap(Q, data, sen || !r.national ? null : { inset: { title: 'National list (' + U.sum(r.national) + ' seats)', seats: r.national } }) + '</div>';
+    h += '<p class="small muted">' + (sen ? 'Each dot is a senator: three elected by PR and one chosen by the state house (' + tot + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
     return h;
   }
 
@@ -413,6 +413,8 @@
       h += '<p><b>Government:</b> ' + esc(r.pm) + ' (' + r.gov.map(nm).join('\u2013') + ', ' + gs + ' seats' + (r.cs ? '; confidence and supply from ' + r.cs.map(nm).join(' and ') + ', ' + (gs + cs) + ' in all' : '') + '). Majority: ' + maj + ' of ' + r.seats + '.</p>';
       h += '<div class="bar" style="height:14px;display:flex;margin:6px 0">' + ord.map(function (k) { return seats[k] ? '<i style="position:static;display:block;height:100%;width:' + (seats[k] / r.seats * 100) + '%;background:' + oldParty(k).color + '" title="' + esc(oldParty(k).name) + '"></i>' : ''; }).join('') + '</div>';
       h += '<table class="seats"><tr><th>Party</th><th>Vote</th><th>Seats</th></tr>' + ord.map(function (k) { return '<tr><td>' + ochip(k) + esc(oldParty(k).name) + (r.gov.indexOf(k) >= 0 ? ' <span class="pill yes">gov</span>' : '') + '</td><td>' + (r.shares[k] != null ? (+r.shares[k]).toFixed(1) + '%' : '') + '</td><td><b>' + (seats[k] || 0) + '</b></td></tr>'; }).join('') + (r.shares.oth ? '<tr><td class="muted">Others</td><td>' + r.shares.oth.toFixed(1) + '%</td><td>0</td></tr>' : '') + '</table>';
+      var gd = U.LORE.generalDetail(r), lead = {}; lead[r.gov[0]] = r.pm;
+      return h + resultsBlock({ states: gd.states, senStates: gd.senStates, national: gd.national, house: gd.house, senate: gd.senate, shares: r.shares, leaders: lead, generated: true }) + '</div>';
       var topH;
       if (r.byState) topH = function (sid) { var d = r.byState[sid]; if (!d) return null; return Object.keys(d).sort(function (a, b) { return d[b] - d[a]; })[0]; };
       else { var mp = {}; for (var k in r.map) r.map[k].split(' ').forEach(function (sid) { if (sid) mp[sid] = k; }); topH = function (sid) { return (r.seats < 600 && (sid === 'AK' || sid === 'HI') && r.year < 1959) ? null : (mp[sid] || r.top); }; }

@@ -93,9 +93,81 @@
       note: 'The Foley government fell when its health-care bill failed. Newt Gingrich’s Contract with America won the snap election, and he formed a CC–CDP government kept in office by the Libertarians and the Lone Star Party. It fell after the 1995–96 government shutdown, which forced the 1996 election.' }
   ];
 
-  // seats for a historical election
-  U.LORE.generalSeats = function (e) {
-    var v = {}; for (var p in e.shares) if (p !== 'oth' && e.shares[p] >= 1) v[p] = e.shares[p];
-    return U.Electoral.divisor(v, e.seats, 'sainte-lague', 0);
+  // Party info for old parties as well as the game's own.
+  var OLD = { dem: ['DEM', 0], rep: ['REP', 5], prog: ['PROG', -4], soc: ['SOC', -8], fl: ['FLP', -6], ind: ['IND', 0] };
+  U.partyInfo = function (k) {
+    if (OLD[k] && U.LORE.oldParties[k]) return { name: U.LORE.oldParties[k][0], short: OLD[k][0], color: U.LORE.oldParties[k][1], econ: OLD[k][1] };
+    var p = U.PARTIES && U.PARTIES[k]; return p ? p : { name: k, short: k.toUpperCase(), color: '#888', econ: 0 };
   };
+
+  // ---- State-by-state detail, generated from the national result ----
+  // Each party gets an affinity for each state (region and demography of the
+  // period); vote shares are then raked to match both 100% per state and the
+  // national share, and nudged until the state's largest party matches `map`.
+  var DEEP = 'AL MS SC LA GA', BORDER = 'KY OK MO MD WV', CATH = 'MA RI CT NY NJ PA OH IL MI WI MN IA';
+  function has(list, s) { return (' ' + list + ' ').indexOf(' ' + s + ' ') >= 0; }
+  function aff(p, s, y) {
+    var r = s.region, so = r === 'SO' || r === 'TX', w = r === 'PC' || r === 'MT', pl = r === 'PL', ne = r === 'NE' || r === 'MA', mw = r === 'MW';
+    switch (p) {
+      case 'dem': return y < 1966 ? (so ? 2.6 : has(BORDER, s.id) ? 1.5 : 0.7 + 0.5 * s.urban) : (so ? 3.2 : has(BORDER, s.id) ? 1 : 0.12);
+      case 'rep': return y < 1966 ? (so ? 0.25 : ne || mw ? 1.35 : pl ? 1.3 : 1) : (so ? 0.7 : ne ? 1.2 : 1.1);
+      case 'prog': return w ? 1.7 : pl ? 1.5 : mw ? 1.2 : so ? 0.3 : 0.8;
+      case 'soc': case 'cpusa': case 'dsa': case 'wfp': return (so ? 0.3 : 0.6) + 1.4 * s.urban * (0.5 + s.union * 2);
+      case 'fl': return s.id === 'MN' ? 9 : s.id === 'ND' ? 5 : has('WI SD', s.id) ? 2 : 0.05;
+      case 'srp': return has(DEEP, s.id) ? 4.5 : so ? 1.8 : 0.04;
+      case 'cdp': return has(CATH, s.id) ? 1.5 : pl ? 1.3 : so ? 0.4 : 0.9;
+      case 'sdlp': return (mw ? 1.5 : ne ? 1.1 : so ? 0.55 : 1) * (0.7 + s.union * 2);
+      case 'ldp': return (ne ? 1.35 : r === 'PC' ? 1.3 : so ? 0.75 : 1) * (0.7 + 0.5 * s.urban + s.black);
+      case 'cc': return so ? 1.6 : w || pl ? 1.3 : ne ? 0.55 : 0.9;
+      case 'lib': return w ? 1.6 : pl ? 1.1 : 0.8;
+      case 'con': return so || pl ? 1.5 : 0.7;
+      case 'lsp': return s.id === 'TX' ? 14 : 0.02;
+      case 'asp': return has('UT ID', s.id) ? 7 : has('MI OH MA RI WI', s.id) ? 1.6 : 0.4;
+      case 'cnp': case 'cfc': return s.id === 'CA' ? 30 : 0.01;
+      case 'grn': return r === 'PC' ? 1.8 : ne ? 1.3 : 0.7;
+      default: return 1;
+    }
+  }
+  function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 1000) / 1000; }
+  function houseSeats(e) {
+    if (e.seats === 600) { var a = U.Elections.apportion().pr, o = {}; for (var k in a) if (a[k]) o[k] = a[k]; return o; }
+    var era = e.year < 1932 ? '1910' : e.year < 1942 ? '1930' : e.year < 1952 ? '1940' : e.year < 1962 ? '1950' : '1960', el = U.LORE.ecEras[era], out = {};
+    for (var s in el) if (s !== 'DC') out[s] = el[s] - 4;
+    return out;
+  }
+  var cache = {};
+  U.LORE.generalDetail = function (e) {
+    if (cache[e.year]) return cache[e.year];
+    var D = U.Electoral, seatsOf = houseSeats(e), ids = Object.keys(seatsOf), W = 0;
+    var parties = Object.keys(e.shares).filter(function (p) { return p !== 'oth'; }), want = {}, A = {}, v = {};
+    var mp = {}; for (var k in e.map) e.map[k].split(' ').forEach(function (s) { if (s) mp[s] = k; });
+    ids.forEach(function (s) { W += seatsOf[s]; want[s] = mp[s] || e.top; var st = U.STATES[s] || U.DC; A[s] = {};
+      parties.forEach(function (p) { A[s][p] = aff(p, st, e.year) * (0.85 + 0.3 * hash(e.year + s + p)); }); });
+    var oth = e.shares.oth || 0;
+    for (var round = 0; round < 60; round++) {
+      for (var it = 0; it < 25; it++) {
+        ids.forEach(function (s) { var t = 0; parties.forEach(function (p) { t += e.shares[p] * A[s][p]; }); v[s] = {}; parties.forEach(function (p) { v[s][p] = e.shares[p] * A[s][p] / t * (100 - oth); }); });
+        parties.forEach(function (p) { var n = 0; ids.forEach(function (s) { n += v[s][p] * seatsOf[s]; }); var f = e.shares[p] * W / n; ids.forEach(function (s) { A[s][p] *= f; }); });
+      }
+      var bad = 0;
+      ids.forEach(function (s) { var top = parties.reduce(function (a, b) { return v[s][b] > v[s][a] ? b : a; }); if (top !== want[s] && v[s][want[s]] != null) { bad++; A[s][want[s]] *= 1.1; A[s][top] *= 0.95; } });
+      if (!bad) break;
+    }
+    var states = {}, senStates = {}, house = {}, senate = {}, national = {};
+    ids.forEach(function (s) {
+      var sh = {}; parties.forEach(function (p) { if (v[s][p] >= 0.5) sh[p] = Math.round(v[s][p] * 10) / 10; });
+      var won = D.divisor(v[s], seatsOf[s], 'sainte-lague', 0), seats = {}; for (var p in won) if (won[p]) { seats[p] = won[p]; house[p] = (house[p] || 0) + won[p]; }
+      states[s] = { seats: seats, shares: sh };
+      if (s === 'DC') return;
+      var sw = D.divisor(v[s], 3, 'sainte-lague', 0), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
+      var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0]; ss[leg] = (ss[leg] || 0) + 1;
+      for (p in ss) senate[p] = (senate[p] || 0) + ss[p];
+      senStates[s] = { seats: ss, shares: sh };
+    });
+    if (e.seats === 600) { var nv = {}; parties.forEach(function (p) { nv[p] = e.shares[p]; });
+      var nw = D.divisor(nv, 100, 'sainte-lague', 5 / (100 - oth)); for (var q in nw) if (nw[q]) { national[q] = nw[q]; house[q] = (house[q] || 0) + nw[q]; } }
+    return (cache[e.year] = { states: states, senStates: senStates, house: house, senate: senate, national: e.seats === 600 ? national : null, mismatched: ids.filter(function (s) { return parties.reduce(function (a, b) { return v[s][b] > v[s][a] ? b : a; }) !== want[s]; }) });
+  };
+  // seats for a historical election (the sum of the state results)
+  U.LORE.generalSeats = function (e) { return U.LORE.generalDetail(e).house; };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

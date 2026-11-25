@@ -98,8 +98,8 @@
   // shaded by its share; dots = seats won in the state. opts.inset: {title, seats}.
   Ch.resultMap = function (Q, data, opts) {
     opts = opts || {};
-    var G = U.GEO, out = '', col = function (p) { return (U.PARTIES[p] || {}).color || '#888'; };
-    var order = function (ks) { return ks.sort(function (a, b) { return ((U.PARTIES[a] || {}).econ || 0) - ((U.PARTIES[b] || {}).econ || 0); }); };
+    var G = U.GEO, out = '', col = function (p) { return U.partyInfo(p).color; };
+    var order = function (ks) { return ks.sort(function (a, b) { return (U.partyInfo(a).econ || 0) - (U.partyInfo(b).econ || 0); }); };
     var fill = function (id) { var d = data[id]; if (!d) return '#d6d2c8'; var sh = d.shares || {}, ks = Object.keys(sh);
       if (!ks.length) { ks = Object.keys(d.seats || {}); if (!ks.length) return '#d6d2c8'; var t = ks.sort(function (a, b) { return d.seats[b] - d.seats[a]; })[0]; return Ch.shade(col(t), 3); }
       var w = ks.sort(function (a, b) { return sh[b] - sh[a]; })[0]; return Ch.shade(col(w), Ch.band(sh[w])); };
@@ -129,7 +129,7 @@
     var arc = function (r0, r1, a0, a1, c) { var L = a1 - a0 > Math.PI ? 1 : 0, p = function (r, a) { return (60 + r * Math.sin(a)).toFixed(2) + ' ' + (60 - r * Math.cos(a)).toFixed(2); };
       return '<path d="M' + p(r1, a0) + ' A' + r1 + ' ' + r1 + ' 0 ' + L + ' 1 ' + p(r1, a1) + ' L' + p(r0, a1) + (r0 ? ' A' + r0 + ' ' + r0 + ' 0 ' + L + ' 0 ' + p(r0, a0) : '') + ' Z" fill="' + c + '" stroke="var(--card)" stroke-width="0.6"/>'; };
     var draw = function (obj, r0, r1) { var ks = order(Object.keys(obj).filter(function (k) { return obj[k] > 0; })), tot = 0, a = 0, o = '';
-      ks.forEach(function (k) { tot += obj[k]; }); ks.forEach(function (k) { var b = a + obj[k] / tot * 2 * Math.PI; o += arc(r0, r1, a, Math.min(b, a + 2 * Math.PI - 1e-4), (U.PARTIES[k] || {}).color || '#bbb'); a = b; }); return o; };
+      ks.forEach(function (k) { tot += obj[k]; }); ks.forEach(function (k) { var b = a + obj[k] / tot * 2 * Math.PI; o += arc(r0, r1, a, Math.min(b, a + 2 * Math.PI - 1e-4), U.partyInfo(k).color); a = b; }); return o; };
     return '<svg viewBox="0 0 120 120" width="150" height="150">' + draw(votes, 46, 57) + draw(seats, 0, 42) + '</svg>';
   };
 
