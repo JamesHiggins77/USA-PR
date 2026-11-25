@@ -128,14 +128,14 @@
 
   // LDP internal factions (player party). Scenario assumption.
   U.LDP_FACTIONS = {
-    newdem: { name: 'New Democrats', figure: 'Joe Lieberman', econ: 2, soc: -2, strength: 34, dissent: 15,
+    newdem: { name: 'New Democrats', figure: 'Joe Lieberman', econ: 2, soc: -2, strength: 32, dissent: 15,
       wants: 'fiscal discipline, business-friendly growth, openness to the CDP' },
-    proglib: { name: 'Progressive Liberals', figure: 'Ted Kennedy', econ: -5, soc: -6, strength: 30, dissent: 25,
-      wants: 'universal healthcare, closer ties with the SDLP, fight the Greens' },
-    civil: { name: 'Civil Rights Caucus', figure: 'John Lewis', econ: -4, soc: -5, strength: 18, dissent: 15,
-      wants: 'voting rights, urban investment, criminal-justice reform' },
-    heartland: { name: 'Heartland Liberals', figure: 'Evan Bayh', econ: 1, soc: 1, strength: 18, dissent: 20,
-      wants: 'rural investment, moderate social policy, a deal with the CDP' }
+    proglib: { name: 'Progressive Liberals', figure: 'Ted Kennedy', econ: -5, soc: -6, strength: 38, dissent: 22,
+      wants: 'universal healthcare, civil and voting rights, urban investment, closer ties with the SDLP' },
+    chrlib: { name: 'Christian Liberals', figure: 'Jimmy Carter', econ: -3, soc: 1, strength: 14, dissent: 15,
+      wants: 'faith-based social justice, help for the poor, caution on cultural issues' },
+    heartland: { name: 'Blue Dogs', figure: 'Evan Bayh', econ: 2, soc: 2, strength: 16, dissent: 20,
+      wants: 'balanced budgets, rural investment, moderate social policy, a deal with the CDP' }
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
 // Parties that do not exist in 1999 and may emerge (brief §5.5). Dormant until

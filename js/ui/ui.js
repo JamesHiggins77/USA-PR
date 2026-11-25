@@ -16,6 +16,7 @@
   function go(v) { if (U.Night) U.Night.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
 
   function render() {
+    if (Q) S.migrateFactions(Q);
     if (!Q) return renderStart();
     $('tabs').innerHTML = TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (view === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('');
     renderSide();
@@ -356,7 +357,7 @@
     var PR = U.PARTY_PROFILES, groups = [['national', 'National parties'], ['alliance', 'Alliances and blocs'], ['regional', 'Regional parties'], ['future', 'Future parties (not yet founded in 1997)'], ['former', 'Former parties']];
     var info = function (k) { return U.PARTIES[k] ? { name: U.PARTIES[k].name, short: U.PARTIES[k].short, color: U.PARTIES[k].color } : U.FORMER_PARTIES[k]; };
     var h = '<h1>Parties</h1><p class="small muted">Every party and alliance, current and former, with its positions on seven axes and its internal factions.</p><div class="row" style="margin-bottom:10px">' +
-      [['all', 'All']].concat(groups).map(function (g) { return '<button class="btn ' + (partyFilter === g[0] ? '' : 'ghost') + '" data-pfilter="' + g[0] + '">' + g[1].split(' (')[0] + '</button>'; }).join('') + '</div>';
+      [['all', 'All']].concat(groups, [['figures', 'Figures']]).map(function (g) { return '<button class="btn ' + (partyFilter === g[0] ? '' : 'ghost') + '" data-pfilter="' + g[0] + '">' + g[1].split(' (')[0] + '</button>'; }).join('') + '</div>';
     groups.forEach(function (g) {
       if (partyFilter !== 'all' && partyFilter !== g[0]) return;
       var keys = Object.keys(PR).filter(function (k) { return PR[k].status === g[0] && info(k); });
@@ -371,13 +372,20 @@
           '<p class="small" style="margin:6px 0"><b>' + esc(pr.ideology) + '</b></p>' +
           U.AXES.map(function (a) { var live = U.PARTIES[k] && (U.Elections.pos(Q) || {})[k], v = live && live[a[0]] != null ? live[a[0]] : pr.ax[a[0]], x = U.clamp((v + 10) / 20 * 100, 0, 100);
             return '<div class="axis"><div class="axl"><span>' + a[2] + '</span><b>' + a[1] + '</b><span>' + a[3] + '</span></div><div class="axbar"><i style="left:' + x + '%;background:' + i.color + '"></i></div></div>'; }).join('') +
-          '<div class="small" style="margin-top:8px"><b>Factions</b></div><ul class="factions">' + pr.factions.map(function (f) { return '<li><b>' + esc(f[0]) + '</b> <span class="muted">(' + esc(f[1]) + ')</span>: ' + esc(f[2]) + '</li>'; }).join('') + '</ul>' +
+          '<div class="small" style="margin-top:8px"><b>Factions</b></div><ul class="factions">' + pr.factions.map(function (f) { var more = (U.FIGURES || []).filter(function (x) { return x[1] === k && x[2] === f[0] && x[0] !== f[1]; }).map(function (x) { return x[0]; });
+            return '<li><b>' + esc(f[0]) + '</b> <span class="muted">(' + esc(f[1]) + ')</span>: ' + esc(f[2]) + (more.length ? '<div class="small muted">Also: ' + esc(more.join(', ')) + '</div>' : '') + '</li>'; }).join('') + '</ul>' +
           (pr.members ? '<div class="small muted">Members: ' + pr.members.map(function (m) { return esc(info(m).name); }).join(', ') + '</div>' : '') +
           (pr.note ? '<div class="small muted">' + esc(pr.note) + '</div>' : '') +
           (lore && lore[1] && g[0] !== 'future' ? '<details class="small"><summary>History</summary>' + esc(lore[1]) + '</details>' : '') + '</div>';
       });
       h += '</div>';
     });
+    if (partyFilter === 'all' || partyFilter === 'figures') {
+      var order = Object.keys(PR);
+      h += '<h2>Political figures, 1980\u20132026</h2><p class="small muted">Where real politicians of the period would sit in this party system, and in which faction.</p><table class="seats figtable"><tr><th>Figure</th><th>Party</th><th>Faction</th><th>Note</th></tr>' +
+        (U.FIGURES || []).slice().sort(function (a, b) { return order.indexOf(a[1]) - order.indexOf(b[1]) || PR[a[1]].factions.map(function (f) { return f[0]; }).indexOf(a[2]) - PR[b[1]].factions.map(function (f) { return f[0]; }).indexOf(b[2]); })
+          .map(function (f) { var i = info(f[1]); return '<tr><td>' + esc(f[0]) + '</td><td><i class="chip" style="background:' + i.color + '"></i>' + esc(i.short) + '</td><td>' + esc(f[2]) + '</td><td class="small muted">' + esc(f[3]) + '</td></tr>'; }).join('') + '</table>';
+    }
     return h;
   }
 

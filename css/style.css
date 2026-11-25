@@ -190,3 +190,6 @@ table.seats { max-width: 420px; margin-top: 6px; }
 .factions { margin: 4px 0 6px; padding-left: 18px; font-size: 12.5px; }
 .factions li { margin: 2px 0; }
 @media (max-width: 520px) { .pcards { grid-template-columns: 1fr; } }
+.figtable { width: 100%; max-width: 900px; }
+.figtable td, .figtable th { text-align: left !important; white-space: normal; }
+.figtable td:nth-child(2) { white-space: nowrap; }

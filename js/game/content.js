@@ -10,7 +10,7 @@
     camp: function (Q, groups, reason) { V.campaign(Q, Q.player, H.scale(Q, groups), reason); },
     other: function (Q, p, groups) { V.campaign(Q, p, H.scale(Q, groups), null); },
     scale: function (Q, g) { var k = Q.cardBoost || 1, o = {}; for (var x in g) o[x] = g[x] * k; return o; },
-    fac: function (Q, o) { for (var k in o) Q.factions[k].dissent = U.clamp(Q.factions[k].dissent + o[k], 0, 100); },
+    fac: function (Q, o) { S.migrateFactions(Q); for (var k in o) { var kk = k === 'civil' ? 'proglib' : k; if (Q.factions[kk]) Q.factions[kk].dissent = U.clamp(Q.factions[kk].dissent + o[k], 0, 100); } },
     str: function (Q, o) { for (var k in o) Q.factions[k].strength = U.clamp(Q.factions[k].strength + o[k], 5, 70); },
     rel: function (Q, p, d) { C.addRel(Q, Q.player, p, d); },
     shift: function (Q, e, s, f) { var P = Q.pos[Q.player]; P.econ = U.clamp(P.econ + e, -10, 10); P.soc = U.clamp(P.soc + s, -10, 10); if (f) P.fed = U.clamp(P.fed + f, -10, 10); },
@@ -36,8 +36,8 @@
           act: function (Q) { H.camp(Q, { suburb: 0.8, retire: 0.6, prof: 0.5 }, 'Interviews'); H.fac(Q, { newdem: -4, proglib: 2 });
             if (S.inGov(Q) && Q.econ.growth > 3) { H.camp(Q, { suburb: 0.4 }, 'Interviews'); return 'With growth above 3%, the message lands. Viewers credit the LDP, not just the coalition.'; }
             return 'Viewers ask whose competence this is. The coalition shares the credit.'; } },
-        { label: 'Social justice and civil rights', sub: 'Black, Hispanic and young voters. Pleases the Civil Rights Caucus.',
-          act: function (Q) { H.camp(Q, { black: 0.9, hisp: 0.7, young: 0.4 }, 'Interviews'); H.fac(Q, { civil: -5, heartland: 2 }); H.shift(Q, -0.2, -0.2); return 'A strong performance. Some Heartland Liberals think it was aimed at somebody else’s voters.'; } },
+        { label: 'Social justice and civil rights', sub: 'Black, Hispanic and young voters. Pleases the Progressive Liberals.',
+          act: function (Q) { H.camp(Q, { black: 0.9, hisp: 0.7, young: 0.4 }, 'Interviews'); H.fac(Q, { civil: -5, heartland: 2 }); H.shift(Q, -0.2, -0.2); return 'A strong performance. Some Blue Dogs think it was aimed at somebody else’s voters.'; } },
         { label: 'Take on the Greens', sub: 'Argue a Green vote is a wasted vote. Costs relations with the Greens.',
           act: function (Q) { var k = Q.flags.naderSurge ? 1 : 0.5; H.camp(Q, { young: 0.4 * k, prof: 0.5 * k }, 'Attacks on the Greens'); H.other(Q, S.greenId(Q), { young: -0.6 * k, prof: -0.4 * k }); H.rel(Q, S.greenId(Q), -8); H.fac(Q, { proglib: 3, newdem: -2 }); return 'Nader replies that the LDP is the reason people vote Green. Some young viewers agree with him; more agree with you.'; } },
         { label: 'Take on the Conservative Coalition', sub: 'Draw a clear line with the main right-wing alternative.',
@@ -75,16 +75,16 @@
       options: [
         { label: 'Move left on the economy', sub: 'Closer to the SDLP and United Left. Progressive Liberals pleased; New Democrats not.', act: function (Q) { H.shift(Q, -1, 0); H.camp(Q, { union: 0.6, young: 0.4, prof: -0.3, suburb: -0.2 }, 'Platform changes'); H.fac(Q, { proglib: -6, newdem: 6 }); return 'The paper promises public investment and labor protections.'; } },
         { label: 'Move right on the economy', sub: 'Closer to the CDP. New Democrats pleased; Progressive Liberals not.', act: function (Q) { H.shift(Q, 1, 0); H.camp(Q, { suburb: 0.6, prof: 0.3, union: -0.5, young: -0.2 }, 'Platform changes'); H.fac(Q, { newdem: -6, proglib: 6 }); return 'The paper promises fiscal discipline and lower taxes for small business.'; } },
-        { label: 'A bolder socially liberal stance', sub: 'Civil rights and personal freedom. Heartland Liberals uneasy.', act: function (Q) { H.shift(Q, 0, -1); H.camp(Q, { young: 0.6, prof: 0.5, relig: -0.6, rural: -0.3 }, 'Platform changes'); H.fac(Q, { civil: -5, heartland: 6 }); return 'The paper is praised in the cities and burned on talk radio.'; } },
-        { label: 'A more traditional social tone', sub: 'Faith and family language. Closer to the CDP and ASP.', act: function (Q) { H.shift(Q, 0, 1); H.camp(Q, { relig: 0.6, rural: 0.4, young: -0.4, prof: -0.3 }, 'Platform changes'); H.fac(Q, { heartland: -6, civil: 4, proglib: 3 }); return 'The paper talks about values. The CDP calls it imitation.'; } }
+        { label: 'A bolder socially liberal stance', sub: 'Civil rights and personal freedom. Blue Dogs and Christian Liberals uneasy.', act: function (Q) { H.shift(Q, 0, -1); H.camp(Q, { young: 0.6, prof: 0.5, relig: -0.6, rural: -0.3 }, 'Platform changes'); H.fac(Q, { civil: -5, heartland: 6, chrlib: 5 }); return 'The paper is praised in the cities and burned on talk radio.'; } },
+        { label: 'A more traditional social tone', sub: 'Faith and family language. Closer to the CDP and ASP.', act: function (Q) { H.shift(Q, 0, 1); H.camp(Q, { relig: 0.6, rural: 0.4, young: -0.4, prof: -0.3 }, 'Platform changes'); H.fac(Q, { heartland: -6, chrlib: -6, civil: 4, proglib: 3 }); return 'The paper talks about values. The CDP calls it imitation.'; } }
       ] },
 
     { id: 'faction', title: 'Meet a faction', tag: 'Party',
       body: function (Q) { return 'Each faction wants something. Meeting one costs a little standing with the others.'; },
-      options: ['newdem', 'proglib', 'civil', 'heartland'].map(function (k) {
+      options: ['newdem', 'proglib', 'chrlib', 'heartland'].map(function (k) {
         return { label: function (Q) { return U.LDP_FACTIONS[k].name + ' (' + U.LDP_FACTIONS[k].figure + ')'; },
           sub: function (Q) { return 'Dissent ' + Math.round(Q.factions[k].dissent) + '. Wants: ' + U.LDP_FACTIONS[k].wants + '.'; },
-          act: function (Q) { var o = { newdem: 1, proglib: 1, civil: 1, heartland: 1 }; o[k] = -12; H.fac(Q, o); Q.unity += 1; return U.LDP_FACTIONS[k].figure + ' leaves the meeting satisfied, for now.'; } };
+          act: function (Q) { var o = { newdem: 1, proglib: 1, chrlib: 1, heartland: 1 }; o[k] = -12; H.fac(Q, o); Q.unity += 1; return U.LDP_FACTIONS[k].figure + ' leaves the meeting satisfied, for now.'; } };
       }) },
 
     { id: 'whip', title: 'Party discipline', tag: 'Party',
@@ -98,15 +98,15 @@
       body: function () { return 'Strong local candidates win runoffs. Recruitment costs money, and the factions want their people.'; },
       options: [
         { label: 'Recruit across the country', sub: 'Costs 2. Small boost everywhere.', cond: function (Q) { return H.funds(Q, 2); }, act: function (Q) { H.spend(Q, 2); REG_OPTS.forEach(function (r) { H.region(Q, r, 0.25, 'Candidate recruitment'); }); return 'A class of mayors, veterans and teachers sign up.'; } },
-        { label: 'Target the South and Plains', sub: 'Costs 2. Heartland Liberals pleased.', cond: function (Q) { return H.funds(Q, 2); }, act: function (Q) { H.spend(Q, 2); H.region(Q, 'SO', 0.6, 'Candidate recruitment'); H.region(Q, 'PL', 0.6, 'Candidate recruitment'); H.fac(Q, { heartland: -6, civil: 2 }); return 'Moderate sheriffs and county commissioners agree to run as Liberal Democrats.'; } },
-        { label: 'Diverse urban candidates', sub: 'Costs 2. Civil Rights Caucus pleased.', cond: function (Q) { return H.funds(Q, 2); }, act: function (Q) { H.spend(Q, 2); H.camp(Q, { black: 0.6, hisp: 0.6, young: 0.3 }, 'Candidate recruitment'); H.fac(Q, { civil: -6, heartland: 2 }); return 'The new candidates look like the cities they want to represent.'; } }
+        { label: 'Target the South and Plains', sub: 'Costs 2. Blue Dogs pleased.', cond: function (Q) { return H.funds(Q, 2); }, act: function (Q) { H.spend(Q, 2); H.region(Q, 'SO', 0.6, 'Candidate recruitment'); H.region(Q, 'PL', 0.6, 'Candidate recruitment'); H.fac(Q, { heartland: -6, civil: 2 }); return 'Moderate sheriffs and county commissioners agree to run as Liberal Democrats.'; } },
+        { label: 'Diverse urban candidates', sub: 'Costs 2. Progressive Liberals pleased.', cond: function (Q) { return H.funds(Q, 2); }, act: function (Q) { H.spend(Q, 2); H.camp(Q, { black: 0.6, hisp: 0.6, young: 0.3 }, 'Candidate recruitment'); H.fac(Q, { civil: -6, heartland: 2 }); return 'The new candidates look like the cities they want to represent.'; } }
       ] },
 
     { id: 'court', title: 'Court another party', tag: 'Coalition',
       body: function (Q) { return 'Relations matter in negotiations. Who do you invite for dinner?'; },
       options: function (Q) { return ['sdlp', 'cdp', 'reform', 'asp', 'grn', 'ul', 'cpusa', 'wfp', 'cc', 'aga', 'lsp', 'srp', 'lib'].filter(function (p) { return !Q.dormant[p]; }).map(function (p) {
         return { label: function (Q) { return U.PARTIES[p].name + ' (relations ' + Math.round(C.rel(Q, Q.player, p)) + ')'; },
-          sub: { reform: 'Perot\u2019s party: fiscal hawks with populist voters.', grn: 'Nader\u2019s Greens. Progressive Liberals approve; New Democrats appalled.', cpusa: 'The New Democrats will be appalled.', wfp: 'A labor-backed party close to the SDLP.', sdlp: 'Progressive Liberals approve.', cdp: 'New Democrats and Heartland approve; Progressive Liberals do not.', asp: 'Heartland Liberals approve.', ul: 'Progressive Liberals approve; New Democrats appalled.', cc: 'Most factions are uneasy.', aga: 'A federation: its state parties bargain separately.', lsp: 'The Texas regionalists want resource rights. Civil Rights Caucus uneasy.', srp: 'The Civil Rights Caucus will be furious.', lib: 'New Democrats curious.' }[p],
+          sub: { reform: 'Perot\u2019s party: fiscal hawks with populist voters.', grn: 'Nader\u2019s Greens. Progressive Liberals approve; New Democrats appalled.', cpusa: 'The New Democrats will be appalled.', wfp: 'A labor-backed party close to the SDLP.', sdlp: 'Progressive Liberals approve.', cdp: 'New Democrats and Heartland approve; Progressive Liberals do not.', asp: 'Blue Dogs approve.', ul: 'Progressive Liberals approve; New Democrats appalled.', cc: 'Most factions are uneasy.', aga: 'A federation: its state parties bargain separately.', lsp: 'The Texas regionalists want resource rights. Progressive Liberals uneasy.', srp: 'The Progressive Liberals will be furious.', lib: 'New Democrats curious.' }[p],
           act: function (Q) {
             H.rel(Q, p, 7 + Math.round(U.rng(Q) * 4));
             var f = { reform: { newdem: -1 }, grn: { proglib: -2, newdem: 5 }, cpusa: { newdem: 10, heartland: 6 }, wfp: { proglib: -2, newdem: 3 }, sdlp: { proglib: -2 }, cdp: { newdem: -2, heartland: -2, proglib: 3 }, asp: { heartland: -2 }, ul: { proglib: -2, newdem: 6 }, cc: { proglib: 5, civil: 5, newdem: 1 }, aga: {}, lsp: { civil: 3 }, srp: { civil: 15, proglib: 6 }, lib: { newdem: -1, proglib: 2 } }[p];

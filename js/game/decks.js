@@ -54,7 +54,7 @@
       body: function (Q) { return 'Regionalist parties are small nationally but can be pivotal in a close parliament, and they control votes in state legislatures. Not all of them want independence: most want money and powers.'; },
       options: function (Q) { return ['lsp', 'srp', 'aga', 'cnp', 'cfc', 'nenp', 'alk', 'raza'].filter(function (p) { return !Q.dormant[p]; }).map(function (p) {
         var f = { lsp: { civil: 4, heartland: -2 }, srp: { civil: 14, proglib: 6 }, aga: { heartland: -2 }, cnp: { newdem: 3 }, cfc: { proglib: 2 }, nenp: {}, alk: { proglib: 2 }, raza: { civil: -4, heartland: 3 } }[p];
-        return { label: U.PARTIES[p].name + ' (relations ' + Math.round(C.rel(Q, Q.player, p)) + ')', sub: 'Promise ' + C.demandsOf(p)[0].text.toLowerCase() + '. ' + (p === 'srp' ? 'The Civil Rights Caucus will be furious.' : ''),
+        return { label: U.PARTIES[p].name + ' (relations ' + Math.round(C.rel(Q, Q.player, p)) + ')', sub: 'Promise ' + C.demandsOf(p)[0].text.toLowerCase() + '. ' + (p === 'srp' ? 'The Progressive Liberals will be furious.' : ''),
           act: function (Q) { H.rel(Q, p, 14); H.fac(Q, f); Q.pendingConcessions = (Q.pendingConcessions || []).concat([{ party: p, id: C.demandsOf(p)[0].id, text: C.demandsOf(p)[0].text + ' (' + U.PARTIES[p].short + ')', due: S.now(Q) + 15 }]);
             return 'The ' + U.PARTIES[p].short + ' leadership shakes on it. Their votes will be easier to find, as long as the promise is kept.'; } };
       }); } },
@@ -135,15 +135,15 @@
   };
 
   D.ISSUES = [
-    { id: 'tx', text: 'Texas demands control of federal royalties from its oil and gas fields. The Lone Star Party is watching your answer.', statesSub: 'LSP pleased; Civil Rights Caucus uneasy.', fedSub: 'LSP hardliners gain.',
+    { id: 'tx', text: 'Texas demands control of federal royalties from its oil and gas fields. The Lone Star Party is watching your answer.', statesSub: 'LSP pleased; Progressive Liberals uneasy.', fedSub: 'LSP hardliners gain.',
       statesFac: { civil: 3 }, fedFac: { heartland: 2 }, statesGroups: { rural: 0.3 }, fedGroups: { prof: 0.2 }, statesText: 'Texas gets a larger share of royalties. The LSP calls it a start.', fedText: 'The royalties stay federal. The LSP fills a stadium in Houston.' },
-    { id: 'imm', text: 'Arizona and California clash with Washington over who enforces immigration law.', statesSub: 'Hispanic voters and the Civil Rights Caucus wary.', fedSub: 'Rural voters unhappy.',
+    { id: 'imm', text: 'Arizona and California clash with Washington over who enforces immigration law.', statesSub: 'Hispanic voters and the Progressive Liberals wary.', fedSub: 'Rural voters unhappy.',
       statesFac: { civil: 6 }, fedFac: { heartland: 4 }, statesGroups: { rural: 0.3, hisp: -0.5 }, fedGroups: { hisp: 0.5, rural: -0.3 }, statesText: 'States get more say over enforcement. Immigrant groups protest.', fedText: 'Enforcement stays federal. Border-state legislators complain.' },
     { id: 'edu', text: 'Several states refuse new federal education standards attached to school funding.', statesSub: 'Popular in rural areas.', fedSub: 'Teachers’ unions pleased.',
       statesFac: { proglib: 4 }, fedFac: { heartland: 4 }, statesGroups: { rural: 0.4, relig: 0.2 }, fedGroups: { union: 0.3, prof: 0.2 }, statesText: 'States can opt out of the standards and keep most of the money.', fedText: 'The standards stay, with the money attached.' },
     { id: 'env', text: 'Coal and oil states challenge federal environmental rules in court.', statesSub: 'Coal country grateful; Greens furious.', fedSub: 'Green voters approve.',
       statesFac: { proglib: 6 }, fedFac: { heartland: 5 }, statesGroups: { rural: 0.4, union: 0.2, young: -0.4 }, fedGroups: { young: 0.4, prof: 0.3, rural: -0.4 }, statesText: 'The LDP backs flexibility for the states. Environmental groups call it a betrayal.', fedText: 'The LDP defends the federal rules. West Virginia and Wyoming are not pleased.' },
-    { id: 'police', text: 'The Justice Department wants oversight of police departments in several cities; state attorneys general object.', statesSub: 'Civil Rights Caucus angry.', fedSub: 'Black voters and the Civil Rights Caucus approve.',
+    { id: 'police', text: 'The Justice Department wants oversight of police departments in several cities; state attorneys general object.', statesSub: 'Progressive Liberals angry.', fedSub: 'Black voters and the Progressive Liberals approve.',
       statesFac: { civil: 10 }, fedFac: { civil: -6, heartland: 3 }, statesGroups: { suburb: 0.2, black: -0.6 }, fedGroups: { black: 0.6, suburb: -0.2 }, statesText: 'Policing stays a state matter.', fedText: 'Federal oversight goes ahead in four cities.' }
   ];
   D.disputeIssue = function (Q) {

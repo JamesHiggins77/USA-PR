@@ -12,13 +12,13 @@
       options: [
         { label: 'Sign, and push for ratification', sub: 'Young and professional voters approve; coal country and the CC object.', act: function (Q) { H.camp(Q, { young: 0.5, prof: 0.4, rural: -0.3, union: -0.1 }, 'Kyoto'); H.rel(Q, 'cc', -5); H.rel(Q, 'grn', 4); H.fac(Q, { proglib: -3, heartland: 4 }); return 'The Vice President flies to Kyoto to sign. Ratification will be a fight.'; } },
         { label: 'Sign, but do not push ratification', sub: 'A cautious middle course.', act: function (Q) { H.camp(Q, { suburb: 0.2 }, 'Kyoto'); H.rel(Q, 'grn', -3); return 'The treaty is signed and quietly shelved. Environmental groups notice.'; } },
-        { label: 'Refuse to sign', sub: 'Heartland Liberals and the CDP relieved; the Greens gain.', act: function (Q) { H.camp(Q, { rural: 0.3, union: 0.1, young: -0.5 }, 'Kyoto'); V.campaign(Q, 'grn', { young: 0.5, prof: 0.3 }, null); H.rel(Q, 'cdp', 3); H.fac(Q, { heartland: -4, proglib: 6 }); return 'The government says the treaty is unfair to American workers. Nader calls it a betrayal.'; } }
+        { label: 'Refuse to sign', sub: 'Blue Dogs and the CDP relieved; the Greens gain.', act: function (Q) { H.camp(Q, { rural: 0.3, union: 0.1, young: -0.5 }, 'Kyoto'); V.campaign(Q, 'grn', { young: 0.5, prof: 0.3 }, null); H.rel(Q, 'cdp', 3); H.fac(Q, { heartland: -4, proglib: 6 }); return 'The government says the treaty is unfair to American workers. Nader calls it a betrayal.'; } }
       ] },
 
     { id: 'lewinsky', title: 'The Lewinsky scandal', when: function (Q) { return at(Q, 1998, 1) && Q.president.name === 'Bill Clinton'; },
       body: function () { return 'News breaks that President Clinton had an affair with Monica Lewinsky, a White House intern, and may have lied about it under oath. It is ten months before he faces the voters. The opposition talks of impeachment; the LDP’s own members are split between loyalty and disgust.'; },
       options: [
-        { label: 'Stand by the President', sub: 'Loyal voters rally; the scandal attaches to the LDP too. Civil Rights Caucus and New Democrats loyal; Progressive Liberals uneasy.', act: function (Q) { Q.scandal = (Q.scandal || 0) + 4; Q.president.approval -= 2; H.camp(Q, { black: 0.3, union: 0.1, relig: -0.4, suburb: -0.2 }, 'Lewinsky scandal'); H.fac(Q, { civil: -3, newdem: -2, proglib: 4 }); return 'The party closes ranks. Clinton’s approval holds up remarkably well; the LDP’s takes a knock.'; } },
+        { label: 'Stand by the President', sub: 'Loyal voters rally; the scandal attaches to the LDP too. Progressive Liberals and New Democrats loyal; Progressive Liberals uneasy.', act: function (Q) { Q.scandal = (Q.scandal || 0) + 4; Q.president.approval -= 2; H.camp(Q, { black: 0.3, union: 0.1, relig: -0.4, suburb: -0.2 }, 'Lewinsky scandal'); H.fac(Q, { civil: -3, newdem: -2, proglib: 4 }); return 'The party closes ranks. Clinton’s approval holds up remarkably well; the LDP’s takes a knock.'; } },
         { label: 'Keep a careful distance', sub: 'The party protects itself; the President resents it.', act: function (Q) { Q.scandal = (Q.scandal || 0) + 2; Q.president.approval -= 5; H.camp(Q, { suburb: 0.1, relig: -0.1 }, 'Lewinsky scandal'); H.fac(Q, { civil: 4, proglib: -2 }); return 'Party figures say it is a matter between the President and his family, and change the subject.'; } },
         { label: 'Urge him not to seek re-election', sub: 'A clean break; the LDP needs another candidate for November.', act: function (Q) { Q.scandal = (Q.scandal || 0) + 1; Q.president.approval -= 10; Q.president.termLimited = true; Q.flags.clintonStepsAside = 1; H.camp(Q, { relig: 0.3, suburb: 0.2, black: -0.4 }, 'Lewinsky scandal'); H.fac(Q, { civil: 10, newdem: 4, proglib: -6 }); return 'After a week of pressure, Clinton announces he will serve out his term but not stand again in November.'; } }
       ] },
@@ -46,7 +46,7 @@
       body: function () { return 'Donald Trump, who endorsed the Reform Party in the 1998 presidential election, forms an exploratory committee for its next presidential nomination. He is fighting Pat Buchanan for the party\u2019s soul, calls Buchanan "a Hitler lover", and says he would be a better negotiator with Japan and China. Reform\u2019s polling ticks up with every television appearance.'; },
       options: [
         { label: 'Ignore him: a celebrity sideshow', act: function (Q) { V.campaign(Q, 'reform', V.all(0.3), null); Q.discontent += 2; return 'Trump\u2019s flirtation keeps Reform in the headlines for weeks before he withdraws in February, saying the party is "a total mess".'; } },
-        { label: 'Court Reform\u2019s moderates against Buchanan', sub: 'Reform relations up; the Heartland Liberals like it.', act: function (Q) { H.rel(Q, 'reform', 6); H.fac(Q, { heartland: -3 }); V.campaign(Q, 'reform', V.all(0.2), null); return 'LDP figures praise Perot\u2019s original vision and pointedly not Buchanan\u2019s. Reform\u2019s moderates take note.'; } },
+        { label: 'Court Reform\u2019s moderates against Buchanan', sub: 'Reform relations up; the Blue Dogs like it.', act: function (Q) { H.rel(Q, 'reform', 6); H.fac(Q, { heartland: -3 }); V.campaign(Q, 'reform', V.all(0.2), null); return 'LDP figures praise Perot\u2019s original vision and pointedly not Buchanan\u2019s. Reform\u2019s moderates take note.'; } },
         { label: 'Attack the Reform Party as unserious', sub: 'Reform relations down; may matter for its confidence-and-supply votes.', act: function (Q) { H.rel(Q, 'reform', -8); H.camp(Q, { suburb: 0.3, prof: 0.2 }, 'Response to Trump and Reform'); return 'The LDP calls Reform a vanity project. Perot\u2019s people remember it.'; } }
       ] },
 
@@ -93,7 +93,7 @@
       body: function () { return 'Mass marches demand the removal of the Confederate battle flag from the South Carolina State House. The Southern Rights Party calls it heritage and is gaining in the polls across the Deep South.'; },
       options: [
         { label: 'Demand it comes down', sub: 'Black voters respond; SRP mobilises.', act: function (Q) { H.camp(Q, { black: 0.8, prof: 0.3, rural: -0.3 }, 'Confederate flag dispute'); Q.homeMult.srp = (Q.homeMult.srp || 1) * 1.1; H.rel(Q, 'srp', -12); H.fac(Q, { civil: -8, heartland: 3 }); return 'The LDP stands with the marchers. The SRP’s rallies get bigger.'; } },
-        { label: 'Call it a matter for South Carolina', sub: 'Federalist. The Civil Rights Caucus is furious.', act: function (Q) { H.fac(Q, { civil: 15 }); H.rel(Q, 'srp', 4); H.camp(Q, { black: -0.6, rural: 0.2 }, 'Confederate flag dispute'); return 'John Lewis says publicly he is ashamed of his party’s answer.'; } }
+        { label: 'Call it a matter for South Carolina', sub: 'Federalist. The Progressive Liberals is furious.', act: function (Q) { H.fac(Q, { civil: 15 }); H.rel(Q, 'srp', 4); H.camp(Q, { black: -0.6, rural: 0.2 }, 'Confederate flag dispute'); return 'John Lewis says publicly he is ashamed of his party’s answer.'; } }
       ] },
 
     { id: 'nomination', title: 'The presidential nomination', repeat: true,
@@ -151,7 +151,7 @@
       options: [
         { label: 'Come clean and return the money', sub: 'Costs 2 funds; damage contained.', act: function (Q) { Q.funds -= 2; H.camp(Q, V.all(-0.2), 'Fundraising scandal'); return 'An apology and a refund. The story fades in a week.'; } },
         { label: 'Deny and attack the newspaper', sub: 'May work. If more comes out, much worse.', act: function (Q) { if (U.rng(Q) < 0.5) { H.camp(Q, V.all(-1), 'Fundraising scandal'); Q.scandal = (Q.scandal || 0) + 6; Q.leader.approval -= 10; return 'More documents appear. The cover-up becomes the story.'; } return 'The paper fails to follow up. The story dies.'; } },
-        { label: 'Blame a rogue staffer', sub: 'Some damage; the Civil Rights Caucus dislikes the scapegoating.', act: function (Q) { H.camp(Q, V.all(-0.4), 'Fundraising scandal'); H.fac(Q, { civil: 4 }); return 'The staffer resigns. Few believe it was only him.'; } }
+        { label: 'Blame a rogue staffer', sub: 'Some damage; the Progressive Liberals dislikes the scapegoating.', act: function (Q) { H.camp(Q, V.all(-0.4), 'Fundraising scandal'); H.fac(Q, { civil: 4 }); return 'The staffer resigns. Few believe it was only him.'; } }
       ] },
 
     { id: 'security', title: 'An attack on American soil', when: function (Q) { return at(Q, 2001, 6) && !Q.flags.securityDone && chance(Q, 0.06); },
@@ -181,7 +181,7 @@
 
     { id: 'new_leader', title: 'The Prime Minister moves to the White House', when: function (Q) { return Q.flags.leaderToWhiteHouse && !Q.flags.leaderReplaced; },
       body: function (Q) { return Q.leader.name + ' will be President. The LDP needs a new leader' + (S.pmIsPlayer(Q) ? ', and the government a new Prime Minister. Coalition partners will judge the choice.' : '.'); },
-      options: ['newdem', 'proglib', 'civil', 'heartland'].map(function (k) { return { label: function (Q) { return U.LDP_FACTIONS[k].figure + ' (' + U.LDP_FACTIONS[k].name + ')'; }, sub: function (Q) { return 'Faction strength ' + Math.round(Q.factions[k].strength) + '%.'; }, act: function (Q) { return Ev.newLeader(Q, k); } }; }) },
+      options: ['newdem', 'proglib', 'chrlib', 'heartland'].map(function (k) { return { label: function (Q) { return U.LDP_FACTIONS[k].figure + ' (' + U.LDP_FACTIONS[k].name + ')'; }, sub: function (Q) { return 'Faction strength ' + Math.round(Q.factions[k].strength) + '%.'; }, act: function (Q) { return Ev.newLeader(Q, k); } }; }) },
 
     { id: 'challenge', title: 'A leadership challenge', repeat: true,
       when: function (Q) { return !Q.timers.challenge && Q.leader.approval < 30 && Object.keys(Q.factions).some(function (k) { return Q.factions[k].dissent > 70; }); },

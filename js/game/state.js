@@ -103,6 +103,13 @@
   };
 
   S.save = function (Q, slot) { try { localStorage.setItem('usa-pr-save-' + (slot || 'auto'), JSON.stringify(Q)); return true; } catch (e) { return false; } };
+  // saves from before the factions were reorganised
+  S.migrateFactions = function (Q) {
+    if (!Q.factions || !Q.factions.civil) return;
+    Q.factions.proglib.dissent = Math.round((Q.factions.proglib.dissent + Q.factions.civil.dissent) / 2);
+    delete Q.factions.civil; Q.factions.chrlib = U.clone(U.LDP_FACTIONS.chrlib);
+    for (var k in Q.factions) { Q.factions[k].name = U.LDP_FACTIONS[k].name; Q.factions[k].strength = U.LDP_FACTIONS[k].strength; }
+  };
   S.load = function (slot) { try { var s = localStorage.getItem('usa-pr-save-' + (slot || 'auto')); return s ? JSON.parse(s) : null; } catch (e) { return null; } };
   S.hasSave = function (slot) { try { return !!localStorage.getItem('usa-pr-save-' + (slot || 'auto')); } catch (e) { return false; } };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

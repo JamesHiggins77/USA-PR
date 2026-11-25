@@ -21,8 +21,8 @@
     'Howard Phillips': ['con', 'Founder and leader of the Constitution Party.'],
     'Joe Lieberman': ['ldp', 'Leader of the New Democrats, the LDP’s centrist faction.'],
     'Ted Kennedy': ['ldp', 'Leader of the Progressive Liberals, the LDP’s left wing.'],
-    'John Lewis': ['ldp', 'Civil-rights icon; leads the LDP’s Civil Rights Caucus.'],
-    'Evan Bayh': ['ldp', 'Leads the Heartland Liberals, the LDP’s moderate rural and small-town wing.'],
+    'John Lewis': ['ldp', 'Civil-rights icon; the conscience of the LDP’s Progressive Liberals.'],
+    'Evan Bayh': ['ldp', 'Leads the Blue Dogs, the LDP’s fiscally conservative, moderate rural and small-town wing.'],
     'Howard Dean': ['ldp', 'Governor of Vermont. Energises the LDP’s left and its younger activists.'],
     'Donald Trump': ['maga', 'New York businessman and celebrity. Endorsed the Reform Party in the 1998 presidential election. Founds the MAGA Party only if conditions allow.'],
     'Mike Pence': ['cc', 'Conservative Coalition figure; Prime Minister of the broad-right coalition in the default timeline. Not guaranteed in a sandbox run.']

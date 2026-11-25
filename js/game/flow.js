@@ -6,7 +6,7 @@
   function val(x, Q) { return typeof x === 'function' ? x(Q) : x; }
   F.val = val;
 
-  F.begin = function (Q) { F.ensureDecks(Q); Q.pendingEvent = Q.pendingEvent || Ev.next(Q); return Q.pendingEvent; };
+  F.begin = function (Q) { S.migrateFactions(Q); F.ensureDecks(Q); Q.pendingEvent = Q.pendingEvent || Ev.next(Q); return Q.pendingEvent; };
 
   // ---- the hand ----
   F.ensureDecks = function (Q) { if (!Q.decks) U.Decks.init(Q); };
