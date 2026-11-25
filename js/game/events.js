@@ -209,12 +209,12 @@
         { label: 'Push for an early election', sub: 'Only if the LDP leads the government.', cond: function (Q) { return S.pmIsPlayer(Q) ? true : 'The LDP does not hold the premiership.'; }, act: function (Q) { Q.flags.partnerLeft = null; S.callElection(Q, 2); return 'The voters will decide.'; } }
       ] },
 
-    { id: 'sanders', title: 'Sanders takes over the Communists', when: function (Q) { return at(Q, 1999, 4) && !Q.flags.sanders && chance(Q, 0.07); },
-      body: function () { return 'Bernie Sanders, the Vermont socialist, is elected leader of the Communist Party USA on a platform of "democratic socialism, not sectarianism". In his first speech he says the left loses because it is divided into a dozen parties, and calls for a single United Left list.'; },
+    { id: 'sanders', title: 'The far left turns to Sanders', when: function (Q) { return at(Q, 1999, 4) && !Q.flags.sanders && chance(Q, 0.07); },
+      body: function () { return 'The Communist Party, the DSA, Working Families and the Vermont Progressives ask Bernie Sanders, Vermont\u2019s Progressive senator, to chair talks on a single list. Belonging to none of the national far-left parties, he is the one figure they can all accept. He says the left loses because it is divided into a dozen parties, and calls for a United Left.'; },
       options: [
-        { label: 'Welcome a serious voice on the left', sub: 'Relations with the CPUSA up; the New Democrats wince.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.leaders.cpusa = 'Bernie Sanders'; H.rel(Q, 'cpusa', 10); H.fac(Q, { newdem: 4, proglib: -2 }); return 'Sanders thanks you, and says he will still run against you.'; } },
-        { label: 'Warn about a communist-led left', sub: 'New Democrats pleased; the left closes ranks.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.leaders.cpusa = 'Bernie Sanders'; Q.flags.leftSolidarity = 1; H.rel(Q, 'cpusa', -10); H.rel(Q, 'grn', -3); H.fac(Q, { newdem: -5, proglib: 4 }); H.camp(Q, { suburb: 0.3, retire: 0.2, young: -0.3 }, 'Response to Sanders'); return 'The attack lands in the suburbs. On the left it makes unity talks easier.'; } },
-        { label: 'Say nothing', act: function (Q) { Q.flags.sanders = S.now(Q); Q.leaders.cpusa = 'Bernie Sanders'; return 'The press covers it as a curiosity.'; } }
+        { label: 'Welcome a serious voice on the left', sub: 'Relations with the CPUSA up; the New Democrats wince.', act: function (Q) { Q.flags.sanders = S.now(Q); H.rel(Q, 'vpp', 10); H.rel(Q, 'cpusa', 5); H.fac(Q, { newdem: 4, proglib: -2 }); return 'Sanders thanks you, and says he will still run against you.'; } },
+        { label: 'Warn about a far-left front', sub: 'New Democrats pleased; the left closes ranks.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.flags.leftSolidarity = 1; H.rel(Q, 'cpusa', -10); H.rel(Q, 'vpp', -6); H.rel(Q, 'grn', -3); H.fac(Q, { newdem: -5, proglib: 4 }); H.camp(Q, { suburb: 0.3, retire: 0.2, young: -0.3 }, 'Response to Sanders'); return 'The attack lands in the suburbs. On the left it makes unity talks easier.'; } },
+        { label: 'Say nothing', act: function (Q) { Q.flags.sanders = S.now(Q); return 'The press covers it as a curiosity.'; } }
       ] },
 
     { id: 'ul_talks', title: 'Talks on a United Left', repeat: true,
@@ -245,9 +245,9 @@
 
   // Each far-left party decides whether to join the United Left.
   Ev.ulTalks = function (Q, mod) {
-    var base = { cpusa: 1, dsa: 0.85, wfp: 0.6, vpp: 0.75, revsoc: 0.65, grn: 0.6 + (Q.flags.leftSolidarity ? 0.15 : 0) + mod };
+    var base = { cpusa: 0.85, dsa: 0.85, wfp: 0.6, vpp: 1, revsoc: 0.65, grn: 0.6 + (Q.flags.leftSolidarity ? 0.15 : 0) + mod };
     var join = Object.keys(base).filter(function (p) { return !Q.dormant[p] && U.rng(Q) < base[p] + (p !== 'grn' ? mod / 2 : 0); });
-    if (join.length < 3 || join.indexOf('cpusa') < 0) {
+    if (join.length < 3 || (join.indexOf('cpusa') < 0 && join.indexOf('vpp') < 0)) {
       Q.flags.ulTalksFailed = S.now(Q);
       S.note(Q, 'The United Left talks collapse. Only ' + join.map(function (p) { return U.PARTIES[p].short; }).join(', ') + ' were ready to sign.');
       return 'The talks collapse over candidate lists. The far left stays divided, for now.';

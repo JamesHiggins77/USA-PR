@@ -435,7 +435,7 @@
     return S.pickPerson(Q, p, null, 'competence');
   };
   // Senate party leaders: kept until they become the party's House leader or President
-  var SEN0 = { ldp: 'Ted Kennedy', cc: 'Trent Lott', cdp: 'Richard Lugar', sdlp: 'Paul Wellstone', srp: 'Strom Thurmond', asp: 'Orrin Hatch', lsp: 'Kinky Friedman', reform: 'Dean Barkley', grn: 'Winona LaDuke' };
+  var SEN0 = { vpp: 'Bernie Sanders', ul: 'Bernie Sanders', ldp: 'Ted Kennedy', cc: 'Trent Lott', cdp: 'Richard Lugar', sdlp: 'Paul Wellstone', srp: 'Strom Thurmond', asp: 'Orrin Hatch', lsp: 'Kinky Friedman', reform: 'Dean Barkley', grn: 'Winona LaDuke' };
   S.senLeaderOf = function (Q, p) {
     if (p === 'revsoc') return '(fragmented)';
     Q.senLeaders = Q.senLeaders || {};

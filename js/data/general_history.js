@@ -105,17 +105,17 @@
       top: 'cc', map: { ldp: 'MA RI NY HI DC CA CT', sdlp: 'MN WI MI WV PA IL OH', cdp: 'IA' },
       sen: {'cc': -1, 'lsp': 1},
       note: 'The lock expired and Dole asked for an election to coincide with Reagan\u2019s re-election; both chambers agreed. The economy boomed everywhere but the oil patch, where the Texas oil bust gave birth to the Lone Star Party. Reagan nominated the tax-cutter Jack Kemp, who needed the Libertarians for a majority.' },
-    { year: 1990, seats: 600, shares: { ldp: 27.0, cc: 26.0, sdlp: 17.0, cdp: 13.0, lib: 4.0, asp: 3.0, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.5, grn: 1.0, oth: 1.5 }, gov: ['ldp', 'cdp'], cs: ['sdlp'], pm: 'Lloyd Bentsen',
+    { year: 1990, seats: 600, shares: { ldp: 27.0, cc: 26.0, sdlp: 17.0, cdp: 13.0, lib: 4.0, asp: 3.0, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.5, grn: 1.0, vpp: 0.05, oth: 1.45 }, gov: ['ldp', 'cdp'], cs: ['sdlp'], pm: 'Lloyd Bentsen',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD DE IL HI VT ME NH DC CO NM', sdlp: 'MN WI MI WV PA OH', cdp: 'IA', lsp: 'TX', asp: 'UT' },
-      sen: {'cc': 2, 'ldp': -1}, senInd: {'CT': 33},
+      senBoost: { VT: { vpp: 2.6 } }, sen: {'cc': 2, 'ldp': -1}, senInd: {'CT': 33},
       note: 'Called when the lock expired, three months into the Gulf crisis and amid the savings-and-loan collapse and Iran-Contra. The LDP came first for the first time since 1966. Reagan\u2019s first nominee, Kemp again, failed to win an absolute majority; his second, the Texan Lloyd Bentsen (LDP), passed by simple majority at the head of an LDP\u2013CDP minority with SDLP votes for its budgets. Lowell Weicker won Connecticut\u2019s Senate race as an independent.' },
-    { year: 1992, seats: 600, shares: { ldp: 28.0, cc: 24.0, sdlp: 18.0, cdp: 11.0, asp: 4.0, lib: 3.5, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.2, cnp: 1.0, grn: 1.0, oth: 2.3 }, gov: ['ldp', 'sdlp'], cs: ['asp'], pm: 'Tom Foley',
+    { year: 1992, seats: 600, shares: { ldp: 28.0, cc: 24.0, sdlp: 18.0, cdp: 11.0, asp: 4.0, lib: 3.5, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.2, cnp: 1.0, grn: 1.0, vpp: 0.05, oth: 2.25 }, gov: ['ldp', 'sdlp'], cs: ['asp'], pm: 'Tom Foley',
       top: 'ldp', map: { cc: 'TX AL MS GA SC NC TN FL VA OK KS NE SD ND MT WY ID AZ IN KY AK', sdlp: 'MN WI MI WV PA OH', cdp: 'IA', asp: 'UT', lsp: '', srp: '' },
-      sen: {'ldp': -1, 'cc': 1},
+      senBoost: { VT: { vpp: 2.6 } }, sen: {'ldp': -1, 'cc': 1},
       note: 'Bentsen asked for an early election to coincide with the presidential vote, and both chambers agreed. Ross Perot ran only for President, and many of his voters skipped the House ballot. The newly elected Clinton nominated Tom Foley, who won an absolute majority for an LDP\u2013SDLP government with ASP support.' },
-    { year: 1994, seats: 600, shares: { cc: 29.0, ldp: 21.0, cdp: 16.0, sdlp: 15.0, lib: 4.0, asp: 4.0, con: 2.5, lsp: 2.0, srp: 2.0, grn: 1.0, dsa: 1.0, cnp: 1.0, oth: 1.5 }, gov: ['cc', 'cdp'], cs: ['lib', 'lsp'], pm: 'Newt Gingrich',
+    { year: 1994, seats: 600, shares: { cc: 29.0, ldp: 21.0, cdp: 16.0, sdlp: 15.0, lib: 4.0, asp: 4.0, con: 2.5, lsp: 2.0, srp: 2.0, grn: 1.0, dsa: 1.0, cnp: 1.0, vpp: 0.05, oth: 1.45 }, gov: ['cc', 'cdp'], cs: ['lib', 'lsp'], pm: 'Newt Gingrich',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD HI VT DC', sdlp: 'MN WI MI WV', cdp: 'IA DE', asp: 'UT', lsp: 'TX' },
-      sen: {'cc': 1, 'cdp': 1, 'ldp': -1},
+      senBoost: { VT: { vpp: 2.6 } }, sen: {'cc': 1, 'cdp': 1, 'ldp': -1},
       note: 'Foley\u2019s health-care bill died in the Senate, and the ASP withdrew its support. A constructive vote to replace him with Newt Gingrich fell twelve votes short, so with Congress deadlocked Foley asked for an early election and both chambers agreed. Gingrich\u2019s Contract with America won, and Clinton, after first nominating the CDP\u2019s John McCain, who could not win an absolute majority, had to nominate Gingrich, who passed by simple majority.' }
   ];
 
@@ -151,6 +151,7 @@
       case 'asp': return has('UT ID', s.id) ? 7 : has('MI OH MA RI WI', s.id) ? 1.6 : 0.4;
       case 'cnp': case 'cfc': return s.id === 'CA' ? 30 : 0.01;
       case 'grn': return r === 'PC' ? 1.8 : ne ? 1.3 : 0.7;
+      case 'vpp': return s.id === 'VT' ? 400 : 0.001;
       default: return 1;
     }
   }
@@ -187,7 +188,7 @@
       if (s === 'DC') return;
       // Senate races: national shifts (e.sen), candidates' personal votes, independents (e.senInd)
       var sv = {}, st0 = 0, st1 = 0, ind = (e.senInd || {})[s] || 0;
-      parties.forEach(function (p) { st0 += v[s][p]; sv[p] = Math.max(0, v[s][p] * (1 + ((e.sen || {})[p] || 0) / e.shares[p]) * (1 + 0.4 * (hash('s' + e.year + s + p) - 0.5))); st1 += sv[p]; });
+      parties.forEach(function (p) { st0 += v[s][p]; sv[p] = Math.max(0, v[s][p] * (1 + ((e.sen || {})[p] || 0) / e.shares[p]) * (1 + 0.4 * (hash('s' + e.year + s + p) - 0.5)) * (((e.senBoost || {})[s] || {})[p] || 1)); st1 += sv[p]; });
       parties.forEach(function (p) { sv[p] = sv[p] * (st0 - ind) / st1; }); if (ind) sv.ind = ind;
       var ssh = {}; for (p in sv) { if (sv[p] >= 0.5) ssh[p] = Math.round(sv[p] * 10) / 10; senW[p] = (senW[p] || 0) + sv[p] * seatsOf[s]; } senT += seatsOf[s];
       var sw = D.senateSeats(sv), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];

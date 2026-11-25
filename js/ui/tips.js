@@ -12,7 +12,7 @@
     'Al Gore': ['ldp', 'Leader of the Liberal Democrats and Prime Minister of the LDP\u2013SDLP coalition. Holds the effective executive power.'],
     'Bill Bradley': ['sdlp', 'Leader of the Social Democratic Labor Party. Former basketball star and senator; pushes for universal healthcare.'],
     'Ralph Nader': ['grn', 'Consumer advocate turned Green leader, one of the party’s four MPs in 1999. Drives the Green surge.'],
-    'Bernie Sanders': ['cpusa', 'Vermont socialist. If he wins the Communist Party leadership, he may try to build a United Left.'],
+    'Bernie Sanders': ['vpp', 'Vermont Progressive senator and former mayor of Burlington. The far left may choose him to lead talks on a United Left.'],
     'Ross Perot': ['reform', 'Billionaire founder of the Reform Party, whose MPs provide confidence and supply to Gore’s government.'],
     'Pat Buchanan': ['reform', 'Paleoconservative commentator; Reform’s likely presidential nominee in 2000.'],
     'John McCain': ['cdp', 'Christian Democrat leader (scenario assumption). Maverick reputation; popular with independents.'],

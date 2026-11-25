@@ -61,7 +61,7 @@
       ['Eco-socialists', 'Howie Hawkins', 'public ownership and a green economy'],
       ['Fundis', 'Winona LaDuke', 'grassroots democracy, indigenous rights, no coalitions']]),
     cpusa: P('national', 'Communism, Marxism-Leninism', { econ: -9, trade: -6, soc: -3, foreign: -8, fed: -4, pop: 5, env: 2 }, [
-      ['Sanders reformers', 'Bernie Sanders', 'democratic socialism and a United Left'],
+      ['Reformers', 'Sam Webb', 'democratic socialism and joining a United Left under Sanders'],
       ['Old Guard', 'Gus Hall', 'loyal to the party line'],
       ['Labor militants', 'Jarvis Tyner', 'strikes and civil rights before ideology']]),
     dsa: P('national', 'Democratic socialism', { econ: -8, trade: -5, soc: -6, foreign: -6, fed: -2, pop: 3, env: 6 }, [
@@ -86,7 +86,7 @@
     ul: P('alliance', 'Electoral alliance of the far left', { econ: -8, trade: -6, soc: -6, foreign: -7, fed: -2, pop: 5, env: 6 }, [
       ['Reformists', 'Bernie Sanders', 'govern with the SDLP when it counts'],
       ['Hardliners', 'Gloria La Riva', 'no coalitions with capitalist parties'],
-      ['Greens', 'Ralph Nader', 'may leave if the alliance ignores the environment']], { note: 'Does not exist at the start of 1997; Sanders can build it.' }),
+      ['Greens', 'Ralph Nader', 'may leave if the alliance ignores the environment']], { note: 'Does not exist at the start of 1997. Bernie Sanders, Vermont\u2019s Progressive senator, can unite the far left behind it.' }),
     aga: P('alliance', 'Federation of state Green parties; no fixed left-right line', { econ: -1, trade: -2, soc: 0, foreign: -4, fed: 5, pop: 2, env: 9 }, [
       ['Progressive chapters', 'Greg Gerritt', 'Rhode Island and the Northeast'],
       ['Conservationist chapters', 'Carol Miller', 'Virginia’s Independent Greens and rural chapters']]),
@@ -108,18 +108,18 @@
     cfc: P('regional', 'Californian devolutionism, centre-right', { econ: 3, trade: 7, soc: 0, foreign: 2, fed: 7, pop: 1, env: -1 }, [
       ['Tax Revolt', 'Tom McClintock', 'heirs of Proposition 13'],
       ['Moderates', 'Pete Wilson', 'business-friendly devolution']]),
-    vpp: P('regional', 'Vermont progressivism', { econ: -7, trade: -4, soc: -5, foreign: -5, fed: 2, pop: 4, env: 7 }, [['Burlington Progressives', 'Peter Clavelle', 'municipal socialism and local democracy']]),
+    vpp: P('regional', 'Vermont progressivism', { econ: -7, trade: -4, soc: -5, foreign: -5, fed: 2, pop: 4, env: 7 }, [['Burlington Progressives', 'Peter Clavelle', 'municipal socialism and local democracy'], ['Sanders wing', 'Bernie Sanders', 'democratic socialism, and a United Left he would lead'], ['Fusionists', 'David Zuckerman', 'joint tickets with the SDLP in Vermont']]),
     nyfp: P('regional', 'New York regionalism, independent centrism', { econ: 1, trade: 4, soc: -2, foreign: 3, fed: 7, pop: 4, env: 1 }, [
       ['Independence wing', 'Tom Golisano', 'business-minded reform'],
       ['Fulani wing', 'Lenora Fulani', 'left-wing populists']]),
-    alk: P('regional', 'Alaskan regionalism', { econ: 6, trade: 3, soc: 2, foreign: -4, fed: 9, pop: 5, env: -8 }, [['Independence wing', 'Joe Vogler', 'Alaskan independence']]),
-    aloha: P('regional', 'Hawaiian sovereignty, environmentalism', { econ: -4, trade: -2, soc: -2, foreign: -6, fed: 7, pop: 3, env: 8 }, [['Sovereignty movement', 'Haunani-Kay Trask', 'Native Hawaiian self-government']]),
-    raza: P('regional', 'Chicano nationalism, social democracy', { econ: -5, trade: -4, soc: -1, foreign: -5, fed: 4, pop: 5, env: 2 }, [['Movimiento', 'José Ángel Gutiérrez', 'Mexican-American civil rights in the Southwest']]),
-    nenp: P('regional', 'New England regionalism', { econ: -2, trade: 2, soc: -4, foreign: -2, fed: 8, pop: 2, env: 6 }, [['Town-meeting regionalists', 'Thomas Naylor', 'New England self-rule']]),
+    alk: P('regional', 'Alaskan regionalism', { econ: 6, trade: 3, soc: 2, foreign: -4, fed: 9, pop: 5, env: -8 }, [['Independence wing', 'Joe Vogler', 'Alaskan independence'], ['Resource populists', 'Walter Hickel', 'state control of oil, gas and land']]),
+    aloha: P('regional', 'Hawaiian sovereignty, environmentalism', { econ: -4, trade: -2, soc: -2, foreign: -6, fed: 7, pop: 3, env: 8 }, [['Sovereignty movement', 'Haunani-Kay Trask', 'Native Hawaiian self-government'], ['Land and water', 'George Helm', 'protecting the land from development and the military']]),
+    raza: P('regional', 'Chicano nationalism, social democracy', { econ: -5, trade: -4, soc: -1, foreign: -5, fed: 4, pop: 5, env: 2 }, [['Movimiento', 'José Ángel Gutiérrez', 'Mexican-American civil rights in the Southwest'], ['Farmworkers', 'Dolores Huerta', 'labor rights in the fields']]),
+    nenp: P('regional', 'New England regionalism', { econ: -2, trade: 2, soc: -4, foreign: -2, fed: 8, pop: 2, env: 6 }, [['Town-meeting regionalists', 'Thomas Naylor', 'New England self-rule'], ['Yankee moderates', 'Angus King', 'regional autonomy without secession']]),
     // ---- future parties (dormant in 1997) ----
     acp: P('future', 'Syncretic far left (2020s)', { econ: -9, trade: -8, soc: 1, foreign: -8, fed: -6, pop: 9, env: -2 }, [['MAGA Communists', 'Jackson Hinkle', 'patriotic socialism'], ['Labor wing', 'Haz Al-Din', 'industrial workers first']]),
-    maga: P('future', 'National populism', { econ: 3, trade: -8, soc: 8, foreign: -4, fed: 4, pop: 10, env: -8 }, [['Trumpists', 'Donald Trump', 'America First, tariffs, the wall'], ['Christian nationalists', 'Josh Hawley', 'religious conservatism']]),
-    afp: P('future', 'Hard-right nationalism', { econ: 4, trade: -9, soc: 10, foreign: -6, fed: 6, pop: 9, env: -9 }, [['Groypers', 'Nick Fuentes', 'white Christian nationalism']]),
+    maga: P('future', 'National populism', { econ: 3, trade: -8, soc: 8, foreign: -4, fed: 4, pop: 10, env: -8 }, [['Trumpists', 'Donald Trump', 'America First, tariffs, the wall'], ['Christian nationalists', 'Josh Hawley', 'religious conservatism'], ['National conservatives', 'J. D. Vance', 'industrial policy and a post-liberal right'], ['Freedom Caucus', 'Marjorie Taylor Greene', 'fight the establishment, shut down the government if needed'], ['Tech right', 'Elon Musk', 'deregulation, cutting the federal workforce'], ['MAHA', 'Robert F. Kennedy Jr.', 'health populism and suspicion of big pharma']]),
+    afp: P('future', 'Hard-right nationalism', { econ: 4, trade: -9, soc: 10, foreign: -6, fed: 6, pop: 9, env: -9 }, [['Groypers', 'Nick Fuentes', 'white Christian nationalism'], ['Paleoconservatives', 'Pat Buchanan', 'tariffs, immigration restriction, non-intervention']]),
     // ---- former parties ----
     dem: P('former', 'Before 1966: the big-tent party of the Solid South and the northern cities. After 1966: the southern rump, segregationist and conservative', { econ: -1, trade: -2, soc: 4, foreign: 3, fed: 6, pop: 3, env: -4 }, [
       ['Southern Democrats', 'Richard Russell', 'seniority, segregation, states’ rights; stayed in 1966'],
@@ -137,11 +137,11 @@
     soc: P('former', 'Democratic socialism', { econ: -8, trade: -4, soc: -3, foreign: -8, fed: -3, pop: 4, env: 1 }, [
       ['Sewer Socialists', 'Daniel Hoan', 'clean municipal government in Milwaukee'],
       ['Militants', 'Norman Thomas', 'pacifism and civil liberties']]),
-    fl: P('former', 'Agrarian socialism, cooperativism', { econ: -6, trade: -6, soc: 0, foreign: -6, fed: 0, pop: 7, env: 2 }, [['Olson Farmer-Laborites', 'Floyd Olson', 'cooperatives and public power']]),
+    fl: P('former', 'Agrarian socialism, cooperativism', { econ: -6, trade: -6, soc: 0, foreign: -6, fed: 0, pop: 7, env: 2 }, [['Olson Farmer-Laborites', 'Floyd Olson', 'cooperatives and public power'], ['Shipstead conservatives', 'Henrik Shipstead', 'isolationist farm populism']]),
     alp: P('former', 'New York labor socialism', { econ: -8, trade: -5, soc: -3, foreign: -2, fed: -3, pop: 4, env: 0 }, [['Garment unions', 'David Dubinsky', 'needle trades'], ['Marcantonio wing', 'Vito Marcantonio', 'pro-Soviet left']]),
-    npl: P('former', 'Agrarian populism', { econ: -6, trade: -7, soc: 1, foreign: -7, fed: 2, pop: 8, env: 2 }, [['State-ownership wing', 'William Langer', 'state banks and grain elevators']]),
-    mup: P('former', 'Latter-day Saint communitarianism (merged into the ASP in 1988)', { econ: -1, trade: 0, soc: 6, foreign: 1, fed: 5, pop: -3, env: 2 }, [['Church loyalists', 'Ezra Taft Benson', 'family and self-reliance']]),
-    cath: P('former', 'Catholic social teaching (merged into the ASP in 1988)', { econ: -4, trade: -3, soc: 5, foreign: 1, fed: 2, pop: 0, env: 2 }, [['Labor Catholics', 'Bob Casey Sr.', 'unions and the unborn']]),
-    mod: P('former', 'New England moderation (merged into the ASP in 1988)', { econ: 0, trade: 3, soc: -1, foreign: 2, fed: 4, pop: -5, env: 5 }, [['Yankee moderates', 'John Chafee', 'conservation and fiscal prudence']])
+    npl: P('former', 'Agrarian populism', { econ: -6, trade: -7, soc: 1, foreign: -7, fed: 2, pop: 8, env: 2 }, [['State-ownership wing', 'William Langer', 'state banks and grain elevators'], ['Townley organisers', 'Arthur C. Townley', 'organise farmers across the Plains']]),
+    mup: P('former', 'Latter-day Saint communitarianism (merged into the ASP in 1988)', { econ: -1, trade: 0, soc: 6, foreign: 1, fed: 5, pop: -3, env: 2 }, [['Church loyalists', 'Ezra Taft Benson', 'family and self-reliance'], ['Welfare Mormons', 'George Romney', 'civil rights and cooperative welfare']]),
+    cath: P('former', 'Catholic social teaching (merged into the ASP in 1988)', { econ: -4, trade: -3, soc: 5, foreign: 1, fed: 2, pop: 0, env: 2 }, [['Labor Catholics', 'Bob Casey Sr.', 'unions and the unborn'], ['Urban ethnics', 'Barbara Mikulski', 'Polish, Italian and Irish neighbourhoods']]),
+    mod: P('former', 'New England moderation (merged into the ASP in 1988)', { econ: 0, trade: 3, soc: -1, foreign: 2, fed: 4, pop: -5, env: 5 }, [['Yankee moderates', 'John Chafee', 'conservation and fiscal prudence'], ['Good-government reformers', 'Lowell Weicker', 'independence from party machines']])
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

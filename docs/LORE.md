@@ -480,7 +480,7 @@ Clinton’s popularity put the LDP ahead of the SDLP in a presidential first rou
 
 ### Vermont Progressive Party (VPP)
 
-*Founded 1981.* Grew from the coalition that elected Bernie Sanders mayor of Burlington. The strongest third force in Vermont politics.
+*Founded 1981.* Grew from the coalition that elected Bernie Sanders mayor of Burlington. Sanders has sat in the Senate for Vermont since 1990, the party’s best-known figure and the one leader the whole far left respects. The strongest third force in Vermont politics.
 
 **Ideology:** Progressive and populist, with deep local roots.
 

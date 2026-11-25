@@ -161,5 +161,5 @@ test('constitution: Senate veto/delay, presidential veto override, budgets bypas
 });
 
 test('every party has a profile with seven axes and factions', () => {
-  for (const k of Object.keys(U.PARTIES)) { const p = U.PARTY_PROFILES[k]; assert.ok(p, k); assert.strictEqual(Object.keys(p.ax).length, 7, k); assert.ok(p.factions.length >= 1, k); }
+  for (const k of Object.keys(U.PARTIES)) { const p = U.PARTY_PROFILES[k]; assert.ok(p, k); assert.strictEqual(Object.keys(p.ax).length, 7, k); assert.ok(p.factions.length >= 2, k); }
 });
