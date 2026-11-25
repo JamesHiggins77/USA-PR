@@ -295,7 +295,7 @@
     S.applyBudget(Q, plan, res);
     if (S.inGov(Q) && v !== 'yes') { C.addRel(Q, Q.player, Q.gov.pmParty, v === 'no' ? -20 : -8); }
     if (!S.supportsGov(Q) && v === 'yes') { C.addRel(Q, Q.player, Q.gov.pmParty, 6); H.fac(Q, { proglib: 4 }); }
-    Q.lastVote = { title: 'Budget ' + (Q.year + 1), house: res.house, senate: res.senate };
+    Q.lastVote = { title: 'Budget ' + (Q.year + 1), house: res.house, kind: 'budget' };
     return 'House: ' + res.house.yes + ' yes, ' + res.house.no + ' no. <b>' + (res.passed ? 'The budget passes.' : 'The budget is defeated.') + '</b>';
   };
 

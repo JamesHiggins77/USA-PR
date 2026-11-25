@@ -17,6 +17,16 @@
   var regional = function (p) { var k = U.PARTIES[p].kind; return k === 'regional' || k === 'federation'; };
   var T = U.Talks = {
     MAX_ROUNDS: 5, MAX_POSTS_OFFERED: 14, MAX_CHAIRS: 12,
+    // portfolios the Prime Minister can promise (State, Defense and the Treasury are the President's)
+    PORTFOLIOS: ['Deputy Prime Minister', 'Attorney General', 'Health and Human Services', 'Labor', 'Commerce', 'Education', 'Interior', 'Agriculture', 'Energy', 'Transportation',
+      'Housing and Urban Development', 'Veterans Affairs', 'Environment', 'Trade', 'Federalism and the States', 'Science and Technology', 'Budget'],
+    COMMITTEES: ['Appropriations', 'Ways and Means', 'Rules', 'Judiciary', 'Armed Services', 'Foreign Affairs', 'Energy and Commerce', 'Agriculture', 'Education and Labor',
+      'Financial Services', 'Homeland Security', 'Intelligence', 'Transportation and Infrastructure', 'Natural Resources', 'Oversight'],
+    // portfolios and committees each kind of party prizes most
+    WANTS: { sdlp: ['Labor', 'Health and Human Services', 'Education and Labor'], cdp: ['Budget', 'Commerce', 'Ways and Means', 'Appropriations'], cc: ['Budget', 'Commerce', 'Armed Services', 'Ways and Means'],
+      grn: ['Environment', 'Energy', 'Natural Resources'], ul: ['Labor', 'Environment', 'Education and Labor'], asp: ['Federalism and the States', 'Health and Human Services', 'Agriculture'],
+      reform: ['Budget', 'Oversight', 'Trade'], lib: ['Commerce', 'Judiciary', 'Financial Services'], aga: ['Environment', 'Natural Resources'], lsp: ['Energy', 'Federalism and the States', 'Natural Resources'],
+      srp: ['Agriculture', 'Federalism and the States', 'Armed Services'], cnp: ['Federalism and the States', 'Environment'], cfc: ['Federalism and the States', 'Energy and Commerce'], raza: ['Labor', 'Judiciary', 'Education'] },
     // bills the party wants, and a referendum on its cause
     bills: function (p) { return C.demandsOf(p).filter(function (d) { return d.id !== 'local' && d.id !== 'transfers' && d.id !== 'devolve'; }); },
     referendum: function (p) {
@@ -47,6 +57,9 @@
     if (o.posts) { var pv = Math.round(o.posts * (4 + 8 * office)); v += pv - 10; why.push(o.posts + ' cabinet post' + (o.posts > 1 ? 's' : '') + ' (+' + pv + ', less 10 for sharing responsibility)'); }
     if (o.speaker) { var sv = Math.round(8 + 14 * office); v += sv; why.push('the Speakership (+' + sv + ')'); }
     if (o.chairs) { var cv = o.chairs * 3; v += cv; why.push(o.chairs + ' committee chair' + (o.chairs > 1 ? 's' : '') + ' (+' + cv + ')'); }
+    var wants = T.WANTS[p] || [], fav = [].concat(o.portfolios || [], o.committees || []).filter(function (x) { return wants.indexOf(x) >= 0; });
+    if (fav.length) { v += fav.length * 4; why.push('posts it particularly wants: ' + fav.join(', ') + ' (+' + fav.length * 4 + ')'); }
+    if ((o.portfolios || []).indexOf('Deputy Prime Minister') >= 0) { v += 5; why.push('the deputy premiership (+5)'); }
     (o.bills || []).forEach(function (id) { var d = C.demandsOf(p).filter(function (x) { return x.id === id; })[0]; if (d) { v += d.value; why.push(d.text + ' (+' + d.value + ')'); } });
     if (o.referendum) { var rv = 6 + Math.max(0, ax.pop || 0); v += rv; why.push(T.referendum(p) + ' (+' + rv + ')'); }
     if (o.investment) { var iv = regional(p) ? 14 : 5; v += iv; why.push('investment in its states (+' + iv + ')'); }
@@ -122,6 +135,27 @@
     return U.Parliament.count(Q, 'house', function (p) { if (p === Q.player) return 'yes'; return T.voteOf(Q, p); });
   };
 
+  // honour promised portfolios and committee chairs
+  T.applyPromises = function (Q, t) {
+    var promised = {}, comm = {};
+    for (var p in t.offers) { if (t.stance[p] !== 'yes') continue; (t.offers[p].portfolios || []).forEach(function (x) { promised[x] = p; }); (t.offers[p].committees || []).forEach(function (x) { comm[x] = p; }); }
+    if (Q.cabinet && Object.keys(promised).length) {
+      var left = {}; Q.cabinet.forEach(function (c) { if (c.by !== 'president') left[c.party] = (left[c.party] || 0) + 1; });
+      for (var post in promised) left[promised[post]] = (left[promised[post]] || 0) - 1;
+      var used = {}; Q.cabinet.forEach(function (c) { used[c.name] = 1; });
+      var order = [Q.player].concat(Object.keys(left).filter(function (x) { return x !== Q.player; }));
+      Q.cabinet.forEach(function (c) {
+        if (c.by === 'president') return;
+        var want = promised[c.post] || order.filter(function (x) { return left[x] > 0; })[0] || c.party;
+        if (!promised[c.post]) left[want]--;
+        if (want !== c.party) { c.party = want; c.name = S.pickPerson(Q, want, used, 'competence'); used[c.name] = 1; }
+        if (promised[c.post]) c.promised = true;
+      });
+    }
+    // committee chairs: promised ones to partners, the rest to the PM's party
+    Q.committees = {}; T.COMMITTEES.forEach(function (x) { Q.committees[x] = comm[x] || Q.gov.pmParty; });
+  };
+
   // ---- probabilities ----
   // chance of yes / abstain / no from a margin; parties not yet talked to are
   // harder to read, so their odds are blurred
@@ -183,7 +217,7 @@
       t.stance[p] = v;
     });
     var ok = C.passes(c, ballot);
-    Q.timers.negotiate = 1; Q.lastVote = { title: 'Investiture of ' + Q.leader.name, house: c };
+    Q.timers.negotiate = 1; Q.lastVote = { title: 'Investiture of ' + Q.leader.name, house: c, kind: 'investiture', need: ballot === 1 ? 'absolute' : 'simple' };
     if (Q.formation && Q.formation.stage === 'nominee') Q.formation.playerTried = true;
     // expected partners left out of the cabinet resent it
     for (var p in t.stance) if (T.expected(Q, p) && d.coalition.indexOf(p) < 0) { C.addRel(Q, Q.player, p, -6); S.note(Q, 'The ' + short(p) + ' is left out of the cabinet it expected to join, votes no and resents the snub.'); }
@@ -199,6 +233,7 @@
         if (o.indepRef) { add('A referendum on independence for the ' + short(p) + '’s state'); Q.flags['indepRef_' + p] = S.now(Q) + 24; }
         if (o.chairs) Q.chairs = (Q.chairs || {}), Q.chairs[p] = o.chairs;
       }
+      T.applyPromises(Q, t);
       Q.talks = null;
       return { passed: true, count: c, ballot: ballot };
     }
@@ -207,4 +242,29 @@
     if (Q.formation && Q.formation.stage === 'nominee') { S.note(Q, Q.leader.name + ' fails the investiture vote.'); S.formationFailed(Q, Q.player); }
     return { passed: false, count: c, ballot: ballot };
   };
+})(typeof globalThis !== 'undefined' ? globalThis : window);
+
+// A new cabinet is announced as an event whenever a government forms.
+(function (G) {
+  'use strict';
+  var U = G.USA, S = U.Game, Ev = U.Events;
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var form = S.formGovernment;
+  S.formGovernment = function (Q, deal, label) {
+    form(Q, deal, label);
+    Q.flags.cabinetShow = S.now(Q);
+    if (!Q.pendingEvent) Q.pendingEvent = 'cabinet';
+  };
+  Ev.LIST.push({ id: 'cabinet', title: 'The new cabinet', repeat: true,
+    when: function (Q) { return Q.flags.cabinetShow != null && Q.flags.cabinetShown !== Q.flags.cabinetShow; },
+    body: function (Q) {
+      var g = Q.gov, P = function (p) { return U.partyInfo(p); };
+      var h = esc(g.pm) + ' (' + esc(P(g.pmParty).short) + ') is sworn in as Prime Minister at the head of ' + g.coalition.map(function (p) { return esc(P(p).short); }).join('–') + (g.cs.length ? ', with confidence and supply from ' + g.cs.map(function (p) { return esc(P(p).short); }).join(', ') : '') + '. The cabinet:</p>';
+      h += '<table class="seats cabtable"><tr><th>Portfolio</th><th>Minister</th><th>Party</th></tr>' + (Q.cabinet || []).map(function (c) {
+        return '<tr><td>' + esc(c.post) + '</td><td>' + esc(c.name) + (c.by === 'president' ? ' <span class="small muted">(President’s appointee)</span>' : c.promised ? ' <span class="small muted">(promised in the talks)</span>' : '') + '</td><td><i class="chip" style="background:' + P(c.party).color + '"></i>' + esc(P(c.party).short) + '</td></tr>'; }).join('') + '</table>';
+      if (Q.committees) { var byP = {}; for (var k in Q.committees) (byP[Q.committees[k]] = byP[Q.committees[k]] || []).push(k);
+        h += '<p class="small"><b>House committee chairs:</b> ' + Object.keys(byP).map(function (p) { return esc(P(p).short) + ': ' + byP[p].map(esc).join(', '); }).join(' · ') + '</p>'; }
+      return h + '<p>';
+    },
+    options: [{ label: 'To work', act: function (Q) { Q.flags.cabinetShown = Q.flags.cabinetShow; return 'The new ministers take up their posts.'; } }] });
 })(typeof globalThis !== 'undefined' ? globalThis : window);

@@ -13,15 +13,16 @@
   var TABS = [['office', 'Office'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'LDP'], ['parties', 'Parties'], ['history', 'History'], ['elections', 'Elections'], ['log', 'Timeline'], ['system', 'Game']];
 
   function save() { if (Q) S.save(Q); }
-  function go(v) { if (U.Night) U.Night.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
+  function go(v) { if (U.Night) U.Night.stop(); if (U.Roll) U.Roll.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
 
   function render() {
     if (Q) S.migrateFactions(Q);
+    if (Q && rollSeen === undefined) rollSeen = Q.lastVote;
     if (!Q) return renderStart();
     $('tabs').innerHTML = TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (view === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('');
     renderSide();
     var m = $('main');
-    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, parties: parties, log: log, system: system, history: history, elections: elections, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night }[view];
+    var fn = { office: office, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, parties: parties, log: log, system: system, history: history, elections: elections, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night, rollcall: function () { return U.Roll.html(); } }[view];
     m.innerHTML = fn();
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
@@ -36,6 +37,7 @@
     }
     if (view === 'map' && $('mapbox')) U.Zoom.attach($('mapbox'), 'states-' + mapMode + '-' + (mapMode === 'districts' ? 'geo' : mapStyle), mapHover);
     if (view === 'night') U.Night.start(Q, elec, function () { go('election'); });
+    if (view === 'rollcall') U.Roll.start(function () { $('main').innerHTML = U.Roll.html(); U.Tips.decorate($('main')); bind(); });
   }
 
   // ---------- start ----------
@@ -190,9 +192,13 @@
       var tick = function (k, label, dis) { return '<button class="conc' + (o[k] ? ' on' : '') + '" data-offer="' + k + '"' + (dis ? ' disabled title="' + esc(dis) + '"' : '') + '>' + (o[k] ? '✓ ' : '+ ') + esc(label) + '</button>'; };
       var val = T.value(Q, p, o), m = t.base[p] + val.value;
       h += '<div class="panel offer"><h3 style="margin-top:0">Offer to the ' + esc(P(p).name) + '</h3>';
-      h += '<div class="row small">Cabinet posts <button class="mini" data-offn="posts|-1">−</button><b>' + (o.posts || 0) + '</b><button class="mini" data-offn="posts|1"' + ((o.posts || 0) + used >= T.MAX_POSTS_OFFERED ? ' disabled' : '') + '>+</button>' +
+      var taken = {}, ctaken = {}; for (var q2 in t.offers) if (q2 !== p) { (t.offers[q2].portfolios || []).forEach(function (x) { taken[x] = q2; }); (t.offers[q2].committees || []).forEach(function (x) { ctaken[x] = q2; }); }
+      var wants = T.WANTS[p] || [];
+      h += '<div class="small"><b>Specific portfolios</b> <span class="muted">(each counts as one of the cabinet posts; \u2605 = posts this party particularly wants)</span></div><div class="concs">' + T.PORTFOLIOS.map(function (x) { var on = (o.portfolios || []).indexOf(x) >= 0; return '<button class="conc' + (on ? ' on' : '') + '" data-offport="' + esc(x) + '"' + (taken[x] ? ' disabled title="Promised to the ' + esc(P(taken[x]).short) + '"' : '') + '>' + (on ? '\u2713 ' : '+ ') + (wants.indexOf(x) >= 0 ? '\u2605 ' : '') + esc(x) + '</button>'; }).join('') + '</div>';
+      h += '<div class="small"><b>Committee chairs</b></div><div class="concs">' + T.COMMITTEES.map(function (x) { var on = (o.committees || []).indexOf(x) >= 0; return '<button class="conc' + (on ? ' on' : '') + '" data-offcomm="' + esc(x) + '"' + (ctaken[x] ? ' disabled title="Promised to the ' + esc(P(ctaken[x]).short) + '"' : '') + '>' + (on ? '\u2713 ' : '+ ') + (wants.indexOf(x) >= 0 ? '\u2605 ' : '') + esc(x) + '</button>'; }).join('') + '</div>';
+      h += '<div class="row small">Cabinet posts in total <button class="mini" data-offn="posts|-1">\u2212</button><b>' + (o.posts || 0) + '</b><button class="mini" data-offn="posts|1"' + ((o.posts || 0) + used >= T.MAX_POSTS_OFFERED ? ' disabled' : '') + '>+</button>' +
         ' <span class="muted">(a fair share would be about ' + T.fair(Q, p) + ')</span>' +
-        ' &nbsp; Committee chairs <button class="mini" data-offn="chairs|-1">−</button><b>' + (o.chairs || 0) + '</b><button class="mini" data-offn="chairs|1">+</button></div><div class="concs">';
+        '</div><div class="concs">';
       h += tick('speaker', 'Speaker of the House', spTaken ? 'Already promised to another party' : '');
       T.bills(p).forEach(function (d) { var on = (o.bills || []).indexOf(d.id) >= 0; h += '<button class="conc' + (on ? ' on' : '') + '" data-offbill="' + d.id + '">' + (on ? '✓ ' : '+ ') + esc(d.text) + '</button>'; });
       if (T.referendum(p)) h += tick('referendum', T.referendum(p));
@@ -570,11 +576,17 @@
   }
 
   // after a card is played or discarded: the month has advanced
+  // a new recorded vote is shown as a roll call before moving on
+  var rollSeen, rollNext = 'office';
+  function maybeRoll(next) {
+    if (Q && Q.lastVote && Q.lastVote !== rollSeen && Q.lastVote.house && Q.lastVote.house.by) { rollSeen = Q.lastVote; rollNext = next; U.Roll.reset(Q, Q.lastVote); go('rollcall'); return true; }
+    return false;
+  }
   function after(res) {
     if (!res) return;
     lastText = (res.text || '') + ' <span class="muted">\u2014 The month passes. It is now ' + U.dateStr(Q) + '.</span>';
     save();
-    if (res.out && (res.out.general || res.out.presidential)) { elec = res.out; U.Night.reset(); go('electionchoice'); } else go('office');
+    if (res.out && (res.out.general || res.out.presidential)) { elec = res.out; U.Night.reset(); go('electionchoice'); } else if (!maybeRoll('office')) go('office');
   }
 
   // ---------- events ----------
@@ -585,7 +597,7 @@
     document.querySelectorAll('[data-play]').forEach(function (b) { b.onclick = function () { openSlot = +b.dataset.play; openCard = F.cardAt(Q, openSlot); lastText = null; render(); window.scrollTo(0, 0); }; });
     document.querySelectorAll('[data-discard]').forEach(function (b) { b.onclick = function () { after(F.discard(Q, +b.dataset.discard)); }; });
     document.querySelectorAll('.scene button[data-card]').forEach(function (b) { b.onclick = function () { var slot = openSlot; openCard = null; openSlot = null; after(F.playHand(Q, slot, +b.dataset.card)); }; });
-    document.querySelectorAll('button[data-event]').forEach(function (b) { b.onclick = function () { lastText = F.answerEvent(Q, +b.dataset.event); save(); render(); }; });
+    document.querySelectorAll('button[data-event]').forEach(function (b) { b.onclick = function () { lastText = F.answerEvent(Q, +b.dataset.event); save(); if (!maybeRoll(view)) render(); }; });
     document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
     var dg = document.querySelector('[data-dgeo]'); if (dg) dg.onchange = function () { demoGeo = dg.value; render(); };
     document.querySelectorAll('[data-dpick]').forEach(function (sel) { sel.onchange = function () { if (sel.value === '') delete demoPicks[sel.dataset.dpick]; else demoPicks[sel.dataset.dpick] = +sel.value; render(); }; });
@@ -595,8 +607,12 @@
     var dr = document.querySelector('[data-dreset]'); if (dr) dr.onclick = function () { demoPicks = {}; demoGeo = 'US'; render(); };
     document.querySelectorAll('[data-negsel]').forEach(function (b) { b.onclick = function () { negSel = b.dataset.negsel; negOffer = U.clone((Q.talks && Q.talks.offers[negSel]) || {}); negMsg = ''; render(); }; });
     document.querySelectorAll('[data-offer]').forEach(function (b) { b.onclick = function () { var k = b.dataset.offer; negOffer[k] = !negOffer[k]; render(); }; });
+    var syncOffer = function () { negOffer.posts = Math.max(negOffer.posts || 0, (negOffer.portfolios || []).length); negOffer.chairs = (negOffer.committees || []).length; };
+    document.querySelectorAll('[data-offport]').forEach(function (b) { b.onclick = function () { var x = b.dataset.offport, l = negOffer.portfolios = negOffer.portfolios || [], i = l.indexOf(x); if (i >= 0) l.splice(i, 1); else l.push(x); syncOffer(); render(); }; });
+    document.querySelectorAll('[data-offcomm]').forEach(function (b) { b.onclick = function () { var x = b.dataset.offcomm, l = negOffer.committees = negOffer.committees || [], i = l.indexOf(x); if (i >= 0) l.splice(i, 1); else l.push(x); syncOffer(); render(); }; });
     document.querySelectorAll('[data-offbill]').forEach(function (b) { b.onclick = function () { var id = b.dataset.offbill, l = negOffer.bills = negOffer.bills || [], i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.push(id); render(); }; });
-    document.querySelectorAll('[data-offn]').forEach(function (b) { b.onclick = function () { var a = b.dataset.offn.split('|'); negOffer[a[0]] = U.clamp((negOffer[a[0]] || 0) + +a[1], 0, a[0] === 'posts' ? 14 : 6); render(); }; });
+    document.querySelectorAll('[data-offn]').forEach(function (b) { b.onclick = function () { var a = b.dataset.offn.split('|'); negOffer[a[0]] = U.clamp((negOffer[a[0]] || 0) + +a[1], a[0] === 'posts' ? (negOffer.portfolios || []).length : 0, a[0] === 'posts' ? 14 : 6); render(); }; });
+    var rs = document.querySelector('[data-rollspeed]'); if (rs) rs.oninput = function () { U.Roll.setSpeed(+rs.value, function () { $('main').innerHTML = U.Roll.html(); bind(); }); };
     document.querySelectorAll('[data-dcat]').forEach(function (b) { b.onclick = function () { demoCat = b.dataset.dcat; render(); }; });
     document.querySelectorAll('[data-bloc]').forEach(function (b) { b.onclick = function () { blocMode = b.dataset.bloc; render(); }; });
     document.querySelectorAll('[data-parl]').forEach(function (b) { b.onclick = function () { parlMode = b.dataset.parl; render(); }; });
@@ -625,9 +641,11 @@
         if (a === 'negotiate') { deal = null; negSel = null; negOffer = {}; negMsg = ''; go('negotiate'); }
         if (a === 'makeoffer') { var res = U.Talks.offer(Q, negSel, negOffer); negMsg = res ? (res.error || res.text) : ''; if (res && !res.error) { negSel = null; negOffer = {}; } save(); render(); }
         if (a === 'canceloffer') { negSel = null; negOffer = {}; render(); }
-        if (a === 'talksvote') { var tv = U.Talks.vote(Q); negSel = null; negMsg = ''; var rebelTxt = tv.count.by.filter(function (b) { return /rebels/.test(b.label) && b.n; }).map(function (b) { return b.n + ' ' + b.label; }).join(', '); lastText = (tv.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister</b>, ' + tv.count.yes + ' votes to ' + tv.count.no + ' with ' + tv.count.abstain + ' abstaining.' : '<b>The investiture fails</b>: ' + tv.count.yes + ' yes, ' + tv.count.no + ' no, ' + tv.count.abstain + ' abstaining.') + (rebelTxt ? ' Rebels: ' + rebelTxt + '.' : ''); save(); go('office'); }
+        if (a === 'talksvote') { var tv = U.Talks.vote(Q); negSel = null; negMsg = ''; var rebelTxt = tv.count.by.filter(function (b) { return /rebels/.test(b.label) && b.n; }).map(function (b) { return b.n + ' ' + b.label; }).join(', '); lastText = (tv.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister</b>, ' + tv.count.yes + ' votes to ' + tv.count.no + ' with ' + tv.count.abstain + ' abstaining.' : '<b>The investiture fails</b>: ' + tv.count.yes + ' yes, ' + tv.count.no + ' no, ' + tv.count.abstain + ' abstaining.') + (rebelTxt ? ' Rebels: ' + rebelTxt + '.' : ''); save(); if (!maybeRoll('office')) go('office'); }
         if (a === 'aideal') { deal = C.aiDeal(Q, Q.player); render(); }
         if (a === 'back') { go('office'); }
+        if (a === 'rolldone') { go(rollNext || 'office'); }
+        if (a === 'rollskip') { U.Roll.skip(); render(); }
         if (a === 'submitdeal') { var r = F.submitDeal(Q, deal); deal = null; lastText = r.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister.</b> ' + (r.inv.second ? 'Second ballot: ' + r.inv.second.yes + ' yes, ' + r.inv.second.no + ' no.' : 'First ballot: ' + r.inv.first.yes + ' yes.') : '<b>The investiture fails.</b> ' + (r.inv.second || r.inv.first).yes + ' yes, ' + (r.inv.second || r.inv.first).no + ' no. Partners who were asked feel used; you can try again next month.'; save(); go('office'); }
         if (a === 'savefile') { var blob = new Blob([JSON.stringify(Q)], { type: 'application/json' }); var u = URL.createObjectURL(blob), l = document.createElement('a'); l.href = u; l.download = 'american-republic-' + Q.year + '-' + Q.month + '.json'; l.click(); }
       };

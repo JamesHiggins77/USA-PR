@@ -170,7 +170,7 @@
       options: [
         { label: 'The PM asks Congress for an early election', sub: 'Before the four-year lock ends, both the House and the Senate must agree by simple majorities.',
           cond: function (Q) { return S.pmIsPlayer(Q) && !S.canPresidentDissolve(Q) ? true : 'Not needed: the President may dissolve.'; },
-          act: function (Q) { var v = S.earlyElectionVote(Q); Q.lastVote = { title: 'Early election', house: v.house, senate: v.senate };
+          act: function (Q) { var v = S.earlyElectionVote(Q); Q.lastVote = { title: 'Early election', house: v.house, senate: v.senate, kind: 'motion' };
             if (!v.passed) { Q.leader.approval -= 3; return 'Congress refuses an early election (House ' + v.house.yes + '–' + v.house.no + ', Senate ' + v.senate.yes + '–' + v.senate.no + ').'; }
             S.callElection(Q, 2); Q.morale += 4; return 'Both chambers agree (House ' + v.house.yes + '–' + v.house.no + ', Senate ' + v.senate.yes + '–' + v.senate.no + '). The President dissolves Congress.'; } },
         { label: 'The President dissolves Congress', sub: function (Q) { return Q.flags.clintonEarly === 1 ? 'President Clinton will resign so that a presidential election is held the same day.' : 'Partners lose trust if they are behind in the polls.'; }, cond: function (Q) { if (!S.canPresidentDissolve(Q)) return 'The four-year lock runs until ' + U.MONTHS[Q.gov.lockUntil % 12] + ' ' + Math.floor(Q.gov.lockUntil / 12) + '.'; return Q.president.party === Q.player || (Q.trend[Q.president.party] || 0) >= 0 ? true : 'President ' + Q.president.name + ' will not dissolve while the ' + U.PARTIES[Q.president.party].short + ' is falling in the polls.'; },
@@ -184,7 +184,7 @@
       options: function (Q) { return C.formateurs(Q).filter(function (p) { return p !== Q.gov.pmParty && (p !== Q.player || (Q.house[Q.player] || 0) >= 40); }).map(function (p) {
         var me = p === Q.player, nm = me ? Q.leader.name : S.pmName(Q, p);
         return { label: 'Propose ' + nm + ' (' + U.PARTIES[p].short + ') as Prime Minister', sub: me ? 'The LDP would lead the new government.' : 'The LDP backs another party’s leader.',
-          act: function (Q) { var v = S.constructiveVote(Q, p); Q.lastVote = { title: 'Constructive no-confidence: ' + nm, house: v.count };
+          act: function (Q) { var v = S.constructiveVote(Q, p); Q.lastVote = { kind: 'investiture', need: 'absolute', title: 'Constructive no-confidence: ' + nm, house: v.count };
             if (v.passed) { var old = Q.gov.pm; S.formGovernment(Q, v.deal, nm); return 'The motion passes, ' + v.count.yes + ' to ' + v.count.no + '. ' + old + ' is out; ' + nm + ' becomes Prime Minister.'; }
             Q.govApproval += 3; Q.morale -= 3; return 'The motion fails: ' + v.count.yes + ' for ' + nm + ', ' + v.count.no + ' against. An absolute majority was needed.'; } };
       }); } },
@@ -255,7 +255,7 @@
       Q.delayedBills = (Q.delayedBills || []).concat([{ id: pol.id, due: S.now(Q) + U.RULES.constitution.senateDelayMonths }]);
       Q.passed = Q.passed || {}; Q.passed[pol.id] = -1;
       out.push('<b>' + proc.text + '</b> It becomes law automatically when the delay runs out.');
-      Q.lastVote = { title: pol.name, house: h, senate: s };
+      Q.lastVote = { title: pol.name, house: h, senate: s, proc: proc.status, kind: 'bill' };
       return out.join(' ');
     }
     if (passed && !vetoed) {
@@ -272,7 +272,7 @@
       out.push('<b>' + proc.text + '</b>');
       if (proc.status === 'presVeto') C.addRel(Q, Q.player, Q.president.party, -5);
     } else { out.push('<b>The bill is defeated.</b>'); Q.govApproval -= 2; H.fac(Q, { proglib: 2, newdem: 2 }); }
-    Q.lastVote = { title: pol.name, house: h, senate: s };
+    Q.lastVote = { title: pol.name, house: h, senate: s, proc: proc.status, kind: 'bill' };
     return out.join(' ');
   };
 
@@ -281,7 +281,7 @@
     var res = S.budgetVote(Q, plan); S.applyBudget(Q, plan, res);
     for (var p in plan.rel || {}) H.rel(Q, p, plan.rel[p]);
     H.fac(Q, plan.fac || {});
-    Q.lastVote = { title: 'Budget ' + (Q.year + 1), house: res.house, senate: res.senate };
+    Q.lastVote = { title: 'Budget ' + (Q.year + 1), house: res.house, kind: 'budget' };
     var txt = 'House: ' + res.house.yes + ' yes, ' + res.house.no + ' no. Senate: ' + res.senate.yes + '–' + res.senate.no + (res.override ? ' (House override)' : '') + '. ';
     if (res.passed) return txt + '<b>The budget passes.</b>';
     return txt + '<b>The budget is defeated.</b> ' + (Q.gov.budgetFails >= 2 ? 'Two failed budgets: the government is in serious danger.' : 'Spending rolls over from last year.');

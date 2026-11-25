@@ -165,7 +165,7 @@
     var decide = function (p) { if (p === Q.player) return 'yes'; var d = U.Electoral.dist(pos[p], b), dq = U.Electoral.dist(pos[p], ppos); if (Q.gov && Q.gov.coalition.indexOf(p) >= 0) return d < dq + 3 ? 'yes' : 'abstain'; return d < dq - 0.5 ? 'yes' : d < dq + 1 ? 'abstain' : 'no'; };
     var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
     var proc = S.legislativeProcess ? S.legislativeProcess(Q, h, s, false) : { status: U.simple(h) ? 'law' : 'defeated', text: '' };
-    Q.lastVote = { title: title, house: h, senate: s };
+    Q.lastVote = { title: title, house: h, senate: s, proc: proc.status, kind: 'bill' };
     var tally = ' (House ' + h.yes + '–' + h.no + ', Senate ' + s.yes + '–' + s.no + ')';
     if (proc.status === 'law') return yes() + tally;
     if (proc.status === 'delayed') { Q.govApproval -= 1; return 'The Senate delays it by up to two years.' + tally; }

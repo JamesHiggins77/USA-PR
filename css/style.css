@@ -230,3 +230,14 @@ table.talks { width: 100%; } table.talks td:nth-child(4) { text-align: left; min
 .key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
 .odds { display: flex; height: 6px; width: 120px; border-radius: 3px; overflow: hidden; margin-top: 4px; background: #9aa0a6; }
 .stance.unknown { background: #9aa0a6; color: #fff; }
+
+/* roll call */
+.rollbar { position: relative; display: flex; height: 22px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 8px 0 4px; }
+.rollbar i { display: block; height: 100%; transition: width .3s; }
+.rollmark { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); }
+.rollnums { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+.rollfeed { margin-top: 8px; font-size: 12.5px; } .rollfeed div { padding: 3px 0; border-top: 1px solid var(--line); opacity: .7; } .rollfeed div.now { opacity: 1; font-size: 13.5px; }
+.rollfeed span { margin-right: 6px; white-space: nowrap; }
+.rollresult { margin-top: 6px; font-size: 14px; }
+.cabtable { margin: 8px 0; width: 100%; } .cabtable td { text-align: left !important; }
+.cabtable td:last-child { white-space: nowrap; }
