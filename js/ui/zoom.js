@@ -35,23 +35,53 @@
       zoomAt(svg, key, b.dataset.z === 'in' ? 1.6 : 1 / 1.6, r.left + r.width / 2, r.top + r.height / 2);
     }; });
     svg.addEventListener('wheel', function (e) { e.preventDefault(); zoomAt(svg, key, e.deltaY < 0 ? 1.25 : 0.8, e.clientX, e.clientY); }, { passive: false });
-    svg.addEventListener('pointerdown', function (e) { if (e.button !== 0) return; Z.drag = { svg: svg, key: key, x: e.clientX, y: e.clientY, v: (Z.views[key] || base(svg)).slice(), moved: false }; });
+    // touch: one finger pans, two fingers pinch-zoom; the page does not scroll under the map
+    svg.style.touchAction = 'none';
+    var pts = {};
+    svg.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+      var ids = Object.keys(pts);
+      if (ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]];
+        Z.drag = null; Z.pinch = { svg: svg, key: key, d: Math.hypot(a.x - b.x, a.y - b.y), pts: pts }; Z.hide(); return; }
+      Z.drag = { svg: svg, key: key, x: e.clientX, y: e.clientY, v: (Z.views[key] || base(svg)).slice(), moved: false };
+    });
+    svg.addEventListener('pointermove', function (e) {
+      if (!pts[e.pointerId]) return; pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+      var P = Z.pinch; if (!P || P.svg !== svg) return;
+      var ids = Object.keys(pts); if (ids.length < 2) return;
+      var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (P.d > 0 && d > 0) zoomAt(svg, key, d / P.d, (a.x + b.x) / 2, (a.y + b.y) / 2);
+      P.d = d; P.moved = true;
+    });
+    var lift = function (e) { delete pts[e.pointerId];
+      if (Z.pinch && Z.pinch.svg === svg && Object.keys(pts).length < 2) { svg.__justDragged = true; setTimeout(function () { svg.__justDragged = false; }, 350); if (!Object.keys(pts).length) Z.pinch = null; } };
+    svg.addEventListener('pointerup', lift); svg.addEventListener('pointercancel', lift);
     // a drag should not count as a click on a state
     svg.addEventListener('click', function (e) { if (svg.__justDragged) { e.stopPropagation(); e.preventDefault(); } }, true);
     if (hover) {
-      svg.addEventListener('mousemove', function (e) {
-        if (Z.drag && Z.drag.moved) return;
+      // mouse: the card follows the pointer
+      svg.addEventListener('pointermove', function (e) {
+        if (e.pointerType !== 'mouse' || (Z.drag && Z.drag.moved)) return;
         var t = e.target.closest('.dist, .tile');
         var html = t ? hover(t, e) : null;
         if (html) Z.card(html, e.clientX, e.clientY); else Z.hide();
       });
-      svg.addEventListener('mouseleave', Z.hide);
-      // touch: a tap (not a drag) shows the card; tapping outside hides it
+      svg.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') Z.hide(); });
+      // touch: a double tap on a state opens its card (pinned at the bottom of
+      // the screen); a single tap or a drag closes it
+      var lastTap = null;
       svg.addEventListener('pointerup', function (e) {
-        if (e.pointerType !== 'touch' || svg.__justDragged) return;
-        var t = e.target.closest && e.target.closest('.dist, .tile'), html = t ? hover(t, e) : null;
-        if (html) Z.card(html, e.clientX, e.clientY); else Z.hide();
+        if (e.pointerType === 'mouse') return;
+        if ((Z.drag && Z.drag.moved) || svg.__justDragged || Z.pinch) { lastTap = null; return; }
+        var t = e.target.closest && e.target.closest('.dist, .tile'), now = Date.now();
+        if (lastTap && t && lastTap.t === t && now - lastTap.at < 400 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+          var html = hover(t, e); lastTap = null;
+          if (html) Z.sheet(html); return;
+        }
+        lastTap = { t: t, at: now, x: e.clientX, y: e.clientY }; Z.hide();
       });
+      if (matchMedia && matchMedia('(pointer: coarse)').matches && !box.querySelector('.zoomhint')) box.insertAdjacentHTML('beforeend', '<div class="zoomhint">Drag to move \u00b7 pinch to zoom \u00b7 double-tap a state for details</div>');
     }
   };
 
@@ -77,5 +107,11 @@
     var left = x + 16 + bw > window.innerWidth ? x - bw - 12 : x + 16, top = Math.min(window.innerHeight - bh - 8, y + 12);
     box.style.left = (left + window.scrollX) + 'px'; box.style.top = (Math.max(8, top) + window.scrollY) + 'px';
   };
-  Z.hide = function () { if (box) box.style.display = 'none'; };
+  Z.hide = function () { if (box) { box.style.display = 'none'; box.classList.remove('sheet'); } };
+  // touch: the card sits at the bottom of the screen with a close button
+  Z.sheet = function (html) {
+    if (!box) { box = document.createElement('div'); box.id = 'mapcard'; document.body.appendChild(box); }
+    box.innerHTML = '<button class="sheetx" aria-label="Close">\u00d7</button>' + html; box.classList.add('sheet'); box.style.display = 'block'; box.style.left = ''; box.style.top = '';
+    box.querySelector('.sheetx').onclick = Z.hide;
+  };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

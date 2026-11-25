@@ -172,3 +172,8 @@ table.seats { max-width: 420px; margin-top: 6px; }
 .reslegend { flex: 1; min-width: 260px; }
 .lgname { display: inline-block; min-width: 54px; padding: 1px 6px; border-radius: 3px; font-weight: 700; font-size: 12px; }
 .lgscale { display: flex; margin-top: 2px; } .lgscale i { width: 9px; height: 6px; display: block; }
+
+/* touch: bottom sheet for map cards, and a usage hint */
+#mapcard.sheet { position: fixed; left: 8px !important; right: 8px; max-width: none; bottom: 8px; top: auto !important; max-height: 45vh; overflow: auto; pointer-events: auto; z-index: 60; padding-top: 10px; }
+#mapcard .sheetx { float: right; border: 0; background: none; font-size: 22px; line-height: 1; color: inherit; padding: 0 4px 4px 10px; cursor: pointer; }
+.zoomhint { font-size: 11px; opacity: .65; text-align: center; margin-top: 4px; }
