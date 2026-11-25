@@ -222,3 +222,11 @@ table.seats tr.sub td { font-size: 12.5px; background: color-mix(in srgb, var(--
 table.talks tr.sel td { background: color-mix(in srgb, var(--panel) 80%, #d9a62e); }
 .panel.offer { border-left: 4px solid #d9a62e; }
 table.talks { width: 100%; } table.talks td:nth-child(4) { text-align: left; min-width: 220px; } table.talks .btn { padding: 4px 10px; font-size: 13px; }
+
+/* vote projection colours */
+.votebar { display: flex; height: 16px; border-radius: 4px; overflow: hidden; background: #9aa0a6; margin: 6px 0 4px; }
+.votebar i, .odds i { display: block; height: 100%; }
+.vy { background: #2e8b57; } .va { background: #d9a62e; } .vn { background: #b03a3a; } .vu { background: #9aa0a6; }
+.key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.odds { display: flex; height: 6px; width: 120px; border-radius: 3px; overflow: hidden; margin-top: 4px; background: #9aa0a6; }
+.stance.unknown { background: #9aa0a6; color: #fff; }

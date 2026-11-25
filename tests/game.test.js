@@ -267,3 +267,10 @@ test('negotiating table: stances, five rounds, snubbing an expected partner, the
 test('the presidential election date is fixed', () => {
   const Q = U.Game.newGame(3); const np = Q.nextPres; U.Game.callElection(Q, 2); assert.strictEqual(Q.nextPres, np);
 });
+
+test('talks odds: a fair coalition offer to the SDLP is near-certain; rebels appear in a left-right coalition', () => {
+  const Q = U.Game.newGame(3), T = U.Talks; Q.formation = { start: 1, stage: 'open', round: 2, monthsLeft: 3, failed: [] }; T.start(Q);
+  T.offer(Q, 'sdlp', { posts: 6, bills: ['health'] }); assert.ok(T.dist(Q, 'sdlp').yes > 0.95);
+  assert.ok(T.rebelShare(Q, 'sdlp', ['ldp', 'sdlp', 'cc']) > T.rebelShare(Q, 'sdlp', ['ldp', 'sdlp']));
+  const pr = T.project(Q); assert.ok(pr.chance >= 0 && pr.chance <= 1);
+});

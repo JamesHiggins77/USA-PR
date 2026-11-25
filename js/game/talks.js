@@ -120,9 +120,57 @@
     return U.Parliament.count(Q, 'house', function (p) { if (p === Q.player) return 'yes'; return T.voteOf(Q, p); });
   };
 
+  // ---- probabilities ----
+  // chance of yes / abstain / no from a margin; parties not yet talked to are
+  // harder to read, so their odds are blurred
+  T.dist = function (Q, p) {
+    var t = Q.talks, o = t.offers[p], snubbed = /^Snubbed/.test(t.notes[p] || '');
+    if (snubbed || (T.expected(Q, p) && !(o && o.posts))) return { yes: 0, abstain: 0, no: 1, known: !!o };
+    var m = t.base[p] + (o ? T.value(Q, p, o).value : 0);
+    var y = 1 / (1 + Math.exp(-m / 5)), n = 1 / (1 + Math.exp((m + 15) / 5)), ab = Math.max(0, 1 - y - n), tot = y + n + ab;
+    var d = { yes: y / tot, abstain: ab / tot, no: n / tot, known: !!o };
+    if (!o) { var f = 0.35; d.yes = d.yes * (1 - f) + f / 3; d.abstain = d.abstain * (1 - f) + f / 3; d.no = d.no * (1 - f) + f / 3; }
+    return d;
+  };
+  // rebels: MPs who will not back a government reaching too far from their party
+  T.rebelShare = function (Q, p, coalition) {
+    var pos = U.Elections.pos(Q), far = 0;
+    coalition.forEach(function (q) { if (q !== p && pos[q] && pos[p]) far = Math.max(far, U.Electoral.dist(pos[p], pos[q])); });
+    return U.clamp((far - 7) / 25, 0, 0.3);
+  };
+  // expected seats and the chance of passing (simulated)
+  T.project = function (Q) {
+    var t = Q.talks, d = T.deal(Q), coal = d.coalition, ex = { yes: 0, abstain: 0, no: 0, unknown: 0 }, rows = [];
+    var parties = Object.keys(t.stance).concat([Q.player]);
+    parties.forEach(function (p) {
+      var n = Q.house[p] || 0, ds = p === Q.player ? { yes: 1, abstain: 0, no: 0, known: true } : T.dist(Q, p);
+      var rb = coal.indexOf(p) >= 0 || d.cs.indexOf(p) >= 0 ? T.rebelShare(Q, p, coal) : 0;
+      ex.yes += n * ds.yes * (1 - rb); ex.abstain += n * (ds.abstain + ds.yes * rb * 0.6); ex.no += n * (ds.no + ds.yes * rb * 0.4);
+      if (!ds.known) ex.unknown += n;
+      rows.push({ p: p, n: n, d: ds, rebels: rb });
+    });
+    // simulate
+    var seed = 12345, rnd = function () { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }, wins = 0, N = 300, ballot = S.ballot ? S.ballot(Q) : 2;
+    for (var i = 0; i < N; i++) { var c = { yes: 0, no: 0, abstain: 0 };
+      rows.forEach(function (r) { var x = rnd(), v = x < r.d.yes ? 'yes' : x < r.d.yes + r.d.abstain ? 'abstain' : 'no', reb = v === 'yes' ? Math.round(r.n * r.rebels) : 0; c[v] += r.n - reb; c.abstain += Math.round(reb * 0.6); c.no += reb - Math.round(reb * 0.6); if (r.p === Q.president.party) c.pres = v; });
+      if (C.passes(c, ballot)) wins++; }
+    return { expected: ex, rows: rows, chance: wins / N, ballot: ballot };
+  };
+
   // the House votes
   T.vote = function (Q) {
-    var t = Q.talks, d = T.deal(Q), c = T.count(Q), ballot = S.ballot ? S.ballot(Q) : 2, ok = C.passes(c, ballot);
+    var t = Q.talks, d = T.deal(Q), ballot = S.ballot ? S.ballot(Q) : 2, c = { yes: 0, no: 0, abstain: 0, by: [] };
+    // each party decides by its odds; rebels break away from parties voting yes
+    Object.keys(t.stance).concat([Q.player]).forEach(function (p) {
+      var n = Q.house[p] || 0, ds = p === Q.player ? { yes: 1, abstain: 0, no: 0 } : T.dist(Q, p), x = U.rng(Q);
+      var v = x < ds.yes ? 'yes' : x < ds.yes + ds.abstain ? 'abstain' : 'no';
+      var rb = v === 'yes' && (d.coalition.indexOf(p) >= 0 || d.cs.indexOf(p) >= 0) ? Math.round(n * T.rebelShare(Q, p, d.coalition)) : 0;
+      c[v] += n - rb; c.by.push({ label: short(p), party: p, n: n - rb, vote: v });
+      if (rb) { var ra = Math.round(rb * 0.6); c.abstain += ra; c.no += rb - ra; c.by.push({ label: short(p) + ' rebels', party: p, n: rb, vote: 'abstain/no' }); }
+      if (p === Q.president.party) c.pres = v;
+      t.stance[p] = v;
+    });
+    var ok = C.passes(c, ballot);
     Q.timers.negotiate = 1; Q.lastVote = { title: 'Investiture of ' + Q.leader.name, house: c };
     if (Q.formation && Q.formation.stage === 'nominee') Q.formation.playerTried = true;
     // expected partners left out of the cabinet resent it

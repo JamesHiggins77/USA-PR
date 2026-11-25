@@ -176,11 +176,14 @@
   function negotiate() {
     var T = U.Talks; if (!Q.talks || Q.talks.key !== T.key(Q)) T.start(Q);
     var t = Q.talks, parties = Object.keys(t.stance).sort(function (a, b) { return Q.house[b] - Q.house[a]; });
-    var c = T.count(Q), ballot = S.ballot ? S.ballot(Q) : 2, ok = C.passes(c, ballot);
-    var badge = function (st) { return '<span class="stance ' + st + '">' + { yes: 'Yes', abstain: 'Abstain', no: 'No' }[st] + '</span>'; };
+    var pr = T.project(Q), ex = pr.expected, ballot = pr.ballot;
+    var badge = function (st) { return '<span class="stance ' + st + '">' + { yes: 'Likely yes', abstain: 'Likely abstain', no: 'Likely no', unknown: 'Unknown' }[st] + '</span>'; };
     var h = '<div class="date">Government formation</div><h1>The negotiating table</h1><p>Each party has said how it would vote on ' + esc(Q.leader.name) + ' as Prime Minister. You have <b>' + t.rounds + ' of ' + T.MAX_ROUNDS + '</b> rounds of talks left: in each, make one party an offer. Offers turn a no into an abstention or a yes, or an abstention into a yes. Parties that expect to share power want cabinet posts, and feel snubbed if they are not offered them.</p>';
     if (negMsg) h += '<div class="result">' + negMsg + '</div>';
-    h += '<div class="panel"><b>If the House voted now:</b> <span class="small muted">(expected partners offered no cabinet posts would vote no)</span> ' + c.yes + ' yes, ' + c.no + ' no, ' + c.abstain + ' abstaining. ' + (ballot === 1 ? 'An absolute majority (' + U.majority() + ' yes votes) is needed.' : 'More yes than no votes are needed.') + ' ' + (ok ? '<span class="up"><b>It would pass.</b></span>' : '<span class="down"><b>It would fail.</b></span>') + '</div>';
+    var tot = 600, seg = function (v, cl) { return '<i class="' + cl + '" style="width:' + (v / tot * 100).toFixed(2) + '%"></i>'; };
+    h += '<div class="panel"><b>If the House voted now</b> <span class="small muted">(expected seats; expected partners offered no cabinet posts would vote no)</span><div class="votebar">' + seg(ex.yes, 'vy') + seg(ex.abstain, 'va') + seg(ex.no, 'vn') + '</div>' +
+      '<div class="small"><span class="key vy"></span>Yes ' + Math.round(ex.yes) + ' · <span class="key va"></span>Abstain ' + Math.round(ex.abstain) + ' · <span class="key vn"></span>No ' + Math.round(ex.no) + ' · <span class="key vu"></span>Not yet sounded out: ' + Math.round(ex.unknown) + ' seats</div>' +
+      '<div style="margin-top:4px">' + (ballot === 1 ? 'An absolute majority (' + U.majority() + ' yes votes) is needed.' : 'More yes than no votes are needed.') + ' Chance of passing: <b class="' + (pr.chance >= 0.6 ? 'up' : pr.chance < 0.4 ? 'down' : '') + '">' + Math.round(pr.chance * 100) + '%</b></div></div>';
     if (negSel && t.stance[negSel] != null) {
       var p = negSel, o = negOffer, used = 0; for (var q in t.offers) if (q !== p) used += t.offers[q].posts || 0;
       var spTaken = Object.keys(t.offers).some(function (q) { return q !== p && t.offers[q].speaker; });
@@ -196,12 +199,15 @@
       h += tick('investment', 'Investment in its states');
       if (T.canAutonomy(p)) h += tick('autonomy', 'More autonomy for its states');
       if (T.canIndependence(p)) h += tick('indepRef', 'A referendum on independence');
-      h += '</div><p class="small">Their reading of this offer: ' + { yes: '<span class="up">they would vote yes</span>', abstain: 'they would abstain', no: '<span class="down">they would still vote no</span>' }[T.stanceOf(m)] +
+      var y = 1 / (1 + Math.exp(-m / 5)), nn = 1 / (1 + Math.exp((m + 15) / 5)), ab = Math.max(0, 1 - y - nn), tt = y + nn + ab;
+      h += '</div><p class="small">Their likely response: <b class="up">yes ' + Math.round(y / tt * 100) + '%</b> \u00b7 <b>abstain ' + Math.round(ab / tt * 100) + '%</b> \u00b7 <b class="down">no ' + Math.round(nn / tt * 100) + '%</b>' +
         (T.expected(Q, p) && (o.posts || 0) < Math.max(1, T.fair(Q, p) - 2) ? ' <span class="down">— but without a fair share of the cabinet they will feel snubbed and vote no</span>' : '') + '.</p>' +
         '<div class="row"><button class="btn" data-act="makeoffer"' + (t.rounds <= 0 ? ' disabled' : '') + '>Make the offer (uses a round of talks)</button><button class="btn ghost" data-act="canceloffer">Cancel</button></div></div>';
     }
-    h += '<table class="seats talks"><tr><th>Party</th><th>Seats</th><th>Stance</th><th>Why</th><th></th></tr>' + parties.map(function (p) {
-      return '<tr' + (negSel === p ? ' class="sel"' : '') + '><td>' + chip(p) + esc(P(p).name) + (T.expected(Q, p) ? ' <span class="pill">expected partner</span>' : '') + '</td><td>' + Q.house[p] + '</td><td>' + badge(t.stance[p]) + '</td><td class="small muted">' + esc(t.notes[p] || '') + '</td><td>' +
+    h += '<table class="seats talks"><tr><th>Party</th><th>Seats</th><th>Likely vote</th><th>Why</th><th></th></tr>' + parties.map(function (p) {
+      var dd = T.dist(Q, p), row = pr.rows.filter(function (r) { return r.p === p; })[0], odds = '<div class="odds"><i class="vy" style="width:' + dd.yes * 100 + '%"></i><i class="va" style="width:' + dd.abstain * 100 + '%"></i><i class="vn" style="width:' + dd.no * 100 + '%"></i></div>' +
+        '<div class="small">' + (dd.known || T.expected(Q, p) ? '' : '<span class="muted">Not sounded out \u00b7 </span>') + 'Yes ' + Math.round(dd.yes * 100) + '% \u00b7 Abs ' + Math.round(dd.abstain * 100) + '% \u00b7 No ' + Math.round(dd.no * 100) + '%' + (row && row.rebels > 0.02 ? ' <span class="down">\u00b7 ~' + Math.round(row.rebels * 100) + '% rebels</span>' : '') + '</div>';
+      return '<tr' + (negSel === p ? ' class="sel"' : '') + '><td>' + chip(p) + esc(P(p).name) + (T.expected(Q, p) ? ' <span class="pill">expected partner</span>' : '') + '</td><td>' + Q.house[p] + '</td><td>' + badge(dd.known || T.expected(Q, p) ? (dd.yes >= dd.abstain && dd.yes >= dd.no ? 'yes' : dd.no >= dd.abstain ? 'no' : 'abstain') : 'unknown') + odds + '</td><td class="small muted">' + esc(t.notes[p] || '') + '</td><td>' +
         '<button class="btn ghost" data-negsel="' + p + '"' + (t.rounds <= 0 ? ' disabled' : '') + '>Negotiate</button></td></tr>'; }).join('') + '</table>';
     h += '<div class="endbar"><button class="btn" data-act="talksvote">Go to the House vote</button><button class="btn ghost" data-act="back">Leave the table</button></div>';
     return h;
@@ -619,7 +625,7 @@
         if (a === 'negotiate') { deal = null; negSel = null; negOffer = {}; negMsg = ''; go('negotiate'); }
         if (a === 'makeoffer') { var res = U.Talks.offer(Q, negSel, negOffer); negMsg = res ? (res.error || res.text) : ''; if (res && !res.error) { negSel = null; negOffer = {}; } save(); render(); }
         if (a === 'canceloffer') { negSel = null; negOffer = {}; render(); }
-        if (a === 'talksvote') { var tv = U.Talks.vote(Q); negSel = null; negMsg = ''; lastText = tv.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister</b>, ' + tv.count.yes + ' votes to ' + tv.count.no + ' with ' + tv.count.abstain + ' abstaining.' : '<b>The investiture fails</b>: ' + tv.count.yes + ' yes, ' + tv.count.no + ' no, ' + tv.count.abstain + ' abstaining.'; save(); go('office'); }
+        if (a === 'talksvote') { var tv = U.Talks.vote(Q); negSel = null; negMsg = ''; var rebelTxt = tv.count.by.filter(function (b) { return /rebels/.test(b.label) && b.n; }).map(function (b) { return b.n + ' ' + b.label; }).join(', '); lastText = (tv.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister</b>, ' + tv.count.yes + ' votes to ' + tv.count.no + ' with ' + tv.count.abstain + ' abstaining.' : '<b>The investiture fails</b>: ' + tv.count.yes + ' yes, ' + tv.count.no + ' no, ' + tv.count.abstain + ' abstaining.') + (rebelTxt ? ' Rebels: ' + rebelTxt + '.' : ''); save(); go('office'); }
         if (a === 'aideal') { deal = C.aiDeal(Q, Q.player); render(); }
         if (a === 'back') { go('office'); }
         if (a === 'submitdeal') { var r = F.submitDeal(Q, deal); deal = null; lastText = r.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister.</b> ' + (r.inv.second ? 'Second ballot: ' + r.inv.second.yes + ' yes, ' + r.inv.second.no + ' no.' : 'First ballot: ' + r.inv.first.yes + ' yes.') : '<b>The investiture fails.</b> ' + (r.inv.second || r.inv.first).yes + ' yes, ' + (r.inv.second || r.inv.first).no + ' no. Partners who were asked feel used; you can try again next month.'; save(); go('office'); }
