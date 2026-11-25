@@ -11,7 +11,7 @@
   function once(Q, id, p) { var k = 'roll_' + id; if (Q.flags[k] == null) Q.flags[k] = U.rng(Q) < p; return Q.flags[k]; }
   var F = function (Q) { return Q.flags; };
   var hawk = function (Q, p) { var pos = (Q.pos && Q.pos[p]) || U.PARTIES[p] || {}; return (U.PARTY_PROFILES[p] || { ax: { foreign: 0 } }).ax.foreign + (pos.soc || 0) * 0.2 > 3; };
-  var gov = function (Q) { return S.inGov(Q); };
+  var gov = function (Q) { return S.policyGov ? S.policyGov(Q) : S.inGov(Q); };
   var pres = function (Q) { return Q.president.name + ' (' + U.PARTIES[Q.president.party].short + ')'; };
   var approve = function (Q, g, p) { Q.govApproval += g; Q.president.approval += (p == null ? g : p); };
 

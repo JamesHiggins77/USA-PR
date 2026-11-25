@@ -128,7 +128,7 @@
     { id: 'bust_response', title: 'After the crash', when: function (Q) { return Q.flags.bust && S.now(Q) >= Q.flags.bust + 1; },
       body: function (Q) { return 'The technology crash is wiping out savings and jobs in California, Washington and the Northeast. Growth is ' + Q.econ.growth.toFixed(1) + '%. ' + (S.inGov(Q) ? 'As a governing party, the LDP will be blamed or credited.' : 'The government is under pressure.'); },
       options: [
-        { label: 'Call for stimulus', sub: 'Higher deficit, softer landing.', act: function (Q) { if (S.inGov(Q)) { Q.econ.shock = (Q.econ.shock || 0) + 0.8; Q.spending = (Q.spending || 0) + 0.5; } H.camp(Q, { union: 0.4, young: 0.3 }, 'Response to the crash'); H.rel(Q, 'sdlp', 4); H.rel(Q, 'cdp', -3); return S.inGov(Q) ? 'The coalition agrees a stimulus package after long nights.' : 'The LDP proposes a stimulus plan.'; } },
+        { label: 'Call for stimulus', sub: 'Higher deficit, softer landing.', act: function (Q) { if (S.policyGov(Q)) { Q.econ.shock = (Q.econ.shock || 0) + 0.8; Q.spending = (Q.spending || 0) + 0.5; } H.camp(Q, { union: 0.4, young: 0.3 }, 'Response to the crash'); H.rel(Q, 'sdlp', 4); H.rel(Q, 'cdp', -3); return S.inGov(Q) ? 'The coalition agrees a stimulus package after long nights.' : 'The LDP proposes a stimulus plan.'; } },
         { label: 'Hold the line on the budget', sub: 'Markets reassured; unemployment rises.', act: function (Q) { H.camp(Q, { suburb: 0.3, retire: 0.3, union: -0.4 }, 'Response to the crash'); H.rel(Q, 'cdp', 4); return 'Discipline now, recovery later, the Treasury says.'; } }
       ] },
 

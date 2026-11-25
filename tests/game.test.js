@@ -219,3 +219,13 @@ test('2001-2012: September 11 and the 2008 crash always happen', () => {
   while (Q.year < 2009 && g++ < 200) { let k = 0; while (Q.pendingEvent && k++ < 20) { const o = U.Flow.options(Q, U.Events.byId(Q.pendingEvent)); U.Flow.answerEvent(Q, Math.max(0, o.findIndex(x => x.ok))); } U.Flow.skip(Q); }
   assert.strictEqual(Q.flags.sept11, U.monthIndex(2001, 9)); assert.strictEqual(Q.flags.crash, U.monthIndex(2008, 9));
 });
+
+test('policy events depend on the LDP\'s role: PM, junior partner, support, opposition', () => {
+  const Q = U.Game.newGame(4), e = U.Events.byId('security'), opt = () => U.Flow.options(Q, e).map(o => o.label);
+  assert.strictEqual(U.Game.role(Q), 'pm'); assert.ok(opt()[0].startsWith('National unity'));
+  Q.gov.pmParty = 'sdlp'; Q.gov.pm = 'Bill Bradley'; assert.strictEqual(U.Game.role(Q), 'junior'); assert.ok(opt()[0].startsWith('Back the cabinet')); assert.ok(opt().some(l => l.startsWith('Break ranks')));
+  Q.gov.coalition = ['sdlp']; Q.gov.cs = ['ldp']; assert.strictEqual(U.Game.role(Q), 'support'); assert.ok(opt().some(l => l.startsWith('Withdraw support')));
+  Q.gov.cs = []; assert.strictEqual(U.Game.role(Q), 'opposition'); assert.ok(opt()[0].startsWith('Back the government'));
+  const before = Q.econ.shock || 0; Q.gov.pmParty = 'sdlp'; const s = U.Events.byId('stimulus'); Q.flags.crash = 1; U.Flow.options(Q, s)[1].raw.act(Q);
+  assert.ok((Q.spending || 0) > 0, 'the government\'s stimulus still happens with the LDP in opposition');
+});
