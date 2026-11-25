@@ -366,7 +366,7 @@ Clinton’s popularity put the LDP ahead of the SDLP in a presidential first rou
 
 ### Communist Party USA (CPUSA)
 
-*Founded 1919.* The Communist Party USA, founded in the wake of the Russian Revolution. The Depression made it a real force: under statewide PR it won 11 to 13 House seats from 1932 to 1944, from New York, Illinois and California, and backed the war effort. The Red Scare cut it to a single seat by 1950 and none from 1953, and it lost most of its members after Hungary in 1956. It recovered a seat or two in the 1960s, 70s and 80s with the civil-rights and anti-war left, then lost them again after the fall of the Berlin Wall and the Soviet collapse.
+*Founded 1919.* The Communist Party USA, founded in the wake of the Russian Revolution. The Depression made it a real force: under statewide PR it won 11 to 13 House seats from 1932 to 1944, from New York, Illinois and California, and backed the war effort. The Red Scare cut it to a single seat by 1950 and none from 1953, and it lost most of its members after Hungary in 1956. The civil-rights movement brought it back to about 3% by 1966, and the protests against the Vietnam War carried it to 6% and 22 seats in 1972, its best result. It faded through the 1980s and lost its last seats after the fall of the Berlin Wall and the Soviet collapse.
 
 **Ideology:** Marxist-Leninist, though by the 1990s mainly a party of labor militancy and civil rights.
 
