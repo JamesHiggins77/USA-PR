@@ -89,12 +89,12 @@
   // a block of seat dots centred on (cx, cy); seats: {party: n}
   // seats won first, then vote share
   function byResult(d) { d = d || {}; var se = d.seats || {}, sh = d.shares || {}; return function (ks) { return ks.sort(function (a, b) { return (se[b] || 0) - (se[a] || 0) || (sh[b] || 0) - (sh[a] || 0); }); }; }
-  function dots(seats, cx, cy, maxCols, order, colorOf) {
+  function dots(seats, cx, cy, maxCols, order, colorOf, stroke) {
     var list = []; order(Object.keys(seats)).forEach(function (p) { for (var i = 0; i < seats[p]; i++) list.push(p); });
     var n = list.length; if (!n) return { svg: '', h: 0 };
     var cols = Math.min(maxCols, Math.max(1, Math.ceil(Math.sqrt(n * 1.8)))), rows = Math.ceil(n / cols), s = 8, out = '';
     list.forEach(function (p, i) { var r = Math.floor(i / cols), c = i % cols, inRow = r === rows - 1 ? n - r * cols : cols;
-      out += '<rect x="' + (cx + (c - (inRow - 1) / 2) * s - 3.2) + '" y="' + (cy + r * s - 3.2) + '" width="6.4" height="6.4" fill="' + colorOf(p) + '" stroke="' + (Ch.lum(colorOf(p)) < 60 ? '#fff' : '#000') + '" stroke-width="0.7"/>'; });
+      out += '<rect x="' + (cx + (c - (inRow - 1) / 2) * s - 3.2) + '" y="' + (cy + r * s - 3.2) + '" width="6.4" height="6.4" fill="' + colorOf(p) + '" stroke="' + (stroke || 'currentColor') + '" stroke-width="0.7"/>'; });
     return { svg: out, h: rows * s };
   }
   // data: {sid: {seats: {p: n}, shares: {p: %}}}. Fill = party with most votes,
@@ -109,13 +109,13 @@
     Object.keys(G).forEach(function (id) {
       var g = G[id], c = fill(id), ink = Ch.ink(c), small = SMALL.indexOf(id) >= 0;
       out += '<g class="tile" data-state="' + id + '"><path d="' + g.d + '" fill="' + c + '" stroke="var(--bg)" stroke-width="0.8"></path>';
-      if (!small) { var d = dots((data[id] || {}).seats || {}, g.c[0], g.c[1] + 2, id === 'CA' || id === 'TX' ? 8 : 6, byResult(data[id]), col);
+      if (!small) { var d = dots((data[id] || {}).seats || {}, g.c[0], g.c[1] + 2, id === 'CA' || id === 'TX' ? 8 : 6, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000');
         out += '<text x="' + g.c[0] + '" y="' + (g.c[1] - 3) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + ';pointer-events:none">' + id + '</text><g style="pointer-events:none">' + d.svg + '</g>'; }
       out += '<title>' + (U.STATES[id] || U.DC).name + '</title></g>';
     });
     var y = 150;
     SMALL.forEach(function (id) {
-      var c = fill(id), ink = Ch.ink(c), x = 912, g = G[id], d = dots((data[id] || {}).seats || {}, x + 33, y + 17, 8, byResult(data[id]), col), hgt = Math.max(24, 20 + d.h);
+      var c = fill(id), ink = Ch.ink(c), x = 912, g = G[id], d = dots((data[id] || {}).seats || {}, x + 33, y + 17, 8, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000'), hgt = Math.max(24, 20 + d.h);
       out += '<g class="tile" data-state="' + id + '"><line x1="' + g.c[0] + '" y1="' + g.c[1] + '" x2="' + x + '" y2="' + (y + 10) + '" stroke="currentColor" stroke-opacity=".25"/>' +
         '<rect x="' + x + '" y="' + y + '" width="62" height="' + hgt + '" rx="4" fill="' + c + '"></rect>' +
         '<text x="' + (x + 33) + '" y="' + (y + 11) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + '">' + id + '</text>' + d.svg + '<title>' + (U.STATES[id] || U.DC).name + '</title></g>';
