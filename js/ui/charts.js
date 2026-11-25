@@ -41,6 +41,7 @@
   };
 
   // dark text on light fills (yellow, orange), white on dark ones
+  Ch.lum = function (c) { var m = /^#(..)(..)(..)$/.exec(c); return m ? 0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16) : 128; };
   Ch.ink = function (c) { var m = /^#(..)(..)(..)$/.exec(c); if (!m) return '#fff'; var r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16); return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#1a1a1a' : '#fff'; };
   Ch.map = function (Q, colorOf, labelOf) {
     var s = 46, out = '';
@@ -93,7 +94,7 @@
     var n = list.length; if (!n) return { svg: '', h: 0 };
     var cols = Math.min(maxCols, Math.max(1, Math.ceil(Math.sqrt(n * 1.8)))), rows = Math.ceil(n / cols), s = 8, out = '';
     list.forEach(function (p, i) { var r = Math.floor(i / cols), c = i % cols, inRow = r === rows - 1 ? n - r * cols : cols;
-      out += '<rect x="' + (cx + (c - (inRow - 1) / 2) * s - 3.2) + '" y="' + (cy + r * s - 3.2) + '" width="6.4" height="6.4" fill="' + colorOf(p) + '" stroke="#fff" stroke-width="1.4"/>'; });
+      out += '<rect x="' + (cx + (c - (inRow - 1) / 2) * s - 3.2) + '" y="' + (cy + r * s - 3.2) + '" width="6.4" height="6.4" fill="' + colorOf(p) + '" stroke="' + (Ch.lum(colorOf(p)) < 60 ? '#fff' : '#000') + '" stroke-width="0.7"/>'; });
     return { svg: out, h: rows * s };
   }
   // data: {sid: {seats: {p: n}, shares: {p: %}}}. Fill = party with most votes,
