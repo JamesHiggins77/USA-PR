@@ -86,12 +86,27 @@
     var keys = Object.keys(PEOPLE).concat(Object.keys(TERMS), Object.keys(FACTIONS), Object.keys(GROUPS));
     T.partyKey = {};
     U.ALL_PARTIES.forEach(function (p) { var P = U.PARTIES[p]; T.partyKey[P.name] = p; T.partyKey[P.short] = p; });
+    // member parties of alliances (and the old parties they grew from)
+    T.memberKey = {};
+    for (var ck in (U.CONSTITUENTS || {})) T.memberKey[U.CONSTITUENTS[ck].name] = ck;
+    ['mup', 'cath', 'mod'].forEach(function (k) { if (U.FORMER_PARTIES && U.FORMER_PARTIES[k]) T.memberKey[U.FORMER_PARTIES[k].name] = k; });
+    keys = keys.concat(Object.keys(T.memberKey));
     keys = keys.concat(Object.keys(T.partyKey));
     keys.sort(function (a, b) { return b.length - a.length; });
     var alt = keys.map(function (k) { return k.replace(/[.*+?^${}()|[\]\\&]/g, '\\$&'); }).join('|');
     T.re = new RegExp('(^|[^\\wÀ-ɏ-])(' + alt + ')(?![\\wÀ-ɏ])', 'g');
   }
 
+  // a member party of an alliance
+  function memberCard(Q, k) {
+    var c = (U.CONSTITUENTS || {})[k], f = (U.FORMER_PARTIES || {})[k], pr = (U.PARTY_PROFILES || {})[k];
+    var alliance = c ? c.alliance : 'asp', A = U.PARTIES[alliance], name = c ? c.name : f.name;
+    var h = '<b>' + esc(name) + '</b><br><span class="muted">Member party of the ' + esc(A.name) + '</span><br>';
+    if (c) h += esc(c.desc) + '<br>'; else if (pr) h += esc(pr.ideology) + '<br>';
+    if (Q && !Q.dormant[alliance]) { var parts = U.allianceParts(Q, alliance, Q.house[alliance] || 0, 'house') || {}; h += 'House seats within the alliance: ' + (parts[k] || 0) + ' of ' + (Q.house[alliance] || 0) + '<br>'; }
+    if (pr) h += '<span class="muted">Factions: ' + pr.factions.map(function (x) { return esc(x[0]); }).join(', ') + '</span>';
+    return h;
+  }
   function partyCard(Q, p) {
     var P = U.PARTIES[p], C = U.Coalition, h = '<b>' + esc(P.name) + '</b> <span class="muted">(' + esc(P.short) + ')</span><br>';
     var kind = { party: 'Political party', alliance: 'Electoral alliance', federation: 'Federation of state parties', regional: 'Regional party', bloc: 'Several small parties shown together' }[P.kind] || P.kind;
@@ -146,6 +161,7 @@
       var top = Object.keys(raw).sort(function (a, b) { return raw[b] - raw[a]; }).slice(0, 4);
       return '<b>' + esc(key) + '</b> <span class="muted">voter group</span><br>Leaning: ' + top.map(function (p) { return U.PARTIES[p].short + ' ' + (raw[p] / tot * 100).toFixed(0) + '%'; }).join(', ') + '<br><span class="muted">Groups are not monolithic: these are averages.</span>';
     }
+    if (T.memberKey && T.memberKey[key]) return memberCard(Q, T.memberKey[key]);
     if (T.partyKey[key]) return partyCard(Q, T.partyKey[key]);
     if (TERMS[key]) return '<b>' + esc(key) + '</b><br>' + esc(TERMS[key]);
     return null;

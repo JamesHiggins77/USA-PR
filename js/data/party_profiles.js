@@ -47,11 +47,11 @@
       ['Market Conservatives', 'John McCain', 'deficit reduction, defence, reform of government'],
       ['Catholic Caucus', 'Bob Casey Sr.', 'pro-life and pro-labor; uneasy with both big parties'],
       ['Main Street Moderates', 'Chris Shays', 'suburban centrists from the Northeast']]),
-    cc: P('national', 'Conservatism, fiscal conservatism, Christian right', { econ: 6, trade: 3, soc: 6, foreign: 7, fed: 4, pop: 2, env: -6 }, [
+    cc: P('alliance', 'Conservatism, fiscal conservatism, Christian right: an alliance of the Republican Party and the Conservative Democrats', { econ: 6, trade: 3, soc: 6, foreign: 7, fed: 4, pop: 2, env: -6 }, [
       ['Business Conservatives', 'George W. Bush', 'tax cuts, deregulation, free trade'],
       ['Religious Right', 'Tom DeLay', 'abortion, school prayer, traditional marriage'],
       ['Southern Populists', 'Trent Lott', 'the old southern Democratic wing: farm subsidies, defence jobs'],
-      ['Revolutionaries', 'Newt Gingrich', 'the Contract with America: shrink Washington fast']]),
+      ['Revolutionaries', 'Newt Gingrich', 'the Contract with America: shrink Washington fast']], { members: ['ccrep', 'ccdem'] }),
     reform: P('national', 'Populist centrism', { econ: 0, trade: -7, soc: 2, foreign: -3, fed: 3, pop: 8, env: 0 }, [
       ['Perotistas', 'Ross Perot', 'balanced budgets, term limits, against NAFTA'],
       ['Paleocons', 'Pat Buchanan', 'economic nationalism and cultural conservatism'],
@@ -82,7 +82,7 @@
     asp: P('alliance', 'Christian democracy (old style): culturally conservative, fiscally progressive', { econ: -3, trade: -2, soc: 5, foreign: 0, fed: 3, pop: -2, env: 3 }, [
       ['Mormon Unity Party', 'Orrin Hatch', 'Utah and Idaho; family, thrift and community'],
       ['Catholic Party', 'Bob Casey Jr.', 'Great Lakes cities; pro-life, pro-labor'],
-      ['Moderate Party', 'Lincoln Chafee', 'New England centrists']], { members: ['mup', 'cath', 'mod'] }),
+      ['Moderate Party', 'Lincoln Chafee', 'New England centrists']], { members: ['aspp', 'mup', 'cath', 'mod'] }),
     ul: P('alliance', 'Electoral alliance of the far left', { econ: -8, trade: -6, soc: -6, foreign: -7, fed: -2, pop: 5, env: 6 }, [
       ['Reformists', 'Bernie Sanders', 'govern with the SDLP when it counts'],
       ['Hardliners', 'Gloria La Riva', 'no coalitions with capitalist parties'],
@@ -143,9 +143,9 @@
     fl: P('former', 'Agrarian socialism, cooperativism', { econ: -6, trade: -6, soc: 0, foreign: -6, fed: 0, pop: 7, env: 2 }, [['Olson Farmer-Laborites', 'Floyd Olson', 'cooperatives and public power'], ['Shipstead conservatives', 'Henrik Shipstead', 'isolationist farm populism']]),
     alp: P('former', 'New York labor socialism', { econ: -8, trade: -5, soc: -3, foreign: -2, fed: -3, pop: 4, env: 0 }, [['Garment unions', 'David Dubinsky', 'needle trades'], ['Marcantonio wing', 'Vito Marcantonio', 'pro-Soviet left']]),
     npl: P('former', 'Agrarian populism', { econ: -6, trade: -7, soc: 1, foreign: -7, fed: 2, pop: 8, env: 2 }, [['State-ownership wing', 'William Langer', 'state banks and grain elevators'], ['Townley organisers', 'Arthur C. Townley', 'organise farmers across the Plains']]),
-    mup: P('former', 'Latter-day Saint communitarianism (merged into the ASP in 1988)', { econ: -1, trade: 0, soc: 6, foreign: 1, fed: 5, pop: -3, env: 2 }, [['Church loyalists', 'Ezra Taft Benson', 'family and self-reliance'], ['Welfare Mormons', 'George Romney', 'civil rights and cooperative welfare']]),
-    cath: P('former', 'Catholic social teaching (merged into the ASP in 1988)', { econ: -4, trade: -3, soc: 5, foreign: 1, fed: 2, pop: 0, env: 2 }, [['Labor Catholics', 'Bob Casey Sr.', 'unions and the unborn'], ['Urban ethnics', 'Barbara Mikulski', 'Polish, Italian and Irish neighbourhoods']]),
-    mod: P('former', 'New England moderation (merged into the ASP in 1988)', { econ: 0, trade: 3, soc: -1, foreign: 2, fed: 4, pop: -5, env: 5 }, [['Yankee moderates', 'John Chafee', 'conservation and fiscal prudence'], ['Good-government reformers', 'Lowell Weicker', 'independence from party machines']])
+    mup: P('constituent', 'Latter-day Saint communitarianism; a member of the American Solidarity Union since 1988', { econ: -1, trade: 0, soc: 6, foreign: 1, fed: 5, pop: -3, env: 2 }, [['Church loyalists', 'Ezra Taft Benson', 'family and self-reliance'], ['Welfare Mormons', 'George Romney', 'civil rights and cooperative welfare']]),
+    cath: P('constituent', 'Catholic social teaching; a member of the American Solidarity Union since 1988', { econ: -4, trade: -3, soc: 5, foreign: 1, fed: 2, pop: 0, env: 2 }, [['Labor Catholics', 'Bob Casey Sr.', 'unions and the unborn'], ['Urban ethnics', 'Barbara Mikulski', 'Polish, Italian and Irish neighbourhoods']]),
+    mod: P('constituent', 'New England moderation; a member of the American Solidarity Union since 1988', { econ: 0, trade: 3, soc: -1, foreign: 2, fed: 4, pop: -5, env: 5 }, [['Yankee moderates', 'John Chafee', 'conservation and fiscal prudence'], ['Good-government reformers', 'Lowell Weicker', 'independence from party machines']])
   };
 
   // Where real political figures of 1980-2026 sit in this party system: [name, party, faction, note]

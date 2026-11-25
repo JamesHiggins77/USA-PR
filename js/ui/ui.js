@@ -429,8 +429,8 @@
   }
   function parties() {
     demoCache = null;
-    var PR = U.PARTY_PROFILES, groups = [['national', 'National parties'], ['alliance', 'Alliances and blocs'], ['regional', 'Regional parties'], ['future', 'Future parties (not yet founded in 1997)'], ['former', 'Former parties']];
-    var info = function (k) { return U.PARTIES[k] ? { name: U.PARTIES[k].name, short: U.PARTIES[k].short, color: U.PARTIES[k].color } : U.FORMER_PARTIES[k]; };
+    var PR = U.PARTY_PROFILES, groups = [['national', 'National parties'], ['alliance', 'Alliances and blocs'], ['regional', 'Regional parties'], ['constituent', 'Member parties of alliances'], ['future', 'Future parties (not yet founded in 1997)'], ['former', 'Former parties']];
+    var info = function (k) { return U.PARTIES[k] ? { name: U.PARTIES[k].name, short: U.PARTIES[k].short, color: U.PARTIES[k].color } : U.FORMER_PARTIES[k] || U.CONSTITUENTS[k]; };
     var h = '<h1>Parties</h1><p class="small muted">Every party and alliance, current and former, with its positions on seven axes and its internal factions.</p><div class="row" style="margin-bottom:10px">' +
       [['all', 'All']].concat(groups, [['figures', 'Figures']]).map(function (g) { return '<button class="btn ' + (partyFilter === g[0] ? '' : 'ghost') + '" data-pfilter="' + g[0] + '">' + g[1].split(' (')[0] + '</button>'; }).join('') + '</div>';
     groups.forEach(function (g) {

@@ -8,7 +8,7 @@
   // weigh most, federalism counts slightly right and environmentalism slightly left.
   // Current parties use their live positions, so blocs can shift during the game.
   U.blocScore = function (p, Q) {
-    var a = ((U.PARTY_PROFILES || {})[p] || { ax: {} }).ax, ps = (Q && Q.pos && Q.pos[p]) || {};
+    var a = ((U.PARTY_PROFILES || {})[p] || { ax: U.CONSTITUENTS && U.CONSTITUENTS[p] ? { econ: U.CONSTITUENTS[p].econ, soc: U.CONSTITUENTS[p].soc } : {} }).ax, ps = (Q && Q.pos && Q.pos[p]) || {};
     var v = function (k) { var x = ps[k] != null ? ps[k] : a[k]; return x || 0; };
     return 0.4 * v('econ') + 0.4 * v('soc') + 0.1 * v('fed') - 0.1 * (a.env || 0);
   };
@@ -49,6 +49,7 @@
     if (U.BLOC_INFO[k]) return U.BLOC_INFO[k];
     if (k === 'nonvote') return { name: 'Would not vote', short: 'Not voting', color: '#9aa0a6', econ: 0 };
     if (/^aga:/.test(k)) { var sid = k.slice(4), ch = ((U.PARTIES.aga || {}).chapters || {})[sid]; return { name: ch ? ch.name : 'Green chapter (' + sid + ')', short: 'AGA-' + sid, color: '#2e8b57', econ: ch ? ch.econ : 0 }; }
+    if (U.CONSTITUENTS && U.CONSTITUENTS[k]) return U.CONSTITUENTS[k];
     if (U.PARTIES && U.PARTIES[k]) return U.PARTIES[k];
     var f = U.FORMER_PARTIES && U.FORMER_PARTIES[k];
     if (f) return { name: f.name, short: f.short, color: f.color, econ: ((U.PARTY_PROFILES || {})[k] || { ax: {} }).ax.econ || 0 };
@@ -56,12 +57,19 @@
   };
 
   // alliances and their constituent parties
-  U.ALLIANCES = { ul: 'United Left', asp: 'American Solidarity Party', aga: 'American Green Alliance' };
+  U.ALLIANCES = { ul: 'United Left', asp: 'American Solidarity Union', aga: 'American Green Alliance', cc: 'Conservative Coalition' };
+  // constituent parties of the alliances that are not parties in their own right elsewhere
+  U.CONSTITUENTS = {
+    aspp: { name: 'American Solidarity Party', short: 'ASP', color: '#c86a10', alliance: 'asp', econ: -3, soc: 5, desc: 'The largest party in the American Solidarity Union: Christian democracy of the older kind, culturally conservative and fiscally progressive, strongest in the Great Lakes and the Plains.' },
+    ccrep: { name: 'Republican Party', short: 'REP', color: '#c0392b', alliance: 'cc', econ: 6, soc: 5, desc: 'The senior partner in the Conservative Coalition since 1978: business conservatives and the religious right outside the South. It still holds its own conventions and chooses its own candidates for the joint lists.' },
+    ccdem: { name: 'Conservative Democrats', short: 'CDEM', color: '#1f4f8f', alliance: 'cc', econ: 4, soc: 7, desc: 'The heirs of the southern Democrats who stayed in the old Democratic Party after 1966. Since 1978 they run joint lists with the Republicans as the Conservative Coalition, and they dominate it in the South.' }
+  };
   U.allianceParts = function (Q, p, n, chamber) {
     if (!n) return null;
     if (p === 'ul') return U.Parliament.ulSplit(Q, n);
+    if (p === 'cc') return U.Electoral.hamilton({ ccrep: 0.58, ccdem: 0.42 }, n, 0);
     if (p === 'asp') {
-      var w = { mup: 0.35, cath: 0.4, mod: 0.25 }; if (Q.flags && Q.flags.reformAbsorbed) w.reform = 0.25;
+      var w = { aspp: 0.4, mup: 0.22, cath: 0.25, mod: 0.13 }; if (Q.flags && Q.flags.reformAbsorbed) w.reform = 0.2;
       return U.Electoral.hamilton(w, n, 0);
     }
     if (p === 'aga') {

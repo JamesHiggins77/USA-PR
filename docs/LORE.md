@@ -335,13 +335,13 @@ Clinton made a deal with the Christian Democrats: the CDP stood no candidate and
 
 ### Conservative Coalition (CC)
 
-*Founded 1978.* A merger of the rump southern Democratic Party, left behind by the 1966 split, with the Republican Party, after a decade in which the two had voted together in the House and taken turns blocking each other in the South. Ronald Reagan’s 1980 presidential win made it the main party of the right for a generation.
+*Founded 1978.* An alliance of the rump southern Democratic Party (since then the Conservative Democrats), left behind by the 1966 split, and the Republican Party, which have run joint lists ever since, after a decade in which the two had voted together in the House and taken turns blocking each other in the South. Ronald Reagan’s 1980 presidential win made it the main party of the right for a generation.
 
 **Ideology:** Conservative: lower taxes, deregulation, a strong military and traditional values, with a southern populist streak and a business wing that do not always agree.
 
-### American Solidarity Party (ASP)
+### American Solidarity Union (ASP)
 
-*Founded 1988.* A confederation of centrist, faith-based regional parties that kept finding themselves on the same side of budget votes: the Mormon Unity Party in Utah and Idaho, the Catholic Party in the Great Lakes cities, and the Moderate Party in New England. After the 1974 reform they formed a joint list to reach the 5% needed for national list seats.
+*Founded 1988.* The American Solidarity Union: a confederation of the American Solidarity Party, its largest member, and centrist, faith-based regional parties that kept finding themselves on the same side of budget votes: the Mormon Unity Party in Utah and Idaho, the Catholic Party in the Great Lakes cities, and the Moderate Party in New England. After the 1974 reform they formed a joint list to reach the 5% needed for national list seats.
 
 **Ideology:** Christian democratic in the older sense: culturally conservative and fiscally progressive. Pro-family, pro-labor and devolutionist, it bargains with left or right for its constituent states.
 

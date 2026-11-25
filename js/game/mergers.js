@@ -72,7 +72,7 @@
       merge(Q, 'aga', 'ul', 'The American Green Alliance joins the United Left as its environmental wing.');
     // the ASP folds into the CDP when it is squeezed
     if (live('asp') && live('cdp') && Q.year >= 2003 && ((n.asp || 0) < 4.5 || (n.cdp || 0) < 13) && U.rng(Q) < 0.01)
-      merge(Q, 'asp', 'cdp', 'The American Solidarity Party merges into the Christian Democratic Party: its Mormon, Catholic and New England constituents become regional wings of the CDP.');
+      merge(Q, 'asp', 'cdp', 'The American Solidarity Union merges into the Christian Democratic Party: the American Solidarity Party and its Mormon, Catholic and New England partners become regional wings of the CDP.');
     // the Constitution Party into MAGA
     if (live('con') && live('maga') && U.rng(Q) < 0.05)
       merge(Q, 'con', 'maga', 'The Constitution Party dissolves itself into the MAGA Party. Howard Phillips’s heirs say Trump has taken up their cause.');
