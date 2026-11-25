@@ -25,10 +25,11 @@
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
     if (view === 'elections' && $('genmap')) {
-      var gsel = (Q.history || [])[+String(electSel).slice(1)];
+      var gsel0 = electSel === 'e96' ? Q.open1996 : (Q.history || [])[+String(electSel).slice(1)];
+      var gsel = gsel0 && { states: genMode === 'senate' && gsel0.senStates ? gsel0.senStates : gsel0.states };
       U.Zoom.attach($('genmap'), 'genmap', function (t) {
         var sid = t.dataset.state, st = gsel && gsel.states && gsel.states[sid]; if (!st) return null;
-        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b><div class="muted">' + U.sum(st.seats) + ' state list seats</div>' +
+        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b><div class="muted">' + U.sum(st.seats) + (genMode === 'senate' ? ' senators' : ' state list seats') + '</div>' +
           Object.keys(st.seats).sort(function (a, b) { return st.seats[b] - st.seats[a]; }).map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + st.seats[p] + '</b></div>'; }).join('') +
           '<div class="muted" style="margin-top:4px">Vote</div>' + Object.keys(st.shares).map(function (p) { return '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + st.shares[p].toFixed(1) + '%</b></div>'; }).join('');
       });
@@ -362,11 +363,29 @@
   function oldParty(k) { var o = U.LORE.oldParties[k]; return o ? { name: o[0], short: o[0], color: o[1] } : U.PARTIES[k] ? { name: P(k).name, short: P(k).short, color: P(k).color } : { name: '', short: '', color: '#888' }; }
   function ochip(k) { return '<i class="chip" style="background:' + oldParty(k).color + '"></i>'; }
   function bar(pct, color) { return '<div class="bar" style="margin:2px 0 0"><i style="width:' + U.clamp(pct, 0, 100) + '%;background:' + color + '"></i></div>'; }
+  // Results map in the style of Spanish election maps: shaded winner, seat dots, legend, ring
+  var genMode = 'house';
+  function resultsBlock(r) {
+    var sen = genMode === 'senate' && r.senStates, data = sen ? r.senStates : r.states, seats = sen ? r.senate : r.house, tot = U.sum(seats);
+    var ord = Object.keys(seats).filter(function (p) { return seats[p] > 0; }).sort(function (a, b) { return seats[b] - seats[a] || (r.shares[b] || 0) - (r.shares[a] || 0); });
+    var winners = {}; for (var sid in data) { var sh = data[sid].shares || {}, w = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a]; })[0]; if (w) winners[w] = 1; }
+    var lead = r.leaders || Q.leaders || {};
+    var econ = function (ks) { return ks.sort(function (a, b) { return (P(a).econ || 0) - (P(b).econ || 0); }); };
+    var h = '<div class="row" style="margin:14px 0 6px"><h3 style="margin:0">Results by state</h3><button class="btn ' + (sen ? 'ghost' : '') + '" data-gmode="house">House</button>' + (r.senStates ? '<button class="btn ' + (sen ? '' : 'ghost') + '" data-gmode="senate">Senate</button>' : '') + '</div>';
+    h += '<div class="resgrid"><div class="resring">' + Ch.ring(seats, r.shares, econ) + '<div class="small muted">Inner: seats &middot; outer: votes</div></div><table class="seats reslegend"><tr><th>Party</th><th>Leader</th><th>Vote</th><th>Seats</th></tr>' +
+      ord.map(function (p) { return '<tr><td><span class="lgname" style="background:' + P(p).color + ';color:' + Ch.ink(P(p).color) + '">' + P(p).short + '</span>' +
+        (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(lead[p] || '') + '</i></td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td><b>' + seats[p] + '</b></td></tr>'; }).join('') +
+      '<tr><td colspan="4" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
+    h += '<div id="genmap">' + Ch.resultMap(Q, data, sen ? null : { inset: { title: 'National list (' + U.sum(r.national || {}) + ' seats)', seats: r.national || {} } }) + '</div>';
+    h += '<p class="small muted">' + (sen ? 'Each dot is a senator: three elected by PR and one chosen by the state house (' + tot + ' in all).' : 'Each dot is a state list seat; the 100 national list seats are shown in the box.') + ' Hover or tap a state for details.</p>';
+    return h;
+  }
+
   function elections() {
     var hist = U.LORE.presElections.map(function (e, i) { return { key: 'h' + i, label: e.year + ' presidential', rec: e, kind: 'hist' }; });
     var game = (Q.history || []).map(function (e, i) { return { key: 'g' + i, label: e.date + (e.kind === 'pres' ? ' presidential' : ' general'), rec: e, kind: e.kind }; });
     var gens = U.LORE.generalElections.map(function (e, i) { return { key: 'e' + i, label: String(e.year), rec: e, kind: 'histgen' }; });
-    if (Q.open1996) gens.push({ key: 'e96', label: '1996', rec: { year: 1996, seats: 600, shares: U.ELECTION_1996, house: Q.open1996.house, byState: Q.open1996.byState, gov: ['ldp', 'sdlp'], cs: ['reform'], pm: 'Al Gore', modern: true,
+    if (Q.open1996) gens.push({ key: 'e96', label: '1996', rec: { year: 1996, seats: 600, shares: U.ELECTION_1996, house: Q.open1996.house, byState: Q.open1996.byState, open: Q.open1996, gov: ['ldp', 'sdlp'], cs: ['reform'], pm: 'Al Gore', modern: true,
       note: 'Called after the government shutdown brought down Gingrich. The CC fell to its worst result since its founding, losing votes to the new Reform Party and the Constitution Party, and Al Gore formed an LDP\u2013SDLP government with Reform confidence and supply. This is the parliament the game starts with.' }, kind: 'histgen' });
     var all = hist.concat(gens, game);
     if (!electSel || !all.some(function (x) { return x.key === electSel; })) electSel = all[all.length - 1].key;
@@ -397,6 +416,7 @@
       var topH;
       if (r.byState) topH = function (sid) { var d = r.byState[sid]; if (!d) return null; return Object.keys(d).sort(function (a, b) { return d[b] - d[a]; })[0]; };
       else { var mp = {}; for (var k in r.map) r.map[k].split(' ').forEach(function (sid) { if (sid) mp[sid] = k; }); topH = function (sid) { return (r.seats < 600 && (sid === 'AK' || sid === 'HI') && r.year < 1959) ? null : (mp[sid] || r.top); }; }
+      if (r.open && r.open.states) { var o = r.open; return h + resultsBlock({ states: o.states, senStates: o.senStates, national: o.national, house: o.house, senate: o.senate, shares: r.shares, leaders: { ldp: 'Al Gore', sdlp: 'Dick Gephardt', cc: 'Newt Gingrich', cdp: 'Bob Dole', reform: 'Ross Perot' } }) + '</div>'; }
       h += '<h3>Largest party by state</h3><div id="electmap">' + Ch.geoMap(Q, function (sid) { var t = topH(sid); return t ? oldParty(t).color : '#d6d2c8'; }, function (sid) { var t = topH(sid); return t ? nm(t) : ''; }) + '</div><p class="small muted">' + (r.byState ? 'The party with the most House seats in each state.' : 'The party with the most votes in each state.') + (r.year < 1959 ? ' Alaska and Hawaii were not yet states.' : '') + '</p></div>';
       return h;
     }
@@ -411,10 +431,7 @@
     }
     var order = Object.keys(r.house).sort(function (a, b) { return r.house[b] - r.house[a]; });
     h += '<div class="panel"><h2 style="margin-top:0">' + esc(r.date) + ' general election</h2><div class="grid2"><div><h3>House</h3>' + Ch.hemicycle(Q, r.house) + '</div><div><table class="seats"><tr><th>Party</th><th>Vote</th><th>Seats</th></tr>' + order.map(function (p) { return '<tr><td>' + chip(p) + P(p).name + '</td><td>' + (r.shares[p] != null ? r.shares[p].toFixed(1) + '%' : '') + '</td><td><b>' + r.house[p] + '</b></td></tr>'; }).join('') + '</table></div></div>';
-    if (r.states) {
-      var topOf = function (sid) { var st = r.states[sid]; if (!st) return null; var ks = Object.keys(st.seats); if (!ks.length) return Object.keys(st.shares)[0]; return ks.sort(function (x, y) { return st.seats[y] - st.seats[x] || (st.shares[y] || 0) - (st.shares[x] || 0); })[0]; };
-      h += '<h3>House seats by state</h3><div id="genmap">' + Ch.geoMap(Q, function (sid) { var t = topOf(sid); return t ? P(t).color : '#9aa0a6'; }, function (sid) { var st = r.states[sid], t = topOf(sid); return st && t ? (st.seats[t] || 0) + '/' + U.sum(st.seats) : ''; }) + '</div><p class="small muted">Each state is coloured by the party that won most of its state list seats (label: that party\u2019s seats / the state\u2019s seats). Hover or tap a state for details. The 100 national list seats are not shown on the map.</p>';
-    }
+    if (r.states) h += resultsBlock(r);
     h += '<h3>Senate</h3>' + Ch.seatTable(Q, r.senate) + '</div>';
     return h;
   }
@@ -447,6 +464,7 @@
     document.querySelectorAll('button[data-event]').forEach(function (b) { b.onclick = function () { lastText = F.answerEvent(Q, +b.dataset.event); save(); render(); }; });
     document.querySelectorAll('[data-mapstyle]').forEach(function (b) { b.onclick = function () { mapStyle = b.dataset.mapstyle; try { localStorage.setItem('usa-pr-mapstyle', mapStyle); } catch (e) {} render(); }; });
     document.querySelectorAll('[data-elect]').forEach(function (b) { b.onclick = function () { electSel = b.dataset.elect; render(); }; });
+    document.querySelectorAll('[data-gmode]').forEach(function (b) { b.onclick = function () { genMode = b.dataset.gmode; render(); }; });
     document.querySelectorAll('[data-map]').forEach(function (b) { b.onclick = function () { mapMode = b.dataset.map; render(); }; });
     document.querySelectorAll('.tile').forEach(function (t) { t.onclick = function () { mapSel = t.dataset.state; render(); var d = $('statedetail'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
     document.querySelectorAll('[data-role]').forEach(function (b) { b.onclick = function () { var a = b.dataset.role.split('|'), p = a[0]; deal.coalition = deal.coalition.filter(function (x) { return x !== p; }); deal.cs = deal.cs.filter(function (x) { return x !== p; }); deal.abstain = (deal.abstain || []).filter(function (x) { return x !== p; }); delete deal.posts[p]; if (a[1] === 'coalition') deal.coalition.push(p); if (a[1] === 'cs') deal.cs.push(p); if (a[1] === 'abstain') deal.abstain.push(p); if (a[1] === 'none') delete deal.concessions[p]; else if (!deal.concessions[p]) deal.concessions[p] = []; deal.posts = {}; render(); }; });

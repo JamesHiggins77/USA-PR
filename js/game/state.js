@@ -37,7 +37,7 @@
     ['CA', 'OR', 'WA', 'MA', 'NY', 'VT', 'MN', 'WI', 'IL', 'NJ'].forEach(function (sid) {
       var d = Q.houseByState[sid]; if (!gd || !d) return;
       if (gd > 0 && d.ldp > 0) { d.ldp--; d.grn = (d.grn || 0) + 1; gd--; } else if (gd < 0 && d.grn > 0) { d.grn--; d.ldp = (d.ldp || 0) + 1; gd++; }
-    }); Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h); Q.open1996 = { house: U.clone(Q.house), byState: U.clone(Q.houseByState) };
+    }); Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h); var open1996h = h;
     Q.states = {};
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
     Q.senateSeats = [];
@@ -45,6 +45,8 @@
       ['pr', 'pr', 'pr', 'house'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
     });
     X.senate(Q);
+    var rec96 = S.stateRecord(Q, open1996h);
+    Q.open1996 = { house: U.clone(Q.house), byState: U.clone(Q.houseByState), states: rec96.states, senStates: rec96.senStates, national: rec96.national, senate: X.senateCount(Q), leaders: null };
     Q.calib = calib1997; delete Q.noNoise;
     Q.lastSenate = X.senateCount(Q);
 

@@ -165,3 +165,10 @@ table.seats { max-width: 420px; margin-top: 6px; }
   .zoomctl button { width: 30px; height: 30px; font-size: 15px; opacity: .92; }
   #main .row .btn { padding: 6px 10px; font-size: 13px; }
 }
+
+/* Spanish-style results legend */
+.resgrid { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.resring { text-align: center; }
+.reslegend { flex: 1; min-width: 260px; }
+.lgname { display: inline-block; min-width: 54px; padding: 1px 6px; border-radius: 3px; font-weight: 700; font-size: 12px; }
+.lgscale { display: flex; margin-top: 2px; } .lgscale i { width: 9px; height: 6px; display: block; }
