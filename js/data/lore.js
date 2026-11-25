@@ -21,7 +21,7 @@
   // Party histories: founded, roots, ideology
   U.LORE.parties = {
     ldp: ['1966', 'Born when the old Democratic Party broke apart over the Civil Rights and Voting Rights Acts, which Prime Minister Lyndon Johnson forced through against President Nixon\u2019s wishes after John F. Kennedy\u2019s assassination. Johnson and Hubert Humphrey led the northern, western and Black Democratic wings out of a party whose southern caucus had fought the laws to the end. The conservative southern Democrats who stayed behind later merged into the Conservative Coalition.',
-      'Liberal and socially progressive; pro-market but committed to a welfare state; internationalist. A broad church running from Third Way New Democrats to civil-rights liberals, held together by opposition to segregation and later by government office.'],
+      'Liberal and socially progressive; pro-market but committed to a welfare state; internationalist. A broad church running from Third Way New Democrats to civil-rights liberals, held together by opposition to segregation and later by government office. From 1968 to 1986 its presidential candidates always finished behind the SDLP\u2019s, until Bill Clinton\u2019s 1992 win.'],
     sdlp: ['1952', 'A merger of the heirs of Theodore Roosevelt’s Progressive Party with the labor and socialist parties that had grown up beside it: the Socialist Party of Norman Thomas, Minnesota’s Farmer-Labor Party, New York’s American Labor Party and the Nonpartisan League of the Plains. Its strength lies in the industrial Midwest, the unions and the Rust Belt. Its high point came in 1968, when Robert F. Kennedy, beaten for the LDP nomination by Lyndon Johnson, joined the party and won the presidency, which he held for two terms.',
       'Mainstream social democracy and labor politics: collective bargaining, public health insurance, industrial policy and a mixed economy. It is wary of free trade and more culturally moderate than the LDP.'],
     cdp: ['1946', 'Founded after the Second World War by Midwestern moderate Republicans, Catholic Democrats uneasy with the New Deal’s urban machines, and Protestant reformers, on the model of the Christian democratic parties then rebuilding Europe. It served as the balancing party of the 1950s.',
@@ -87,9 +87,9 @@
     ['1962', 'Richard Nixon', 'Republican', 'Inherited John F. Kennedy as his Prime Minister. In 1963 he dismissed Kennedy, who had embarrassed him by trying to force through a civil-rights bill, only to see Kennedy return to office after new elections. After Kennedy\u2019s assassination in 1964 he appointed Lyndon Johnson, expecting a moderate, and was forced to accept the Civil Rights Act.'],
     ['1968', 'Robert F. Kennedy', 'Social Democratic Labor', 'Lost the LDP nomination to Prime Minister Lyndon Johnson, left the party for the SDLP, and won. He beat George Wallace (SRP) in the runoff after Johnson came third in the first round. The SDLP\u2019s first President.'],
     ['1974', 'Robert F. Kennedy', 'Social Democratic Labor', 'Re-elected over Gerald Ford (Republican).'],
-    ['1980', 'Ronald Reagan', 'Conservative Coalition', 'His runoff win over Jimmy Carter (LDP) made the new CC the main party of the right.'],
-    ['1986', 'Ronald Reagan', 'Conservative Coalition', 'Re-elected over Walter Mondale (LDP).'],
-    ['1992', 'Bill Clinton', 'Liberal Democratic', 'Beat Vice President George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote.'],
+    ['1980', 'Ronald Reagan', 'Conservative Coalition', 'Beat Ted Kennedy (SDLP) in a close runoff, 361 electors to 340, and made the new CC the main party of the right.'],
+    ['1986', 'Ronald Reagan', 'Conservative Coalition', 'Re-elected over Jesse Jackson (SDLP), who had pushed the LDP\u2019s Walter Mondale into third place.'],
+    ['1992', 'Bill Clinton', 'Liberal Democratic', 'Beat George H. W. Bush (CC) in the runoff. The first LDP candidate to finish ahead of the SDLP in a first round since 1968; Ross Perot won 18.6%.'],
     ['1998', '—', '', 'The next election, due in November 1998.']
   ];
 
@@ -146,12 +146,12 @@
       r2: [['Robert F. Kennedy', 'sdlp', 545, 64.2], ['George Wallace', 'srp', 93, 35.8]], era: '1960', lose: 'AL MS GA LA SC AR NC TN', note: 'Kennedy, beaten for the LDP nomination by Johnson, ran for the SDLP and topped a five-way first round. The LDP, CDP and Republicans backed him against Wallace in the runoff.' },
     { year: 1974, total: 701, r1: [['Robert F. Kennedy', 'sdlp', 33.1], ['Gerald Ford', 'rep', 25.0], ['Walter Mondale', 'ldp', 17.9], ['Nelson Rockefeller', 'cdp', 13.6], ['George Wallace', 'srp', 7.2], ['Others', null, 3.2]],
       r2: [['Robert F. Kennedy', 'sdlp', 402, 56.0], ['Gerald Ford', 'rep', 299, 44.0]], era: 'modern', lose: 'AL AR FL GA LA MS NC SC TN TX VA OK KS NE SD ND MT WY ID UT AZ NV IN AK', note: 'Re-elected comfortably; Watergate sank the Republicans\u2019 hopes.' },
-    { year: 1980, total: 701, r1: [['Ronald Reagan', 'cc', 35.4], ['Jimmy Carter', 'ldp', 26.2], ['Ted Kennedy', 'sdlp', 14.8], ['John B. Anderson', 'cdp', 12.1], ['Ed Clark', 'lib', 3.6], ['Others', null, 7.9]],
-      r2: [['Ronald Reagan', 'cc', 562, 56.9], ['Jimmy Carter', 'ldp', 139, 43.1]], era: 'modern', lose: 'MA RI NY MN WI MD DC HI WV GA VT', note: 'The new CC’s breakthrough.' },
-    { year: 1986, total: 701, r1: [['Ronald Reagan', 'cc', 37.9], ['Walter Mondale', 'ldp', 27.5], ['Jesse Jackson', 'sdlp', 13.4], ['Bob Dole (CDP backing)', 'cdp', 10.2], ['Others', null, 11.0]],
-      r2: [['Ronald Reagan', 'cc', 570, 57.8], ['Walter Mondale', 'ldp', 131, 42.2]], era: 'modern', lose: 'MN NY MA RI MD DC HI WI VT WV IA', note: 'Re-elected comfortably.' },
-    { year: 1992, total: 701, r1: [['Bill Clinton', 'ldp', 29.1], ['George H. W. Bush', 'cc', 25.3], ['Ross Perot', 'ind', 19.0], ['Bill Bradley', 'sdlp', 12.4], ['CDP nominee', 'cdp', 8.6], ['Others', null, 5.6]],
-      r2: [['Bill Clinton', 'ldp', 420, 53.1], ['George H. W. Bush', 'cc', 281, 46.9]], era: 'modern', lose: 'AL FL GA MS NC SC TN TX VA OK KS NE SD ND MT WY ID UT AZ IN KY AK', note: 'Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’s votes.' }
+    { year: 1980, total: 701, r1: [['Ronald Reagan', 'cc', 33.5], ['Ted Kennedy', 'sdlp', 26.4], ['Jimmy Carter', 'ldp', 24.0], ['John B. Anderson', 'cdp', 9.1], ['Ed Clark', 'lib', 3.6], ['Others', null, 3.4]],
+      r2: [['Ronald Reagan', 'cc', 361, 50.8], ['Ted Kennedy', 'sdlp', 340, 49.2]], era: 'modern', lose: 'MA RI CT NY NJ PA MI OH IL WI MN WV MD DE DC HI WA OR VT ME IA MO NM CO NV NH', note: 'Ted Kennedy edged out Carter for second place, and the runoff went down to the wire: Reagan held California, Texas and the South, and Kennedy fell 21 electors short.' },
+    { year: 1986, total: 701, r1: [['Ronald Reagan', 'cc', 38.1], ['Jesse Jackson', 'sdlp', 24.4], ['Walter Mondale', 'ldp', 23.0], ['Bob Dole (CDP backing)', 'cdp', 9.2], ['Others', null, 5.3]],
+      r2: [['Ronald Reagan', 'cc', 505, 56.5], ['Jesse Jackson', 'sdlp', 196, 43.5]], era: 'modern', lose: 'NY IL MI MD DC MA RI NJ MN HI PA WI', note: 'Jesse Jackson\u2019s Rainbow Coalition pushed the LDP\u2019s Mondale into third, but Reagan won the runoff comfortably.' },
+    { year: 1992, total: 701, r1: [['Bill Clinton', 'ldp', 27.8], ['George H. W. Bush', 'cc', 25.1], ['Ross Perot', 'ind', 18.6], ['Bill Bradley', 'sdlp', 17.0], ['CDP nominee', 'cdp', 7.2], ['Others', null, 4.3]],
+      r2: [['Bill Clinton', 'ldp', 420, 53.1], ['George H. W. Bush', 'cc', 281, 46.9]], era: 'modern', lose: 'AL FL GA MS NC SC TN TX VA OK KS NE SD ND MT WY ID UT AZ IN KY AK', note: 'Clinton\u2019s popularity put the LDP ahead of the SDLP in a presidential first round for the first time since Robert Kennedy\u2019s 1968 win. SDLP voters swung behind him in the runoff.' }
   ];
   // Electors per state by apportionment era (the real Electoral College plus 2 per state for the
   // four-senator Senate; DC 3 from 1962). 'modern' (1974 on) uses the game's own apportionment.

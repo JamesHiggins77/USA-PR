@@ -27,9 +27,9 @@ How this America got here. The story diverges from ours with the deadlocked elec
 | 1962 | Richard Nixon | Republican | Inherited John F. Kennedy as his Prime Minister. In 1963 he dismissed Kennedy, who had embarrassed him by trying to force through a civil-rights bill, only to see Kennedy return to office after new elections. After Kennedy’s assassination in 1964 he appointed Lyndon Johnson, expecting a moderate, and was forced to accept the Civil Rights Act. |
 | 1968 | Robert F. Kennedy | Social Democratic Labor | Lost the LDP nomination to Prime Minister Lyndon Johnson, left the party for the SDLP, and won. He beat George Wallace (SRP) in the runoff after Johnson came third in the first round. The SDLP’s first President. |
 | 1974 | Robert F. Kennedy | Social Democratic Labor | Re-elected over Gerald Ford (Republican). |
-| 1980 | Ronald Reagan | Conservative Coalition | His runoff win over Jimmy Carter (LDP) made the new CC the main party of the right. |
-| 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Walter Mondale (LDP). |
-| 1992 | Bill Clinton | Liberal Democratic | Beat Vice President George H. W. Bush (CC) in the runoff. Ross Perot won 19% of the first-round vote. |
+| 1980 | Ronald Reagan | Conservative Coalition | Beat Ted Kennedy (SDLP) in a close runoff, 361 electors to 340, and made the new CC the main party of the right. |
+| 1986 | Ronald Reagan | Conservative Coalition | Re-elected over Jesse Jackson (SDLP), who had pushed the LDP’s Walter Mondale into third place. |
+| 1992 | Bill Clinton | Liberal Democratic | Beat George H. W. Bush (CC) in the runoff. The first LDP candidate to finish ahead of the SDLP in a first round since 1968; Ross Perot won 18.6%. |
 | 1998 | — |  | The next election, due in November 1998. |
 
 ## Prime Ministers and governments
@@ -257,51 +257,51 @@ Re-elected comfortably; Watergate sank the Republicans’ hopes.
 
 ### 1980
 
-The new CC’s breakthrough.
+Ted Kennedy edged out Carter for second place, and the runoff went down to the wire: Reagan held California, Texas and the South, and Kennedy fell 21 electors short.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| Ronald Reagan | CC | 35.4% |
-| Jimmy Carter | LDP | 26.2% |
-| Ted Kennedy | SDLP | 14.8% |
-| John B. Anderson | CDP | 12.1% |
+| Ronald Reagan | CC | 33.5% |
+| Ted Kennedy | SDLP | 26.4% |
+| Jimmy Carter | LDP | 24.0% |
+| John B. Anderson | CDP | 9.1% |
 | Ed Clark | LIB | 3.6% |
-| Others |  | 7.9% |
+| Others |  | 3.4% |
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Ronald Reagan | CC | 562 | 56.9% |
-| Jimmy Carter | LDP | 139 | 43.1% |
+| Ronald Reagan | CC | 361 | 50.8% |
+| Ted Kennedy | SDLP | 340 | 49.2% |
 
 ### 1986
 
-Re-elected comfortably.
+Jesse Jackson’s Rainbow Coalition pushed the LDP’s Mondale into third, but Reagan won the runoff comfortably.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| Ronald Reagan | CC | 37.9% |
-| Walter Mondale | LDP | 27.5% |
-| Jesse Jackson | SDLP | 13.4% |
-| Bob Dole (CDP backing) | CDP | 10.2% |
-| Others |  | 11.0% |
+| Ronald Reagan | CC | 38.1% |
+| Jesse Jackson | SDLP | 24.4% |
+| Walter Mondale | LDP | 23.0% |
+| Bob Dole (CDP backing) | CDP | 9.2% |
+| Others |  | 5.3% |
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
-| Ronald Reagan | CC | 570 | 57.8% |
-| Walter Mondale | LDP | 131 | 42.2% |
+| Ronald Reagan | CC | 505 | 56.5% |
+| Jesse Jackson | SDLP | 196 | 43.5% |
 
 ### 1992
 
-Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’s votes.
+Clinton’s popularity put the LDP ahead of the SDLP in a presidential first round for the first time since Robert Kennedy’s 1968 win. SDLP voters swung behind him in the runoff.
 
 | Round one | Party | Vote |
 |---|---|---:|
-| Bill Clinton | LDP | 29.1% |
-| George H. W. Bush | CC | 25.3% |
-| Ross Perot | Independent | 19.0% |
-| Bill Bradley | SDLP | 12.4% |
-| CDP nominee | CDP | 8.6% |
-| Others |  | 5.6% |
+| Bill Clinton | LDP | 27.8% |
+| George H. W. Bush | CC | 25.1% |
+| Ross Perot | Independent | 18.6% |
+| Bill Bradley | SDLP | 17.0% |
+| CDP nominee | CDP | 7.2% |
+| Others |  | 4.3% |
 
 | Runoff (701 electors) | Party | Electors | Vote |
 |---|---|---:|---:|
@@ -314,7 +314,7 @@ Perot’s voters split almost evenly; Clinton’s runoff win came on the SDLP’
 
 *Founded 1966.* Born when the old Democratic Party broke apart over the Civil Rights and Voting Rights Acts, which Prime Minister Lyndon Johnson forced through against President Nixon’s wishes after John F. Kennedy’s assassination. Johnson and Hubert Humphrey led the northern, western and Black Democratic wings out of a party whose southern caucus had fought the laws to the end. The conservative southern Democrats who stayed behind later merged into the Conservative Coalition.
 
-**Ideology:** Liberal and socially progressive; pro-market but committed to a welfare state; internationalist. A broad church running from Third Way New Democrats to civil-rights liberals, held together by opposition to segregation and later by government office.
+**Ideology:** Liberal and socially progressive; pro-market but committed to a welfare state; internationalist. A broad church running from Third Way New Democrats to civil-rights liberals, held together by opposition to segregation and later by government office. From 1968 to 1986 its presidential candidates always finished behind the SDLP’s, until Bill Clinton’s 1992 win.
 
 ### Social Democratic Labor Party (SDLP)
 
