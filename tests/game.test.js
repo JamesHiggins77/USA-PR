@@ -237,3 +237,10 @@ test('careers: politicians retire and newcomers arrive over time', () => {
   assert.ok(U.activeIn('Barack Obama', 2008) && !U.activeIn('Barack Obama', 2000));
   assert.notStrictEqual(Q.leaders.cpusa, 'Gus Hall');
 });
+
+test('opening parliament: Sanders holds a Vermont House seat for the VPP, the Greens have 4 seats', () => {
+  const Q = U.Game.newGame(7); assert.strictEqual(Q.houseByState.VT.vpp, 1); assert.strictEqual(Q.house.grn, 4);
+  assert.ok(!Q.senateSeats.some(x => x.state === 'VT' && x.party === 'vpp'));
+  const o = Q.open1996, sum = {}; for (const s in o.states) for (const p in o.states[s].seats) sum[p] = (sum[p] || 0) + o.states[s].seats[p]; for (const p in o.national) sum[p] = (sum[p] || 0) + o.national[p];
+  assert.deepStrictEqual(sum, Object.fromEntries(Object.entries(o.house).filter(e => e[1])));
+});

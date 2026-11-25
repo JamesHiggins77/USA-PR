@@ -44,7 +44,7 @@
       'Labor-progressive: living wages, paid leave, affordable housing.'],
     revsoc: ['various', 'The fragmented revolutionary left: the Socialist Workers, Workers World, the Party for Socialism and Liberation, the Socialist Equality Party, the Black Panther Party and others, each with its own newspaper and its own split.',
       'Revolutionary socialism and communism in rival Trotskyist, Maoist and Black liberation traditions.'],
-    vpp: ['1981', 'Grew from the coalition that elected Bernie Sanders mayor of Burlington. Sanders has sat in the Senate for Vermont since 1990, the party\u2019s best-known figure and the one leader the whole far left respects. The strongest third force in Vermont politics.',
+    vpp: ['1981', 'Grew from the coalition that elected Bernie Sanders mayor of Burlington. Sanders has represented Vermont in the House since 1990, the party\u2019s best-known figure and the one leader the whole far left respects. The strongest third force in Vermont politics.',
       'Progressive and populist, with deep local roots.'],
     ul: ['(not yet founded)', 'A United Left alliance has been proposed many times since the 1970s and has never got off the ground.', 'An electoral alliance of the far left.'],
     acp: ['(2020s)', 'Does not exist in this period.', 'Syncretic far left.'],

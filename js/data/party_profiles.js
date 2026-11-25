@@ -86,7 +86,7 @@
     ul: P('alliance', 'Electoral alliance of the far left', { econ: -8, trade: -6, soc: -6, foreign: -7, fed: -2, pop: 5, env: 6 }, [
       ['Reformists', 'Bernie Sanders', 'govern with the SDLP when it counts'],
       ['Hardliners', 'Gloria La Riva', 'no coalitions with capitalist parties'],
-      ['Greens', 'Ralph Nader', 'may leave if the alliance ignores the environment']], { note: 'Does not exist at the start of 1997. Bernie Sanders, Vermont\u2019s Progressive senator, can unite the far left behind it.' }),
+      ['Greens', 'Ralph Nader', 'may leave if the alliance ignores the environment']], { note: 'Does not exist at the start of 1997. Bernie Sanders, Vermont\u2019s Progressive congressman, can unite the far left behind it.' }),
     aga: P('alliance', 'Federation of state Green parties; no fixed left-right line', { econ: -1, trade: -2, soc: 0, foreign: -4, fed: 5, pop: 2, env: 9 }, [
       ['Progressive chapters', 'Greg Gerritt', 'Rhode Island and the Northeast'],
       ['Conservationist chapters', 'Carol Miller', 'Virginia’s Independent Greens and rural chapters']]),

@@ -210,7 +210,7 @@
       ] },
 
     { id: 'sanders', title: 'The far left turns to Sanders', when: function (Q) { return at(Q, 1999, 4) && !Q.flags.sanders && chance(Q, 0.07); },
-      body: function () { return 'The Communist Party, the DSA, Working Families and the Vermont Progressives ask Bernie Sanders, Vermont\u2019s Progressive senator, to chair talks on a single list. Belonging to none of the national far-left parties, he is the one figure they can all accept. He says the left loses because it is divided into a dozen parties, and calls for a United Left.'; },
+      body: function () { return 'The Communist Party, the DSA, Working Families and the Vermont Progressives ask Bernie Sanders, Vermont\u2019s Progressive congressman, to chair talks on a single list. Belonging to none of the national far-left parties, he is the one figure they can all accept. He says the left loses because it is divided into a dozen parties, and calls for a United Left.'; },
       options: [
         { label: 'Welcome a serious voice on the left', sub: 'Relations with the CPUSA up; the New Democrats wince.', act: function (Q) { Q.flags.sanders = S.now(Q); H.rel(Q, 'vpp', 10); H.rel(Q, 'cpusa', 5); H.fac(Q, { newdem: 4, proglib: -2 }); return 'Sanders thanks you, and says he will still run against you.'; } },
         { label: 'Warn about a far-left front', sub: 'New Democrats pleased; the left closes ranks.', act: function (Q) { Q.flags.sanders = S.now(Q); Q.flags.leftSolidarity = 1; H.rel(Q, 'cpusa', -10); H.rel(Q, 'vpp', -6); H.rel(Q, 'grn', -3); H.fac(Q, { newdem: -5, proglib: 4 }); H.camp(Q, { suburb: 0.3, retire: 0.2, young: -0.3 }, 'Response to Sanders'); return 'The attack lands in the suburbs. On the left it makes unity talks easier.'; } },

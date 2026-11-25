@@ -107,15 +107,15 @@
       note: 'The lock expired and Dole asked for an election to coincide with Reagan\u2019s re-election; both chambers agreed. The economy boomed everywhere but the oil patch, where the Texas oil bust gave birth to the Lone Star Party. Reagan nominated the tax-cutter Jack Kemp, who needed the Libertarians for a majority.' },
     { year: 1990, seats: 600, shares: { ldp: 27.0, cc: 26.0, sdlp: 17.0, cdp: 13.0, lib: 4.0, asp: 3.0, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.5, grn: 1.0, vpp: 0.05, oth: 1.45 }, gov: ['ldp', 'cdp'], cs: ['sdlp'], pm: 'Lloyd Bentsen',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD DE IL HI VT ME NH DC CO NM', sdlp: 'MN WI MI WV PA OH', cdp: 'IA', lsp: 'TX', asp: 'UT' },
-      senBoost: { VT: { vpp: 2.6 } }, sen: {'cc': 2, 'ldp': -1}, senInd: {'CT': 33},
+      sen: {'cc': 2, 'ldp': -1}, senInd: {'CT': 33},
       note: 'Called when the lock expired, three months into the Gulf crisis and amid the savings-and-loan collapse and Iran-Contra. The LDP came first for the first time since 1966. Reagan\u2019s first nominee, Kemp again, failed to win an absolute majority; his second, the Texan Lloyd Bentsen (LDP), passed by simple majority at the head of an LDP\u2013CDP minority with SDLP votes for its budgets. Lowell Weicker won Connecticut\u2019s Senate race as an independent.' },
     { year: 1992, seats: 600, shares: { ldp: 28.0, cc: 24.0, sdlp: 18.0, cdp: 11.0, asp: 4.0, lib: 3.5, lsp: 2.0, srp: 2.0, con: 2.0, dsa: 1.2, cnp: 1.0, grn: 1.0, vpp: 0.05, oth: 2.25 }, gov: ['ldp', 'sdlp'], cs: ['asp'], pm: 'Tom Foley',
       top: 'ldp', map: { cc: 'TX AL MS GA SC NC TN FL VA OK KS NE SD ND MT WY ID AZ IN KY AK', sdlp: 'MN WI MI WV PA OH', cdp: 'IA', asp: 'UT', lsp: '', srp: '' },
-      senBoost: { VT: { vpp: 2.6 } }, sen: {'ldp': -1, 'cc': 1},
+      sen: {'ldp': -1, 'cc': 1},
       note: 'Bentsen asked for an early election to coincide with the presidential vote, and both chambers agreed. Ross Perot ran only for President, and many of his voters skipped the House ballot. The newly elected Clinton nominated Tom Foley, who won an absolute majority for an LDP\u2013SDLP government with ASP support.' },
     { year: 1994, seats: 600, shares: { cc: 29.0, ldp: 21.0, cdp: 16.0, sdlp: 15.0, lib: 4.0, asp: 4.0, con: 2.5, lsp: 2.0, srp: 2.0, grn: 1.0, dsa: 1.0, cnp: 1.0, vpp: 0.05, oth: 1.45 }, gov: ['cc', 'cdp'], cs: ['lib', 'lsp'], pm: 'Newt Gingrich',
       top: 'cc', map: { ldp: 'CA OR WA MA RI CT NY NJ MD HI VT DC', sdlp: 'MN WI MI WV', cdp: 'IA DE', asp: 'UT', lsp: 'TX' },
-      senBoost: { VT: { vpp: 2.6 } }, sen: {'cc': 1, 'cdp': 1, 'ldp': -1},
+      sen: {'cc': 1, 'cdp': 1, 'ldp': -1},
       note: 'Foley\u2019s health-care bill died in the Senate, and the ASP withdrew its support. A constructive vote to replace him with Newt Gingrich fell twelve votes short, so with Congress deadlocked Foley asked for an early election and both chambers agreed. Gingrich\u2019s Contract with America won, and Clinton, after first nominating the CDP\u2019s John McCain, who could not win an absolute majority, had to nominate Gingrich, who passed by simple majority.' }
   ];
 

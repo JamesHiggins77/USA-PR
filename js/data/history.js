@@ -111,7 +111,7 @@
     reform: [[1996, 'Ross Perot', 'Dean Barkley']],
     wfp: [[1996, 'Dan Cantor', 'Bertha Lewis']],
     aga: [[1996, 'Jim Sykes', 'Greg Gerritt']],
-    vpp: [[1990, 'Peter Clavelle', 'Bernie Sanders']],
+    vpp: [[1990, 'Bernie Sanders', 'Terry Bouricius']],
     nyfp: [[1990, 'Tom Golisano', 'Lenora Fulani']]
   };
   // {house: {party: name}, senate: {party: name}} for an election year

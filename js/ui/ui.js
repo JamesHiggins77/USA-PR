@@ -500,13 +500,14 @@
     }
     if (sel.kind === 'histgen') {
       var seats = r.house || U.LORE.generalSeats(r), maj = Math.floor(r.seats / 2) + 1;
-      var ord = Object.keys(r.shares).filter(function (k) { return k !== 'oth'; }).sort(function (a, b) { return (seats[b] || 0) - (seats[a] || 0) || (r.shares[b] || 0) - (r.shares[a] || 0); });
+      var ord = Object.keys(r.shares).concat(Object.keys(seats).filter(function (k) { return r.shares[k] == null && seats[k]; })).filter(function (k) { return k !== 'oth'; }).sort(function (a, b) { return (seats[b] || 0) - (seats[a] || 0) || (r.shares[b] || 0) - (r.shares[a] || 0); });
       var gs = r.gov.reduce(function (a, k) { return a + (seats[k] || 0); }, 0), cs = (r.cs || []).reduce(function (a, k) { return a + (seats[k] || 0); }, 0);
       var AB = { dem: 'DEM', rep: 'REP', prog: 'PROG', soc: 'SOC', fl: 'FLP' }, nm = function (k) { return esc(AB[k] || oldParty(k).short); };
       h += '<div class="panel"><h2 style="margin-top:0">' + r.year + ' general election</h2><p>' + esc(r.note) + '</p>';
       h += '<p><b>Government:</b> ' + esc(r.pm) + ' (' + r.gov.map(nm).join('\u2013') + ', ' + gs + ' seats' + (r.cs ? '; confidence and supply from ' + r.cs.map(nm).join(' and ') + ', ' + (gs + cs) + ' in all' : '') + '). Majority: ' + maj + ' of ' + r.seats + '.</p>';
       h += '<div class="bar" style="height:14px;display:flex;margin:6px 0">' + ord.map(function (k) { return seats[k] ? '<i style="position:static;display:block;height:100%;width:' + (seats[k] / r.seats * 100) + '%;background:' + oldParty(k).color + '" title="' + esc(oldParty(k).name) + '"></i>' : ''; }).join('') + '</div>';
       h += '<table class="seats"><tr><th>Party</th><th>Vote</th><th>Seats</th></tr>' + ord.map(function (k) { return '<tr><td>' + ochip(k) + esc(oldParty(k).name) + (r.gov.indexOf(k) >= 0 ? ' <span class="pill yes">gov</span>' : '') + '</td><td>' + (r.shares[k] != null ? (+r.shares[k]).toFixed(1) + '%' : '') + '</td><td><b>' + (seats[k] || 0) + '</b></td></tr>'; }).join('') + (r.shares.oth ? '<tr><td class="muted">Others</td><td>' + r.shares.oth.toFixed(1) + '%</td><td>0</td></tr>' : '') + '</table>';
+      if (r.open && r.open.states) { var o96 = r.open, lf96 = U.LORE.leadersFor(1996); return h + resultsBlock({ states: o96.states, senStates: o96.senStates, national: o96.national, house: o96.house, senate: o96.senate, shares: r.shares, leaders: lf96.house, senLeaders: lf96.senate }) + '</div>'; }
       var gd = U.LORE.generalDetail(r), lf = U.LORE.leadersFor(r.year), lead = lf.house;
       return h + resultsBlock({ states: gd.states, senStates: gd.senStates, national: gd.national, house: gd.house, senate: gd.senate, shares: r.shares, senShares: gd.senShares, leaders: lead, senLeaders: lf.senate, generated: true }) + '</div>';
       var topH;

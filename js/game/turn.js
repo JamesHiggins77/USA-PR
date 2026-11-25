@@ -442,7 +442,7 @@
   S.senLeaderOf = function (Q, p) {
     if (p === 'revsoc') return '(fragmented)';
     Q.senLeaders = Q.senLeaders || {};
-    var cur = Q.senLeaders[p] || SEN0[p], house = S.leaderOf(Q, p);
+    var cur = Q.senLeaders[p] || ((p === 'vpp' || p === 'ul') && (Q.year || 1997) < 2006 ? null : SEN0[p]), house = S.leaderOf(Q, p);
     if (!cur || cur === house || (Q.president && cur === Q.president.name) || (Q.retired && Q.retired[cur]) || (U.activeIn && !U.activeIn(cur, Q.year))) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
     Q.senLeaders[p] = cur; return cur;
   };
