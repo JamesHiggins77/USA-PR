@@ -164,17 +164,31 @@
         { label: 'Middle-class tax cut', sub: 'Popular in the suburbs. CDP pleased, Progressive Liberals not.', act: function (Q) { return K.budget(Q, { name: 'taxcut', spending: 0.6, growth: 0.15, groups: { suburb: 0.8, retire: 0.2, rural: 0.2 }, lean: function (p) { return U.PARTIES[p].econ > 4 ? 0.12 : 0; }, rel: { cdp: 4, sdlp: -3 }, fac: { newdem: -3, proglib: 5 } }); } }
       ] },
 
-    { id: 'dissolve', title: 'Ask the Prime Minister to dissolve', tag: 'Government',
-      cond: function (Q) { return S.pmIsPlayer(Q) && !Q.electionAt && !Q.formation && S.now(Q) >= Q.gov.since + 12; },
+    { id: 'dissolve', title: 'An early election', tag: 'Government',
+      cond: function (Q) { return (S.pmIsPlayer(Q) || (Q.president.party === Q.player && S.canPresidentDissolve(Q))) && !Q.electionAt && !Q.formation && S.now(Q) >= Q.gov.since + 12; },
       body: function (Q) { var d = Q.deadline, y = Math.floor(d / 12), m = d % 12 + 1; return Q.gov.pm + ' leads the government. The election must be called by ' + U.MONTHS[m - 1] + ' ' + y + '. Calling early can catch opponents unprepared, but partners may resent it.'; },
       options: [
-        { label: 'Call the election for two months from now', sub: function (Q) { return Q.flags.clintonEarly === 1 ? 'President Clinton will resign so that a presidential election is held the same day.' : 'Partners lose trust if they are behind in the polls.'; }, act: function (Q) { S.callElection(Q, 2); Q.gov.coalition.concat(Q.gov.cs).forEach(function (p) { if (p !== Q.player && (Q.trend[p] || 0) < 0) H.rel(Q, p, -6); }); Q.morale += 4; return 'The President receives the Prime Minister’s request and dissolves the House.'; } }
+        { label: 'The PM asks Congress for an early election', sub: 'Before the four-year lock ends, both the House and the Senate must agree by simple majorities.',
+          cond: function (Q) { return S.pmIsPlayer(Q) && !S.canPresidentDissolve(Q) ? true : 'Not needed: the President may dissolve.'; },
+          act: function (Q) { var v = S.earlyElectionVote(Q); Q.lastVote = { title: 'Early election', house: v.house, senate: v.senate };
+            if (!v.passed) { Q.leader.approval -= 3; return 'Congress refuses an early election (House ' + v.house.yes + '–' + v.house.no + ', Senate ' + v.senate.yes + '–' + v.senate.no + ').'; }
+            S.callElection(Q, 2); Q.morale += 4; return 'Both chambers agree (House ' + v.house.yes + '–' + v.house.no + ', Senate ' + v.senate.yes + '–' + v.senate.no + '). The President dissolves Congress.'; } },
+        { label: 'The President dissolves Congress', sub: function (Q) { return Q.flags.clintonEarly === 1 ? 'President Clinton will resign so that a presidential election is held the same day.' : 'Partners lose trust if they are behind in the polls.'; }, cond: function (Q) { if (!S.canPresidentDissolve(Q)) return 'The four-year lock runs until ' + U.MONTHS[Q.gov.lockUntil % 12] + ' ' + Math.floor(Q.gov.lockUntil / 12) + '.'; return Q.president.party === Q.player || (Q.trend[Q.president.party] || 0) >= 0 ? true : 'President ' + Q.president.name + ' will not dissolve while the ' + U.PARTIES[Q.president.party].short + ' is falling in the polls.'; },
+          act: function (Q) { S.callElection(Q, 2); if (Q.gov) Q.gov.coalition.concat(Q.gov.cs).forEach(function (p) { if (p !== Q.player && (Q.trend[p] || 0) < 0) H.rel(Q, p, -6); }); Q.morale += 4; return 'President ' + Q.president.name + ' dissolves Congress.'; } }
       ] },
 
     // ---- opposition ----
     { id: 'noconf', title: 'A motion of no confidence', tag: 'Opposition',
       cond: function (Q) { return Q.gov && !S.supportsGov(Q) && !Q.formation && !Q.electionAt; },
-      body: function (Q) { return 'The government relies on ' + S.govSeats(Q) + ' of ' + U.RULES.house.total + ' seats. A motion needs ' + U.majority() + ' votes.'; },
+      body: function (Q) { return 'The government relies on ' + S.govSeats(Q) + ' of ' + U.RULES.house.total + ' seats. Votes of no confidence are constructive: the motion must name a new Prime Minister, who needs ' + U.majority() + ' votes.'; },
+      options: function (Q) { return C.formateurs(Q).filter(function (p) { return p !== Q.gov.pmParty && (p !== Q.player || (Q.house[Q.player] || 0) >= 40); }).map(function (p) {
+        var me = p === Q.player, nm = me ? Q.leader.name : S.pmName(Q, p);
+        return { label: 'Propose ' + nm + ' (' + U.PARTIES[p].short + ') as Prime Minister', sub: me ? 'The LDP would lead the new government.' : 'The LDP backs another party’s leader.',
+          act: function (Q) { var v = S.constructiveVote(Q, p); Q.lastVote = { title: 'Constructive no-confidence: ' + nm, house: v.count };
+            if (v.passed) { var old = Q.gov.pm; S.formGovernment(Q, v.deal, nm); return 'The motion passes, ' + v.count.yes + ' to ' + v.count.no + '. ' + old + ' is out; ' + nm + ' becomes Prime Minister.'; }
+            Q.govApproval += 3; Q.morale -= 3; return 'The motion fails: ' + v.count.yes + ' for ' + nm + ', ' + v.count.no + ' against. An absolute majority was needed.'; } };
+      }); } },
+    { id: 'noconf_old', title: 'unused', tag: 'Opposition', cond: function () { return false; }, body: function () { return ''; },
       options: [
         { label: 'Table the motion', sub: 'If it fails, the government is strengthened.', act: function (Q) {
           var res = U.Parliament.count(Q, 'house', function (p) { if (p === Q.player) return 'yes'; if (S.supportsGov(Q, p)) return C.rel(Q, p, Q.gov.pmParty) < 25 ? 'abstain' : 'no'; return C.compat(Q, p, Q.gov.pmParty) > 0.6 ? 'abstain' : (C.rel(Q, p, Q.player) > 35 ? 'yes' : 'abstain'); });
@@ -230,13 +244,20 @@
       return db < dq - 0.5 ? 'yes' : db < dq + 1.5 ? 'abstain' : 'no';
     };
     var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
-    var passed = U.simple(h) && (s.yes > s.no || U.absolute(h));
-    var vetoed = false;
-    if (passed && Q.president.party !== Q.player && !S.inGov(Q, Q.president.party)) {
+    var objects = false;
+    if (Q.president.party !== Q.player && !S.inGov(Q, Q.president.party)) {
       var pd = U.Electoral.dist(pos[Q.president.party] || ppos, bpos);
-      if (pd > 7 && U.rng(Q) < 0.6) vetoed = !(U.absolute(h) && s.yes >= 101);
+      objects = pd > 7 && U.rng(Q) < 0.6;
     }
+    var proc = S.legislativeProcess(Q, h, s, objects), passed = proc.status === 'law', vetoed = proc.status === 'presVeto' || proc.status === 'senateVeto';
     out.push('House: ' + h.yes + ' yes, ' + h.no + ' no, ' + h.abstain + ' abstaining. Senate: ' + s.yes + '–' + s.no + '.');
+    if (proc.status === 'delayed') {
+      Q.delayedBills = (Q.delayedBills || []).concat([{ id: pol.id, due: S.now(Q) + U.RULES.constitution.senateDelayMonths }]);
+      Q.passed = Q.passed || {}; Q.passed[pol.id] = -1;
+      out.push('<b>' + proc.text + '</b> It becomes law automatically when the delay runs out.');
+      Q.lastVote = { title: pol.name, house: h, senate: s };
+      return out.join(' ');
+    }
     if (passed && !vetoed) {
       Q.passed = Q.passed || {}; Q.passed[pol.id] = S.now(Q);
       H.camp(Q, pol.groups, 'Legislation: ' + pol.name);
@@ -248,8 +269,8 @@
       Q.govApproval += 1;
       out.push('<b>The bill becomes law.</b>');
     } else if (vetoed) {
-      out.push('<b>President ' + Q.president.name + ' vetoes the bill.</b> Parliament lacks the absolute majorities to override.');
-      C.addRel(Q, Q.player, Q.president.party, -5);
+      out.push('<b>' + proc.text + '</b>');
+      if (proc.status === 'presVeto') C.addRel(Q, Q.player, Q.president.party, -5);
     } else { out.push('<b>The bill is defeated.</b>'); Q.govApproval -= 2; H.fac(Q, { proglib: 2, newdem: 2 }); }
     Q.lastVote = { title: pol.name, house: h, senate: s };
     return out.join(' ');

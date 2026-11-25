@@ -557,6 +557,9 @@
         Q.formation = null; S.callElection(Q, 2);
       }
     } else { S.confidenceCheck(Q); S.electionTiming(Q); }
+    // bills delayed by the Senate become law when the delay runs out
+    (Q.delayedBills || []).forEach(function (b) { if (!b.done && S.now(Q) >= b.due) { b.done = true; var pol = U.Content.POLICIES.filter(function (x) { return x.id === b.id; })[0];
+      if (pol) { Q.passed[pol.id] = S.now(Q); V.campaign(Q, Q.player, pol.groups, 'Legislation: ' + pol.name); Q.spending = (Q.spending || 0) + pol.cost; S.note(Q, 'The Senate’s delay runs out: ' + pol.name + ' becomes law.'); } } });
     // unpaid concessions erode trust
     (Q.pendingConcessions || []).forEach(function (c) {
       if (!c.done && S.now(Q) > c.due) { C.addRel(Q, c.party, Q.gov ? Q.gov.pmParty : Q.player, -1.5); }

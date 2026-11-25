@@ -147,3 +147,15 @@ test('senate: 2-1 normally, 1-1-1 in near-ties, 3-0 in landslides', () => {
   assert.deepStrictEqual(S({ a: 26, b: 25, c: 20 }), { a: 1, b: 1, c: 1 });
   assert.deepStrictEqual(S({ a: 50, b: 20, c: 10 }), { a: 3 });
 });
+
+test('constitution: Senate veto/delay, presidential veto override, budgets bypass the Senate', () => {
+  const Q = U.Game.newGame(3), S = U.Game;
+  const sen = U.sum(U.Elections.senateCount(Q));
+  const h = (y, n) => ({ yes: y, no: n, abstain: 600 - y - n });
+  assert.strictEqual(S.legislativeProcess(Q, h(250, 300), { yes: 150, no: 50 }, false).status, 'defeated');
+  assert.strictEqual(S.legislativeProcess(Q, h(320, 280), { yes: 50, no: Math.ceil(sen * 2 / 3) }, false).status, 'senateVeto');
+  assert.strictEqual(S.legislativeProcess(Q, h(320, 280), { yes: 80, no: 120 }, false).status, 'delayed');
+  assert.strictEqual(S.legislativeProcess(Q, h(320, 280), { yes: 120, no: 80 }, true).status, 'presVeto');
+  assert.strictEqual(S.legislativeProcess(Q, h(400, 200), { yes: 120, no: 80 }, true).status, 'law');
+  assert.strictEqual(U.RULES.government.budgetSenate, 'none');
+});

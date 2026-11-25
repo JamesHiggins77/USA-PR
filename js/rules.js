@@ -31,6 +31,15 @@
       closeLead: 2, sweepRatio: 2, sweepLead: 15,
       legislatureSeat: 'state-house'    // the 4th senator is elected by the lower house (Nebraska: its legislature)
     },
+    constitution: {
+      dissolutionLockMonths: 48,        // no dissolution for 4 years after a government forms (unless the PM asks and both chambers agree, or a new President)
+      openTalksMonths: 3,               // after both presidential nominees fail
+      senateVetoShare: 2 / 3,           // the Senate kills a House bill with two-thirds
+      senateDelayMonths: 24,            // or delays it with a simple majority
+      vetoOverrideHouseShare: 2 / 3,    // a presidential veto falls to 2/3 of the House plus a simple Senate majority
+      impeachShare: 2 / 3,              // the Senate removes the President with two-thirds
+      noConfidence: 'constructive'      // since 1974: the motion names a new PM, who needs an absolute majority
+    },
     president: {
       termYears: 6, lastElection: { year: 1992, month: 11 },   // designer canon: 6-year terms; Clinton elected 1992, up again November 1998
       termLimit: 2,
@@ -44,9 +53,9 @@
       investitureFirstBallot: 'absolute', // a majority of the House
       investitureSecondBallot: 'simple',  // more yes than no
       formationMonthsBeforeRepeat: 3,
-      maxTermMonths: 48,
-      noConfidence: 'absolute',           // a majority of the House topples the PM
-      budgetSenate: 'must-pass-or-override', // House can override the Senate with a majority of its members
+      maxTermMonths: 60,               // the latest a general election can be held after the last
+      noConfidence: 'constructive',       // see constitution
+      budgetSenate: 'none',               // the Senate cannot delay or veto budgets
       handSize: 5,                      // cards held; one card played or discarded per month
       cardBoost: 2.0                    // card effect multiplier (one action a month)
     },

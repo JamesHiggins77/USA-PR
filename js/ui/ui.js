@@ -58,7 +58,7 @@
     var h = '<div class="date">' + U.dateStr(Q) + '</div>';
     h += '<div class="kv"><span>Cards in hand</span><b>' + Q.hand.filter(Boolean).length + ' / ' + Dk.HAND + '</b></div>';
     h += '<h4>Government</h4>';
-    if (Q.formation) h += '<div>Caretaker. <b>Government formation</b> under way (' + Q.formation.monthsLeft + ' months before a repeat election).</div>';
+    if (Q.formation) h += '<div>' + (Q.gov && Q.gov.senateCaretaker ? 'Senate-appointed caretaker. ' : 'Caretaker. ') + '<b>Government formation</b> under way' + (Q.formation.stage === 'open' ? ' (' + Q.formation.monthsLeft + ' months before a new election)' : ' (presidential nomination ' + Q.formation.round + ' of 2)') + '.</div>';
     else if (g) h += '<div>PM <b>' + esc(g.pm) + '</b> (' + P(g.pmParty).short + ')</div><div class="small">' + g.coalition.map(function (p) { return chip(p) + P(p).short; }).join(' ') + (g.cs.length ? ' &middot; C&amp;S: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') : '') + '</div><div class="kv"><span>Seats</span><b>' + S.govSeats(Q) + ' / ' + U.RULES.house.total + '</b></div>';
     h += '<div class="kv"><span>Gov. approval</span><b>' + Math.round(Q.govApproval) + '%</b></div>';
     h += '<div class="kv"><span>President</span><b>' + esc(Q.president.name) + ' (' + P(Q.president.party).short + ')</b></div>';
@@ -105,8 +105,11 @@
     var h = '<div class="date">' + U.dateStr(Q) + '</div><h1>The LDP’s office</h1>';
     if (lastText) h += '<div class="result">' + lastText + '</div>';
     if (Q.formation) {
-      h += '<div class="panel"><b>Government formation.</b> No party has a majority on its own. ' + (F.canNegotiate(Q) ? 'You can open negotiations for ' + esc(Q.leader.name) + ' to become Prime Minister.' : (Q.formation && (Q.house[Q.player] || 0) < 40 ? 'The LDP is too small to lead a government.' : 'Talks resume next month.')) +
-        ' Other parties will try if you do not.<div class="row" style="margin-top:8px"><button class="btn" data-act="negotiate"' + (F.canNegotiate(Q) ? '' : ' disabled') + '>Open the negotiating table</button></div></div>';
+      var fm = Q.formation, stageTxt = fm.stage === 'nominee'
+        ? (fm.round === 1 ? 'First presidential nomination: the nominee needs an absolute majority (' + U.majority() + ').' : 'Second nomination: a simple majority is enough. If it fails, the House gets three months and the Senate appoints a caretaker.') + ' ' + (fm.nominee ? 'Nominee: <b>' + esc(fm.nominee === Q.player ? Q.leader.name : S.pmName(Q, fm.nominee)) + '</b> (' + P(fm.nominee).short + ').' : 'Waiting for the President\u2019s nomination.')
+        : 'Open talks: ' + fm.monthsLeft + ' month' + (fm.monthsLeft === 1 ? '' : 's') + ' left before a new election.';
+      h += '<div class="panel"><b>Government formation.</b> ' + stageTxt + ' ' + (F.canNegotiate(Q) ? 'You can open negotiations for ' + esc(Q.leader.name) + ' to become Prime Minister.' : fm.stage === 'nominee' ? '' : ((Q.house[Q.player] || 0) < 40 ? 'The LDP is too small to lead a government.' : 'Talks resume next month.')) +
+        '<div class="row" style="margin-top:8px"><button class="btn" data-act="negotiate"' + (F.canNegotiate(Q) ? '' : ' disabled') + '>Open the negotiating table</button></div></div>';
     }
     var empty = Q.hand.filter(function (x) { return !x; }).length;
     h += '<h2>Decks</h2><p class="small muted">Click a deck to draw a card into your hand' + (empty ? ' (' + empty + ' empty slot' + (empty > 1 ? 's' : '') + ')' : ' (your hand is full)') + '. Drawing takes no time.</p><div class="decks">';
@@ -233,7 +236,7 @@
     if (g) {
       h += '<div class="panel"><b>' + (Q.formation ? 'Caretaker government' : 'Government') + ':</b> ' + esc(g.pm) + ' (' + P(g.pmParty).short + '). Cabinet: ' + Object.keys(g.posts).map(function (p) { return P(p).short + ' ' + g.posts[p]; }).join(', ') + '. ' + (g.cs.length ? 'Confidence and supply: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') + '. ' : '') + 'Since ' + U.MONTHS[g.since % 12] + ' ' + Math.floor(g.since / 12) + '.</div>';
       if (Q.cabinet && Q.cabinet.length) h += '<h3>Cabinet</h3><table><tr><th>Portfolio</th><th>Minister</th><th>Party</th></tr><tr><td>Prime Minister</td><td>' + esc(g.pm) + '</td><td>' + chip(g.pmParty) + P(g.pmParty).short + '</td></tr>' +
-        Q.cabinet.map(function (c) { return '<tr><td>' + esc(c.post) + '</td><td>' + esc(c.name) + '</td><td>' + chip(c.party) + P(c.party).short + '</td></tr>'; }).join('') + '</table>';
+        Q.cabinet.map(function (c) { return '<tr><td>' + esc(c.post) + '</td><td>' + esc(c.name) + (c.by === 'president' ? ' <span class="small muted">(President’s appointee)</span>' : '') + '</td><td>' + chip(c.party) + P(c.party).short + '</td></tr>'; }).join('') + '</table>';
       var pend = (Q.pendingConcessions || []).filter(function (c) { return !c.done; });
       if (pend.length) h += '<h3>Outstanding commitments</h3><table>' + pend.map(function (c) { var due = c.due; return '<tr><td>' + esc(c.text) + '</td><td>' + P(c.party).short + '</td><td class="' + (S.now(Q) > due ? 'down' : '') + '">due ' + U.MONTHS[due % 12].slice(0, 3) + ' ' + Math.floor(due / 12) + '</td></tr>'; }).join('') + '</table>';
     }
