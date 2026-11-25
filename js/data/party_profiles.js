@@ -119,7 +119,7 @@
     // ---- future parties (dormant in 1997) ----
     acp: P('future', 'Syncretic far left (2020s)', { econ: -9, trade: -8, soc: 1, foreign: -8, fed: -6, pop: 9, env: -2 }, [['MAGA Communists', 'Jackson Hinkle', 'patriotic socialism'], ['Labor wing', 'Haz Al-Din', 'industrial workers first']]),
     maga: P('future', 'National populism', { econ: 3, trade: -8, soc: 8, foreign: -4, fed: 4, pop: 10, env: -8 }, [['Trumpists', 'Donald Trump', 'America First, tariffs, the wall'], ['Christian nationalists', 'Josh Hawley', 'religious conservatism'], ['National conservatives', 'J. D. Vance', 'industrial policy and a post-liberal right'], ['Freedom Caucus', 'Marjorie Taylor Greene', 'fight the establishment, shut down the government if needed'], ['Tech right', 'Elon Musk', 'deregulation, cutting the federal workforce'], ['MAHA', 'Robert F. Kennedy Jr.', 'health populism and suspicion of big pharma']]),
-    afp: P('future', 'Hard-right nationalism', { econ: 4, trade: -9, soc: 10, foreign: -6, fed: 6, pop: 9, env: -9 }, [['Groypers', 'Nick Fuentes', 'white Christian nationalism'], ['Paleoconservatives', 'Pat Buchanan', 'tariffs, immigration restriction, non-intervention']]),
+    afp: P('future', 'Hard-right nationalism', { econ: 4, trade: -9, soc: 10, foreign: -6, fed: 6, pop: 9, env: -9 }, [['Groypers', 'Nick Fuentes', 'white Christian nationalism'], ['Post-liberal nationalists', 'Tucker Carlson', 'post-liberal nationalism: tariffs, immigration restriction, non-intervention, hostility to elites and to liberal institutions'], ['Fascists', 'no public leader', 'openly fascist: one-party rule under a strongman, ethnic nationalism, an end to elections']]),
     // ---- former parties ----
     dem: P('former', 'Before 1966: the big-tent party of the Solid South and the northern cities. After 1966: the southern rump, segregationist and conservative', { econ: -1, trade: -2, soc: 4, foreign: 3, fed: 6, pop: 3, env: -4 }, [
       ['Southern Democrats', 'Richard Russell', 'seniority, segregation, states’ rights; stayed in 1966'],
@@ -226,7 +226,7 @@
     ['Donald Trump', 'maga', 'Trumpists', 'backed Reform in 1998; founds MAGA in the 2010s'],
     ['J. D. Vance', 'maga', 'National conservatives', ''],
     ['Steve Bannon', 'maga', 'National conservatives', ''],
-    ['Tucker Carlson', 'maga', 'National conservatives', ''],
+    ['Tucker Carlson', 'afp', 'Post-liberal nationalists', 'leaves MAGA as too establishment'],
     ['Josh Hawley', 'maga', 'Christian nationalists', ''],
     ['Marjorie Taylor Greene', 'maga', 'Freedom Caucus', ''],
     ['Matt Gaetz', 'maga', 'Freedom Caucus', ''],
