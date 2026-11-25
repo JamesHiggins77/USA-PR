@@ -376,7 +376,7 @@
         (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(lead[p] || '') + '</i></td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td><b>' + seats[p] + '</b></td></tr>'; }).join('') +
       '<tr><td colspan="4" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
     genData = data;
-    h += '<div id="genmap">' + Ch.resultMap(Q, data, sen || !r.national ? null : { inset: { title: 'National list (' + U.sum(r.national) + ' seats)', seats: r.national } }) + '</div>';
+    h += '<div id="genmap">' + Ch.resultMap(Q, data, sen || !r.national ? null : { inset: { title: 'National list (' + U.sum(r.national) + ' seats)', seats: r.national, shares: r.shares } }) + '</div>';
     h += '<p class="small muted">' + (sen ? 'Each dot is a senator: three elected by PR and one chosen by the state house (' + tot + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
     return h;
   }

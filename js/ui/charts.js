@@ -86,6 +86,8 @@
   };
   Ch.bandLabels = ['<25%', '25%', '30%', '35%', '40%', '45%', '50%+'];
   // a block of seat dots centred on (cx, cy); seats: {party: n}
+  // seats won first, then vote share
+  function byResult(d) { d = d || {}; var se = d.seats || {}, sh = d.shares || {}; return function (ks) { return ks.sort(function (a, b) { return (se[b] || 0) - (se[a] || 0) || (sh[b] || 0) - (sh[a] || 0); }); }; }
   function dots(seats, cx, cy, maxCols, order, colorOf) {
     var list = []; order(Object.keys(seats)).forEach(function (p) { for (var i = 0; i < seats[p]; i++) list.push(p); });
     var n = list.length; if (!n) return { svg: '', h: 0 };
@@ -106,20 +108,20 @@
     Object.keys(G).forEach(function (id) {
       var g = G[id], c = fill(id), ink = Ch.ink(c), small = SMALL.indexOf(id) >= 0;
       out += '<g class="tile" data-state="' + id + '"><path d="' + g.d + '" fill="' + c + '" stroke="var(--bg)" stroke-width="0.8"></path>';
-      if (!small) { var d = dots((data[id] || {}).seats || {}, g.c[0], g.c[1] + 2, id === 'CA' || id === 'TX' ? 8 : 6, order, col);
+      if (!small) { var d = dots((data[id] || {}).seats || {}, g.c[0], g.c[1] + 2, id === 'CA' || id === 'TX' ? 8 : 6, byResult(data[id]), col);
         out += '<text x="' + g.c[0] + '" y="' + (g.c[1] - 3) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + ';pointer-events:none">' + id + '</text><g style="pointer-events:none">' + d.svg + '</g>'; }
       out += '<title>' + (U.STATES[id] || U.DC).name + '</title></g>';
     });
     var y = 150;
     SMALL.forEach(function (id) {
-      var c = fill(id), ink = Ch.ink(c), x = 912, g = G[id], d = dots((data[id] || {}).seats || {}, x + 33, y + 17, 8, order, col), hgt = Math.max(24, 20 + d.h);
+      var c = fill(id), ink = Ch.ink(c), x = 912, g = G[id], d = dots((data[id] || {}).seats || {}, x + 33, y + 17, 8, byResult(data[id]), col), hgt = Math.max(24, 20 + d.h);
       out += '<g class="tile" data-state="' + id + '"><line x1="' + g.c[0] + '" y1="' + g.c[1] + '" x2="' + x + '" y2="' + (y + 10) + '" stroke="currentColor" stroke-opacity=".25"/>' +
         '<rect x="' + x + '" y="' + y + '" width="62" height="' + hgt + '" rx="4" fill="' + c + '"></rect>' +
         '<text x="' + (x + 33) + '" y="' + (y + 11) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + '">' + id + '</text>' + d.svg + '<title>' + (U.STATES[id] || U.DC).name + '</title></g>';
       y += hgt + 4;
     });
     var bottom = Math.max(610, y + 10);
-    if (opts.inset) { var dd = dots(opts.inset.seats, 487, bottom + 28, 34, order, col);
+    if (opts.inset) { var dd = dots(opts.inset.seats, 487, bottom + 28, 34, byResult({ seats: opts.inset.seats, shares: opts.inset.shares }), col);
       out += '<g><rect x="317" y="' + (bottom + 4) + '" width="340" height="' + (dd.h + 32) + '" rx="6" fill="none" stroke="currentColor" stroke-opacity=".3"/><text x="487" y="' + (bottom + 18) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">' + opts.inset.title + '</text>' + dd.svg + '</g>';
       bottom += dd.h + 40; }
     return '<svg viewBox="0 0 975 ' + bottom + '" width="100%" style="color:var(--ink)">' + out + '</svg>';
