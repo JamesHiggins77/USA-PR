@@ -36,7 +36,7 @@
       'Populist centrism: balanced budgets, term limits, campaign finance reform, opposition to NAFTA, and a distrust of both big parties.'],
     grn: ['1984', 'Grew out of the anti-nuclear and environmental movements of the 1970s and early 1980s, alongside the state Green parties that later formed the American Green Alliance. A marginal force until Ralph Nader took the leadership in the late 1990s.',
       'Eco-socialist and progressive: environmental protection, grassroots democracy, social justice and non-violence, with deep hostility to corporate power.'],
-    cpusa: ['1919', 'The Communist Party USA, founded in the wake of the Russian Revolution. It peaked in the 1930s labor struggles, was hounded in the 1950s, and lost most of its members after 1956. It held one or two House seats under PR in most decades.',
+    cpusa: ['1919', 'The Communist Party USA, founded in the wake of the Russian Revolution. The Depression made it a real force: under statewide PR it won 11 to 13 House seats from 1932 to 1944, from New York, Illinois and California, and backed the war effort. The Red Scare cut it to a single seat by 1950 and none from 1953, and it lost most of its members after Hungary in 1956. It recovered a seat or two in the 1960s, 70s and 80s with the civil-rights and anti-war left, then lost them again after the fall of the Berlin Wall and the Soviet collapse.',
       'Marxist-Leninist, though by the 1990s mainly a party of labor militancy and civil rights.'],
     dsa: ['1982', 'Democratic Socialists of America, formed by left-wing SDLP dissidents and New Left veterans who thought the SDLP had made its peace with capitalism.',
       'Democratic socialism: social ownership, union power, universal public services, achieved through elections.'],
