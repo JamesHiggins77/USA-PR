@@ -18,8 +18,7 @@
     ['Midwest', 'OH MI IN IL WI MN IA MO', '#5f9e8f'],
     ['Great Plains', 'ND SD NE KS OK', '#b8a36a'],
     ['Rockies', 'MT ID WY CO UT', '#8f6f5a'],
-    ['West Coast', 'CA OR WA', '#4f8fc0'],
-    ['Alaska and Hawaii', 'AK HI', '#a57fa0']
+    ['Pacific', 'CA OR WA AK HI', '#4f8fc0']
   ];
   X.regionOf = function (sid) { for (var i = 0; i < X.REGIONS.length; i++) if ((' ' + X.REGIONS[i][1] + ' ').indexOf(' ' + sid + ' ') >= 0) return X.REGIONS[i]; return null; };
 
