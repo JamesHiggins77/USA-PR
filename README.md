@@ -15,7 +15,7 @@ Each month you either **play one card** (choose one of its options) or **discard
 ## What is simulated
 
 - **House (600)**: two-tier proportional representation. 100 national list seats (5% national threshold) plus 500 state list seats (shared by population, no threshold), by Sainte-Laguë. Majority 301; the President breaks a tie.
-- **Senate (200)**: per state, one directly elected seat (two rounds, staggered), plus appointments by the governor, state house and state senate. Nebraska is unicameral, so its governor appoints three.
+- **Senate (200)**: 4 per state. Three are elected statewide at each general election: the largest party wins 2 and the runner-up 1; a lead under 2 points gives 1-1-1, and a landslide (twice the runner-up's vote and 15+ points ahead) gives 3-0. The fourth is chosen by the state house (Nebraska: its unicameral legislature).
 - **States**: two-round governors, constituency-PR state houses, statewide-PR state senates with the fixed 5% threshold. State results determine Senate appointments.
 - **President**: a six-year term, elected in two rounds that are always held: a national popular vote, then a head-to-head runoff between the top two decided by the Electoral College, where each state's winner takes all its electors. There are joint tickets and endorsements.
 - **Government formation**: investiture votes (401 on the first ballot, more yes than no on the second), coalitions vs confidence and supply, cabinet posts, concessions, red lines, and AI formateurs who can offer the LDP a role.

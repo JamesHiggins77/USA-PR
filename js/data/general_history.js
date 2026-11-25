@@ -159,7 +159,7 @@
       var won = D.divisor(v[s], seatsOf[s], 'sainte-lague', 0), seats = {}; for (var p in won) if (won[p]) { seats[p] = won[p]; house[p] = (house[p] || 0) + won[p]; }
       states[s] = { seats: seats, shares: sh };
       if (s === 'DC') return;
-      var sw = D.divisor(v[s], 3, 'sainte-lague', 0), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
+      var sw = D.senateSeats(v[s]), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
       var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0];
       for (p in ss) senate[p] = (senate[p] || 0) + ss[p];
       senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: sh, leg: leg };

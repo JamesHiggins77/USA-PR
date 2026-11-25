@@ -195,7 +195,7 @@
     Object.keys(U.STATES).forEach(function (sid) {
       var seats = Q.senateSeats.filter(function (x) { return x.state === sid; });
       var sh = V.stateShares(Q, U.STATES[sid]);
-      var won = E.divisor(sh, R.senate.prSeatsPerState, R.senate.prFormula, R.senate.prThreshold), list = [];
+      var won = E.senateSeats(sh), list = [];
       Object.keys(won).sort(function (a, b) { return won[b] - won[a] || sh[b] - sh[a]; }).forEach(function (p) { for (var i = 0; i < won[p]; i++) list.push(p); });
       seats.filter(function (x) { return x.type === 'pr'; }).forEach(function (x, i) { x.party = list[i]; });
       seats.filter(function (x) { return x.type === 'house'; }).forEach(function (x) { x.party = X.legislatureSenator(Q, sid); });

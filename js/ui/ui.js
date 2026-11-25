@@ -28,7 +28,7 @@
       var PI = U.partyInfo, ochipK = function (p) { return '<i class="chip" style="background:' + PI(p).color + '"></i>'; };
       U.Zoom.attach($('genmap'), 'genmap', function (t) {
         var sid = t.dataset.state, st = genData && genData[sid]; if (!st) return null;
-        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(st.seats) ? '<div class="muted">' + U.sum(st.seats) + (genMode === 'senate' ? ' senators elected by PR' : ' House seats') + '</div>' : '') +
+        return '<b>' + esc((U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(st.seats) ? '<div class="muted">' + U.sum(st.seats) + (genMode === 'senate' ? ' senators elected statewide' : ' House seats') + '</div>' : '') +
           Object.keys(st.seats).sort(function (a, b) { return st.seats[b] - st.seats[a]; }).map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + st.seats[p] + '</b></div>'; }).join('') +
           (st.leg ? '<div class="muted" style="margin-top:4px">Chosen by the legislature</div><div class="kv"><span>' + ochipK(st.leg) + PI(st.leg).short + '</span><b>1</b></div>' : '') + '<div class="muted" style="margin-top:4px">Vote</div>' + Object.keys(st.shares).sort(function (a, b) { return st.shares[b] - st.shares[a]; }).map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + st.shares[p].toFixed(1) + '%</b></div>'; }).join('');
       });
@@ -137,7 +137,7 @@
       var r = elec.general, seats = r.house, order = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a]; });
       h += '<h1>General election, ' + r.date + '</h1><div class="grid2"><div>' + Ch.hemicycle(Q, seats) + '</div><div><table><tr><th>Party</th><th>Vote</th><th>Districts</th><th>List</th><th>Seats</th><th>+/−</th></tr>' +
         order.map(function (p) { var d = seats[p] - (r.before[p] || 0); return '<tr><td>' + chip(p) + P(p).short + '</td><td>' + pct(r.shares[p] || 0) + '</td><td>' + (r.distWon[p] || 0) + '</td><td>' + (r.pr[p] || 0) + '</td><td><b>' + seats[p] + '</b></td><td class="' + (d > 0 ? 'up' : d < 0 ? 'down' : '') + '">' + sign(d, 0) + '</td></tr>'; }).join('') + '</table>' +
-        '<p class="small muted">' + (r.districts ? r.runoffs + ' of ' + r.districts + ' district seats went to a second round. ' : '') + r.govFlips + ' governorships changed hands; ' + 'In each state, three senators were elected by PR and the state house elected the fourth.</p></div></div>';
+        '<p class="small muted">' + (r.districts ? r.runoffs + ' of ' + r.districts + ' district seats went to a second round. ' : '') + r.govFlips + ' governorships changed hands; ' + 'In each state, the largest party won two Senate seats and the runner-up one (1-1-1 in near-ties, 3-0 in landslides); the state house elected the fourth.</p></div></div>';
       h += '<h2>Senate</h2>' + Ch.hemicycle(Q, r.senate) + Ch.seatTable(Q, r.senate, function (p) { return r.senate[p] - (r.beforeSenate[p] || 0); });
       if (r.close.length) h += '<h3>Closest runoffs</h3><table><tr><th>District</th><th>Result</th></tr>' + r.close.map(function (c) { return '<tr><td>' + c.state + '-' + c.n + '</td><td>' + chip(c.a) + P(c.a).short + ' ' + c.va.toFixed(1) + ' – ' + c.vb.toFixed(1) + ' ' + P(c.b).short + chip(c.b) + '</td></tr>'; }).join('') + '</table>';
       h += '<h3>Coalition arithmetic</h3>' + arithmetic(seats);
@@ -378,7 +378,7 @@
     genData = data;
     var legs = null; if (sen) { legs = {}; for (var ls in data) if (data[ls].leg) legs[data[ls].leg] = (legs[data[ls].leg] || 0) + 1; if (!U.sum(legs)) legs = null; }
     h += '<div id="genmap">' + Ch.resultMap(Q, data, sen ? (legs ? { inset: { title: 'Chosen by state legislatures (' + U.sum(legs) + ' senators)', seats: legs, shares: r.shares } } : null) : r.national ? { inset: { title: 'National list (' + U.sum(r.national) + ' seats)', seats: r.national, shares: r.shares } } : null) + '</div>';
-    h += '<p class="small muted">' + (sen ? 'Each dot on the map is a senator elected by PR (three per state); the senators chosen by state legislatures are in the box below (' + tot + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
+    h += '<p class="small muted">' + (sen ? 'Each dot on the map is a senator elected statewide (largest party 2, runner-up 1; 1-1-1 if within 2 points, 3-0 in a landslide); the senators chosen by state legislatures are in the box below (' + tot + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
     return h;
   }
 

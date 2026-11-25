@@ -33,6 +33,18 @@
     return out;
   };
 
+  // The three PR Senate seats of a state. shares: {party: %}. Returns {party: seats}.
+  E.senateSeats = function (shares) {
+    var R = U.RULES.senate, n = R.prSeatsPerState;
+    if (R.prFormula !== 'majority-minority') return E.divisor(shares, n, R.prFormula, R.prThreshold);
+    var ks = Object.keys(shares).filter(function (p) { return shares[p] > 0; }).sort(function (a, b) { return shares[b] - shares[a] || (a < b ? -1 : 1); });
+    var out = {}, a = shares[ks[0]] || 0, b = shares[ks[1]] || 0;
+    if (ks.length < 2 || (a >= R.sweepRatio * b && a - b >= R.sweepLead)) out[ks[0]] = n;
+    else if (a - b < R.closeLead && ks.length >= 3) { out[ks[0]] = 1; out[ks[1]] = 1; out[ks[2]] = n - 2; }
+    else { out[ks[0]] = n - 1; out[ks[1]] = 1; }
+    return out;
+  };
+
   // Ideological distance between two parties (positions object {econ, soc, fed}).
   E.dist = function (a, b) {
     var de = a.econ - b.econ, ds = a.soc - b.soc, df = (a.fed || 0) - (b.fed || 0);

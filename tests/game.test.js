@@ -140,3 +140,10 @@ test('historical general elections: every government holds a majority', () => {
     assert.ok(g > e.seats / 2, e.year + ' government majority');
   }
 });
+
+test('senate: 2-1 normally, 1-1-1 in near-ties, 3-0 in landslides', () => {
+  const S = U.Electoral.senateSeats;
+  assert.deepStrictEqual(S({ a: 30, b: 25, c: 20 }), { a: 2, b: 1 });
+  assert.deepStrictEqual(S({ a: 26, b: 25, c: 20 }), { a: 1, b: 1, c: 1 });
+  assert.deepStrictEqual(S({ a: 50, b: 20, c: 10 }), { a: 3 });
+});
