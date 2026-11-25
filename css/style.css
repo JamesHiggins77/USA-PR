@@ -206,3 +206,4 @@ table.demo td:last-child, table.demo td:first-child { white-space: nowrap; }
 .xtab label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 2px; }
 .xtab select { font: inherit; font-size: 13px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); }
 .nvtoggle { justify-content: flex-end; } .nvtoggle span { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); padding: 6px 0; }
+.regionmap { max-width: 720px; }

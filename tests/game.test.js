@@ -201,3 +201,8 @@ test('crosstab with non-voters: party shares plus non-voters make 100%', () => {
   assert.ok(Math.abs(Object.values(r.shares).reduce((a, b) => a + b, 0) - 100) < 0.01);
   assert.ok(r.turnout > 50 && r.turnout < 75); assert.ok(y.turnout < r.turnout);
 });
+
+test('polling regions cover every state exactly once', () => {
+  const seen = {}; for (const r of U.Crosstab.REGIONS) for (const s of r[1].split(' ')) { assert.ok(!seen[s], s); seen[s] = 1; }
+  for (const s of Object.keys(U.STATES).concat(['DC'])) assert.ok(seen[s], s);
+});

@@ -8,19 +8,20 @@
   'use strict';
   var U = G.USA, V = U.Votes, X = U.Crosstab = {};
 
-  // Polling regions (they may overlap, e.g. the Sunbelt and the South).
+  // Polling regions: every state belongs to exactly one. [name, states, map colour]
   X.REGIONS = [
-    ['New England', 'ME NH VT MA RI CT'],
-    ['East Coast', 'NY NJ PA DE MD DC VA'],
-    ['Appalachia', 'WV KY TN'],
-    ['The South', 'AL MS LA GA SC NC AR'],
-    ['Sunbelt', 'FL GA NC SC TX AZ NV NM'],
-    ['Midwest', 'OH MI IN IL WI MN IA MO'],
-    ['Great Plains', 'ND SD NE KS OK'],
-    ['Rockies', 'MT ID WY CO UT'],
-    ['West Coast', 'CA OR WA'],
-    ['Alaska and Hawaii', 'AK HI']
+    ['New England', 'ME NH VT MA RI CT', '#6a8caf'],
+    ['East Coast', 'NY NJ PA DE MD DC VA', '#8e7cc3'],
+    ['Appalachia', 'WV KY TN NC', '#93a06a'],
+    ['The South', 'AL MS LA GA SC AR', '#c77d5b'],
+    ['Sunbelt', 'FL TX AZ NV NM', '#e0b04f'],
+    ['Midwest', 'OH MI IN IL WI MN IA MO', '#5f9e8f'],
+    ['Great Plains', 'ND SD NE KS OK', '#b8a36a'],
+    ['Rockies', 'MT ID WY CO UT', '#8f6f5a'],
+    ['West Coast', 'CA OR WA', '#4f8fc0'],
+    ['Alaska and Hawaii', 'AK HI', '#a57fa0']
   ];
+  X.regionOf = function (sid) { for (var i = 0; i < X.REGIONS.length; i++) if ((' ' + X.REGIONS[i][1] + ' ').indexOf(' ' + sid + ' ') >= 0) return X.REGIONS[i]; return null; };
 
   // group vote within one state, raked to the state's actual result
   function stateGroups(Q, s, nat) {
