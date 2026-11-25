@@ -112,7 +112,9 @@
     wfp: [[1996, 'Dan Cantor', 'Bertha Lewis']],
     aga: [[1996, 'Jim Sykes', 'Greg Gerritt']],
     vpp: [[1990, 'Bernie Sanders', 'Terry Bouricius']],
-    nyfp: [[1990, 'Tom Golisano', 'Lenora Fulani']]
+    nyfp: [[1990, 'Tom Golisano', 'Lenora Fulani']],
+    raza: [[1972, 'José Ángel Gutiérrez', 'Ramsey Muñiz'], [1986, 'José Ángel Gutiérrez', 'Maria Elena Martinez']],
+    alk: [[1984, 'Walter Hickel', 'Jack Coghill']], aloha: [[1990, 'Haunani-Kay Trask', 'Mililani Trask']], nenp: [[1992, 'Thomas Naylor', 'Angus King']]
   };
   // {house: {party: name}, senate: {party: name}} for an election year
   L.leadersFor = function (year) {

@@ -86,7 +86,7 @@
     aloha: { name: 'Aloha ʻĀina Party', short: 'AʻĀ', color: '#21a6a0', kind: 'regional', econ: -4, soc: -2, fed: 7,
       office: .3, leader: 'Party chair (Honolulu)', home: { HI: 6 }, secession: .2 },
     raza: { name: 'Raza Unida Party', short: 'RUP', color: '#c4572b', kind: 'regional', econ: -5, soc: -1, fed: 4,
-      office: .4, leader: 'Party chair (San Antonio)', home: { TX: 3, NM: 5, CA: 1.2, AZ: 2, CO: 1.2 }, secession: 0 },
+      office: .4, leader: 'Party chair (San Antonio)', home: { TX: 3, NM: 5, CA: 1.2, AZ: 2, CO: 1.2, FL: 1.5, NY: 0.6, IL: 0.6, NV: 0.8 }, secession: 0 },
     nenp: { name: 'New England National Party', short: 'NENP', color: '#6d8fb0', kind: 'regional', econ: -2, soc: -4, fed: 8,
       office: .3, leader: 'Party chair (Boston)', home: { ME: 4, NH: 3, VT: 5, MA: 2.5, RI: 2.5, CT: 2 }, secession: .3 },
     vpp: { name: 'Vermont Progressive Party', short: 'VPP', color: '#d4712a', kind: 'regional', econ: -7, soc: -5, fed: 2,

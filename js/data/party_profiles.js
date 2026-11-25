@@ -114,7 +114,10 @@
       ['Fulani wing', 'Lenora Fulani', 'left-wing populists']]),
     alk: P('regional', 'Alaskan regionalism', { econ: 6, trade: 3, soc: 2, foreign: -4, fed: 9, pop: 5, env: -8 }, [['Independence wing', 'Joe Vogler', 'Alaskan independence'], ['Resource populists', 'Walter Hickel', 'state control of oil, gas and land']]),
     aloha: P('regional', 'Hawaiian sovereignty, environmentalism', { econ: -4, trade: -2, soc: -2, foreign: -6, fed: 7, pop: 3, env: 8 }, [['Sovereignty movement', 'Haunani-Kay Trask', 'Native Hawaiian self-government'], ['Land and water', 'George Helm', 'protecting the land from development and the military']]),
-    raza: P('regional', 'Chicano nationalism, social democracy', { econ: -5, trade: -4, soc: -1, foreign: -5, fed: 4, pop: 5, env: 2 }, [['Movimiento', 'José Ángel Gutiérrez', 'Mexican-American civil rights in the Southwest'], ['Farmworkers', 'Dolores Huerta', 'labor rights in the fields']]),
+    raza: P('regional', 'Hispanic issues party: civil rights, immigration reform and representation, from Chicano roots', { econ: -3, trade: -2, soc: 1, foreign: -2, fed: 4, pop: 4, env: 2 }, [
+      ['Mexican-Americans', 'Jos\u00e9 \u00c1ngel Guti\u00e9rrez', 'the Chicano founders: civil rights, labor rights and community control in the Southwest'],
+      ['Catholic Hispanics', 'Maria Elena Martinez', 'family, faith and immigration reform; close to the ASP and the CDP on social issues'],
+      ['Conservative Cubans', 'Ileana Ros-Lehtinen', 'Miami\u2019s Cuban exiles: anti-Castro, low taxes, a hard line abroad']]),
     nenp: P('regional', 'New England regionalism', { econ: -2, trade: 2, soc: -4, foreign: -2, fed: 8, pop: 2, env: 6 }, [['Town-meeting regionalists', 'Thomas Naylor', 'New England self-rule'], ['Yankee moderates', 'Angus King', 'regional autonomy without secession']]),
     // ---- future parties (dormant in 1997) ----
     acp: P('future', 'Syncretic far left (2020s)', { econ: -9, trade: -8, soc: 1, foreign: -8, fed: -6, pop: 9, env: -2 }, [['MAGA Communists', 'Jackson Hinkle', 'patriotic socialism'], ['Labor wing', 'Haz Al-Din', 'industrial workers first']]),

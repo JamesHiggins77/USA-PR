@@ -46,7 +46,7 @@
     });
     X.senate(Q);
     var rec96 = S.stateRecord(Q, open1996h);
-    Q.open1996 = { house: U.clone(Q.house), byState: U.clone(Q.houseByState), states: rec96.states, senStates: rec96.senStates, national: rec96.national, senate: X.senateCount(Q), leaders: null };
+    Q.open1996 = { nat: (function () { var n = V.national(Q), o = {}; for (var p in n) if (n[p] >= 0.005) o[p] = n[p] < 1 ? Math.round(n[p] * 100) / 100 : Math.round(n[p] * 10) / 10; return o; })(), house: U.clone(Q.house), byState: U.clone(Q.houseByState), states: rec96.states, senStates: rec96.senStates, national: rec96.national, senate: X.senateCount(Q), leaders: null };
     Q.calib = calib1997; delete Q.noNoise;
     Q.lastSenate = X.senateCount(Q);
 

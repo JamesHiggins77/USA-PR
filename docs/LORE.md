@@ -462,9 +462,9 @@ Clinton’s popularity put the LDP ahead of the SDLP in a presidential first rou
 
 ### Raza Unida Party (RUP)
 
-*Founded 1970.* La Raza Unida Party, founded in Crystal City, Texas, during the Chicano movement. PR kept it alive after the movement faded.
+*Founded 1970.* La Raza Unida Party, founded in Crystal City, Texas, during the Chicano movement. PR kept it alive after the movement faded, and from the late 1970s it broadened into a party for Hispanic voters of every background: Puerto Ricans in New York, Catholic families across the Southwest and, from the 1980s, a conservative Cuban wing in Miami.
 
-**Ideology:** Mexican-American civil rights, community control, labor rights.
+**Ideology:** A Hispanic issues party: civil rights, immigration reform, bilingual education and labor rights, held together across left and right by ethnicity and faith.
 
 ### New England National Party (NENP)
 
@@ -480,7 +480,7 @@ Clinton’s popularity put the LDP ahead of the SDLP in a presidential first rou
 
 ### Vermont Progressive Party (VPP)
 
-*Founded 1981.* Grew from the coalition that elected Bernie Sanders mayor of Burlington. Sanders has sat in the Senate for Vermont since 1990, the party’s best-known figure and the one leader the whole far left respects. The strongest third force in Vermont politics.
+*Founded 1981.* Grew from the coalition that elected Bernie Sanders mayor of Burlington. Sanders has represented Vermont in the House since 1990, the party’s best-known figure and the one leader the whole far left respects. The strongest third force in Vermont politics.
 
 **Ideology:** Progressive and populist, with deep local roots.
 

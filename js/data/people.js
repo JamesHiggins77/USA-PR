@@ -42,7 +42,7 @@
     cfc: ['Pete Wilson', 'Arnold Schwarzenegger', 'Tom McClintock', 'Richard Riordan', 'Darrell Issa'],
     alk: ['Walter Hickel', 'Jack Coghill', 'Sarah Palin', 'Lynette Clark', 'Todd Palin'],
     aloha: ['Haunani-Kay Trask', 'Mililani Trask', 'Bumpy Kanahele', 'Lilikalā Kameʻeleihiwa', 'Kioni Dudley'],
-    raza: ['José Ángel Gutiérrez', 'Mario Compean', 'Ramsey Muñiz', 'Maria Elena Martinez', 'Rodolfo "Corky" Gonzales'],
+    raza: ['José Ángel Gutiérrez', 'Mario Compean', 'Ramsey Muñiz', 'Maria Elena Martinez', 'Rodolfo "Corky" Gonzales', 'Ileana Ros-Lehtinen', 'Lincoln Díaz-Balart'],
     nenp: ['Angus King', 'Lowell Weicker', 'Thomas Naylor', 'Kirkpatrick Sale', 'Rob Williams'],
     nyfp: ['Tom Golisano', 'Lenora Fulani', 'Frank MacKay', 'Michael Bloomberg', 'Carl Paladino']
   };
