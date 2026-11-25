@@ -61,7 +61,7 @@
     ['1982–1986', 'Bob Dole', 'Conservative Coalition', 'CC–CDP coalition under President Reagan'],
     ['1986–1990', 'Jack Kemp', 'Conservative Coalition', 'CC–CDP–Libertarian coalition'],
     ['1990–1992', 'Lloyd Bentsen', 'Liberal Democratic', 'LDP–CDP minority with SDLP confidence and supply; Reagan’s second nominee, confirmed by simple majority'],
-    ['1992–1994', 'Tom Foley', 'Liberal Democratic', 'LDP–SDLP coalition with ASP confidence and supply, nominated by President Clinton'],
+    ['1992–1994', 'Tom Foley', 'Liberal Democratic', 'LDP–SDLP–CDP coalition under the Clinton–Powell alliance; the CDP walked out over health care in 1994'],
     ['1994–1996', 'Newt Gingrich', 'Conservative Coalition', 'CC–CDP coalition with Libertarian and Lone Star support; the CDP walked out over the 1995–96 shutdown'],
     ['1996–', 'Al Gore', 'Liberal Democratic', 'LDP–CDP–SDLP coalition, built on the Clinton–Powell alliance of 1992']
   ];
