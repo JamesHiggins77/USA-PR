@@ -5,6 +5,7 @@
 //    (overridden by 2/3 of the House and a simple Senate majority); dissolves
 //    Congress, but not within 4 years of a government's formation unless the
 //    PM asks and both chambers agree, or a new President has taken office.
+//  The PM and cabinet need not sit in Congress; they only need the House's investiture.
 //  House: invests the PM: first nominee needs an absolute majority, second
 //    nominee a simple majority; then 3 months of open talks or a new election.
 //  Senate: chooses a caretaker cabinet when both nominees fail (VP breaks
