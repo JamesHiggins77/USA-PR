@@ -383,7 +383,7 @@
   }
   var demoCat = 'gender', demoGeo = 'US', demoPicks = {}, demoNV = false, blocMode = 'party', parlMode = 'alliances', parlOpen = {};
   function blocButtons() {
-    return '<div class="row" style="margin:6px 0 10px;flex-wrap:wrap"><span class="small">View:</span>' + [['party', 'By party'], ['2', 'Two blocs'], ['3', 'Three blocs'], ['5', 'Five blocs']].map(function (m) {
+    return '<div class="row" style="margin:6px 0 10px;flex-wrap:wrap"><span class="small">View:</span>' + [['party', 'By party'], ['2', 'Two blocs'], ['3', 'Three blocs'], ['5', 'Five blocs'], ['7', 'Seven blocs']].map(function (m) {
       return '<button class="btn ' + (blocMode === m[0] ? '' : 'ghost') + '" data-bloc="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
   }
   var B = function (sh) { return U.blocAgg(sh, blocMode, Q); };
