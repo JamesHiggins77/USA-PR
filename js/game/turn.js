@@ -106,7 +106,8 @@
       e.busted = true; e.shock = -3.5; S.note(Q, 'The technology-stock bubble bursts. Markets fall sharply.');
       Q.flags.bust = now;
     }
-    if (e.shock) { e.shock *= 0.93; if (Math.abs(e.shock) < 0.1) e.shock = 0; }
+    // a financial crash lingers: its shock fades slowly for about two and a half years
+    if (e.shock) { e.shock *= (e.slowShock && now < e.slowShock) ? 0.97 : 0.93; if (Math.abs(e.shock) < 0.1) e.shock = 0; }
     var trend = 3.0 + (e.bubble && !e.busted ? 1.2 : 0) + (e.shock || 0) + (Q.policyGrowth || 0);
     e.growth = U.round1(e.growth + (trend - e.growth) * 0.15 + U.gauss(Q) * 0.25);
     var nat = 5.2 - (e.growth - 3) * 0.6;

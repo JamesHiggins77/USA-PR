@@ -213,3 +213,9 @@ test('mergers: the plan rolls the United Left and Green decisions; joint lists p
   const Q = U.Game.newGame(5); Q.pacts = [{ parties: ['wfp', 'dsa'], type: 'list' }];
   const h = U.Elections.houseTwoTier(Q); assert.ok(h.house);
 });
+
+test('2001-2012: September 11 and the 2008 crash always happen', () => {
+  const Q = U.Game.newGame(9); U.Flow.begin(Q); let g = 0;
+  while (Q.year < 2009 && g++ < 200) { let k = 0; while (Q.pendingEvent && k++ < 20) { const o = U.Flow.options(Q, U.Events.byId(Q.pendingEvent)); U.Flow.answerEvent(Q, Math.max(0, o.findIndex(x => x.ok))); } U.Flow.skip(Q); }
+  assert.strictEqual(Q.flags.sept11, U.monthIndex(2001, 9)); assert.strictEqual(Q.flags.crash, U.monthIndex(2008, 9));
+});
