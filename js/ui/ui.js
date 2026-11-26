@@ -580,7 +580,7 @@
             return '<div class="axis"><div class="axl"><span>' + a[2] + '</span><b>' + a[1] + '</b><span>' + a[3] + '</span></div><div class="axbar"><i style="left:' + x + '%;background:' + i.color + '"></i></div></div>'; }).join('') +
           '<div class="small" style="margin-top:8px"><b>Factions</b></div><ul class="factions">' + pr.factions.map(function (f) { var more = (U.FIGURES || []).filter(function (x) { return x[1] === k && x[2] === f[0] && x[0] !== f[1]; }).map(function (x) { return x[0]; });
             return '<li><b>' + esc(f[0]) + '</b> <span class="muted">(' + esc(f[1]) + ')</span>: ' + esc(f[2]) + (more.length ? '<div class="small muted">Also: ' + esc(more.join(', ')) + '</div>' : '') + '</li>'; }).join('') + '</ul>' +
-          (pr.members ? '<div class="small muted">Members: ' + pr.members.map(function (m) { return esc(info(m).name); }).join(', ') + '</div>' : '') +
+          (pr.members ? '<div class="small muted">Members: ' + (k === 'asp' && Q.flags && Q.flags.reformAbsorbed ? pr.members.concat(['reform']) : pr.members).map(function (m) { return esc(info(m).name); }).join(', ') + '</div>' : '') +
           (U.LIST_RULES[k] ? '<div class="small" style="margin-top:4px"><b>How the lists are drawn up.</b> ' + esc(U.LIST_RULES[k]) + (k === 'ul' && Q.ulGreenDeal ? ' The Greens\u2019 terms: ' + (Q.ulGreenDeal === 'all' ? 'the whole national list.' : 'the first ' + Q.ulGreenDeal + ' national-list places.') : '') + '</div>' : '') +
           (pr.note ? '<div class="small muted">' + esc(pr.note) + '</div>' : '') +
           (lore && lore[1] && g[0] !== 'future' ? '<details class="small"><summary>History</summary>' + esc(lore[1]) + '</details>' : '') + '</div>';
