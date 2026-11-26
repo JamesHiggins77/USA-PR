@@ -336,6 +336,10 @@
   // ---- the general election ----
   // State by state, for the results maps: House state-list seats, Senate seats
   // (all four, incl. the legislature's) and vote shares; plus the national list.
+  // governors after an election: winner and both rounds of each race
+  S.govRecord = function (Q) {
+    var o = {}; for (var sid in Q.states || {}) { var g = Q.states[sid], r = g.govRace || {}; if (g.governor) o[sid] = { w: g.governor, r1: r.r1 ? U.clone(r.r1) : null, r2: r.r2 ? U.clone(r.r2) : null }; } return o;
+  };
   S.stateRecord = function (Q, h) {
     var st = {}, sen = {}, nat = {};
     for (var sid in h.byState) { var b = h.byState[sid], seats = {}, sh = {};
@@ -374,7 +378,7 @@
     Q.lastElection = res;
     Q.history = Q.history || [];
     Q.history.push({ kind: 'general', date: res.date, shares: (function () { var o = {}; for (var p in shares) if (shares[p] >= 0.3) o[p] = Math.round(shares[p] * 10) / 10; return o; })(), house: U.clone(res.house), senate: U.clone(res.senate),
-      states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders), senLeaders: (function () { var o = {}; for (var p in U.Elections.senateCount(Q)) o[p] = S.senLeaderOf(Q, p); for (p in Q.house) if (!o[p]) o[p] = S.senLeaderOf(Q, p); return o; })(),
+      govs: S.govRecord(Q), states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders), senLeaders: (function () { var o = {}; for (var p in U.Elections.senateCount(Q)) o[p] = S.senLeaderOf(Q, p); for (p in Q.house) if (!o[p]) o[p] = S.senLeaderOf(Q, p); return o; })(),
       senShares: (function () { var w = {}, t = 0; for (var sid in (Q.senateShares || {})) { var pop = (U.STATES[sid] || {}).pop || 0; t += pop; for (var p in Q.senateShares[sid]) w[p] = (w[p] || 0) + Q.senateShares[sid][p] * pop; } for (p in w) w[p] = Math.round(w[p] / t * 10) / 10; return w; })() });
     res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];

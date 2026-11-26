@@ -567,7 +567,24 @@
   function ochip(k) { return '<i class="chip" style="background:' + oldParty(k).color + '"></i>'; }
   function bar(pct, color) { return '<div class="bar" style="margin:2px 0 0"><i style="width:' + U.clamp(pct, 0, 100) + '%;background:' + color + '"></i></div>'; }
   // Results map in the style of Spanish election maps: shaded winner, seat dots, legend, ring
-  var genMode = 'house', genData = null, genSeq = [];
+  var genMode = 'house', genData = null, genSeq = [], govSeq = [];
+  // governors elected at a general election: map, party totals with change, closest races
+  function governors(x) {
+    var g = x.rec.govs, i = govSeq.indexOf(x), pv = i > 0 ? govSeq[i - 1].rec.govs : null, tot = {}, ptot = {}, data = {};
+    for (var sid in g) { var o = g[sid], sh = o.r2 || o.r1 || {}, se = {}; se[o.w] = 1; tot[o.w] = (tot[o.w] || 0) + 1;
+      var shr = {}; for (var p in sh) if (sh[p] >= 0.5) shr[p] = Math.round(sh[p] * 10) / 10;
+      data[sid] = { unit: ' governorship', seats: se, shares: shr, prev: pv && pv[sid] ? { seats: (function () { var z = {}; z[pv[sid].w] = 1; return z; })(), shares: {} } : null }; }
+    if (pv) for (sid in pv) ptot[pv[sid].w] = (ptot[pv[sid].w] || 0) + 1;
+    genData = data;
+    var ord = Object.keys(tot).sort(function (a, b) { return tot[b] - tot[a]; }), flips = pv ? Object.keys(g).filter(function (s) { return pv[s] && pv[s].w !== g[s].w; }) : [];
+    var d = function (v) { return '<span class="small ' + (!v ? 'muted' : v > 0 ? 'up' : 'down') + '">' + (v > 0 ? '+' : v < 0 ? '\u2212' : '\u00b1') + Math.abs(v) + '</span>'; };
+    var h = '<div class="panel"><h2 style="margin-top:0">' + esc(x.label) + ' gubernatorial elections</h2><p>Governors are elected in two rounds at each general election: a majority wins outright, otherwise the top two meet in a runoff.' + (pv ? ' ' + flips.length + ' governorship' + (flips.length === 1 ? '' : 's') + ' changed hands.' : '') + '</p>';
+    h += '<div class="grid2"><div><table class="seats"><tr><th>Party</th><th>Governors</th>' + (pv ? '<th>\u00b1</th>' : '') + '</tr>' + ord.map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>' + tot[p] + '</b></td>' + (pv ? '<td>' + d(tot[p] - (ptot[p] || 0)) + '</td>' : '') + '</tr>'; }).join('') +
+      (pv ? Object.keys(ptot).filter(function (p) { return !tot[p]; }).map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>0</b></td><td>' + d(-ptot[p]) + '</td></tr>'; }).join('') : '') + '</table>' +
+      (flips.length ? '<h3>Changed hands</h3><p class="small">' + flips.map(function (s) { return esc((U.STATES[s] || U.DC).name) + ': ' + U.partyInfo(pv[s].w).short + ' \u2192 ' + U.partyInfo(g[s].w).short; }).join(' \u00b7 ') + '</p>' : '') + '</div>' +
+      '<div><div id="genmap">' + Ch.resultMap(Q, data) + '</div><p class="small muted">The winning party in each state, shaded by its share in the deciding round. Hover or tap a state for the vote.</p></div></div></div>';
+    return h;
+  }
   // the arguments for resultsBlock for a general election entry
   function blockArgs(x) {
     var r = x.rec;
@@ -592,14 +609,18 @@
     }
     if (sen && r.senShares) r = Object.assign({}, r, { shares: r.senShares });
     var ord = Object.keys(seats).filter(function (p) { return seats[p] > 0; }).sort(function (a, b) { return seats[b] - seats[a] || (r.shares[b] || 0) - (r.shares[a] || 0); });
+    var pSeats = prev ? (sen ? prev.senate : prev.house) || {} : null, pSh = prev ? (sen && prev.senShares ? prev.senShares : prev.shares) || {} : null;
+    var dfmt = function (v, d) { v = +v.toFixed(d); return '<span class="small ' + (!v ? 'muted' : v > 0 ? 'up' : 'down') + '">' + (v > 0 ? '+' : v < 0 ? '\u2212' : '\u00b1') + Math.abs(v).toFixed(d) + '</span>'; };
+    var dV = function (p) { return pSh && r.shares[p] != null ? (pSh[p] == null && !(pSeats && pSeats[p]) ? '<span class="small">new</span>' : dfmt(r.shares[p] - (pSh[p] || 0), 1)) : ''; };
+    var dS = function (p) { return pSeats ? dfmt((seats[p] || 0) - (pSeats[p] || 0), 0) : ''; };
     var winners = {}; for (var sid in data) { var sh = data[sid].shares || {}, w = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a]; })[0]; if (w) winners[w] = 1; }
     var lead = (sen ? r.senLeaders : r.leaders) || (sen ? {} : Q.leaders) || {};
     var econ = function (ks) { return ks.sort(function (a, b) { return (P(a).econ || 0) - (P(b).econ || 0); }); };
     var h = '<div class="row" style="margin:14px 0 6px"><h3 style="margin:0">Results by state</h3><button class="btn ' + (sen ? 'ghost' : '') + '" data-gmode="house">House</button>' + (r.senStates ? [['senate', 'Senate']].map(function (m) { return '<button class="btn ' + (genMode === m[0] ? '' : 'ghost') + '" data-gmode="' + m[0] + '">' + m[1] + '</button>'; }).join('') : '') + '</div>';
-    h += '<div class="resgrid"><div class="resring">' + Ch.ring(seats, r.shares, econ) + '<div class="small muted">Inner: seats &middot; outer: votes</div></div><table class="seats reslegend"><tr><th>Party</th><th>' + (sen ? 'Senate leader' : 'House leader') + '</th><th>Vote</th><th>Seats</th></tr>' +
+    h += '<div class="resgrid"><div class="resring">' + Ch.ring(seats, r.shares, econ) + '<div class="small muted">Inner: seats &middot; outer: votes</div></div><table class="seats reslegend"><tr><th>Party</th><th>' + (sen ? 'Senate leader' : 'House leader') + '</th><th>Vote</th><th>\u00b1</th><th>Seats</th><th>\u00b1</th></tr>' +
       ord.map(function (p) { return '<tr><td><span class="lgname" style="background:' + P(p).color + ';color:' + Ch.ink(P(p).color) + '">' + P(p).short + '</span>' +
-        (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(p === 'revsoc' ? '(fragmented)' : p === 'ind' ? '(independents)' : lead[p] || '') + '</i></td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td><b>' + seats[p] + '</b></td></tr>'; }).join('') +
-      '<tr><td colspan="4" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
+        (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(p === 'revsoc' ? '(fragmented)' : p === 'ind' ? '(independents)' : lead[p] || '') + '</i></td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td>' + dV(p) + '</td><td><b>' + seats[p] + '</b></td><td>' + dS(p) + '</td></tr>'; }).join('') +
+      '<tr><td colspan="6" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
     var pdata = prev && smode !== 'senpr' && smode !== 'sentr' ? (sen && prev.senStates ? prev.senStates : prev.states) || {} : null;
     genData = {}; for (var gk in data) genData[gk] = Object.assign({}, data[gk], { prev: pdata ? pdata[gk] || {} : null });
     if (!sen && r.national) genData.NAT = { seats: r.national, shares: r.shares, prev: prev ? { seats: prev.national || {}, shares: prev.shares || {} } : null, name: 'National list', unit: ' national list seats' };
@@ -610,17 +631,23 @@
   }
 
   function elections() {
-    var hist = U.LORE.presElections.map(function (e, i) { return { key: 'h' + i, label: e.year + ' presidential', rec: e, kind: 'hist' }; });
+    var hist = U.LORE.presElections.map(function (e, i) { return { key: 'h' + i, label: String(e.year), rec: e, kind: 'hist' }; });
     var game = (Q.history || []).map(function (e, i) { return { key: 'g' + i, label: e.date + (e.kind === 'pres' ? ' presidential' : ' general'), rec: e, kind: e.kind }; });
     var gens = U.LORE.generalElections.map(function (e, i) { return { key: 'e' + i, label: String(e.year), rec: e, kind: 'histgen' }; });
     if (Q.open1996) gens.push({ key: 'e96', label: '1996', rec: { year: 1996, seats: 600, shares: Q.open1996.nat || U.ELECTION_1996, house: Q.open1996.house, byState: Q.open1996.byState, open: Q.open1996, gov: ['ldp', 'cdp', 'sdlp'], cs: [], pm: 'Al Gore', modern: true,
       note: 'The 1995\u201396 shutdown broke Gingrich\u2019s coalition: the CDP walked out, and a constructive vote to install Al Gore failed by four votes. With his budgets defeated in the House, Gingrich asked for an early election, gambling that voters would blame Clinton; both chambers agreed. The CC fell to its worst result since its founding, losing votes to the new Reform Party and the Constitution Party. Building on the Clinton\u2013Powell alliance of 1992, Clinton nominated Gore, who won an absolute majority at the head of an LDP\u2013CDP\u2013SDLP government. This is the parliament the game starts with.' }, kind: 'histgen' });
-    var all = hist.concat(gens, game);
-    genSeq = gens.concat(game.filter(function (x) { return x.kind !== 'pres' && x.rec.states; }));
-    if (!electSel || !all.some(function (x) { return x.key === electSel; })) electSel = all[all.length - 1].key;
-    var h = '<h1>Elections</h1><div class="row" style="margin-bottom:8px"><span class="small">Before the game:</span>' + hist.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + x.rec.year + '</button>'; }).join('') + '</div>';
-    h += '<div class="row" style="margin-bottom:8px"><span class="small">General, before the game:</span>' + gens.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + x.label + '</button>'; }).join('') + '</div>';
-    h += '<div class="row" style="margin-bottom:12px"><span class="small">In this game:</span>' + (game.length ? game.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + esc(x.label) + '</button>'; }).join('') : '<span class="small muted">Elections you play will be kept here.</span>') + '</div>';
+    var yr = function (d) { return String(d).split(' ').pop(); };
+    var presL = hist.concat(game.filter(function (x) { return x.kind === 'pres'; }).map(function (x) { return Object.assign({}, x, { label: yr(x.rec.date) }); }));
+    var congL = gens.concat(game.filter(function (x) { return x.kind !== 'pres'; }).map(function (x) { return Object.assign({}, x, { label: yr(x.rec.date) }); }));
+    var govL = (Q.open1996 && Q.open1996.govs ? [{ key: 'v96', label: '1996', kind: 'gov', rec: { govs: Q.open1996.govs, date: '1996' } }] : [])
+      .concat((Q.history || []).map(function (e, i) { return e.kind !== 'pres' && e.govs ? { key: 'v' + i, label: yr(e.date), kind: 'gov', rec: { govs: e.govs, date: e.date } } : null; }).filter(Boolean));
+    var all = presL.concat(congL, govL);
+    genSeq = congL.filter(function (x) { return x.kind === 'histgen' || x.rec.states; });
+    govSeq = govL;
+    if (!electSel || !all.some(function (x) { return x.key === electSel; })) electSel = congL[congL.length - 1].key;
+    var btns = function (lab, L) { return '<div class="row" style="margin-bottom:8px;flex-wrap:wrap"><span class="small" style="min-width:7.5em">' + lab + '</span>' + (L.length ? L.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + esc(x.label) + '</button>'; }).join('') : '<span class="small muted">None yet.</span>') + '</div>'; };
+    var h = '<h1>Elections</h1>' + btns('Presidential', presL) + btns('Congressional', congL) + btns('Gubernatorial', govL);
+    if (all.filter(function (x) { return x.key === electSel; })[0].kind === 'gov') return h + governors(all.filter(function (x) { return x.key === electSel; })[0]);
     var sel = all.filter(function (x) { return x.key === electSel; })[0], r = sel.rec;
     if (sel.kind === 'hist') {
       var w = r.r2[0];
