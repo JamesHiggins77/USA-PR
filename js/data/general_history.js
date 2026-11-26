@@ -236,11 +236,15 @@
     var w = e.r2[0][1], l = e.r2[1][1], nat1 = {}; e.r1.forEach(function (c) { if (c[1]) nat1[c[1]] = c[2]; });
     var t2 = e.r2[0][3] + e.r2[1][3], target = e.r2[0][3] / t2 * 100, ids = Object.keys(el), W = 0; ids.forEach(function (s) { W += el[s]; });
     var lean = {}; ids.forEach(function (s) { var sh = (r1[s] || {}).shares || {}; lean[s] = 1.4 * (((sh[w] || 0) - (nat1[w] || 0)) - ((sh[l] || 0) - (nat1[l] || 0))) + 16 * (hash('r2' + e.year + s) - 0.5); });
-    var share = function (s, off) { return U.clamp(target + lean[s] + off, 3, 97); };
+    // tipping-point states (e.tip): decided by a whisker for the winner
+    var tip = e.tip || [];
+    var share = function (s, off) { var i = tip.indexOf(s); if (i >= 0) return 50.15 + 0.25 * i; return U.clamp(target + lean[s] + off, 3, 97); };
     var off = 0; for (var it = 0; it < 30; it++) { var n = 0; ids.forEach(function (s) { n += share(s, off) * el[s]; }); off += target - n / W; }
     var ev = function (o) { var a = 0; ids.forEach(function (s) { if (share(s, o) > 50) a += el[s]; }); return a; };
     // the runoff winner of record must carry the Electoral College
     while (ev(off) * 2 <= W && off < 20) off += 0.2;
+    // a knife-edge runoff: the winner carries the College by only a few electors
+    if (e.close) { var need = Math.floor(W / 2) + 1; while (ev(off - 0.02) >= need && ev(off) - need > e.close && off > -15) off -= 0.02; }
     var states = {}, tot = {}; tot[w] = 0; tot[l] = 0;
     ids.forEach(function (s) { var x = share(s, off), win = x > 50 ? w : l, seats = {}, sh = {}; seats[win] = el[s]; sh[w] = Math.round(x * 10) / 10; sh[l] = Math.round((100 - x) * 10) / 10; tot[win] += el[s]; states[s] = { seats: seats, shares: sh }; });
     return (p2cache[e.year] = { states: states, ev: tot, total: W });
