@@ -8,7 +8,7 @@
     var Q = {
       version: 1, seed: (seed || Date.now()) >>> 0, seed0: (seed || 1) >>> 0, year: 1997, month: 1, player: 'ldp',
       mods: {}, stateMods: {}, homeMult: {}, causes: {}, rel: {}, pos: {}, trend: {},
-      dormant: { maga: true, afp: true, ul: true, acp: true }, ulMembers: null, flags: {}, timers: {}, log: [], polls: [], pacts: [],
+      dormant: { maga: true, afp: true, ul: true, acp: true, fcp: true, jdem: true, ppl: true, fwd: true }, ulMembers: null, flags: {}, timers: {}, log: [], polls: [], pacts: [],
       funds: 10, unity: 60, morale: 55, seen: {},
       factions: U.clone(U.LDP_FACTIONS), leader: { name: 'Al Gore', approval: 58, charisma: 1 },
       electionNo: 0, deadline: U.monthIndex(2000, 9), electionAt: null, formation: null,
@@ -83,6 +83,7 @@
       'Will the CDP stay in opposition with the Conservative Coalition, or can it be tempted into government? Can the CC become the alternative again?',
       'President Clinton faces re-election in November 1998, after a six-year term. Will the LDP run him again, and can the governing parties avoid splitting the vote? Perot\u2019s Reform Party props up the government, but its best days may be behind it. What will it, and the regionalists, demand for their votes?'];
     Q.log.push({ t: U.dateStr(Q), text: 'The campaign begins. Al Gore\u2019s LDP\u2013SDLP coalition governs; the general election must be called by September 2000.' });
+    if (S.initFigures) S.initFigures(Q);
     return Q;
   };
 

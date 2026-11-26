@@ -61,6 +61,18 @@
       target: 0.3, office: .05, leader: 'A coordinating committee (Fred Hampton Jr.)', founded: '1969 (as an electoral alliance, 1990s)',
       note: 'An alliance of radical community movements: the Black Panther Party, the American Indian Movement, the Young Lords, the Young Patriots and the White Panther Party.',
       pref: { prof: .6, suburb: .2, union: 1.5, rural: .6, relig: .4, black: 6, hisp: 4, young: 5, retire: .2 } },
+    fcp: { name: 'Freedom Party', short: 'FRE', color: '#7a1f1f', kind: 'party', econ: 8, soc: 8, fed: 8,
+      target: 0, founded: '2010s (emergent): a split from the Conservative Coalition', office: .3, leader: 'Mark Meadows',
+      pref: { prof: .8, suburb: 1.5, union: .6, rural: 5, relig: 5, black: .2, hisp: .8, young: 1, retire: 3 } },
+    jdem: { name: 'Justice Democrats', short: 'JD', color: '#d9417a', kind: 'party', econ: -7, soc: -7, fed: -3,
+      target: 0, founded: '2017 (emergent): a split from the LDP and SDLP left', office: .2, leader: 'Saikat Chakrabarti',
+      pref: { prof: 2, suburb: 1, union: 2, rural: .3, relig: .3, black: 3, hisp: 4, young: 7, retire: .3 } },
+    ppl: { name: 'People\u2019s Party', short: 'PPL', color: '#b3462f', kind: 'party', econ: -6, soc: 0, fed: 0,
+      target: 0, founded: '2020 (emergent): left populists outside both camps', office: .1, leader: 'Nick Brana',
+      pref: { prof: .6, suburb: 1, union: 3, rural: 2, relig: 1, black: 1.5, hisp: 1.5, young: 4, retire: .8 } },
+    fwd: { name: 'Forward Party', short: 'FWD', color: '#5f3dc4', kind: 'party', econ: 1, soc: -2, fed: 1,
+      target: 0, founded: '2022 (emergent): a centrist merger of reform movements', office: .4, leader: 'Andrew Yang',
+      pref: { prof: 4, suburb: 3, union: .8, rural: .6, relig: .8, black: 1, hisp: 1.5, young: 3, retire: 1 } },
     acp: { name: 'American Communist Party', short: 'ACP', color: '#4a0000', kind: 'party', econ: -9, soc: 1, fed: -6,
       target: 0, founded: '2020s (emergent)', office: .1, leader: 'Party collective',
       pref: { prof: 1, suburb: .5, union: 2, rural: .5, relig: .2, black: 2, hisp: 1, young: 3, retire: .5 } },
@@ -103,7 +115,7 @@
   // Scenario assumption.
   U.ELECTION_1996 = { ldp: 24.3, sdlp: 18.4, cdp: 13.2, cc: 20.0, asp: 3.8, reform: 4.0, grn: 0.9, cpusa: 1.5, dsa: 1.1, wfp: 0.9, revsoc: 0.4, rbw: 0.3, lib: 3.0, con: 2.5 };
   U.PARTIES = P;
-  U.NATIONAL = ['ldp', 'sdlp', 'cdp', 'cc', 'asp', 'reform', 'ul', 'grn', 'cpusa', 'dsa', 'wfp', 'revsoc', 'rbw', 'acp', 'lib', 'con'];
+  U.NATIONAL = ['ldp', 'sdlp', 'cdp', 'cc', 'asp', 'reform', 'ul', 'grn', 'cpusa', 'dsa', 'wfp', 'revsoc', 'rbw', 'acp', 'lib', 'con', 'fcp', 'jdem', 'ppl', 'fwd'];
   U.REGIONAL = ['aga', 'lsp', 'srp', 'cnp', 'cfc', 'alk', 'aloha', 'raza', 'nenp', 'nyfp', 'vpp'];
   // Potential United Left members and how they behave on confidence votes.
   U.LEFT_MEMBERS = { grn: 'reformist', dsa: 'reformist', wfp: 'reformist', vpp: 'reformist', cpusa: 'hard', revsoc: 'revolutionary' };
@@ -125,7 +137,7 @@
       Object.keys(U.LEFT_MEMBERS).forEach(function (m) { if (m !== o) U.RED_LINES.push([m, o]); }); });
   });
   ['grn', 'dsa', 'wfp', 'cpusa', 'revsoc'].forEach(function (m) { U.RED_LINES.push([m, 'cdp']); });
-  U.RED_LINES.push(['rbw', 'cc'], ['rbw', 'con'], ['rbw', 'srp'], ['rbw', 'cdp'], ['rbw', 'asp'], ['revsoc', 'ldp'], ['revsoc', 'sdlp'], ['revsoc', 'asp'], ['cpusa', 'asp'], ['reform', 'acp'], ['reform', 'ul'], ['reform', 'revsoc']);
+  U.RED_LINES.push(['fcp', 'ldp'], ['fcp', 'sdlp'], ['fcp', 'ul'], ['fcp', 'cdp'], ['jdem', 'cc'], ['jdem', 'maga'], ['jdem', 'fcp'], ['fwd', 'maga'], ['fwd', 'afp'], ['rbw', 'cc'], ['rbw', 'con'], ['rbw', 'srp'], ['rbw', 'cdp'], ['rbw', 'asp'], ['revsoc', 'ldp'], ['revsoc', 'sdlp'], ['revsoc', 'asp'], ['cpusa', 'asp'], ['reform', 'acp'], ['reform', 'ul'], ['reform', 'revsoc']);
   U.vetoes = function (a, b) {
     return U.RED_LINES.some(function (r) { return (r[0] === a && r[1] === b) || (r[0] === b && r[1] === a); });
   };

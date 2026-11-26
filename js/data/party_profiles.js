@@ -90,6 +90,18 @@
     aga: P('alliance', 'Federation of state Green parties; no fixed left-right line', { econ: -1, trade: -2, soc: 0, foreign: -4, fed: 5, pop: 2, env: 9 }, [
       ['Progressive chapters', 'Greg Gerritt', 'Rhode Island and the Northeast'],
       ['Conservationist chapters', 'Carol Miller', 'Virginia’s Independent Greens and rural chapters']]),
+    fcp: P('party', 'Hard-right conservatism: the House Freedom Caucus as a party of its own', { econ: 8, trade: -2, soc: 8, foreign: 1, fed: 8, pop: 7, env: -7 }, [
+      ['Caucus hardliners', 'Mark Meadows', 'no deals with the centre, shutdowns if needed'],
+      ['Tea Party fiscal hawks', 'Mick Mulvaney', 'balanced budgets and smaller government']], { note: 'Does not exist at the start. Can split from the Conservative Coalition in the 2010s.' }),
+    jdem: P('party', 'Insurgent progressives: Medicare for All, a Green New Deal and no corporate money', { econ: -7, trade: -3, soc: -7, foreign: -6, fed: -3, pop: 6, env: 8 }, [
+      ['Insurgents', 'Saikat Chakrabarti', 'primary the establishment'],
+      ['Media left', 'Cenk Uygur', 'online populism']], { note: 'Does not exist at the start. Can split from the LDP and SDLP left after 2016, and may join the United Left.' }),
+    ppl: P('party', 'Left populism outside the two camps', { econ: -6, trade: -6, soc: 0, foreign: -7, fed: 0, pop: 9, env: 3 }, [
+      ['Movement for a People\u2019s Party', 'Nick Brana', 'a new mass party'],
+      ['Anti-war populists', 'Jimmy Dore', 'against both establishments']], { note: 'Founded in the 2020s if discontent runs high.' }),
+    fwd: P('party', 'Centrist reform: ranked-choice voting, open primaries, technocratic pragmatism', { econ: 1, trade: 5, soc: -2, foreign: 2, fed: 1, pop: -2, env: 3 }, [
+      ['Yang Gang', 'Andrew Yang', 'universal basic income and electoral reform'],
+      ['Never-Trump moderates', 'Christine Todd Whitman', 'a home for centre-right refugees']], { note: 'Founded in the 2020s from a merger of centrist movements; can absorb the regional centrists.' }),
     rbw: P('alliance', 'Rainbow Coalition: Black, Native, Puerto Rican and poor white community movements on one list', { econ: -9, trade: -6, soc: -7, foreign: -9, fed: 3, pop: 8, env: 4 }, [
       ['Black Panther Party', 'Fred Hampton Jr.', 'community control, free breakfast and health programs'],
       ['American Indian Movement', 'Russell Means', 'treaty rights and tribal sovereignty'],

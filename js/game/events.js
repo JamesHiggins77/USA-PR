@@ -104,8 +104,8 @@
         var y2000 = Q.year <= 2004, list = [];
         var inc = Q.president.party === Q.player && !Q.president.termLimited ? Q.president.name : null;
         var names = y2000 ? [['Al Gore', 2, 'Best known. If he wins, the LDP needs a new leader and Prime Minister.', null], ['Joe Lieberman', 1, 'Centrist; could attract CDP voters in a runoff. Progressive Liberals cool.', { newdem: -6, proglib: 5 }], ['Howard Dean', 1, 'Energises the left and competes with Nader.', { proglib: -6, newdem: 6 }]]
-          : [[Q.leader.name, Q.leader.charisma + 1, 'The party leader. If elected, the LDP needs a new leader.', null]].concat(Object.keys(U.LDP_FACTIONS).filter(function (k) { return U.LDP_FACTIONS[k].figure !== Q.leader.name; }).slice(0, 2).map(function (k) { var f = {}; f[k] = -6; return [U.LDP_FACTIONS[k].figure, 0, 'Champion of the ' + U.LDP_FACTIONS[k].name + '.', f]; }));
-        var mates = Object.keys(U.LDP_FACTIONS).map(function (k) { return U.LDP_FACTIONS[k].figure; });
+          : [[Q.leader.name, Q.leader.charisma + 1, 'The party leader. If elected, the LDP needs a new leader.', null]].concat(Object.keys(U.LDP_FACTIONS).filter(function (k) { return U.LDP_FACTIONS[k].figure !== Q.leader.name; }).slice(0, 2).map(function (k, i) { var f = {}; f[k] = -6; var who = S.factionChamp(Q, k); return [who, 0, 'Champion of the ' + U.LDP_FACTIONS[k].name + '.', f]; }));
+        var mates = Object.keys(U.LDP_FACTIONS).map(function (k) { return S.factionChamp(Q, k); });
         if (inc && !names.some(function (n) { return n[0] === inc; })) names.unshift([inc, 3, 'The sitting President seeks re-election.', null]);
         names.forEach(function (n) { list.push({ label: n[0], sub: n[2], act: function (Q) { var vp = mates.filter(function (m) { return m !== n[0] && m !== Q.leader.name; })[0];
           Q.presCandidate = { party: Q.player, name: n[0], appeal: n[1], backers: [], vp: { name: vp, party: Q.player } }; if (n[3]) H.fac(Q, n[3]); return n[0] + ' wins the nomination and picks ' + vp + ' as running mate.'; } }); });
@@ -181,11 +181,11 @@
 
     { id: 'new_leader', title: 'The Prime Minister moves to the White House', when: function (Q) { return Q.flags.leaderToWhiteHouse && !Q.flags.leaderReplaced; },
       body: function (Q) { return Q.leader.name + ' will be President. The LDP needs a new leader' + (S.pmIsPlayer(Q) ? ', and the government a new Prime Minister. Coalition partners will judge the choice.' : '.'); },
-      options: ['newdem', 'proglib', 'chrlib', 'heartland'].map(function (k) { return { label: function (Q) { return U.LDP_FACTIONS[k].figure + ' (' + U.LDP_FACTIONS[k].name + ')'; }, sub: function (Q) { return 'Faction strength ' + Math.round(Q.factions[k].strength) + '%.'; }, act: function (Q) { return Ev.newLeader(Q, k); } }; }) },
+      options: ['newdem', 'proglib', 'chrlib', 'heartland'].map(function (k) { return { label: function (Q) { return S.factionChamp(Q, k) + ' (' + U.LDP_FACTIONS[k].name + ')'; }, sub: function (Q) { return 'Faction strength ' + Math.round(Q.factions[k].strength) + '%.'; }, act: function (Q) { return Ev.newLeader(Q, k); } }; }) },
 
     { id: 'challenge', title: 'A leadership challenge', repeat: true,
       when: function (Q) { return !Q.timers.challenge && Q.leader.approval < 30 && Object.keys(Q.factions).some(function (k) { return Q.factions[k].dissent > 70; }); },
-      body: function (Q) { var k = Ev.rebel(Q); return U.LDP_FACTIONS[k].figure + ' of the ' + U.LDP_FACTIONS[k].name + ' announces a challenge to ' + Q.leader.name + '. Members and MPs will vote.'; },
+      body: function (Q) { var k = Ev.rebel(Q); return S.factionChamp(Q, k) + ' of the ' + U.LDP_FACTIONS[k].name + ' announces a challenge to ' + Q.leader.name + '. Members and MPs will vote.'; },
       options: [
         { label: 'Fight it', act: function (Q) { Q.timers.challenge = 12; var k = Ev.rebel(Q), p = Q.leader.approval / 100 + Q.unity / 200 + (1 - Q.factions[k].strength / 100) * 0.3 + U.gauss(Q) * 0.1; if (p > 0.6) { Q.factions[k].dissent -= 20; Q.unity -= 5; Q.leader.approval += 5; return Q.leader.name + ' survives the vote. The rebels retreat.'; } return Ev.newLeader(Q, k, 'The challenger wins. '); } },
         { label: 'Stand down', act: function (Q) { Q.timers.challenge = 12; return Ev.newLeader(Q, Ev.rebel(Q), Q.leader.name + ' resigns. '); } }
@@ -275,7 +275,8 @@
 
   Ev.newLeader = function (Q, k, prefix) {
     var f = U.LDP_FACTIONS[k];
-    Q.leader = { name: f.figure, approval: 50, charisma: k === 'proglib' ? 1 : 0 };
+    var who = S.factionChamp(Q, k);   // the faction's current champion
+    Q.leader = { name: who, approval: 50, charisma: k === 'proglib' ? 1 : 0 };
     Q.flags.leaderReplaced = 1; Q.flags.leaderToWhiteHouse = null;
     Q.factions[k].dissent = 20; Q.factions[k].strength += 5;
     for (var o in Q.factions) if (o !== k) Q.factions[o].dissent += 5;

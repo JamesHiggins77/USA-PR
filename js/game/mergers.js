@@ -151,6 +151,7 @@
   S.tidyGov = function (Q) { var g = Q.gov; if (!g) return; g.cs = g.cs.filter(function (p, i) { return g.cs.indexOf(p) === i && g.coalition.indexOf(p) < 0 && p !== g.pmParty && !Q.dormant[p]; }); };
   // careers: each January some figures enter national politics and others retire
   S.careers = function (Q) {
+    if (S.figuresYear) return S.figuresYear(Q);   // careers now vary by game (js/game/figures.js)
     if (Q.month !== 1 || Q.flags.careersYear === Q.year || !U.CAREERS) return;
     Q.flags.careersYear = Q.year; Q.retired = Q.retired || {};
     var holds = {}; [Q.president && Q.president.name, Q.gov && Q.gov.pm, Q.leader && Q.leader.name].concat(['speaker', 'ppt', 'vp'].map(function (o) { return Q.offices && Q.offices[o] && Q.offices[o].name; })).forEach(function (n) { if (n) holds[n] = 1; });

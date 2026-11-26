@@ -10,7 +10,7 @@
   var pct = function (v) { return v.toFixed(1) + '%'; };
   var sign = function (v, d) { var s = v.toFixed(d == null ? 1 : d); return (v > 0 ? '+' : '') + s; };
 
-  var TABS = [['live', 'Newspaper'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party view'], ['parties', 'Parties'], ['history', 'History'], ['elections', 'Elections'], ['log', 'Log'], ['system', 'Simulation']];
+  var TABS = [['live', 'Newspaper'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party view'], ['parties', 'Parties'], ['figures', 'Key figures'], ['history', 'History'], ['elections', 'Elections'], ['log', 'Log'], ['system', 'Simulation']];
 
   function save() { if (Q) S.save(Q); }
   function go(v) { if (U.Night) U.Night.stop(); if (U.Roll) U.Roll.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
@@ -22,7 +22,7 @@
     $('tabs').innerHTML = TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (view === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('');
     renderSide();
     var m = $('main');
-    var fn = { live: live, office: live, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, parties: parties, log: log, system: system, history: history, elections: elections, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night, rollcall: function () { return U.Roll.html(); } }[view];
+    var fn = { figures: figuresView, live: live, office: live, parliament: parliament, coalition: coalition, map: map, polls: polls, party: party, parties: parties, log: log, system: system, history: history, elections: elections, election: election, negotiate: negotiate, electionchoice: electionChoice, night: night, rollcall: function () { return U.Roll.html(); } }[view];
     var bar = (view === 'night' || view === 'election' || view === 'rollcall') ? '<div class="row" style="gap:8px;margin-bottom:8px"><button class="btn ghost" data-act="back">\u2190 Back to the newspaper</button></div>' : '';
     m.innerHTML = bar + fn();
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
@@ -253,6 +253,25 @@
     genData = r1States || null;
     var h = '<div class="grid2"><div><h3>Round one: national popular vote</h3>' + r1rows + '</div><div>' + (r1States ? '<div id="genmap">' + Ch.resultMap(Q, r1States) + '</div><p class="small muted">Largest first-round vote in each state, shaded ' + Ch.bandLabels.join(' · ') + '. Hover or tap a state for the full vote.</p>' : '<p class="small muted">No state breakdown was kept for this election.</p>') + '</div></div>';
     if (r2rows) h += '<div class="grid2"><div><h3>Round two: Electoral College (' + total + ' electors)</h3>' + r2rows + '</div><div>' + (ecStates ? '<div id="ecmap">' + Ch.resultMap(Q, ecStates) + '</div><p class="small muted">Runoff winner in each state; each square is an elector.' + (note || '') + '</p>' : '') + '</div></div>';
+    return h;
+  }
+  // ---- key figures: real people, their party, offices, age and next contest ----
+  var figParty = 'all', figStatus = 'active', figSearch = '';
+  function figuresView() {
+    if (!Q.fig) S.initFigures(Q);
+    var names = Object.keys(Q.fig), ST = { active: 'Active', waiting: 'Not yet on the national scene', lost: 'Lost / held back', retired: 'Retired' };
+    var parties = {}; names.forEach(function (n) { parties[Q.fig[n].p] = 1; });
+    var plist = Object.keys(parties).sort(function (a, b) { return U.partyInfo(a).name < U.partyInfo(b).name ? -1 : 1; });
+    var rows = names.filter(function (n) { var f = Q.fig[n]; return (figParty === 'all' || f.p === figParty) && (figStatus === 'all' || f.status === figStatus) && (!figSearch || n.toLowerCase().indexOf(figSearch.toLowerCase()) >= 0); })
+      .sort(function (a, b) { var A = Q.fig[a], B = Q.fig[b], pa = S.positionsOf(Q, a).length, pb = S.positionsOf(Q, b).length; return (A.p < B.p ? -1 : A.p > B.p ? 1 : 0) || pb - pa || (a < b ? -1 : 1); });
+    var h = '<h1>Key figures</h1><p class="small muted">Real politicians and activists in this timeline. When they arrive and leave changes from game to game, and anyone who needs to win a seat only reaches national politics if their party can win in their state.</p>';
+    h += '<div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:6px"><select data-figparty><option value="all">All parties</option>' + plist.map(function (p) { return '<option value="' + p + '"' + (figParty === p ? ' selected' : '') + '>' + esc(U.partyInfo(p).name) + '</option>'; }).join('') + '</select>' +
+      ['active', 'waiting', 'lost', 'retired', 'all'].map(function (k) { return '<button class="btn ' + (figStatus === k ? '' : 'ghost') + '" data-figstatus="' + k + '">' + (k === 'all' ? 'All' : ST[k].split(' /')[0].replace('Not yet on the national scene', 'Rising')) + '</button>'; }).join('') +
+      '<input data-figsearch placeholder="Search names" value="' + esc(figSearch) + '" style="margin-left:auto"></div>';
+    h += '<p class="small muted">' + rows.length + ' figures</p><div style="overflow-x:auto"><table class="seats" style="width:100%"><tr><th>Name</th><th>Party</th><th>Position</th><th>Age</th><th>Status</th><th>Next contest</th></tr>' +
+      rows.map(function (n) { var f = Q.fig[n], pos = S.positionsOf(Q, n);
+        return '<tr><td><b>' + esc(n) + '</b><div class="small muted">' + esc(f.st) + '</div></td><td>' + chip(f.p) + esc(U.partyInfo(f.p).short) + '</td><td class="small">' + esc(pos.join(', ') || '\u2014') + '</td><td>' + (f.born ? (f.status === 'retired' && f.out ? f.out : Q.year) - f.born : '') + '</td><td class="small">' +
+          esc(f.status === 'retired' ? (f.never ? 'Never reached national office' : 'Retired' + (f.out ? ' ' + f.out : '')) : f.status === 'lost' ? 'Lost in ' + f.lastLost : f.status === 'waiting' ? 'Rising' : 'Active' + (f.since && f.since > 1997 ? ' since ' + f.since : '')) + '</td><td class="small">' + esc(S.nextContest(Q, n)) + '</td></tr>'; }).join('') + '</table></div>';
     return h;
   }
   function arithmetic(seats) {
@@ -819,6 +838,9 @@
     document.querySelectorAll('[data-pv]').forEach(function (b) { b.onclick = function () { pvSel = b.dataset.pv; render(); }; });
     var sa = document.querySelector('[data-setask]'); if (sa) sa.onchange = function () { var p2 = livePrefs(); p2.ask = sa.checked; saveLivePrefs(p2); };
     document.querySelectorAll('[data-setalways]').forEach(function (c) { c.onchange = function () { var p2 = livePrefs(); p2.always[c.dataset.setalways] = c.checked; saveLivePrefs(p2); }; });
+    var fp = document.querySelector('[data-figparty]'); if (fp) fp.onchange = function () { figParty = fp.value; render(); };
+    document.querySelectorAll('[data-figstatus]').forEach(function (b) { b.onclick = function () { figStatus = b.dataset.figstatus; render(); }; });
+    var fs = document.querySelector('[data-figsearch]'); if (fs) fs.oninput = function () { figSearch = fs.value; render(); var x = document.querySelector('[data-figsearch]'); if (x) { x.focus(); x.setSelectionRange(x.value.length, x.value.length); } };
     document.querySelectorAll('[data-head]').forEach(function (b) { b.onclick = function () { openHead[b.dataset.head] = !openHead[b.dataset.head]; render(); }; });
     document.querySelectorAll('[data-paper]').forEach(function (b) { b.onclick = function () { var v = b.dataset.paper; paperIdx = v === 'latest' ? null : +v; render(); }; });
     document.querySelectorAll('[data-rollx]').forEach(function (b) { b.onclick = function () { var a = b.dataset.rollx.split(':'), it = Q.papers[+a[0]].items[+a[1]]; it.seen = true; save(); U.Roll.reset(Q, it.vote); go('rollcall'); }; });

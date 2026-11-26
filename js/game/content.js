@@ -82,7 +82,7 @@
     { id: 'faction', title: 'Meet a faction', tag: 'Party',
       body: function (Q) { return 'Each faction wants something. Meeting one costs a little standing with the others.'; },
       options: ['newdem', 'proglib', 'chrlib', 'heartland'].map(function (k) {
-        return { label: function (Q) { return U.LDP_FACTIONS[k].name + ' (' + U.LDP_FACTIONS[k].figure + ')'; },
+        return { label: function (Q) { return U.LDP_FACTIONS[k].name + ' (' + S.factionChamp(Q, k) + ')'; },
           sub: function (Q) { return 'Dissent ' + Math.round(Q.factions[k].dissent) + '. Wants: ' + U.LDP_FACTIONS[k].wants + '.'; },
           act: function (Q) { var o = { newdem: 1, proglib: 1, chrlib: 1, heartland: 1 }; o[k] = -12; H.fac(Q, o); Q.unity += 1; return U.LDP_FACTIONS[k].figure + ' leaves the meeting satisfied, for now.'; } };
       }) },

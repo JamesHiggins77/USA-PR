@@ -236,9 +236,12 @@ test('policy events depend on the LDP\'s role: PM, junior partner, support, oppo
 test('careers: politicians retire and newcomers arrive over time', () => {
   const Q = U.Game.newGame(2); U.Flow.begin(Q); let g = 0;
   while (Q.year < 2010 && g++ < 200) { let k = 0; while (Q.pendingEvent && k++ < 20) { const o = U.Flow.options(Q, U.Events.byId(Q.pendingEvent)); U.Flow.answerEvent(Q, Math.max(0, o.findIndex(x => x.ok))); } U.Flow.skip(Q); }
-  assert.ok(Q.retired['Strom Thurmond'] && Q.retired['Ted Kennedy']);
-  assert.ok(U.activeIn('Barack Obama', 2008) && !U.activeIn('Barack Obama', 2000));
+  assert.ok(Q.retired['Strom Thurmond'] && Q.retired['Gus Hall']);
   assert.notStrictEqual(Q.leaders.cpusa, 'Gus Hall');
+  const act = Object.keys(Q.fig).filter(n => Q.fig[n].since > 1997); assert.ok(act.length > 20, 'newcomers arrived');
+  // entry depends on the seed and on the party winning the figure's state
+  const a = U.Game.newGame(2), b = U.Game.newGame(9); assert.ok(Object.keys(a.fig).some(n => a.fig[n].enter !== b.fig[n].enter));
+  const o = Q.fig['Barack Obama']; assert.ok(o.status !== 'active' || (Q.senateSeats.some(x => x.state === 'IL' && x.party === o.p) || o.since));
 });
 
 test('opening parliament: Sanders holds a Vermont House seat for the VPP, the Greens have 4 seats', () => {

@@ -212,6 +212,7 @@
     // Dormant populist right can emerge from 2015 if conditions allow
     if (Q.dormant.maga && Q.year >= 2015 && Q.month >= 6 && Q.discontent > 45 && U.rng(Q) < 0.15) S.activate(Q, 'maga', 4 + Q.discontent / 10);
     if (Q.dormant.afp && !Q.dormant.maga && Q.year >= 2018 && S.inGov(Q, 'maga') && U.rng(Q) < 0.05) S.activate(Q, 'afp', 2);
+    S.newParties(Q);
   };
 
   S.naderSurge = function (Q) {
@@ -228,6 +229,31 @@
     if (pool > 0) sw.frac = U.clamp(sw.frac + (want - cur) / pool * 0.6 + U.gauss(Q) * 0.002, 0, 0.35);
   };
 
+  // MPs who walk out to a new party
+  S.defect = function (Q, from, to, frac) {
+    var n = Math.round((Q.house[from] || 0) * frac); if (n < 1) return 0;
+    Q.house[from] -= n; Q.house[to] = (Q.house[to] || 0) + n;
+    var hb = Q.houseByState || {}, left = n; Object.keys(hb).forEach(function (s) { if (left > 0 && hb[s][from] > 1) { hb[s][from]--; hb[s][to] = (hb[s][to] || 0) + 1; left--; } });
+    return n;
+  };
+  // parties founded in the 2010s and 2020s: splits, new movements and mergers
+  S.newParties = function (Q) {
+    var r = U.rng(Q), y = Q.year, n = V.national(Q);
+    if (Q.dormant.fcp && !Q.dormant.cc && y >= 2014 && (S.inGov(Q, 'cc') && S.inGov(Q, 'cdp') ? 0.02 : 0.006) + Q.discontent / 8000 > r) {
+      S.activate(Q, 'fcp', 2 + (n.cc || 20) * 0.08); var k = S.defect(Q, 'cc', 'fcp', 0.07);
+      S.note(Q, 'The Freedom Caucus walks out of the Conservative Coalition and founds the Freedom Party' + (k ? ', taking ' + k + ' members of the House with it' : '') + '.'); return; }
+    if (Q.dormant.jdem && y >= 2017 && r > 0.985) {
+      S.activate(Q, 'jdem', 1.5); var k2 = S.defect(Q, 'sdlp', 'jdem', 0.03) + S.defect(Q, 'ldp', 'jdem', 0.02);
+      S.note(Q, 'Insurgent progressives launch Justice Democrats as a party of their own' + (k2 ? '; ' + k2 + ' members of the House join' : '') + '.'); return; }
+    if (!Q.dormant.jdem && !Q.dormant.ul && Q.ulMembers && !Q.ulMembers.jdem && r > 0.4 && r < 0.406) {
+      var w = n.jdem || 1; S.mergeInto(Q, ['jdem'], 'ul', 0.92); Q.ulMembers.jdem = w; S.note(Q, 'Justice Democrats join the United Left lists.'); return; }
+    if (Q.dormant.ppl && y >= 2020 && Q.discontent > 35 && r > 0.2 && r < 0.21) { S.activate(Q, 'ppl', 1.2); return; }
+    if (Q.dormant.fwd && y >= 2021 && r > 0.6 && r < 0.625) {
+      S.activate(Q, 'fwd', 1.5);
+      var joined = ['nyfp', 'nenp'].filter(function (p) { return !Q.dormant[p] && U.rng(Q) < 0.6; });
+      if (joined.length) S.mergeInto(Q, joined, 'fwd', 0.85);
+      S.note(Q, 'The Forward Party is founded from a merger of centrist reform movements' + (joined.length ? ', taking in the ' + joined.map(function (p) { return U.PARTIES[p].name; }).join(' and ') : '') + '.'); }
+  };
   S.activate = function (Q, p, share) {
     Q.dormant[p] = false; Q.calib[p] = 1; Q.mods[p] = {};
     var n = V.national(Q); Q.calib[p] = share / Math.max(0.1, n[p]);
@@ -498,8 +524,8 @@
   };
   S.pickPerson = function (Q, p, exclude, byStat) {
     var list = U.PEOPLE[p] || [], busy = S.busy(Q);
-    var yr = Q.year || 1997, free = list.filter(function (n) { return !busy[n] && !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && (!U.activeIn || U.activeIn(n, yr)); });
-    if (!free.length) free = list.filter(function (n) { return !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && (!U.activeIn || U.activeIn(n, yr)); });
+    var yr = Q.year || 1997, free = list.filter(function (n) { return !busy[n] && !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && S.isActive(Q, n); });
+    if (!free.length) free = list.filter(function (n) { return !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && S.isActive(Q, n); });
     if (byStat) free.sort(function (a, b) { return U.personStats(b)[byStat] - U.personStats(a)[byStat]; });
     return free[0] || ('a senior ' + U.PARTIES[p].short + ' member');
   };
@@ -515,7 +541,7 @@
     var bs = (p === 'vpp' || p === 'ul'), senator = Q.flags && Q.flags.sandersSenator && !(Q.retired && Q.retired['Bernie Sanders']);
     var cur = bs && senator ? 'Bernie Sanders' : Q.senLeaders[p] || (bs ? null : SEN0[p]), house = S.leaderOf(Q, p);
     if (bs && !senator && cur === 'Bernie Sanders') cur = null;
-    if (!cur || (cur === house && !(bs && senator)) || (Q.president && cur === Q.president.name) || (Q.retired && Q.retired[cur]) || (U.activeIn && !U.activeIn(cur, Q.year))) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
+    if (!cur || (cur === house && !(bs && senator)) || (Q.president && cur === Q.president.name) || (Q.retired && Q.retired[cur]) || !S.isActive(Q, cur)) { var ex = {}; ex[house] = 1; if (Q.president) ex[Q.president.name] = 1; cur = U.PEOPLE[p] ? S.pickPerson(Q, p, ex, 'competence') : ''; }
     Q.senLeaders[p] = cur; return cur;
   };
   S.leaderOf = function (Q, p) { return p === Q.player ? Q.leader.name : (Q.leaders && Q.leaders[p]) || U.PARTIES[p].leader; };
