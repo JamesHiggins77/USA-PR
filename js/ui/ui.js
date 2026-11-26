@@ -69,13 +69,19 @@
     var n = V.national(Q), g = Q.gov, prev = Q.polls[Q.polls.length - 2];
     var top = Object.keys(n).sort(function (a, b) { return n[b] - n[a]; }).slice(0, 8);
     var h = '<div class="date">' + U.dateStr(Q) + '</div>';
-    h += '<div class="kv"><span>Seed</span><b>' + Q.seed0 + '</b></div>';
-    h += '<h4>Government</h4>';
-    if (Q.formation) h += '<div>' + (Q.gov && Q.gov.senateCaretaker ? 'Senate-appointed caretaker. ' : 'Caretaker. ') + '<b>Government formation</b> under way' + (Q.formation.stage === 'open' ? ' (' + Q.formation.monthsLeft + ' months before a new election)' : ' (presidential nomination ' + Q.formation.round + ' of 2)') + '.</div>';
-    else if (g) h += '<div>PM <b>' + esc(g.pm) + '</b> (' + P(g.pmParty).short + ')</div><div class="small">' + g.coalition.map(function (p) { return chip(p) + P(p).short; }).join(' ') + (g.cs.length ? ' &middot; C&amp;S: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') : '') + '</div><div class="kv"><span>Seats</span><b>' + S.govSeats(Q) + ' / ' + U.RULES.house.total + '</b></div>';
-    h += '<div class="kv"><span>Gov. approval</span><b>' + Math.round(Q.govApproval) + '%</b></div>';
     var lp = Q.papers && Q.papers[Q.papers.length - 1], sealed = lp && !lp.open && lp.items.some(function (it) { return it.teaser && it.kind === 'election' && !it.seen; });
-    h += '<div class="kv"><span>President</span><b>' + (sealed ? 'Votes being counted' : esc(Q.president.name) + ' (' + P(Q.president.party).short + ')') + '</b></div>';
+    var chips = function (L) { return L.map(function (p) { return chip(p) + P(p).short; }).join(' '); };
+    var presTxt = sealed ? 'Votes being counted' : esc(Q.president.name) + ' (' + P(Q.president.party).short + ')';
+    var pmTxt = Q.formation ? (g ? esc(g.pm) + ' (caretaker)' : 'Vacant') + ' — forming a government' : g ? esc(g.pm) + ' (' + P(g.pmParty).short + ')' : '—';
+    h += '<div class="kv"><span>President</span><b>' + presTxt + '</b></div>';
+    h += '<div class="kv"><span>Prime Minister</span><b>' + pmTxt + '</b></div>';
+    if (g && !Q.formation) {
+      h += '<div class="kv"><span>Government</span><b>' + C.seats(Q, g.coalition) + ' seats</b></div><div class="small" style="margin:-2px 0 4px">' + chips(g.coalition) + '</div>';
+      h += '<div class="kv"><span>Support</span><b>' + (g.cs.length ? C.seats(Q, g.cs) + ' seats' : 'none') + '</b></div>' + (g.cs.length ? '<div class="small" style="margin:-2px 0 4px">' + chips(g.cs) + '</div>' : '');
+      h += '<div class="kv"><span>Total</span><b>' + S.govSeats(Q) + ' / ' + U.RULES.house.total + '</b></div>';
+    } else if (Q.formation) h += '<div class="small">' + (Q.gov && Q.gov.senateCaretaker ? 'Senate-appointed caretaker. ' : '') + (Q.formation.stage === 'open' ? Q.formation.monthsLeft + ' months before a new election.' : 'The President has made a nomination.') + '</div>';
+    h += '<h4>Government</h4>';
+    h += '<div class="kv"><span>Gov. approval</span><b>' + Math.round(Q.govApproval) + '%</b></div>';
     if (Q.offices && !sealed) h += '<div class="kv"><span>Vice President</span><b>' + esc(Q.offices.vp.name) + ' (' + P(Q.offices.vp.party).short + ')</b></div><div class="kv"><span>Speaker</span><b>' + esc(Q.offices.speaker.name) + ' (' + P(Q.offices.speaker.party).short + ')</b></div>';
     var ed = Q.electionAt || Q.deadline, y = Math.floor(ed / 12), m = ed % 12 + 1;
     h += '<div class="kv"><span>' + (Q.electionAt ? 'Election day' : 'Election due by') + '</span><b>' + U.MONTHS[m - 1].slice(0, 3) + ' ' + y + '</b></div>';
@@ -91,7 +97,8 @@
     for (var k in Q.factions) { var f = Q.factions[k]; h += '<div class="kv"><span>' + U.LDP_FACTIONS[k].name + '</span><b>' + Math.round(f.dissent) + '</b></div>' + Ch.bar(f.dissent, 100, f.dissent > 70 ? 'bad' : f.dissent > 50 ? 'warn' : ''); }
     h += '<h4>Economy</h4><div class="kv"><span>Growth</span><b>' + Q.econ.growth.toFixed(1) + '%</b></div><div class="kv"><span>Unemployment</span><b>' + Q.econ.unemp.toFixed(1) + '%</b></div><div class="kv"><span>Inflation</span><b>' + Q.econ.infl.toFixed(1) + '%</b></div><div class="kv"><span>Deficit</span><b>' + Q.econ.deficit.toFixed(1) + '% GDP</b></div>';
     // on phones the sidebar is a collapsible status panel with a one-line summary
-    var summary = esc(U.dateStr(Q)) + ' \u00b7 ' + P(Q.player).short + ' ' + pct(n[Q.player] || 0) + (g && !Q.formation ? ' \u00b7 Gov. ' + S.govSeats(Q) + '/' + U.RULES.house.total : Q.formation ? ' \u00b7 Forming a government' : '');
+    var short = function (L) { return L.map(function (p) { return P(p).short; }).join('\u2013'); };
+    var summary = esc(U.dateStr(Q)) + ' \u00b7 Pres. ' + (sealed ? '\u2026' : esc(Q.president.name.split(' ').pop()) + ' (' + P(Q.president.party).short + ')') + ' \u00b7 PM ' + (g ? esc(g.pm.split(' ').pop()) : '\u2014') + (Q.formation ? ' \u00b7 forming a government' : g ? ' \u00b7 ' + short(g.coalition) + (g.cs.length ? ' \u00b7 support ' + short(g.cs) : '') : '');
     $('side').innerHTML = '<details class="sidebox"' + (sideOpen ? ' open' : '') + '><summary><span>Status</span><span class="small">' + summary + '</span></summary><div class="side">' + h + '</div></details>';
     $('side').querySelector('details').ontoggle = function (e) { sideOpen = e.target.open; };
   }
