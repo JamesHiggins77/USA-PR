@@ -106,7 +106,7 @@
   // shaded by its share; dots = seats won in the state. opts.inset: {title, seats}.
   Ch.resultMap = function (Q, data, opts) {
     opts = opts || {};
-    var G = U.GEO, out = '', col = function (p) { return U.partyInfo(p).color; };
+    var G = U.GEO, out = '', top = '', col = function (p) { return U.partyInfo(p).color; };
     var order = function (ks) { return ks.sort(function (a, b) { return (U.partyInfo(a).econ || 0) - (U.partyInfo(b).econ || 0); }); };
     var fill = function (id) { var d = data[id]; if (!d) return '#d6d2c8'; var sh = d.shares || {}, ks = Object.keys(sh);
       if (!ks.length) { ks = Object.keys(d.seats || {}); if (!ks.length) return '#d6d2c8'; var t = ks.sort(function (a, b) { return d.seats[b] - d.seats[a]; })[0]; return Ch.shade(col(t), 3); }
@@ -115,9 +115,10 @@
       var g = G[id], c = fill(id), ink = Ch.ink(c), small = SMALL.indexOf(id) >= 0;
       out += '<g class="tile" data-state="' + id + '"><path d="' + g.d + '" fill="' + c + '" stroke="var(--bg)" stroke-width="0.8"></path>';
       if (!small) { var d = dots((data[id] || {}).seats || {}, g.c[0], g.c[1] + 2, id === 'CA' || id === 'TX' ? 8 : 6, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000');
-        out += '<text x="' + g.c[0] + '" y="' + (g.c[1] - 3) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + ';pointer-events:none">' + id + '</text><g style="pointer-events:none">' + d.svg + '</g>'; }
+        top += '<text x="' + g.c[0] + '" y="' + (g.c[1] - 3) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + '">' + id + '</text>' + d.svg; }
       out += '<title>' + (U.STATES[id] || U.DC).name + '</title></g>';
     });
+    out += '<g style="pointer-events:none">' + top + '</g>';
     var y = 150;
     SMALL.forEach(function (id) {
       var c = fill(id), ink = Ch.ink(c), x = 912, g = G[id], d = dots((data[id] || {}).seats || {}, x + 33, y + 17, 8, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000'), hgt = Math.max(24, 20 + d.h);
@@ -128,7 +129,7 @@
     });
     var bottom = Math.max(610, y + 10);
     if (opts.inset) { var dd = dots(opts.inset.seats, 487, bottom + 28, 34, byResult({ seats: opts.inset.seats, shares: opts.inset.shares }), col);
-      out += '<g><rect x="317" y="' + (bottom + 4) + '" width="340" height="' + (dd.h + 32) + '" rx="6" fill="none" stroke="currentColor" stroke-opacity=".3"/><text x="487" y="' + (bottom + 18) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">' + opts.inset.title + '</text>' + dd.svg + '</g>';
+      out += '<g' + (opts.inset.id ? ' class="tile" data-state="' + opts.inset.id + '"' : '') + '><rect x="317" y="' + (bottom + 4) + '" width="340" height="' + (dd.h + 32) + '" rx="6" fill="var(--card)" stroke="currentColor" stroke-opacity=".3"/><text x="487" y="' + (bottom + 18) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="currentColor">' + opts.inset.title + '</text>' + dd.svg + '</g>';
       bottom += dd.h + 40; }
     return '<svg viewBox="0 0 975 ' + bottom + '" width="100%" style="color:var(--ink)">' + out + '</svg>';
   };
