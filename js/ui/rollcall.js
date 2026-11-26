@@ -49,6 +49,7 @@
   // ---- view and animation ----
   var S = null, timer = null;
   R.reset = function (Q, lv) { R.stop(); S = R.build(Q, lv); S.si = 0; S.i = 0; S.speed = S.speed || 4; S.done = false; S.pause = 0; };
+  R.done = function () { return !S || S.done; };
   R.stop = function () { if (timer) clearInterval(timer); timer = null; };
   R.html = function () {
     if (!S) return '<p>No vote to show.</p>';

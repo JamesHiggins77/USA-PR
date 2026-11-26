@@ -146,12 +146,12 @@
       if (Q.dormant[p]) return;
       var m = Q.mods[p] = Q.mods[p] || {};
       U.GROUPS.forEach(function (g) {
-        m[g] = (m[g] || 0) * 0.985 + (p === Q.player ? 0 : U.gauss(Q) * 0.2);
+        m[g] = (m[g] || 0) * 0.985 + (p === Q.player && !Q.zero ? 0 : U.gauss(Q) * 0.2);
       });
       Q.fatigue && Q.fatigue[p] && (Q.fatigue[p] *= 0.8);
       // AI parties campaign too: a monthly push among their best groups,
       // stronger during election campaigns
-      if (p !== Q.player && U.PARTIES[p].pref) {
+      if ((p !== Q.player || Q.zero) && U.PARTIES[p].pref) {
         var best = U.GROUPS.slice().sort(function (a, b) { return U.PARTIES[p].pref[b] - U.PARTIES[p].pref[a]; }).slice(0, 3);
         var push = (Q.electionAt ? 0.5 : 0.25) * (0.5 + U.rng(Q)) * Math.sqrt(U.PARTIES[p].target || 2) / 3;
         var o = {}; o[U.pick(Q, best)] = push; o[U.pick(Q, U.GROUPS)] = push * 0.5;

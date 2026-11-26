@@ -302,4 +302,6 @@
   };
   N.stop = function () { if (timer) clearInterval(timer); timer = null; };
   N.reset = function () { N.stop(); st = null; };
+  N.speed = function (v) { if (st) st.speed = v; };
+  N.done = function () { return !!st && st.t >= END1; };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
