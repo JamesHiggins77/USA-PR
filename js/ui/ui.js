@@ -290,7 +290,8 @@
     return '<table class="seats"><tr><th>Party</th><th>Seats</th><th>Share</th></tr>' + rows.map(function (p) {
       var parts = parlMode === 'alliances' && U.ALLIANCES[p] && U.allianceParts(Q, p, seats[p], chamber), key = chamber + ':' + p, open = parlOpen[key];
       var row = '<tr' + (parts ? ' class="exp" data-exp="' + key + '" style="cursor:pointer"' : '') + '><td>' + chip(p) + esc(P(p).name) + (parts ? ' <span class="small muted">' + (open ? '\u25be' : '\u25b8') + ' alliance</span>' : '') + '</td><td><b>' + seats[p] + '</b></td><td>' + (seats[p] / tot * 100).toFixed(1) + '%</td></tr>';
-      if (parts && open) row += Object.keys(parts).filter(function (q) { return parts[q]; }).sort(function (a, b) { return parts[b] - parts[a]; }).map(function (q) { return '<tr class="sub"><td style="padding-left:22px">' + chip(q) + esc(P(q).name) + '</td><td>' + parts[q] + '</td><td class="small muted">' + (parts[q] / tot * 100).toFixed(1) + '%</td></tr>'; }).join('');
+      if (parts) (U.allianceMembers(Q, p) || []).forEach(function (m) { if (parts[m] == null) parts[m] = 0; });
+      if (parts && open) row += Object.keys(parts).sort(function (a, b) { return parts[b] - parts[a]; }).map(function (q) { return '<tr class="sub"><td style="padding-left:22px">' + chip(q) + esc(P(q).name) + '</td><td>' + parts[q] + '</td><td class="small muted">' + (parts[q] / tot * 100).toFixed(1) + '%</td></tr>'; }).join('');
       return row;
     }).join('') + '<tr><td class="muted">Total (majority ' + maj + ')</td><td><b>' + tot + '</b></td><td></td></tr></table>';
   }
@@ -568,7 +569,7 @@
   function ochip(k) { return '<i class="chip" style="background:' + oldParty(k).color + '"></i>'; }
   function bar(pct, color) { return '<div class="bar" style="margin:2px 0 0"><i style="width:' + U.clamp(pct, 0, 100) + '%;background:' + color + '"></i></div>'; }
   // Results map in the style of Spanish election maps: shaded winner, seat dots, legend, ring
-  var genMode = 'house', genData = null, genSeq = [], govSeq = [];
+  var genMode = 'house', genData = null, genSeq = [], govSeq = [], resMode = 'alliances';
   // governors elected at a general election: map, party totals with change, closest races
   function governors(x) {
     var g = x.rec.govs, i = govSeq.indexOf(x), pv = i > 0 ? govSeq[i - 1].rec.govs : null, tot = {}, ptot = {}, data = {};
@@ -610,6 +611,14 @@
     }
     if (sen && r.senShares) r = Object.assign({}, r, { shares: r.senShares });
     var ord = Object.keys(seats).filter(function (p) { return seats[p] > 0; }).sort(function (a, b) { return seats[b] - seats[a] || (r.shares[b] || 0) - (r.shares[a] || 0); });
+    var allianceOf = {};
+    if (resMode === 'parties') {
+      var spl = function (rr, sd) { return U.splitResult(Q, sd, sen ? rr.senStates : rr.states, sen ? null : rr.national); };
+      var before = seats; seats = spl(r, seats);
+      for (var ak in before) (U.allianceMembers(Q, ak) || []).forEach(function (m) { allianceOf[m] = ak; });
+      ord = Object.keys(seats).filter(function (p) { return seats[p] > 0 || allianceOf[p]; }).sort(function (a, b) { return seats[b] - seats[a] || (r.shares[b] || 0) - (r.shares[a] || 0); });
+      if (prev) prev = Object.assign({}, prev, sen ? { senate: spl(prev, prev.senate || {}) } : { house: spl(prev, prev.house || {}) });
+    }
     var pSeats = prev ? (sen ? prev.senate : prev.house) || {} : null, pSh = prev ? (sen && prev.senShares ? prev.senShares : prev.shares) || {} : null;
     var dfmt = function (v, d) { v = +v.toFixed(d); return '<span class="small ' + (!v ? 'muted' : v > 0 ? 'up' : 'down') + '">' + (v > 0 ? '+' : v < 0 ? '\u2212' : '\u00b1') + Math.abs(v).toFixed(d) + '</span>'; };
     var dV = function (p) { return pSh && r.shares[p] != null ? (pSh[p] == null && !(pSeats && pSeats[p]) ? '<span class="small">new</span>' : dfmt(r.shares[p] - (pSh[p] || 0), 1)) : ''; };
@@ -617,10 +626,10 @@
     var winners = {}; for (var sid in data) { var sh = data[sid].shares || {}, w = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a]; })[0]; if (w) winners[w] = 1; }
     var lead = (sen ? r.senLeaders : r.leaders) || (sen ? {} : Q.leaders) || {};
     var econ = function (ks) { return ks.sort(function (a, b) { return (P(a).econ || 0) - (P(b).econ || 0); }); };
-    var h = '<div class="row" style="margin:14px 0 6px"><h3 style="margin:0">Results by state</h3><button class="btn ' + (sen ? 'ghost' : '') + '" data-gmode="house">House</button>' + (r.senStates ? [['senate', 'Senate']].map(function (m) { return '<button class="btn ' + (genMode === m[0] ? '' : 'ghost') + '" data-gmode="' + m[0] + '">' + m[1] + '</button>'; }).join('') : '') + '</div>';
+    var h = '<div class="row" style="margin:14px 0 6px;flex-wrap:wrap"><h3 style="margin:0">Results by state</h3><button class="btn ' + (sen ? 'ghost' : '') + '" data-gmode="house">House</button>' + (r.senStates ? [['senate', 'Senate']].map(function (m) { return '<button class="btn ' + (genMode === m[0] ? '' : 'ghost') + '" data-gmode="' + m[0] + '">' + m[1] + '</button>'; }).join('') : '') + '<span style="margin-left:auto" class="small">Show:</span><button class="btn ' + (resMode === 'alliances' ? '' : 'ghost') + '" data-resmode="alliances">Alliances</button><button class="btn ' + (resMode === 'parties' ? '' : 'ghost') + '" data-resmode="parties">Individual parties</button></div>';
     h += '<div class="resgrid"><div class="resring">' + Ch.ring(seats, r.shares, econ) + '<div class="small muted">Inner: seats &middot; outer: votes</div></div><table class="seats reslegend"><tr><th>Party</th><th>' + (sen ? 'Senate leader' : 'House leader') + '</th><th>Vote</th><th>\u00b1</th><th>Seats</th><th>\u00b1</th></tr>' +
       ord.map(function (p) { return '<tr><td><span class="lgname" style="background:' + P(p).color + ';color:' + Ch.ink(P(p).color) + '">' + P(p).short + '</span>' +
-        (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(p === 'revsoc' ? '(fragmented)' : p === 'ind' ? '(independents)' : lead[p] || '') + '</i></td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td>' + dV(p) + '</td><td><b>' + seats[p] + '</b></td><td>' + dS(p) + '</td></tr>'; }).join('') +
+        (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(p === 'revsoc' ? '(fragmented)' : p === 'ind' ? '(independents)' : lead[p] || '') + '</i>' + (allianceOf[p] ? ' <span class="muted">(' + U.partyInfo(allianceOf[p]).short + ')</span>' : '') + '</td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td>' + dV(p) + '</td><td><b>' + seats[p] + '</b></td><td>' + dS(p) + '</td></tr>'; }).join('') +
       '<tr><td colspan="6" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
     var pdata = prev && smode !== 'senpr' && smode !== 'sentr' ? (sen && prev.senStates ? prev.senStates : prev.states) || {} : null;
     genData = {}; for (var gk in data) genData[gk] = Object.assign({}, data[gk], { prev: pdata ? pdata[gk] || {} : null });
@@ -752,6 +761,7 @@
     document.querySelectorAll('[data-exp]').forEach(function (b) { b.onclick = function () { parlOpen[b.dataset.exp] = !parlOpen[b.dataset.exp]; render(); }; });
     document.querySelectorAll('[data-pfilter]').forEach(function (b) { b.onclick = function () { partyFilter = b.dataset.pfilter; render(); }; });
     document.querySelectorAll('[data-elect]').forEach(function (b) { b.onclick = function () { electSel = b.dataset.elect; render(); }; });
+    document.querySelectorAll('[data-resmode]').forEach(function (b) { b.onclick = function () { resMode = b.dataset.resmode; render(); }; });
     document.querySelectorAll('[data-gmode]').forEach(function (b) { b.onclick = function () { genMode = b.dataset.gmode; render(); }; });
     document.querySelectorAll('[data-map]').forEach(function (b) { b.onclick = function () { mapMode = b.dataset.map; render(); }; });
     if (view === 'map') document.querySelectorAll('.tile').forEach(function (t) { t.onclick = function () { mapSel = t.dataset.state; render(); var d = $('statedetail'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });

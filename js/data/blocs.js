@@ -112,6 +112,29 @@
     else { var hb = Q.houseByState || {}; for (var s in hb) if (hb[s][a]) { o[s] = hb[s][a]; t += hb[s][a]; } var nat = (Q.house[a] || 0) - t; if (nat > 0) { o.NAT = nat; t += nat; } }
     return { by: o, total: t };
   }
+  // every member party of an alliance, seats or not
+  U.allianceMembers = function (Q, a) {
+    if (a === 'cc') return ['ccrep', 'ccdem'];
+    if (a === 'asp') return ['aspp', 'mup', 'cath', 'mod'].concat(Q && Q.flags && Q.flags.reformAbsorbed ? ['reform'] : []);
+    if (a === 'ul') return Object.keys((Q && Q.ulMembers) || {});
+    return null;
+  };
+  // split a result's alliance seats into member parties using that election's
+  // own state results: states {sid: {seats, leg}}, national {party: n}
+  U.splitResult = function (Q, seats, states, national) {
+    var o = {}, p, sid;
+    for (p in seats) {
+      if (!seats[p]) continue;
+      if (!(p === 'cc' || p === 'asp' || p === 'ul') || !states) { o[p] = (o[p] || 0) + seats[p]; continue; }
+      var got = {}, t = 0, add = function (sp) { for (var k in sp) { got[k] = (got[k] || 0) + sp[k]; t += sp[k]; } };
+      for (sid in states) { var st = states[sid], n = (st.seats || {})[p] || 0; if (n) add(U.listSplit(Q, p, sid, n)); if (st.leg === p) add(U.listSplit(Q, p, sid, 1)); }
+      if (national && national[p]) add(U.listSplit(Q, p, 'NAT', national[p]));
+      if (t !== seats[p]) { var rest = seats[p] - t; if (rest > 0) add(U.listSplit(Q, p, 'NAT', rest)); }
+      U.allianceMembers(Q, p).forEach(function (m) { o[m] = (o[m] || 0) + (got[m] || 0); });
+      for (var k in got) if (o[k] == null) o[k] = got[k];
+    }
+    return o;
+  };
   U.allianceParts = function (Q, p, n, chamber) {
     if (!n) return null;
     if (p === 'ul' || p === 'cc' || p === 'asp') {
