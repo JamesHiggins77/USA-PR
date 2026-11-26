@@ -58,7 +58,7 @@
       'Environmentalism without a fixed left-right position; every chapter sets its own line.'],
     lsp: ['1986', 'Born in the Texas oil bust of the mid-1980s, when Texans blamed federal energy policy and Washington’s banks for the state’s ruin. Ron Paul brought it national attention.',
       'Texan regionalism with a libertarian-populist streak: state control of resources and taxes, gun rights, low federal taxes. A hardline minority wants independence.'],
-    srp: ['1948', 'The States’ Rights Democratic Party, the Dixiecrats, which walked out of the Democratic convention over Truman’s civil-rights platform and nominated Strom Thurmond for President. Unlike in our history it never went back, and George Wallace made it a force in 1968.',
+    srp: ['1948', 'The States’ Rights Democratic Party, the Dixiecrats, which walked out of the Democratic convention over Prime Minister Barkley’s civil-rights platform and nominated Strom Thurmond for President. Unlike in our history it never went back, and George Wallace made it a force in 1968.',
       'Southern regionalism: social conservatism, economic populism, states’ rights. Its hardliners still talk of Southern independence.'],
     cnp: ['1992', 'Founded after the Los Angeles riots and the recession of the early 1990s by Californians who felt the state paid Washington far more than it got back.',
       'Centre-left Californian nationalism, seeking independence in the long run.'],
@@ -91,7 +91,7 @@
     ['1974', 'Robert F. Kennedy', 'Social Democratic Labor', 'Narrowly re-elected over Gerald Ford (Republican), holding Ohio, Pennsylvania and Michigan by less than a point each.'],
     ['1980', 'Ronald Reagan', 'Conservative Coalition', 'Beat Ted Kennedy (SDLP) in a close runoff, 362 electors to 339, and made the new CC the main party of the right.'],
     ['1986', 'Ronald Reagan', 'Conservative Coalition', 'Re-elected over Jesse Jackson (SDLP), who had pushed the LDP\u2019s Walter Mondale into third place.'],
-    ['1992', 'Bill Clinton', 'Liberal Democratic', 'Beat George H. W. Bush (CC) in the runoff. The first LDP candidate to finish ahead of the SDLP in a first round since 1968; Ross Perot won 18.6%.'],
+    ['1992', 'Bill Clinton', 'Liberal Democratic', 'Beat George H. W. Bush (CC) in the runoff. The first LDP candidate to finish ahead of the SDLP in a first round since 1968; Ross Perot won 18.9%.'],
     ['1998', '—', '', 'The next election, due in November 1998.']
   ];
 
@@ -137,9 +137,9 @@
     { year: 1938, total: 627, r1: [['Huey Long', 'dem', 38.2], ['Robert A. Taft', 'rep', 28.5], ['Robert La Follette Jr.', 'prog', 19.4], ['Norman Thomas', 'soc', 5.0], ['Others', null, 8.9]],
       r2: [['Huey Long', 'dem', 391, 55.9], ['Robert A. Taft', 'rep', 236, 44.1]], era: '1930', lose: 'ME VT NH CT DE PA OH MI IN IA KS NE NJ', note: 'Re-elected despite the 1937 recession and his feud with Prime Minister Smith.' },
     { year: 1944, total: 627, r1: [['John Nance Garner', 'dem', 33.0], ['Thomas E. Dewey', 'rep', 31.6], ['Henry A. Wallace', 'prog', 24.8], ['Norman Thomas', 'soc', 3.2], ['Others', null, 7.4]],
-      r2: [['John Nance Garner', 'dem', 319, 50.6], ['Thomas E. Dewey', 'rep', 308, 49.4]], era: '1940', lose: 'ME VT NH MA RI CT NY NJ PA DE MI IN IL WI IA MN KS NE ND SD', note: 'A wartime cliffhanger: Ohio decided the runoff by 41,000 votes.' },
+      r2: [['John Nance Garner', 'dem', 319, 50.6], ['Thomas E. Dewey', 'rep', 308, 49.4]], era: '1940', tip: ['OH'], lose: 'ME VT NH MA RI CT NY NJ PA DE MI IN IL WI IA MN KS NE ND SD', note: 'A wartime cliffhanger: Ohio decided the runoff by 41,000 votes.' },
     { year: 1950, total: 627, r1: [['Thomas E. Dewey', 'rep', 34.1], ['Adlai Stevenson', 'dem', 28.4], ['Henry A. Wallace', 'prog', 14.9], ['Strom Thurmond', 'srp', 8.7], ['Robert Taft (CDP backing)', 'cdp', 9.6], ['Others', null, 4.3]],
-      r2: [['Thomas E. Dewey', 'rep', 445, 56.8], ['Adlai Stevenson', 'dem', 182, 43.2]], era: '1950', lose: 'AL AR FL GA LA MS NC SC TN TX VA KY WV', note: 'The Dixiecrats’ Strom Thurmond carried four southern states’ first-round votes.' },
+      r2: [['Thomas E. Dewey', 'rep', 445, 56.8], ['Adlai Stevenson', 'dem', 182, 43.2]], era: '1950', lose: 'AL AR FL GA LA MS NC SC TN TX VA KY WV', note: 'The Dixiecrats’ Strom Thurmond topped the first round in Georgia and Louisiana.' },
     { year: 1956, total: 627, r1: [['Thomas E. Dewey', 'rep', 36.8], ['Estes Kefauver', 'dem', 27.2], ['Walter Reuther', 'sdlp', 18.6], ['Strom Thurmond', 'srp', 7.9], ['Others', null, 9.5]],
       r2: [['Thomas E. Dewey', 'rep', 430, 54.4], ['Estes Kefauver', 'dem', 197, 45.6]], era: '1950', lose: 'AL AR FL GA LA MS NC SC TN TX VA KY WV MO', note: 'Re-elected in the first presidential race for the new SDLP.' },
     { year: 1962, total: 638, r1: [['Richard Nixon', 'rep', 30.9], ['Hubert Humphrey', 'dem', 27.4], ['Nelson Rockefeller', 'cdp', 19.8], ['Walter Reuther', 'sdlp', 13.6], ['Others', null, 8.3]],
@@ -147,7 +147,7 @@
     { year: 1968, total: 638, r1: [['Robert F. Kennedy', 'sdlp', 24.6], ['George Wallace', 'srp', 22.1], ['Lyndon B. Johnson', 'ldp', 21.0], ['Nelson Rockefeller', 'cdp', 18.2], ['Ronald Reagan', 'rep', 10.4], ['Others', null, 3.7]],
       r2: [['Robert F. Kennedy', 'sdlp', 458, 64.2], ['George Wallace', 'srp', 180, 35.8]], era: '1960', lose: 'AL MS GA LA SC AR NC TN', note: 'Kennedy, beaten for the LDP nomination by Johnson, ran for the SDLP and topped a five-way first round. The LDP, CDP and Republicans backed him against Wallace in the runoff.' },
     { year: 1974, total: 701, r1: [['Robert F. Kennedy', 'sdlp', 33.1], ['Gerald Ford', 'rep', 25.0], ['Walter Mondale', 'ldp', 17.9], ['Nelson Rockefeller', 'cdp', 13.6], ['George Wallace', 'srp', 7.2], ['Others', null, 3.2]],
-      r2: [['Robert F. Kennedy', 'sdlp', 362, 50.6], ['Gerald Ford', 'rep', 339, 49.4]], era: 'modern', close: 12, tip: ['OH', 'PA', 'MI'], lose: 'AL AR FL GA LA MS NC SC TN TX VA OK KS NE SD ND MT WY ID UT AZ NV IN AK', note: 'Watergate should have finished the Republicans, but Ford ran Kennedy to the wire: the runoff came down to Ohio, Pennsylvania and Michigan, each carried by less than a point, and losing any one of them would have cost Kennedy the presidency.' },
+      r2: [['Robert F. Kennedy', 'sdlp', 362, 50.6], ['Gerald Ford', 'rep', 339, 49.4]], era: 'modern', close: 12, tip: ['OH', 'PA', 'MI'], lose: 'AL AR FL GA LA MS NC SC TN TX VA OK KS NE SD ND MT WY ID UT AZ NV IN AK', note: 'With stagflation and the oil embargo eating into Kennedy’s lead, Ford ran him to the wire: the runoff came down to Ohio, Pennsylvania and Michigan, each carried by less than a point, and losing any one of them would have cost Kennedy the presidency.' },
     { year: 1980, total: 701, r1: [['Ronald Reagan', 'cc', 33.5], ['Ted Kennedy', 'sdlp', 26.4], ['Jimmy Carter', 'ldp', 24.0], ['John B. Anderson', 'cdp', 9.1], ['Ed Clark', 'lib', 3.6], ['Others', null, 3.4]],
       r2: [['Ronald Reagan', 'cc', 362, 50.8], ['Ted Kennedy', 'sdlp', 339, 49.2]], era: 'modern', lose: 'MA RI CT NY NJ PA MI OH IL WI MN WV MD DE DC HI WA OR VT ME IA MO NM CO NV NH', note: 'Ted Kennedy edged out Carter for second place, and the runoff went down to the wire: Reagan held California, Texas and the South, and Kennedy fell 12 electors short.' },
     { year: 1986, total: 701, r1: [['Ronald Reagan', 'cc', 38.1], ['Jesse Jackson', 'sdlp', 24.4], ['Walter Mondale', 'ldp', 23.0], ['Bob Dole (CDP backing)', 'cdp', 9.2], ['Others', null, 5.3]],

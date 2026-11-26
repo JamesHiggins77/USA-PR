@@ -26,7 +26,7 @@
     ['1926', 'Frank Lowden', 'Republican', 'The Illinois governor and farm-relief champion. The Wall Street crash came three years into his term.'],
     ['1932', 'Huey Long', 'Democratic', 'Swept to power on Share Our Wealth in the depths of the Depression, and spent six years at war with his own party’s Prime Minister, Al Smith, whom he finally dismissed in 1938.'],
     ['1938', 'Huey Long', 'Democratic', 'Re-elected, having survived a 1935 shooting in the Louisiana capitol. Appointed the Progressive Henry Wallace as Prime Minister and led the country into the Second World War.'],
-    ['1944', 'John Nance Garner', 'Democratic', 'Cactus Jack, the Texan conservative, won a wartime cliffhanger. He kept Barkley’s government and rarely used his powers.'],
+    ['1944', 'John Nance Garner', 'Democratic', 'Cactus Jack, the Texan conservative, won a wartime cliffhanger. He appointed Alben Barkley as Prime Minister and rarely used his own powers.'],
     ['1950', 'Thomas E. Dewey', 'Republican', 'The New York governor won at the start of the Korean War and appointed Robert Taft.'],
     ['1956', 'Thomas E. Dewey', 'Republican', 'Re-elected, but governed alongside Democratic–SDLP Prime Ministers for his whole second term.'],
     ['1962', 'Richard Nixon', 'Republican', 'Inherited John F. Kennedy as Prime Minister, dismissed him in 1963 and had to take him back after the snap election. When Kennedy, wounded in an assassination attempt in Dallas, retired through illness in 1964, Nixon appointed Lyndon Johnson, expecting a moderate, and got the Civil Rights Act.'],
