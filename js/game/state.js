@@ -117,6 +117,7 @@
   // saves from before the factions were reorganised
   S.migrateFactions = function (Q) {
     if (Q.ulMembers) U.splitORL(Q.ulMembers);
+    (Q.cabinet || []).forEach(function (c) { delete c.by; });   // no presidential appointees in the cabinet any more
     // pacts in older saves were treated as joint lists: they are only pacts
     (Q.pacts || []).forEach(function (pk) { if (pk.type === 'list') pk.type = 'pact'; });
     // stand-down agreements: give old ones explicit states and scopes

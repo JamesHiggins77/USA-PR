@@ -137,7 +137,10 @@
   };
 
   // ---- the three great offices: the President appoints, the Senate consents ----
-  S.presidentialAppointments = function (Q) {
+  // The Secretaries of State, Defense and the Treasury are ordinary cabinet members:
+  // the Prime Minister and the coalition share them out like any other portfolio,
+  // and the whole cabinet is invested with the Prime Minister. Kept as a no-op.
+  S.presidentialAppointments = function (Q) { return;
     var pp = Q.president.party; if (!Q.cabinet || !U.PARTIES[pp]) return;
     var used = {}; Q.cabinet.forEach(function (c) { used[c.name] = 1; });
     ['Treasury', 'State', 'Defense'].forEach(function (post) {
