@@ -252,9 +252,13 @@
   var gcache = null;
   U.LORE.govHistory = function () {
     if (gcache) return gcache;
-    var out = [], prev = null;
-    U.LORE.generalElections.forEach(function (e) {
-      var d = U.LORE.generalDetail(e), govs = {};
+    var out = [], prev = null, GE = U.LORE.generalElections;
+    // fixed three-year terms on the presidential cycle: 1914, 1917, 1920 ... 1992;
+    // each uses the state votes of the latest general election
+    var years = []; for (var yy = 1914; yy <= 1992; yy += 3) years.push(yy); // 1995 is the game's own starting set
+    years.forEach(function (Y) {
+      var e = GE.filter(function (x) { return x.year <= Y; }).slice(-1)[0] || GE[0];
+      e = Object.assign({}, e, { year: Y, _src: e }); var d = U.LORE.generalDetail(e._src), govs = {};
       Object.keys(d.states).forEach(function (s) {
         if (s === 'DC') return;
         var base = d.states[s].shares, v = {}, t = 0, inc = prev && prev[s] ? prev[s].w : null;
@@ -276,7 +280,7 @@
         }
         govs[s] = { w: w, r1: r1, r2: r2 };
       });
-      out.push({ year: e.year, govs: govs }); prev = govs;
+      out.push({ year: Y, govs: govs, midterm: (Y - 1914) % 6 === 3 }); prev = govs;
     });
     return (gcache = out);
   };

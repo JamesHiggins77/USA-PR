@@ -158,7 +158,8 @@
     var gs = U.clone(applyStandDowns(Q, s.id, sh, 'gov'));
     if (prev && prev.governor && gs[prev.governor]) gs[prev.governor] *= 1.12; // incumbency
     if (prev && prev.personal) for (var pp in gs) gs[pp] *= prev.personal[pp] || 1; // candidates' personal votes (opening only)
-    if (!Q.noNoise) for (var p in gs) gs[p] *= 1 + 0.15 * U.gauss(Q) / 2;
+    // governors run on state issues: bigger personal votes, and smaller parties do better than in federal races
+    if (!Q.noNoise) { var nat = V.national(Q); for (var p in gs) gs[p] *= (1 + 0.8 * (U.rng(Q) - 0.5)) * ((nat[p] || 0) < 12 ? 1.3 : 1); }
     g.govRace = E.twoRound(gs, pos, { majority: R.governor.firstRoundMajority, pactWith: X.pactFn(Q) });
     g.governor = g.govRace.winner;
     g.house = {};

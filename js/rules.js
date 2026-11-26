@@ -59,9 +59,9 @@
       handSize: 5,                      // cards held; one card played or discarded per month
       cardBoost: 2.0                    // card effect multiplier (one action a month)
     },
-    governor: { firstRoundMajority: 0.5, termYears: 4 },
+    governor: { firstRoundMajority: 0.5, termYears: 3 },   // fixed terms: with each presidential election and at its midterm
     stateHouse: { formula: 'dhondt', magnitude: 5, threshold: 0 },
     stateSenate: { formula: 'sainte-lague', threshold: 0.05, seats: 40 }, // 5% fixed by canon
-    stateElections: 'with-general'      // state contests held alongside federal general elections
+    stateElections: 'fixed'             // governors and legislatures every 3 years, on the presidential cycle
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

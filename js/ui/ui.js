@@ -195,7 +195,7 @@
       var r = elec.general, seats = r.house, order = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a]; });
       h += '<h1>General election, ' + r.date + '</h1><div class="grid2"><div>' + Ch.hemicycle(Q, seats) + '</div><div><table><tr><th>Party</th><th>Vote</th><th>Districts</th><th>List</th><th>Seats</th><th>+/−</th></tr>' +
         order.map(function (p) { var d = seats[p] - (r.before[p] || 0); return '<tr><td>' + chip(p) + P(p).short + '</td><td>' + pct(r.shares[p] || 0) + '</td><td>' + (r.distWon[p] || 0) + '</td><td>' + (r.pr[p] || 0) + '</td><td><b>' + seats[p] + '</b></td><td class="' + (d > 0 ? 'up' : d < 0 ? 'down' : '') + '">' + sign(d, 0) + '</td></tr>'; }).join('') + '</table>' +
-        '<p class="small muted">' + (r.districts ? r.runoffs + ' of ' + r.districts + ' district seats went to a second round. ' : '') + r.govFlips + ' governorships changed hands; ' + 'In each state, the largest party won two Senate seats and the runner-up one (1-1-1 in near-ties, 3-0 in landslides); the state house elected the fourth.</p></div></div>';
+        '<p class="small muted">' + (r.districts ? r.runoffs + ' of ' + r.districts + ' district seats went to a second round. ' : '') + 'In each state, the largest party won two Senate seats and the runner-up one (1-1-1 in near-ties, 3-0 in landslides); the state house elected the fourth.</p></div></div>';
       h += '<h2>Senate</h2>' + Ch.hemicycle(Q, r.senate) + Ch.seatTable(Q, r.senate, function (p) { return r.senate[p] - (r.beforeSenate[p] || 0); });
       if (r.close.length) h += '<h3>Closest runoffs</h3><table><tr><th>District</th><th>Result</th></tr>' + r.close.map(function (c) { return '<tr><td>' + c.state + '-' + c.n + '</td><td>' + chip(c.a) + P(c.a).short + ' ' + c.va.toFixed(1) + ' – ' + c.vb.toFixed(1) + ' ' + P(c.b).short + chip(c.b) + '</td></tr>'; }).join('') + '</table>';
       h += '<h3>Coalition arithmetic</h3>' + arithmetic(seats);
@@ -580,11 +580,11 @@
     genData = data;
     var ord = Object.keys(tot).sort(function (a, b) { return tot[b] - tot[a]; }), flips = pv ? Object.keys(g).filter(function (s) { return pv[s] && pv[s].w !== g[s].w; }) : [];
     var d = function (v) { return '<span class="small ' + (!v ? 'muted' : v > 0 ? 'up' : 'down') + '">' + (v > 0 ? '+' : v < 0 ? '\u2212' : '\u00b1') + Math.abs(v) + '</span>'; };
-    var h = '<div class="panel"><h2 style="margin-top:0">' + esc(x.label) + ' gubernatorial elections</h2><p>Governors are elected in two rounds at each general election: a majority wins outright, otherwise the top two meet in a runoff. Governors run on state issues, so candidates\u2019 personal votes, incumbency, independents and smaller parties count for more than in federal races, and split tickets are common.' + (pv ? ' ' + flips.length + ' governorship' + (flips.length === 1 ? '' : 's') + ' changed hands.' : '') + '</p>';
+    var h = '<div class="panel"><h2 style="margin-top:0">' + esc(x.label) + (x.rec.midterm ? ' midterm' : '') + ' gubernatorial elections</h2><p>Governors and state legislatures serve fixed three-year terms, elected with each presidential election and again at its midterm. Governors are elected in two rounds: a majority wins outright, otherwise the top two meet in a runoff. Governors run on state issues, so candidates\u2019 personal votes, incumbency, independents and smaller parties count for more than in federal races, and split tickets are common.' + (pv ? ' ' + flips.length + ' governorship' + (flips.length === 1 ? '' : 's') + ' changed hands.' : '') + '</p>';
     h += '<div class="grid2"><div><table class="seats"><tr><th>Party</th><th>Governors</th>' + (pv ? '<th>\u00b1</th>' : '') + '</tr>' + ord.map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>' + tot[p] + '</b></td>' + (pv ? '<td>' + d(tot[p] - (ptot[p] || 0)) + '</td>' : '') + '</tr>'; }).join('') +
       (pv ? Object.keys(ptot).filter(function (p) { return !tot[p]; }).map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>0</b></td><td>' + d(-ptot[p]) + '</td></tr>'; }).join('') : '') + '</table>' +
       (flips.length ? '<h3>Changed hands</h3><p class="small">' + flips.map(function (s) { return esc((U.STATES[s] || U.DC).name) + ': ' + U.partyInfo(pv[s].w).short + ' \u2192 ' + U.partyInfo(g[s].w).short; }).join(' \u00b7 ') + '</p>' : '') + '</div>' +
-      '<div><div id="genmap">' + Ch.resultMap(Q, data) + '</div><p class="small muted">The winning party in each state, shaded by its share in the deciding round. Hover or tap a state for the vote.</p></div></div></div>';
+      '<div><div id="genmap">' + Ch.resultMap(Q, data, { noDots: true }) + '</div><p class="small muted">The winning party in each state, shaded by its share in the deciding round. Hover or tap a state for the vote.</p></div></div></div>';
     return h;
   }
   // the arguments for resultsBlock for a general election entry
@@ -640,6 +640,7 @@
     return h;
   }
 
+  var electAll = [];
   function elections() {
     var hist = U.LORE.presElections.map(function (e, i) { return { key: 'h' + i, label: String(e.year), rec: e, kind: 'hist' }; });
     var game = (Q.history || []).map(function (e, i) { return { key: 'g' + i, label: e.date + (e.kind === 'pres' ? ' presidential' : ' general'), rec: e, kind: e.kind }; });
@@ -648,16 +649,26 @@
       note: 'The 1995\u201396 shutdown broke Gingrich\u2019s coalition: the CDP walked out, and a constructive vote to install Al Gore failed by four votes. With his budgets defeated in the House, Gingrich asked for an early election, gambling that voters would blame Clinton; both chambers agreed. The CC fell to its worst result since its founding, losing votes to the new Reform Party and the Constitution Party. Building on the Clinton\u2013Powell alliance of 1992, Clinton nominated Gore, who won an absolute majority at the head of an LDP\u2013CDP\u2013SDLP government. This is the parliament the game starts with.' }, kind: 'histgen' });
     var yr = function (d) { return String(d).split(' ').pop(); };
     var presL = hist.concat(game.filter(function (x) { return x.kind === 'pres'; }).map(function (x) { return Object.assign({}, x, { label: yr(x.rec.date) }); }));
-    var congL = gens.concat(game.filter(function (x) { return x.kind !== 'pres'; }).map(function (x) { return Object.assign({}, x, { label: yr(x.rec.date) }); }));
-    var govL = U.LORE.govHistory().map(function (g, i) { return { key: 'vh' + i, label: String(g.year), kind: 'gov', rec: { govs: g.govs, date: String(g.year) } }; }).concat(Q.open1996 && Q.open1996.govs ? [{ key: 'v96', label: '1996', kind: 'gov', rec: { govs: Q.open1996.govs, date: '1996' } }] : [])
-      .concat((Q.history || []).map(function (e, i) { return e.kind !== 'pres' && e.govs ? { key: 'v' + i, label: yr(e.date), kind: 'gov', rec: { govs: e.govs, date: e.date } } : null; }).filter(Boolean));
-    var all = presL.concat(congL, govL);
+    var congL = gens.concat(game.filter(function (x) { return x.kind === 'general'; }).map(function (x) { return Object.assign({}, x, { label: yr(x.rec.date) }); }));
+    var govL = U.LORE.govHistory().map(function (g, i) { return { key: 'vh' + i, label: String(g.year), kind: 'gov', rec: { govs: g.govs, date: String(g.year), midterm: g.midterm } }; }).concat(Q.open1996 && Q.open1996.govs ? [{ key: 'v96', label: '1995', kind: 'gov', rec: { govs: Q.open1996.govs, date: '1995', midterm: true } }] : [])
+      .concat((Q.history || []).map(function (e, i) { return e.govs ? { key: 'v' + i, label: yr(e.date), kind: 'gov', rec: { govs: e.govs, date: e.date, midterm: e.midterm } } : null; }).filter(Boolean));
+    var all = presL.concat(congL, govL); electAll = all;
     genSeq = congL.filter(function (x) { return x.kind === 'histgen' || x.rec.states; });
     govSeq = govL;
     if (!electSel || !all.some(function (x) { return x.key === electSel; })) electSel = congL[congL.length - 1].key;
     var btns = function (lab, L) { return '<div class="row" style="margin-bottom:8px;flex-wrap:wrap"><span class="small" style="min-width:7.5em">' + lab + '</span>' + (L.length ? L.map(function (x) { return '<button class="btn ' + (x.key === electSel ? '' : 'ghost') + '" data-elect="' + x.key + '">' + esc(x.label) + '</button>'; }).join('') : '<span class="small muted">None yet.</span>') + '</div>'; };
     var h = '<h1>Elections</h1>' + btns('Presidential', presL) + btns('Congressional', congL) + btns('Gubernatorial', govL);
-    if (all.filter(function (x) { return x.key === electSel; })[0].kind === 'gov') return h + governors(all.filter(function (x) { return x.key === electSel; })[0]);
+    // previous / next within the same category
+    var cat = [presL, congL, govL].filter(function (L) { return L.some(function (x) { return x.key === electSel; }); })[0] || [], ci = cat.map(function (x) { return x.key; }).indexOf(electSel);
+    var nav = '<div class="papernav" style="justify-content:space-between">' + (ci > 0 ? '<button class="btn" data-elect="' + cat[ci - 1].key + '">\u2190 ' + esc(cat[ci - 1].label) + '</button>' : '<span></span>') +
+      '<span class="small muted">' + (cat === presL ? 'Presidential' : cat === congL ? 'Congressional' : 'Gubernatorial') + ' ' + (ci + 1) + ' of ' + cat.length + '</span>' +
+      (ci < cat.length - 1 ? '<button class="btn" data-elect="' + cat[ci + 1].key + '">' + esc(cat[ci + 1].label) + ' \u2192</button>' : '<span></span>') + '</div>';
+    h += nav;
+    var body = all.filter(function (x) { return x.key === electSel; })[0].kind === 'gov' ? governors(all.filter(function (x) { return x.key === electSel; })[0]) : electionBody();
+    return h + body + nav;
+  }
+  function electionBody() {
+    var h = '', all = electAll;
     var sel = all.filter(function (x) { return x.key === electSel; })[0], r = sel.rec;
     if (sel.kind === 'hist') {
       var w = r.r2[0];
@@ -760,7 +771,12 @@
     document.querySelectorAll('[data-parl]').forEach(function (b) { b.onclick = function () { parlMode = b.dataset.parl; render(); }; });
     document.querySelectorAll('[data-exp]').forEach(function (b) { b.onclick = function () { parlOpen[b.dataset.exp] = !parlOpen[b.dataset.exp]; render(); }; });
     document.querySelectorAll('[data-pfilter]').forEach(function (b) { b.onclick = function () { partyFilter = b.dataset.pfilter; render(); }; });
-    document.querySelectorAll('[data-elect]').forEach(function (b) { b.onclick = function () { electSel = b.dataset.elect; render(); }; });
+    document.querySelectorAll('[data-elect]').forEach(function (b) { b.onclick = function () {
+      // the previous/next bar at the bottom stays under the pointer, so you can step through without scrolling back up
+      var inNav = !!b.closest('.papernav'), y0 = b.getBoundingClientRect().top, bottom = inNav && y0 > window.innerHeight / 2;
+      electSel = b.dataset.elect; render();
+      if (bottom) { var navs = document.querySelectorAll('.papernav'), last = navs[navs.length - 1]; if (last) window.scrollBy(0, last.getBoundingClientRect().top - y0); }
+    }; });
     document.querySelectorAll('[data-resmode]').forEach(function (b) { b.onclick = function () { resMode = b.dataset.resmode; render(); }; });
     document.querySelectorAll('[data-gmode]').forEach(function (b) { b.onclick = function () { genMode = b.dataset.gmode; render(); }; });
     document.querySelectorAll('[data-map]').forEach(function (b) { b.onclick = function () { mapMode = b.dataset.map; render(); }; });

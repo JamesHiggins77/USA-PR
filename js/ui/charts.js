@@ -114,14 +114,14 @@
     Object.keys(G).forEach(function (id) {
       var g = G[id], c = fill(id), ink = Ch.ink(c), small = SMALL.indexOf(id) >= 0;
       out += '<g class="tile" data-state="' + id + '"><path d="' + g.d + '" fill="' + c + '" stroke="var(--bg)" stroke-width="0.8"></path>';
-      if (!small) { var d = dots((data[id] || {}).seats || {}, g.c[0], g.c[1] + 2, id === 'CA' || id === 'TX' ? 8 : 6, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000');
+      if (!small) { var d = opts.noDots ? { svg: '', h: 0 } : dots((data[id] || {}).seats || {}, g.c[0], g.c[1] + 2, id === 'CA' || id === 'TX' ? 8 : 6, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000');
         top += '<text x="' + g.c[0] + '" y="' + (g.c[1] - 3) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + '">' + id + '</text>' + d.svg; }
       out += '<title>' + (U.STATES[id] || U.DC).name + '</title></g>';
     });
     out += '<g style="pointer-events:none">' + top + '</g>';
     var y = 150;
     SMALL.forEach(function (id) {
-      var c = fill(id), ink = Ch.ink(c), x = 912, g = G[id], d = dots((data[id] || {}).seats || {}, x + 33, y + 17, 8, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000'), hgt = Math.max(24, 20 + d.h);
+      var c = fill(id), ink = Ch.ink(c), x = 912, g = G[id], d = opts.noDots ? { svg: '', h: 0 } : dots((data[id] || {}).seats || {}, x + 33, y + 17, 8, byResult(data[id]), col, Ch.lum(c) < 100 ? '#fff' : '#000'), hgt = Math.max(24, 20 + d.h);
       out += '<g class="tile" data-state="' + id + '"><line x1="' + g.c[0] + '" y1="' + g.c[1] + '" x2="' + x + '" y2="' + (y + 10) + '" stroke="currentColor" stroke-opacity=".25"/>' +
         '<rect x="' + x + '" y="' + y + '" width="62" height="' + hgt + '" rx="4" fill="' + c + '"></rect>' +
         '<text x="' + (x + 33) + '" y="' + (y + 11) + '" text-anchor="middle" font-size="9.5" font-weight="bold" style="fill:' + ink + '">' + id + '</text>' + d.svg + '<title>' + (U.STATES[id] || U.DC).name + '</title></g>';

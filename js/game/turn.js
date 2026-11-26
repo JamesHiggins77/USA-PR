@@ -351,6 +351,26 @@
     return { states: st, senStates: sen, national: nat };
   };
 
+  // State elections: governors and state legislatures on fixed three-year terms,
+  // held with each presidential election and again at its midterm.
+  S.stateDue = function (Q) {
+    if (U.RULES.stateElections !== 'fixed') return false;
+    if (Q.nextState == null) { var k = Q.nextPres; while (k - 36 > S.now(Q)) k -= 36; Q.nextState = k; }
+    return Q.nextState === S.now(Q);
+  };
+  S.runStateElections = function (Q, withPres) {
+    var old = {}, sid; for (sid in Q.states) old[sid] = Q.states[sid].governor;
+    for (sid in U.STATES) Q.states[sid] = X.stateGov(Q, U.STATES[sid], Q.states[sid]);
+    // the new legislatures choose their senators
+    (Q.senateSeats || []).forEach(function (x) { if (x.type === 'house') x.party = X.legislatureSenator(Q, x.state); });
+    var flips = Object.keys(old).filter(function (s) { return old[s] !== Q.states[s].governor; });
+    var mid = !withPres;
+    var res = { date: U.dateStr(Q), flips: flips.map(function (s) { return { s: s, from: old[s], to: Q.states[s].governor }; }), midterm: mid };
+    Q.history.push({ kind: 'state', date: res.date, govs: S.govRecord(Q), midterm: mid });
+    Q.nextState = S.now(Q) + 36;
+    S.note(Q, (mid ? 'Midterm state elections: ' : 'State elections: ') + flips.length + ' governorship' + (flips.length === 1 ? ' changes' : 's change') + ' hands.');
+    return res;
+  };
   S.runGeneralElection = function (Q) {
     var before = U.clone(Q.house), beforeS = U.Elections.senateCount(Q), shares = V.national(Q);
     var h = X.house(Q);
@@ -378,7 +398,7 @@
     Q.lastElection = res;
     Q.history = Q.history || [];
     Q.history.push({ kind: 'general', date: res.date, shares: (function () { var o = {}; for (var p in shares) if (shares[p] >= 0.3) o[p] = Math.round(shares[p] * 10) / 10; return o; })(), house: U.clone(res.house), senate: U.clone(res.senate),
-      govs: S.govRecord(Q), states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders), senLeaders: (function () { var o = {}; for (var p in U.Elections.senateCount(Q)) o[p] = S.senLeaderOf(Q, p); for (p in Q.house) if (!o[p]) o[p] = S.senLeaderOf(Q, p); return o; })(),
+      states: S.stateRecord(Q, h).states, senStates: S.stateRecord(Q, h).senStates, national: S.stateRecord(Q, h).national, leaders: U.clone(Q.leaders), senLeaders: (function () { var o = {}; for (var p in U.Elections.senateCount(Q)) o[p] = S.senLeaderOf(Q, p); for (p in Q.house) if (!o[p]) o[p] = S.senLeaderOf(Q, p); return o; })(),
       senShares: (function () { var w = {}, t = 0; for (var sid in (Q.senateShares || {})) { var pop = (U.STATES[sid] || {}).pop || 0; t += pop; for (var p in Q.senateShares[sid]) w[p] = (w[p] || 0) + Q.senateShares[sid][p] * pop; } for (p in w) w[p] = Math.round(w[p] / t * 10) / 10; return w; })() });
     res = Object.assign({}, res, { detail: detail });
     Q.electionAt = null; Q.pacts = [];
@@ -630,7 +650,7 @@
     S.recordPoll(Q);
     var after = V.national(Q)[Q.player];
     Q.lastMonthDelta = after - before;
-    var due = { general: Q.electionAt === S.now(Q), president: S.presidentialDue(Q) };
+    var due = { general: Q.electionAt === S.now(Q), president: S.presidentialDue(Q), state: S.stateDue(Q) };
     return due;
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
