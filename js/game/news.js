@@ -1,7 +1,7 @@
 // The newspaper's wider world: campaigns, speeches, state bills, judges, reports,
 // candidate selection, disasters, weather, holidays, diplomacy, foreign news,
-// culture and sport. Uses its own seeded generator so it never changes the
-// course of the simulation itself. Every item has a tier: breaking, key or minor.
+// culture and sport. Uses its own seeded generator; bills, speeches and rallies
+// move parties' support among the groups each issue helps or hurts. Every item has a tier: breaking, key or minor.
 (function (G) {
   'use strict';
   var U = G.USA, N = U.News = {};
@@ -15,6 +15,44 @@
   var leader = function (Q, p) { return U.Game.leaderOf(Q, p); };
   var REGION_STATES = function (cond) { return Object.keys(U.STATES).filter(cond); };
 
+  // who each issue wins and loses: passing a bill on it, or campaigning on it,
+  // moves the party's support among these groups
+  var ISSUE = {
+    'health care': { retire: .3, union: .2, black: .2, hisp: .2, young: .1, prof: -.1, rural: -.1 },
+    'jobs and wages': { union: .3, black: .1, hisp: .1, suburb: -.1 },
+    'the deficit': { suburb: .2, prof: .2, retire: .1, union: -.2, young: -.1 },
+    'education': { young: .3, prof: .2, suburb: .1, rural: -.1 },
+    'crime': { suburb: .3, retire: .2, rural: .1, black: -.2, young: -.2 },
+    'immigration': { rural: .3, retire: .2, union: .1, hisp: -.4, young: -.2 },
+    'trade': { prof: .2, suburb: .1, union: -.3, rural: -.1 },
+    'energy': { rural: .2, union: .1, young: -.1 },
+    'the environment': { young: .3, prof: .2, rural: -.3, union: -.1 },
+    'taxes': { suburb: .3, prof: .2, rural: .1, union: -.2, black: -.1 },
+    'Social Security': { retire: .4, union: .1, young: -.1 },
+    'veterans': { rural: .2, retire: .2 },
+    'farm policy': { rural: .4, prof: -.1 },
+    'national security': { rural: .2, retire: .2, relig: .1, young: -.2 },
+    'infrastructure': { union: .3, suburb: .1 },
+    'housing': { young: .3, black: .2, hisp: .2, suburb: -.1 },
+    'civil rights': { black: .4, hisp: .2, young: .2, relig: -.1, rural: -.2 },
+    'campaign finance': { prof: .2, young: .1 },
+    'agriculture': { rural: .4, prof: -.1 }, 'defense': { rural: .2, retire: .2, relig: .1, young: -.2 }, 'technology': { young: .2, prof: .2, rural: .1 },
+    'families': { suburb: .2, young: .2, relig: .1 }, 'retirement': { retire: .4, union: .1, young: -.1 }
+  };
+  var GN = { prof: 'professionals', suburb: 'suburban voters', union: 'union households', rural: 'rural voters', relig: 'religious voters', black: 'Black voters', hisp: 'Hispanic voters', young: 'young voters', retire: 'retirees' };
+  // apply an issue's effect to a party; returns a line for the story
+  function issue(Q, p, topic, k) {
+    var e = ISSUE[topic]; if (!e || !p || Q.dormant[p] || !U.PARTIES[p]) return '';
+    var o = {}; for (var g in e) o[g] = e[g] * k; U.Votes.campaign(Q, p, o, null);
+    var up = Object.keys(e).filter(function (g) { return e[g] * k > 0; }), dn = Object.keys(e).filter(function (g) { return e[g] * k < 0; });
+    return ' Pollsters expect the ' + PI(p).short + ' to gain among ' + (up.map(function (g) { return GN[g]; }).join(' and ') || 'few voters') + (dn.length ? ', and to lose ground with ' + dn.map(function (g) { return GN[g]; }).join(' and ') : '') + '.';
+  }
+  // parties campaign on the issues that suit their voters
+  function topicFor(p) {
+    var P = U.PARTIES[p] || {}, pr = P.pref || {};
+    var sc = TOPICS.map(function (t) { var e = ISSUE[t] || {}, v = 0; for (var g in e) v += e[g] * (pr[g] || 1); return [t, v]; }).sort(function (a, b) { return b[1] - a[1]; });
+    return pick(sc.slice(0, 4))[0];
+  }
   var TOPICS = ['health care', 'jobs and wages', 'the deficit', 'education', 'crime', 'immigration', 'trade', 'energy', 'the environment', 'taxes', 'Social Security', 'veterans', 'farm policy', 'national security', 'infrastructure', 'housing', 'civil rights', 'campaign finance'];
   var STATE_BILLS = ['a school funding overhaul', 'a minimum wage increase', 'a highway bond', 'a tax cut for small business', 'tougher sentencing rules', 'a clean-air standard', 'a charter schools expansion', 'a children’s health program', 'a water rights compact', 'a gun safety measure', 'a property tax freeze', 'a state lottery for education', 'a renewable energy mandate', 'a balanced-budget law', 'a prescription drug program', 'a teachers’ pay raise', 'a welfare-to-work program', 'a broadband expansion'];
   var FED_BILLS = [['the Highway Reauthorization Act', 'infrastructure'], ['the Farm Bill', 'agriculture'], ['the Clean Water Amendments', 'the environment'], ['the Small Business Tax Relief Act', 'taxes'], ['the Veterans Health Act', 'veterans'], ['the Student Loan Reform Act', 'education'], ['the Patients’ Bill of Rights', 'health care'], ['the Defense Authorization Act', 'defense'], ['the Campaign Finance Reform Act', 'campaign finance'], ['the Energy Security Act', 'energy'], ['the Juvenile Justice Act', 'crime'], ['the Housing Opportunity Act', 'housing'], ['the Trade Adjustment Assistance Act', 'trade'], ['the Rural Broadband Act', 'technology'], ['the Mental Health Parity Act', 'health care'], ['the Border Security Act', 'immigration'], ['the Child Care Act', 'families'], ['the Pension Protection Act', 'retirement']];
@@ -226,19 +264,21 @@
     // ---- the presidential race ----
     nominations(Q, out);
     // ---- campaign events and speeches ----
-    var p1 = pick(parties), st1 = pick(Object.keys(U.STATES)), soon = Q.electionAt && Q.electionAt - U.Game.now(Q) <= 4;
-    if (chance(soon ? 0.95 : 0.55)) out.push({ tier: soon ? 'key' : 'minor', kind: 'campaign', head: leader(Q, p1) + ' rallies ' + PI(p1).short + ' supporters in ' + stName(st1), story: 'Speaking to a crowd in ' + stName(st1) + ', ' + leader(Q, p1) + ' focuses on ' + pick(TOPICS) + ' and attacks the ' + (g && g.pmParty !== p1 ? PI(g.pmParty).short + '-led government' : 'opposition') + '.' });
-    if (chance(0.5)) { var who = pick(['pm', 'pres', 'lead']), spk, role; if (who === 'pm' && g) { spk = g.pm; role = 'Prime Minister'; } else if (who === 'pres') { spk = Q.president.name; role = 'President'; } else { var p2 = pick(parties); spk = leader(Q, p2); role = PI(p2).short + ' leader'; }
-      var tp = pick(TOPICS); out.push({ tier: 'key', kind: 'speech', head: role + ' ' + spk.split(' ').pop() + ' sets out plan on ' + tp, story: role + ' ' + spk + ' gives a major speech on ' + tp + ' at ' + pick(['a university in Ohio', 'the National Press Club', 'a union hall in Pittsburgh', 'a town hall in Iowa', 'the Chamber of Commerce', 'a church in Atlanta', 'a factory in Michigan']) + '.' }); }
+    var t1, p1 = pick(parties), st1 = pick(Object.keys(U.STATES)), soon = Q.electionAt && Q.electionAt - U.Game.now(Q) <= 4;
+    if (chance(soon ? 0.95 : 0.55)) out.push({ tier: soon ? 'key' : 'minor', kind: 'campaign', head: leader(Q, p1) + ' rallies ' + PI(p1).short + ' supporters in ' + stName(st1), story: 'Speaking to a crowd in ' + stName(st1) + ', ' + leader(Q, p1) + ' focuses on ' + (t1 = topicFor(p1)) + ' and attacks the ' + (g && g.pmParty !== p1 ? PI(g.pmParty).short + '-led government' : 'opposition') + '.' + issue(Q, p1, t1, 0.25) });
+    if (chance(0.5)) { var who = pick(['pm', 'pres', 'lead']), spk, role; var sp; if (who === 'pm' && g) { spk = g.pm; role = 'Prime Minister'; sp = g.pmParty; } else if (who === 'pres') { spk = Q.president.name; role = 'President'; sp = Q.president.party; } else { var p2 = pick(parties); spk = leader(Q, p2); role = PI(p2).short + ' leader'; sp = p2; }
+      var tp = topicFor(sp); out.push({ tier: 'key', kind: 'speech', head: role + ' ' + spk.split(' ').pop() + ' sets out plan on ' + tp, story: role + ' ' + spk + ' gives a major speech on ' + tp + ' at ' + pick(['a university in Ohio', 'the National Press Club', 'a union hall in Pittsburgh', 'a town hall in Iowa', 'the Chamber of Commerce', 'a church in Atlanta', 'a factory in Michigan']) + '.' + issue(Q, sp, tp, 0.25) }); }
     // ---- the states ----
     var govs = Object.keys(Q.states || {}).filter(function (s) { return Q.states[s].governor; });
     if (govs.length && chance(0.7)) { var gs = pick(govs), gp = Q.states[gs].governor, bill = pick(STATE_BILLS);
       out.push({ tier: chance(0.2) ? 'key' : 'minor', kind: 'states', head: stName(gs) + ' governor signs ' + bill, story: 'The ' + PI(gp).short + ' Governor of ' + stName(gs) + ' signs ' + bill + ' into law. Other states are watching.' }); }
     // ---- Congress: bills, repeals, expansions ----
+    // a bill that passes moves the governing parties' support among the groups it helps or hurts
+    var govIssue = function (topic, k) { var line = ''; (g ? g.coalition : []).forEach(function (p, i) { var l = issue(Q, p, topic, k * (i === 0 ? 1 : 0.6)); if (i === 0) line = l; }); return line; };
     if (g && chance(0.6)) { var sy = U.clamp(Math.round(100 + (R() - 0.35) * 56), 48, 176), sn = 200 - sy - Math.floor(R() * 8), sen = function (must) { if (must && sy <= sn) { sy = 101 + Math.floor(R() * 40); sn = 200 - sy - Math.floor(R() * 8); } return ' Senate: ' + sy + ' yes, ' + sn + ' no' + (sy > sn ? '.' : '; two-thirds against would be needed to block it, so it goes ahead after a delay.'); }, fb = pick(FED_BILLS), act = pick(['passes', 'passes', 'fails', 'repeal', 'expand']), gov = U.Game.govSeats ? U.Game.govSeats(Q) : 300, yes = Math.round(U.clamp(gov + (R() - 0.4) * 80, 150, 520)), no = 600 - yes - Math.floor(R() * 20);
-      if (act === 'repeal') out.push({ tier: 'key', kind: 'congress', head: 'House votes to repeal parts of ' + fb[0], story: 'By ' + yes + ' to ' + no + ', the House strikes provisions on ' + fb[1] + ' that the ' + PI(g.pmParty).short + ' had called a failure.' + sen(true) });
-      else if (act === 'expand') out.push({ tier: 'key', kind: 'congress', head: fb[0] + ' expanded', story: 'Congress extends the program on ' + fb[1] + ', ' + yes + ' votes to ' + no + '. The cost is put at $' + (5 + Math.floor(R() * 60)) + ' billion over ten years.' + sen(true) });
-      else { var pass = act === 'passes' && yes > no; out.push({ tier: 'key', kind: 'congress', head: fb[0] + (pass ? ' clears the House' : ' defeated in the House'), story: 'The bill on ' + fb[1] + ' ' + (pass ? 'passes' : 'fails') + ', ' + (pass ? yes + ' to ' + no : Math.min(yes, no) + ' to ' + Math.max(yes, no)) + '. ' + (pass ? sen(false) : 'The government says it will try again; the Senate does not vote on a bill the House has rejected.') }); } }
+      if (act === 'repeal') out.push({ tier: 'key', kind: 'congress', head: 'House votes to repeal parts of ' + fb[0], story: 'By ' + yes + ' to ' + no + ', the House strikes provisions on ' + fb[1] + ' that the ' + PI(g.pmParty).short + ' had called a failure.' + sen(true) + govIssue(fb[1], -0.35) });
+      else if (act === 'expand') out.push({ tier: 'key', kind: 'congress', head: fb[0] + ' expanded', story: 'Congress extends the program on ' + fb[1] + ', ' + yes + ' votes to ' + no + '. The cost is put at $' + (5 + Math.floor(R() * 60)) + ' billion over ten years.' + sen(true) + govIssue(fb[1], 0.4) });
+      else { var pass = act === 'passes' && yes > no; out.push({ tier: 'key', kind: 'congress', head: fb[0] + (pass ? ' clears the House' : ' defeated in the House'), story: 'The bill on ' + fb[1] + ' ' + (pass ? 'passes' : 'fails') + ', ' + (pass ? yes + ' to ' + no : Math.min(yes, no) + ' to ' + Math.max(yes, no)) + '. ' + (pass ? sen(false) + govIssue(fb[1], 0.5) : 'The government says it will try again; the Senate does not vote on a bill the House has rejected.') }); } }
     // ---- reports ----
     if (chance(0.4)) { var rp = pick(REPORTS), txt = rp[1].replace('{x}', (Q.econ.deficit > 0 ? 'a rise' : 'a fall')).replace('{dir}', Q.econ.growth > 2 ? 'risen' : 'fallen').replace('{pace}', Q.econ.growth > 3 ? 'solid' : Q.econ.growth > 0 ? 'modest' : 'weak').replace('{unemp}', Q.econ.unemp.toFixed(1));
       out.push({ tier: 'key', kind: 'report', head: rp[0] + ' ' + txt.split(' ').slice(0, 7).join(' ') + (txt.split(' ').length > 7 ? '…' : ''), story: rp[0] + ' ' + txt + '.' }); }

@@ -89,14 +89,6 @@
     h += '<div class="kv"><span>' + (Q.electionAt ? 'Election day' : 'Election due by') + '</span><b>' + U.MONTHS[m - 1].slice(0, 3) + ' ' + y + '</b></div>';
     h += '<h4>Polls</h4>';
     top.forEach(function (p) { var d = prev ? n[p] - (prev.v[p] || 0) : 0; h += '<div class="kv"><span>' + chip(p) + P(p).short + '</span><b>' + pct(n[p]) + ' <span class="small ' + (d > 0.2 ? 'up' : d < -0.2 ? 'down' : 'muted') + '">' + sign(d) + '</span></b></div>'; });
-    h += '<h4>' + P(Q.player).short + '</h4>';
-    h += '<div class="kv"><span>Leader</span><b>' + esc(Q.leader.name) + '</b></div>';
-    h += '<div class="kv"><span>Leader approval</span><b>' + Math.round(Q.leader.approval) + '</b></div>' + Ch.bar(Q.leader.approval, 100, Q.leader.approval < 35 ? 'bad' : '');
-    h += '<div class="kv"><span>Funds</span><b>' + Q.funds.toFixed(1) + '</b></div>';
-    h += '<div class="kv"><span>Unity</span><b>' + Math.round(Q.unity) + '</b></div>' + Ch.bar(Q.unity, 100, Q.unity < 40 ? 'warn' : 'good');
-    h += '<div class="kv"><span>Morale</span><b>' + Math.round(Q.morale) + '</b></div>' + Ch.bar(Q.morale, 100);
-    h += '<h4>Factions (dissent)</h4>';
-    for (var k in Q.factions) { var f = Q.factions[k]; h += '<div class="kv"><span>' + U.LDP_FACTIONS[k].name + '</span><b>' + Math.round(f.dissent) + '</b></div>' + Ch.bar(f.dissent, 100, f.dissent > 70 ? 'bad' : f.dissent > 50 ? 'warn' : ''); }
     h += '<h4>Economy</h4><div class="kv"><span>Growth</span><b>' + Q.econ.growth.toFixed(1) + '%</b></div><div class="kv"><span>Unemployment</span><b>' + Q.econ.unemp.toFixed(1) + '%</b></div><div class="kv"><span>Inflation</span><b>' + Q.econ.infl.toFixed(1) + '%</b></div><div class="kv"><span>Deficit</span><b>' + Q.econ.deficit.toFixed(1) + '% GDP</b></div>';
     // on phones the sidebar is a collapsible status panel with a one-line summary
     var short = function (L) { return L.map(function (p) { return chip(p) + P(p).short; }).join(' '); };
