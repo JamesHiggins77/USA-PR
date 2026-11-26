@@ -92,6 +92,11 @@
 
   // a recorded vote as a news item, with both chambers' tallies
   var OUTCOME = { law: 'The bill becomes law.', defeated: 'The House rejects the bill.', senateVeto: 'The Senate vetoes it with a two-thirds majority.', delayed: 'The Senate votes it down: it is delayed by up to two years, then becomes law.', presVeto: 'The President vetoes it.' };
+  // "How they voted: LDP 160 yes; CC 140 no; CDP 50 yes, 41 abstain ..."
+  A.partyLine = function (c) {
+    if (!c || !c.by || !U.Roll) return '';
+    return ' How they voted: ' + U.Roll.rows(c).map(function (r) { var nm = r.name; var parts = []; if (r.yes) parts.push(r.yes + ' yes'); if (r.no) parts.push(r.no + ' no'); if (r.abstain) parts.push(r.abstain + ' abstaining'); return nm + ' ' + parts.join(', '); }).join('; ') + '.';
+  };
   A.tally = function (c) { return c ? c.yes + ' yes, ' + c.no + ' no' + (c.abstain ? ', ' + c.abstain + ' abstaining' : '') : ''; };
   A.voteItem = function (Q, lv) {
     var t = strip(lv.title), inv = lv.kind === 'investiture' || /^Investiture/.test(t), flag = inv || lv.kind === 'budget' || lv.kind === 'bill' || /Iraq war|Bank rescue/.test(t);
@@ -106,6 +111,8 @@
       teaser: flag ? (lv.kind === 'budget' ? 'THE HOUSE VOTES ON THE BUDGET' : 'CONGRESS VOTES: ' + t.toUpperCase()) : null,
       teaserStory: flag ? 'Members are filing in to vote on ' + t + '. The whips are still counting.' : null };
   };
+  var voteItem0 = A.voteItem;
+  A.voteItem = function (Q, lv) { var it = voteItem0(Q, lv); it.text = (it.text || '') + A.partyLine(lv.house); return it; };
   A.step = function (Q) {
     Q.zero = true;
     var before = U.Votes.national(Q), lv0 = Q.lastVote;

@@ -27,6 +27,22 @@
   }
   function senateByState(Q) { var o = {}; (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var d = o[x.state] = o[x.state] || {}; d[x.party] = (d[x.party] || 0) + 1; }); return o; }
 
+  // how each party voted: one row per party (alliance members and split delegations included)
+  R.rows = function (count) {
+    var rows = {}, order = [];
+    (count.by || []).forEach(function (b) {
+      if (!b.n) return;
+      var name = String(b.label).replace(/ \((aye|nay|abstaining)\)$/, '').replace(/ rebels$/, ''), key = name + '|' + b.party;
+      if (!rows[key]) { rows[key] = { name: name, party: b.party, yes: 0, no: 0, abstain: 0 }; order.push(key); }
+      rows[key][b.vote === 'abstain/no' ? 'abstain' : b.vote] += b.n;
+    });
+    return order.map(function (k) { return rows[k]; }).sort(function (a, b) { return (b.yes + b.no + b.abstain) - (a.yes + a.no + a.abstain); });
+  };
+  R.breakdown = function (count) {
+    var rows = R.rows(count); if (!rows.length) return '';
+    return '<details class="small" style="margin-top:6px" open><summary>How each party voted</summary><table class="seats" style="width:100%"><tr><th>Party</th><th>Yes</th><th>No</th><th>Abstain</th></tr>' +
+      rows.map(function (r) { var P = U.partyInfo(r.party); return '<tr><td><i class="chip" style="background:' + P.color + '"></i>' + esc(r.name.length <= 6 ? P.name : r.name) + '</td><td class="up">' + (r.yes || '') + '</td><td class="down">' + (r.no || '') + '</td><td>' + (r.abstain || '') + '</td></tr>'; }).join('') + '</table></details>';
+  };
   R.build = function (Q, lv) {
     var st = [], kind = lv.kind || 'bill', total = U.RULES.house.total;
     var houseNeed = lv.need === 'absolute' ? { text: 'Needs an absolute majority: ' + U.majority() + ' yes votes', ok: function (c) { return U.absolute(c); } } : { text: 'Needs more yes votes than no votes', ok: function (c) { return U.simple(c); } };
@@ -43,6 +59,8 @@
       st.push({ label: 'House: veto override', total: total, rows: byState(lv.house, Q.houseByState || {}), count: lv.house, need: { text: 'Needs two-thirds: ' + Math.ceil(total * 2 / 3) + ' yes votes', ok: function (c) { return c.yes >= Math.ceil(total * 2 / 3); } } }); }
     else if (lv.proc === 'law') outcome = 'The bill becomes law.';
     else if (lv.proc === 'defeated') outcome = 'The House rejects the bill.';
+    else if (lv.kind === 'investiture') { var ok = lv.passed != null ? lv.passed : (lv.need === 'absolute' ? U.absolute(lv.house) : U.simple(lv.house)); outcome = ok ? 'The House confirms the new Prime Minister and cabinet.' : 'The nominee fails to win the House\u2019s confidence.'; }
+    else if (lv.kind === 'budget') outcome = U.simple(lv.house) ? 'The budget passes.' : 'The budget is defeated.';
     return { title: lv.title, stages: st, outcome: outcome };
   };
 
@@ -67,6 +85,7 @@
         h += '<div class="rollfeed">' + shown.slice(-6).reverse().map(function (r, j) {
           return '<div class="' + (j === 0 ? 'now' : '') + '"><b>' + esc(r.sid === 'other' ? 'Remaining members' : NAMES(r.sid)) + '</b>: ' + r.parties.map(function (x) { var t = x.t, P = U.partyInfo(x.p); return '<span><i class="chip" style="background:' + P.color + '"></i>' + esc(P.short) + ' ' + (t.yes ? '<span class="up">' + t.yes + ' yes</span> ' : '') + (t.abstain ? t.abstain + ' abstain ' : '') + (t.no ? '<span class="down">' + t.no + ' no</span>' : '') + '</span>'; }).join(' · ') + '</div>'; }).join('') + '</div>';
       } else h += '<div class="rollresult ' + (pass ? 'up' : 'down') + '"><b>' + (pass ? 'Carried' : 'Not carried') + '</b> — ' + stg.count.yes + ' yes, ' + stg.count.no + ' no, ' + stg.count.abstain + ' abstaining</div>';
+      if (fin) h += R.breakdown(stg.count);
       h += '</div>';
     });
     if (S.done) h += '<div class="result">' + esc(S.outcome || '') + '</div><div class="endbar"><button class="btn" data-act="rolldone">Continue</button></div>';
