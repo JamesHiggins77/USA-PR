@@ -35,12 +35,12 @@
         var dch = function (v, d) { if (!pv) return ''; v = +v.toFixed(d); var c = !v ? 'muted' : v > 0 ? 'up' : 'down'; return ' <span class="small ' + c + '">' + (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d) + '</span>'; };
         var keys = Object.keys(se).concat(Object.keys(sh)).filter(function (p, i, a) { return a.indexOf(p) === i; });
         var bySeat = keys.filter(function (p) { return se[p] > 0 || ps[p] > 0; }).sort(function (a, b) { return (se[b] || 0) - (se[a] || 0) || (sh[b] || 0) - (sh[a] || 0); });
-        var trr = st.gov ? '<div class="muted" style="margin-top:4px">' + (st.gov.r2 ? 'Runoff: ' + Object.keys(st.gov.r2).map(function (p) { return PI(p).short + ' ' + st.gov.r2[p] + '%'; }).join(' v ') + '. Round one below.' : 'Won outright in round one.') + '</div>' : false && st.trRace && st.trRace.r1 ? '<div class="muted" style="margin-top:4px">' + (st.trRace.round === 2 ? 'Runoff: ' + Object.keys(st.trRace.r2).map(function (p) { return PI(p).short + ' ' + st.trRace.r2[p] + '%'; }).join(' v ') + '. Round one below.' : 'Won outright in round one.') + '</div>' : '';
+        var trr = st.gov ? (st.gov.r2 ? '<div class="muted" style="margin-top:4px">Runoff</div>' + Object.keys(st.gov.r2).sort(function (a, b) { return st.gov.r2[b] - st.gov.r2[a]; }).map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + st.gov.r2[p].toFixed(1) + '%</b></div>'; }).join('') : '<div class="muted" style="margin-top:4px">Won outright in round one</div>') : false && st.trRace && st.trRace.r1 ? '<div class="muted" style="margin-top:4px">' + (st.trRace.round === 2 ? 'Runoff: ' + Object.keys(st.trRace.r2).map(function (p) { return PI(p).short + ' ' + st.trRace.r2[p] + '%'; }).join(' v ') + '. Round one below.' : 'Won outright in round one.') + '</div>' : '';
         if (trr) sh = st.gov ? st.gov.r1 || sh : st.trRace.r1;
         var byVote = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a] || (se[b] || 0) - (se[a] || 0); });
         return '<b>' + esc(st.name || (U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(se) ? '<div class="muted">' + U.sum(se) + (st.unit || ({ senate: ' senators elected statewide', senpr: ' list senators' }[genMode] || ' House seats')) + '</div>' : '') +
           bySeat.map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + (se[p] || 0) + dch((se[p] || 0) - (ps[p] || 0), 0) + '</b></div>'; }).join('') +
-          trr + (st.stood && st.stood.length ? '<div class="muted" style="margin-top:4px">Stood aside under an agreement: ' + st.stood.map(function (p) { return PI(p).short; }).join(', ') + '</div>' : '') + (st.leg ? '<div class="muted" style="margin-top:4px">Chosen by the legislature</div><div class="kv"><span>' + ochipK(st.leg) + PI(st.leg).short + '</span><b>1</b></div>' : '') + '<div class="muted" style="margin-top:4px">Vote' + (pv ? ' (change since the previous election)' : '') + '</div>' +
+          trr + (st.stood && st.stood.length ? '<div class="muted" style="margin-top:4px">Stood aside under an agreement: ' + st.stood.map(function (p) { return PI(p).short; }).join(', ') + '</div>' : '') + (st.leg ? '<div class="muted" style="margin-top:4px">Chosen by the legislature</div><div class="kv"><span>' + ochipK(st.leg) + PI(st.leg).short + '</span><b>1</b></div>' : '') + '<div class="muted" style="margin-top:4px">' + (st.gov ? 'Round one' : 'Vote') + (pv ? ' (change since the previous election)' : '') + '</div>' +
           byVote.map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + (+sh[p]).toFixed(1) + '%' + dch(sh[p] - (psh[p] || 0), 1) + '</b></div>'; }).join('');
       });
     }
@@ -575,7 +575,7 @@
     var g = x.rec.govs, i = govSeq.indexOf(x), pv = i > 0 ? govSeq[i - 1].rec.govs : null, tot = {}, ptot = {}, data = {};
     for (var sid in g) { var o = g[sid], sh = o.r2 || o.r1 || {}, se = {}; se[o.w] = 1; tot[o.w] = (tot[o.w] || 0) + 1;
       var shr = {}; for (var p in sh) if (sh[p] >= 0.5) shr[p] = Math.round(sh[p] * 10) / 10;
-      data[sid] = { unit: ' governorship', gov: o, seats: se, shares: shr, prev: pv && pv[sid] ? { seats: (function () { var z = {}; z[pv[sid].w] = 1; return z; })(), shares: {} } : null }; }
+      data[sid] = { unit: ' governorship', gov: o, seats: se, shares: shr, prev: pv && pv[sid] ? { seats: (function () { var z = {}; z[pv[sid].w] = 1; return z; })(), shares: pv[sid].r1 || {} } : null }; }
     if (pv) for (sid in pv) ptot[pv[sid].w] = (ptot[pv[sid].w] || 0) + 1;
     genData = data;
     var ord = Object.keys(tot).sort(function (a, b) { return tot[b] - tot[a]; }), flips = pv ? Object.keys(g).filter(function (s) { return pv[s] && pv[s].w !== g[s].w; }) : [];
