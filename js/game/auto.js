@@ -53,7 +53,7 @@
     if (r.out.general) { var g = r.out.general, ord = Object.keys(g.house).sort(function (a, b) { return g.house[b] - g.house[a]; });
       items.push({ kind: 'election', teaser: 'AMERICA VOTES: A NEW CONGRESS', teaserStory: 'The polls have closed in the general election. The results are coming in state by state.', head: PI(ord[0]).short + ' FIRST AS VOTERS ELECT A NEW CONGRESS', story: 'House seats: ' + ord.slice(0, 7).map(function (p) { return PI(p).short + ' ' + g.house[p] + ((g.before && g.before[p] != null) ? ' (' + (g.house[p] - g.before[p] >= 0 ? '+' : '') + (g.house[p] - g.before[p]) + ')' : ''); }).join(', ') + '. ' + U.majority() + ' are needed for a majority.', elec: 'g' }); }
     r.events.forEach(function (e) {
-      items.push({ kind: e.vote ? 'vote' : 'event', id: e.id, teaser: e.teaser, teaserStory: e.teaserStory, tier: e.teaser ? 'breaking' : undefined, head: e.title, story: [e.body, e.choice ? 'Outcome: ' + e.choice + '.' : '', e.text].filter(Boolean).join(' '), vote: e.vote });
+      items.push({ kind: e.vote ? 'vote' : 'event', vtype: e.vtype, id: e.id, teaser: e.teaser, teaserStory: e.teaserStory, tier: e.teaser ? 'breaking' : undefined, head: e.title, story: [e.body, e.choice ? 'Outcome: ' + e.choice + '.' : '', e.text].filter(Boolean).join(' '), vote: e.vote });
     });
     (r.news || []).forEach(function (t) { t.split(/(?<=[a-z\)]{2}\.)\s+(?=[A-Z])/).forEach(function (x) { if (x.length > 8 && !(r.out.presidential && /elected President/.test(x))) items.push({ kind: 'news', head: x.length > 90 ? x.slice(0, 87).replace(/\s\S*$/, '') + '…' : x, story: x }); }); });
     // the regular pages: polls, economy, the government, the parties
@@ -94,10 +94,12 @@
     var t = strip(lv.title), inv = lv.kind === 'investiture' || /^Investiture/.test(t), flag = inv || lv.kind === 'budget' || lv.kind === 'bill' || /Iraq war|Bank rescue/.test(t);
     var passed = lv.house.yes > lv.house.no, sen = lv.senate && lv.kind !== 'budget' && lv.kind !== 'investiture';
     var text = 'House: ' + A.tally(lv.house) + '. ' + (sen ? 'Senate: ' + A.tally(lv.senate) + '. ' : lv.kind === 'budget' ? 'Senate: no vote (budgets are for the House alone). ' : lv.kind === 'investiture' ? 'Senate: no vote (the House alone confirms a Prime Minister). ' : 'Senate: not required. ') + (OUTCOME[lv.proc] || (passed ? 'Carried.' : 'Not carried.'));
-    if (inv) { var who = t.replace(/^Investiture of /, ''), ok = lv.passed != null ? lv.passed : passed;
-      return { title: ok ? who + ' confirmed as Prime Minister' : who + ' fails the investiture vote', text: 'House: ' + A.tally(lv.house) + '. ' + (lv.need === 'absolute' ? 'An absolute majority (' + U.majority() + ') was needed. ' : 'More yes than no votes were needed. ') + 'Senate: no vote (the House alone confirms a Prime Minister).', vote: lv,
+    if (inv) { var nc = /no-confidence/i.test(t), who = t.replace(/^(Investiture of|Constructive no-confidence:)\s*/, ''), ok = lv.passed != null ? lv.passed : passed;
+      if (nc) return { title: ok ? 'No-confidence vote topples the government: ' + who + ' takes over' : 'Government survives a no-confidence vote', text: 'House: ' + A.tally(lv.house) + '. The motion named ' + who + ' as the new Prime Minister and needed an absolute majority (' + U.majority() + ').', vote: lv, vtype: 'noconf',
+        teaser: 'NO-CONFIDENCE VOTE IN THE HOUSE', teaserStory: 'The opposition moves to replace the government with one led by ' + who + '. It needs ' + U.majority() + ' votes.' };
+      return { vtype: 'investiture', title: ok ? who + ' confirmed as Prime Minister' : who + ' fails the investiture vote', text: 'House: ' + A.tally(lv.house) + '. ' + (lv.need === 'absolute' ? 'An absolute majority (' + U.majority() + ') was needed. ' : 'More yes than no votes were needed. ') + 'Senate: no vote (the House alone confirms a Prime Minister).', vote: lv,
         teaser: 'THE HOUSE VOTES ON A NEW PRIME MINISTER', teaserStory: who + ' faces the House' + (lv.need === 'absolute' ? ', needing an absolute majority of ' + U.majority() + '.' : '.') + ' The whips are still counting.' }; }
-    return { title: (lv.kind === 'budget' ? 'Budget vote: ' : 'Vote: ') + t + (passed ? ' passes the House' : ' fails in the House'), text: text, vote: lv,
+    return { vtype: 'bills', title: (lv.kind === 'budget' ? 'Budget vote: ' : 'Vote: ') + t + (passed ? ' passes the House' : ' fails in the House'), text: text, vote: lv,
       teaser: flag ? (lv.kind === 'budget' ? 'THE HOUSE VOTES ON THE BUDGET' : 'CONGRESS VOTES: ' + t.toUpperCase()) : null,
       teaserStory: flag ? 'Members are filing in to vote on ' + t + '. The whips are still counting.' : null };
   };

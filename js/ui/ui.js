@@ -124,11 +124,44 @@
 
   // ---------- the monthly newspaper ----------
   var paperIdx = null, openHead = {};
-  function nextMonth() {
+  // ---- "watch it live?" prompts ----
+  var LIVE_TYPES = [['election', 'Elections'], ['investiture', 'Investiture votes'], ['noconf', 'No-confidence votes'], ['bills', 'Key bills and budgets']];
+  function livePrefs() { var d = { ask: true, always: {} }; try { var x = JSON.parse(localStorage.getItem('usa-pr-live') || 'null'); if (x) d = x; } catch (e) {} d.always = d.always || {}; return d; }
+  function saveLivePrefs(p) { try { localStorage.setItem('usa-pr-live', JSON.stringify(p)); } catch (e) {} }
+  function typeOf(it) { return it.kind === 'election' ? 'election' : it.vtype || 'bills'; }
+  function watch(k, i) { var it = Q.papers[k].items[i]; it.seen = true; if (it.kind === 'election') { unseal(); U.Night.reset(); go('night'); } else { save(); U.Roll.reset(Q, it.vote); go('rollcall'); } }
+  function skipTo(k, i) { var it = Q.papers[k].items[i]; it.seen = true; if (it.kind === 'election') unseal(); openHead[k + ':' + i] = true; save(); render(); }
+  function livePrompt() {
+    var k = Q.papers.length - 1, pp = Q.papers[k], idx = -1;
+    pp.items.forEach(function (it, i) { if (idx < 0 && it.teaser && !it.seen) idx = i; });
+    if (idx < 0) return;
+    var it = pp.items[idx], ty = typeOf(it), pr = livePrefs();
+    if (pr.always[ty]) return watch(k, idx);
+    if (!pr.ask) return;
+    var what = { election: 'An election', investiture: 'A vote to confirm a new Prime Minister', noconf: 'A no-confidence vote', bills: 'A key vote in Congress' }[ty];
+    var m = document.createElement('div'); m.className = 'modalbg';
+    m.innerHTML = '<div class="modal" role="dialog" aria-modal="true"><div class="small muted">' + esc(pp.date) + '</div><h2 style="margin:4px 0 6px">' + esc(it.teaser) + '</h2><p>' + esc(what) + ' takes place this month. Do you want to experience it live?</p>' +
+      '<div class="row" style="gap:8px;margin:10px 0"><button class="btn" data-live="yes">Yes, watch it live</button><button class="btn ghost" data-live="no">No, show me the result</button></div>' +
+      '<label class="small" style="display:block;margin-top:8px"><input type="checkbox" data-livenoask> Don\u2019t show this again</label>' +
+      '<label class="small" style="display:block;margin-top:6px"><input type="checkbox" data-livealways> Always watch live:</label><div class="small" style="margin:4px 0 0 22px">' +
+      LIVE_TYPES.map(function (t) { return '<label style="display:block"><input type="checkbox" data-livetype="' + t[0] + '"' + (t[0] === ty || pr.always[t[0]] ? ' checked' : '') + '> ' + t[1] + '</label>'; }).join('') + '</div></div>';
+    document.body.appendChild(m);
+    var close = function (yes) {
+      var p2 = livePrefs();
+      if (m.querySelector('[data-livenoask]').checked) p2.ask = false;
+      if (m.querySelector('[data-livealways]').checked) m.querySelectorAll('[data-livetype]').forEach(function (c) { p2.always[c.dataset.livetype] = c.checked; });
+      saveLivePrefs(p2); m.remove();
+      if (yes) watch(k, idx); else skipTo(k, idx);
+    };
+    m.querySelector('[data-live=yes]').onclick = function () { close(true); };
+    m.querySelector('[data-live=no]').onclick = function () { close(false); };
+  }
+  function nextMonth(stay) {
     var last = (Q.papers || [])[Q.papers ? Q.papers.length - 1 : 0]; if (last) last.open = true;
     var r = U.Auto.step(Q); paperIdx = null; openHead = {}; rollSeen = Q.lastVote; save();
     elec = (r.out.general || r.out.presidential) ? r.out : null;
-    go('live');
+    setTimeout(livePrompt, 0);
+    if (stay) render(); else go('live');
   }
   function unseal() { var l = Q.papers && Q.papers[Q.papers.length - 1]; if (l) { l.items.forEach(function (it) { if (it.kind === 'election') it.seen = true; }); save(); } }
   function isSealed(pp) { return pp && !pp.open && pp.items.some(function (it) { return it.teaser && !it.seen; }); }
@@ -138,7 +171,7 @@
     var latest = papers.length - 1;
     h += '<div class="papernav"><button class="btn ghost small" data-paper="0"' + (k > 0 ? '' : ' disabled') + '>⇤ Start</button>' +
       '<button class="btn" data-paper="' + (k - 1) + '"' + (k > 0 ? '' : ' disabled') + '>← Previous month</button>' +
-      (k < latest ? '<button class="btn" data-paper="' + (k + 1) + '">Next month →</button>' : '<button class="btn" data-act="nextmonth">Next month →</button>') +
+      (k < latest ? '<button class="btn" data-paper="' + (k + 1) + '">Next month →</button>' : '<button class="btn" data-act="nextmonth" title="Shortcut: right arrow or N">Next month →</button>') +
       '<button class="btn ghost small" data-paper="latest"' + (k < latest ? '' : ' disabled') + '>Most recent ⇥</button></div>';
     if (!pp) h += '<p class="muted">The first edition comes out at the end of ' + esc(U.dateStr(Q)) + '. Press <b>Next month</b> to begin.</p>';
     else if (isSealed(pp)) {
@@ -745,7 +778,11 @@
   }
 
   function system() {
-    return '<h1>Game</h1><div class="choices" style="max-width:420px"><button class="choice" data-act="savefile">Export save file<small>Download the campaign as JSON.</small></button><label class="choice">Import save file<small>Load a JSON save.</small><input type="file" accept=".json" data-act="loadfile" style="margin-top:6px"></label><button class="choice" data-act="restart">Start a new campaign<small>The current autosave will be replaced.</small></button></div>' +
+    var lpf = livePrefs();
+    var liveBox = '<h2>Watching live</h2><p class="small muted">Elections, investitures, no-confidence votes, key bills and budgets can be watched as they happen.</p>' +
+      '<label class="small" style="display:block"><input type="checkbox" data-setask' + (lpf.ask ? ' checked' : '') + '> Ask me each time</label><div class="small" style="margin-top:6px">Always watch live:</div>' +
+      LIVE_TYPES.map(function (t) { return '<label class="small" style="display:block;margin-left:12px"><input type="checkbox" data-setalways="' + t[0] + '"' + (lpf.always[t[0]] ? ' checked' : '') + '> ' + t[1] + '</label>'; }).join('');
+    return liveBox + '<h1>Game</h1><div class="choices" style="max-width:420px"><button class="choice" data-act="savefile">Export save file<small>Download the campaign as JSON.</small></button><label class="choice">Import save file<small>Load a JSON save.</small><input type="file" accept=".json" data-act="loadfile" style="margin-top:6px"></label><button class="choice" data-act="restart">Start a new campaign<small>The current autosave will be replaced.</small></button></div>' +
       '<h2>Rules in force</h2><pre class="small" style="white-space:pre-wrap">' + esc(JSON.stringify(U.RULES, null, 1)) + '</pre>';
   }
 
@@ -787,6 +824,8 @@
     document.querySelectorAll('[data-offbill]').forEach(function (b) { b.onclick = function () { var id = b.dataset.offbill, l = negOffer.bills = negOffer.bills || [], i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.push(id); render(); }; });
     document.querySelectorAll('[data-offn]').forEach(function (b) { b.onclick = function () { var a = b.dataset.offn.split('|'); negOffer[a[0]] = U.clamp((negOffer[a[0]] || 0) + +a[1], a[0] === 'posts' ? (negOffer.portfolios || []).length : 0, a[0] === 'posts' ? 14 : 6); render(); }; });
     document.querySelectorAll('[data-pv]').forEach(function (b) { b.onclick = function () { pvSel = b.dataset.pv; render(); }; });
+    var sa = document.querySelector('[data-setask]'); if (sa) sa.onchange = function () { var p2 = livePrefs(); p2.ask = sa.checked; saveLivePrefs(p2); };
+    document.querySelectorAll('[data-setalways]').forEach(function (c) { c.onchange = function () { var p2 = livePrefs(); p2.always[c.dataset.setalways] = c.checked; saveLivePrefs(p2); }; });
     document.querySelectorAll('[data-head]').forEach(function (b) { b.onclick = function () { openHead[b.dataset.head] = !openHead[b.dataset.head]; render(); }; });
     document.querySelectorAll('[data-paper]').forEach(function (b) { b.onclick = function () { var v = b.dataset.paper; paperIdx = v === 'latest' ? null : +v; render(); }; });
     document.querySelectorAll('[data-rollx]').forEach(function (b) { b.onclick = function () { var a = b.dataset.rollx.split(':'), it = Q.papers[+a[0]].items[+a[1]]; it.seen = true; save(); U.Roll.reset(Q, it.vote); go('rollcall'); }; });
@@ -826,14 +865,14 @@
         if (a === 'skipahead') { after(F.skipAhead(Q, 12)); }
         if (a === 'seenight') { unseal(); U.Night.reset(); go('night'); }
         if (a === 'seefinal') { unseal(); go('election'); }
-        if (a === 'closeelec') { go('live'); }
+        if (a === 'closeelec') { go('live'); setTimeout(livePrompt, 0); }
         if (a === 'negotiate') { deal = null; negSel = null; negOffer = {}; negMsg = ''; go('negotiate'); }
         if (a === 'makeoffer') { var res = U.Talks.offer(Q, negSel, negOffer); negMsg = res ? (res.error || res.text) : ''; if (res && !res.error) { negSel = null; negOffer = {}; } save(); render(); }
         if (a === 'canceloffer') { negSel = null; negOffer = {}; render(); }
         if (a === 'talksvote') { var tv = U.Talks.vote(Q); negSel = null; negMsg = ''; var rebelTxt = tv.count.by.filter(function (b) { return /rebels/.test(b.label) && b.n; }).map(function (b) { return b.n + ' ' + b.label; }).join(', '); lastText = (tv.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister</b>, ' + tv.count.yes + ' votes to ' + tv.count.no + ' with ' + tv.count.abstain + ' abstaining.' : '<b>The investiture fails</b>: ' + tv.count.yes + ' yes, ' + tv.count.no + ' no, ' + tv.count.abstain + ' abstaining.') + (rebelTxt ? ' Rebels: ' + rebelTxt + '.' : ''); save(); if (!maybeRoll('office')) go('office'); }
         if (a === 'aideal') { deal = C.aiDeal(Q, Q.player); render(); }
-        if (a === 'back') { go('office'); }
-        if (a === 'rolldone') { go('live'); }
+        if (a === 'back') { go('office'); setTimeout(livePrompt, 0); }
+        if (a === 'rolldone') { go('live'); setTimeout(livePrompt, 0); }
         if (a === 'rollskip') { U.Roll.skip(); render(); }
         if (a === 'submitdeal') { var r = F.submitDeal(Q, deal); deal = null; lastText = r.passed ? '<b>' + esc(Q.leader.name) + ' is confirmed as Prime Minister.</b> ' + (r.inv.second ? 'Second ballot: ' + r.inv.second.yes + ' yes, ' + r.inv.second.no + ' no.' : 'First ballot: ' + r.inv.first.yes + ' yes.') : '<b>The investiture fails.</b> ' + (r.inv.second || r.inv.first).yes + ' yes, ' + (r.inv.second || r.inv.first).no + ' no. Partners who were asked feel used; you can try again next month.'; save(); go('office'); }
         if (a === 'savefile') { var blob = new Blob([JSON.stringify(Q)], { type: 'application/json' }); var u = URL.createObjectURL(blob), l = document.createElement('a'); l.href = u; l.download = 'american-republic-' + Q.year + '-' + Q.month + '.json'; l.click(); }
@@ -841,6 +880,20 @@
     });
   }
 
+  // hotkeys, from any tab: right arrow or N = next month, left arrow or P = previous month
+  document.addEventListener('keydown', function (e) {
+    if (!Q || e.ctrlKey || e.metaKey || e.altKey || document.querySelector('.modal')) return;
+    var t = e.target, tag = t && t.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+    if (view === 'night' || view === 'rollcall') return;
+    var k = e.key, papers = Q.papers || [], cur = paperIdx == null ? papers.length - 1 : paperIdx;
+    if (k === 'ArrowRight' || k === 'n' || k === 'N') {
+      e.preventDefault();
+      if (cur < papers.length - 1) { paperIdx = cur + 1 === papers.length - 1 ? null : cur + 1; openHead = {}; render(); }
+      else nextMonth(view !== 'live');
+    } else if (k === 'ArrowLeft' || k === 'p' || k === 'P') {
+      e.preventDefault(); if (cur > 0) { paperIdx = cur - 1; openHead = {}; if (view === 'live') render(); else go('live'); }
+    }
+  });
   U.Tips.install(function () { return Q; });
   try { mapStyle = localStorage.getItem('usa-pr-mapstyle') || 'geo'; } catch (e) {}
   render();

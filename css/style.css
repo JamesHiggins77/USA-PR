@@ -263,3 +263,5 @@ table.talks { width: 100%; } table.talks td:nth-child(4) { text-align: left; min
 .story.t-minor .headline { font-size: 15px; padding: 6px 2px; font-weight: 600; }
 .story.t-breaking .headline { color: #b3261e; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .story.t-breaking .headline { color: #ff8a80; } }
+.modalbg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+.modal { background: var(--card); color: var(--ink); border-radius: 10px; padding: 18px 20px; max-width: 440px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
