@@ -42,8 +42,14 @@
       while ((d.grn || 0) > 1) { d.grn--; d.ldp = (d.ldp || 0) + 1; } if (!d.grn) { take(d); d.grn = 1; }
       while ((pr.grn || 0) > 1) { pr.grn--; pr.ldp = (pr.ldp || 0) + 1; } if (!pr.grn) { take(pr); pr.grn = 1; }
     }); Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h); var open1996h = h;
+    // the 1996 governors follow on from the 1994 races: same local factors as the history
+    var g94 = U.LORE.govHistory ? U.LORE.govHistory().slice(-1)[0] : null, nat96 = V.national(Q);
+    var hh = function (str) { var x = 2166136261; for (var i = 0; i < str.length; i++) { x ^= str.charCodeAt(i); x = Math.imul(x, 16777619); } return ((x >>> 0) % 1000) / 1000; };
+    var gov1996 = function (sid) { var inc = g94 && g94.govs[sid] && g94.govs[sid].w, pers = {};
+      U.ALL_PARTIES.forEach(function (p) { pers[p] = (1 + 0.8 * (hh('g1996' + sid + p) - 0.5)) * ((nat96[p] || 0) < 12 ? 1.3 : 1) * (p === inc ? 1.05 : 1); });
+      return { governor: inc, personal: pers }; };
     Q.states = {};
-    Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
+    Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], gov1996(sid)); });
     Q.senateSeats = [];
     Object.keys(U.STATES).forEach(function (sid) {
       ['pr', 'pr', 'pr', 'house'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
