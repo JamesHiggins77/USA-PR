@@ -236,6 +236,7 @@
     else if (finished) html = '<button class="btn" data-nt="final">See the full results</button>';
     else html = '<button class="btn ghost" data-nt="final">Skip to the full results</button>';
     if (end.dataset.h !== html) { end.innerHTML = html; end.dataset.h = html; bindEnd(); }
+    if (U.Zoom.refresh) U.Zoom.refresh();
   };
 
   // ---- hover cards ----

@@ -65,6 +65,7 @@
         if (e.pointerType !== 'mouse' || (Z.drag && Z.drag.moved)) return;
         var t = e.target.closest('.dist, .tile');
         var html = t ? hover(t, e) : null;
+        Z.last = html ? { hover: hover, t: t, e: e, x: e.clientX, y: e.clientY, sheet: false } : null;
         if (html) Z.card(html, e.clientX, e.clientY); else Z.hide();
       });
       svg.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') Z.hide(); });
@@ -77,6 +78,7 @@
         var t = e.target.closest && e.target.closest('.dist, .tile'), now = Date.now();
         if (lastTap && t && lastTap.t === t && now - lastTap.at < 400 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
           var html = hover(t, e); lastTap = null;
+          Z.last = html ? { hover: hover, t: t, e: e, sheet: true } : null;
           if (html) Z.sheet(html); return;
         }
         lastTap = { t: t, at: now, x: e.clientX, y: e.clientY }; Z.hide();
@@ -113,5 +115,11 @@
     if (!box) { box = document.createElement('div'); box.id = 'mapcard'; document.body.appendChild(box); }
     box.innerHTML = '<button class="sheetx" aria-label="Close">\u00d7</button>' + html; box.classList.add('sheet'); box.style.display = 'block'; box.style.left = ''; box.style.top = '';
     box.querySelector('.sheetx').onclick = Z.hide;
+  };
+  // redraw an open card with fresh data (e.g. as votes are counted on election night)
+  Z.refresh = function () {
+    var L = Z.last; if (!L || !box || box.style.display === 'none' || !L.t.isConnected) return;
+    var html = L.hover(L.t, L.e); if (!html) return;
+    if (L.sheet) { var sx = box.scrollTop; Z.sheet(html); box.scrollTop = sx; } else Z.card(html, L.x, L.y);
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
