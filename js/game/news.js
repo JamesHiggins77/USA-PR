@@ -34,7 +34,6 @@
   var NBA = { 1997: 'Chicago Bulls', 1998: 'Chicago Bulls', 1999: 'San Antonio Spurs', 2000: 'Los Angeles Lakers', 2001: 'Los Angeles Lakers', 2002: 'Los Angeles Lakers', 2003: 'San Antonio Spurs', 2004: 'Detroit Pistons', 2005: 'San Antonio Spurs', 2006: 'Miami Heat', 2007: 'San Antonio Spurs', 2008: 'Boston Celtics', 2009: 'Los Angeles Lakers', 2010: 'Los Angeles Lakers', 2011: 'Dallas Mavericks', 2012: 'Miami Heat' };
   // [year, month, tier, kind, head, story]
   var WORLD = [
-    [1997, 5, 'key', 'foreign', 'Labour landslide in Britain: Tony Blair is Prime Minister', 'After eighteen years of Conservative rule, Labour wins a majority of 179 seats.'],
     [1997, 7, 'key', 'foreign', 'Hong Kong returns to China', 'The Union flag is lowered at midnight; Beijing promises "one country, two systems".'],
     [1997, 7, 'key', 'foreign', 'Asian currency crisis begins in Thailand', 'The baht collapses after Bangkok abandons its dollar peg; markets across Asia fall.'],
     [1997, 8, 'breaking', 'foreign', 'Princess Diana killed in Paris car crash', 'The Princess of Wales dies after a crash in a tunnel in Paris. Crowds gather at Kensington Palace.'],
@@ -44,14 +43,11 @@
     [1998, 5, 'key', 'foreign', 'India and Pakistan test nuclear weapons', 'Pokhran, then Chagai: South Asia enters the nuclear age.'],
     [1998, 5, 'minor', 'culture', 'Frank Sinatra dies at 82', 'Ol’ Blue Eyes is mourned from Hoboken to Las Vegas.'],
     [1998, 8, 'key', 'foreign', 'Russia defaults on its debt', 'The ruble collapses; a hedge fund crisis follows on Wall Street.'],
-    [1998, 9, 'minor', 'sport', 'McGwire passes Maris: 62 home runs', 'Mark McGwire breaks the single-season record; Sammy Sosa is close behind.'],
-    [1998, 9, 'key', 'foreign', 'Schröder defeats Kohl in Germany', 'The Social Democrats end sixteen years of Helmut Kohl.'],
     [1999, 1, 'key', 'foreign', 'The euro is launched', 'Eleven European countries adopt a single currency.'],
     [1999, 3, 'breaking', 'foreign', 'NATO bombs Yugoslavia over Kosovo', 'Air strikes begin on Serbian forces.'],
     [1999, 4, 'breaking', 'disaster', 'Massacre at Columbine High School', 'Two students kill thirteen people in Littleton, Colorado.'],
     [1999, 12, 'key', 'foreign', 'Yeltsin resigns; Putin takes over in Moscow', 'Boris Yeltsin hands power to his prime minister on New Year’s Eve.'],
     [2000, 3, 'key', 'economy', 'Nasdaq peaks above 5,000', 'Technology stocks hit a record. Analysts warn of a bubble.'],
-    [2000, 7, 'key', 'foreign', 'Mexico’s PRI loses power after 71 years', 'Vicente Fox of the PAN wins the presidency.'],
     [2000, 9, 'minor', 'sport', 'Sydney Olympics open', 'Cathy Freeman lights the cauldron.'],
     [2001, 6, 'minor', 'culture', '"Shrek" is the summer’s hit', 'An ogre conquers the box office.'],
     [2002, 1, 'key', 'foreign', 'Euro notes and coins in circulation', 'Twelve countries say goodbye to the franc, the mark and the lira.'],
@@ -64,23 +60,19 @@
     [2004, 11, 'key', 'foreign', 'Orange Revolution in Ukraine', 'Protesters fill Kyiv over a rigged runoff.'],
     [2005, 4, 'key', 'foreign', 'Pope John Paul II dies', 'Cardinal Ratzinger is elected Pope Benedict XVI.'],
     [2005, 7, 'breaking', 'foreign', 'Bombs on London’s transport network', 'Fifty-two people are killed in attacks on the Tube and a bus.'],
-    [2005, 9, 'key', 'foreign', 'Merkel edges out Schröder', 'Germany heads for a grand coalition under Angela Merkel.'],
     [2006, 7, 'key', 'foreign', 'War between Israel and Hezbollah', 'Rockets on northern Israel; air strikes on Lebanon.'],
     [2006, 10, 'breaking', 'foreign', 'North Korea tests a nuclear weapon', 'An underground test draws condemnation from the UN.'],
     [2007, 1, 'minor', 'culture', 'Apple unveils the iPhone', 'Steve Jobs shows off a phone with no keyboard.'],
     [2007, 4, 'breaking', 'disaster', 'Shooting at Virginia Tech', 'Thirty-two people are killed in Blacksburg.'],
-    [2007, 6, 'key', 'foreign', 'Gordon Brown succeeds Blair', 'Tony Blair leaves Downing Street after ten years.'],
     [2007, 12, 'key', 'foreign', 'Benazir Bhutto assassinated', 'The former Pakistani prime minister is killed at a rally in Rawalpindi.'],
     [2008, 5, 'breaking', 'disaster', 'Earthquake in Sichuan kills tens of thousands', 'China’s worst earthquake in a generation.'],
     [2008, 8, 'key', 'foreign', 'War in Georgia', 'Russian forces pour into South Ossetia.'],
-    [2008, 8, 'minor', 'sport', 'Phelps wins eight golds in Beijing', 'Michael Phelps breaks Mark Spitz’s record.'],
     [2008, 11, 'breaking', 'foreign', 'Terror attacks in Mumbai', 'Gunmen attack hotels and a railway station; 166 are killed.'],
     [2009, 6, 'minor', 'culture', 'Michael Jackson dies at 50', 'Fans gather outside his Los Angeles home.'],
     [2009, 6, 'key', 'foreign', 'Protests in Iran after disputed election', 'Hundreds of thousands march in Tehran.'],
     [2009, 4, 'key', 'disaster', 'Swine flu outbreak', 'A new H1N1 influenza strain spreads from Mexico.'],
     [2010, 1, 'breaking', 'disaster', 'Earthquake devastates Haiti', 'Port-au-Prince is in ruins; deaths in the hundreds of thousands.'],
     [2010, 5, 'key', 'foreign', 'Greece gets an emergency bailout', 'The eurozone debt crisis begins.'],
-    [2010, 5, 'key', 'foreign', 'Cameron and Clegg form a coalition in Britain', 'Britain’s first coalition government since the war.'],
     [2010, 12, 'key', 'foreign', 'Unrest in Tunisia', 'Protests spread after a street vendor sets himself on fire.'],
     [2011, 3, 'breaking', 'disaster', 'Earthquake and tsunami in Japan', 'Reactors fail at Fukushima Daiichi.'],
     [2011, 3, 'breaking', 'foreign', 'Civil war in Libya', 'Rebels hold Benghazi as Gaddafi’s forces advance.'],
@@ -93,7 +85,77 @@
     [2012, 11, 'key', 'foreign', 'Xi Jinping takes over in China', 'The Communist Party names a new leadership.']
   ];
   // after the calendar runs out, foreign elections follow their real cycles
-  var FOREIGN_CYCLE = [['Britain', 5, 'May', 2015], ['Germany', 4, 'Sep', 2013], ['France', 5, 'Apr', 2017], ['Japan', 3, 'Dec', 2014], ['India', 5, 'May', 2014], ['Canada', 4, 'Oct', 2015], ['Mexico', 6, 'Jul', 2018], ['Brazil', 4, 'Oct', 2014], ['Australia', 3, 'Sep', 2013]];
+  var NFL_T = ['Green Bay Packers', 'Denver Broncos', 'Dallas Cowboys', 'San Francisco 49ers', 'Pittsburgh Steelers', 'New England Patriots', 'New York Giants', 'Kansas City Chiefs', 'Baltimore Ravens', 'Philadelphia Eagles', 'Seattle Seahawks', 'Indianapolis Colts', 'Minnesota Vikings', 'Buffalo Bills'];
+  var NBA_T = ['Chicago Bulls', 'Los Angeles Lakers', 'San Antonio Spurs', 'Boston Celtics', 'Miami Heat', 'Detroit Pistons', 'Utah Jazz', 'New York Knicks', 'Golden State Warriors', 'Dallas Mavericks', 'Phoenix Suns', 'Indiana Pacers', 'Sacramento Kings'];
+  var MLB_T = ['New York Yankees', 'Boston Red Sox', 'Atlanta Braves', 'St. Louis Cardinals', 'Los Angeles Dodgers', 'San Francisco Giants', 'Cleveland Indians', 'Chicago Cubs', 'Houston Astros', 'Philadelphia Phillies', 'Seattle Mariners', 'New York Mets', 'Oakland Athletics'];
+  // in this timeline the real champion is the favorite, not a certainty
+  function champ(real, pool) { return real && R() < 0.55 ? real : pick(pool); }
+
+  // Foreign elections. While a country's history still matches ours, the real
+  // winner is the favorite (with odds reflecting how close the real race was);
+  // once it has diverged, incumbency and time in office decide.
+  // real: [year, month, winner, probability the real winner wins]
+  var FE = {
+    UK: { name: 'Britain', office: 'Prime Minister', parties: { L: 'Labour', C: 'the Conservatives' }, start: 'C', terms: 5, cycle: 5,
+      real: [[1997, 5, 'L', 0.9], [2001, 6, 'L', 0.85], [2005, 5, 'L', 0.7], [2010, 5, 'C', 0.65], [2015, 5, 'C', 0.6], [2017, 6, 'C', 0.6], [2019, 12, 'C', 0.65], [2024, 7, 'L', 0.8]],
+      lead: { '1997L': 'Tony Blair', '1997C': 'John Major', '2001L': 'Tony Blair', '2001C': 'William Hague', '2005L': 'Tony Blair', '2005C': 'Michael Howard', '2010C': 'David Cameron', '2010L': 'Gordon Brown', '2015C': 'David Cameron', '2015L': 'Ed Miliband', '2017C': 'Theresa May', '2017L': 'Jeremy Corbyn', '2019C': 'Boris Johnson', '2019L': 'Jeremy Corbyn', '2024L': 'Keir Starmer', '2024C': 'Rishi Sunak' } },
+    DE: { name: 'Germany', office: 'Chancellor', parties: { L: 'the Social Democrats', C: 'the Christian Democrats' }, start: 'C', terms: 4, cycle: 4,
+      real: [[1998, 9, 'L', 0.7], [2002, 9, 'L', 0.55], [2005, 9, 'C', 0.65], [2009, 9, 'C', 0.7], [2013, 9, 'C', 0.75], [2017, 9, 'C', 0.65], [2021, 9, 'L', 0.55], [2025, 2, 'C', 0.65]],
+      lead: { '1998L': 'Gerhard Schröder', '1998C': 'Helmut Kohl', '2002L': 'Gerhard Schröder', '2002C': 'Edmund Stoiber', '2005C': 'Angela Merkel', '2005L': 'Gerhard Schröder', '2009C': 'Angela Merkel', '2013C': 'Angela Merkel', '2017C': 'Angela Merkel', '2021L': 'Olaf Scholz', '2021C': 'Armin Laschet', '2025C': 'Friedrich Merz' } },
+    CA: { name: 'Canada', office: 'Prime Minister', parties: { L: 'the Liberals', C: 'the Conservatives' }, start: 'L', terms: 1, cycle: 4,
+      real: [[1997, 6, 'L', 0.8], [2000, 11, 'L', 0.75], [2004, 6, 'L', 0.6], [2006, 1, 'C', 0.6], [2008, 10, 'C', 0.65], [2011, 5, 'C', 0.65], [2015, 10, 'L', 0.65], [2019, 10, 'L', 0.6], [2021, 9, 'L', 0.6], [2025, 4, 'L', 0.55]],
+      lead: { '1997L': 'Jean Chrétien', '2000L': 'Jean Chrétien', '2004L': 'Paul Martin', '2006C': 'Stephen Harper', '2008C': 'Stephen Harper', '2011C': 'Stephen Harper', '2015L': 'Justin Trudeau', '2019L': 'Justin Trudeau', '2021L': 'Justin Trudeau', '2025L': 'Mark Carney' } },
+    JP: { name: 'Japan', office: 'Prime Minister', parties: { C: 'the Liberal Democrats', L: 'the Democratic Party' }, start: 'C', terms: 6, cycle: 3,
+      real: [[2000, 6, 'C', 0.8], [2003, 11, 'C', 0.8], [2005, 9, 'C', 0.8], [2009, 8, 'L', 0.65], [2012, 12, 'C', 0.75], [2014, 12, 'C', 0.8], [2017, 10, 'C', 0.8], [2021, 10, 'C', 0.8], [2024, 10, 'C', 0.65]],
+      lead: { '2005C': 'Junichiro Koizumi', '2009L': 'Yukio Hatoyama', '2012C': 'Shinzo Abe', '2014C': 'Shinzo Abe', '2017C': 'Shinzo Abe' } },
+    IN: { name: 'India', office: 'Prime Minister', parties: { L: 'Congress', C: 'the BJP' }, start: 'L', terms: 1, cycle: 5,
+      real: [[1998, 3, 'C', 0.6], [1999, 10, 'C', 0.65], [2004, 5, 'L', 0.55], [2009, 5, 'L', 0.6], [2014, 5, 'C', 0.75], [2019, 5, 'C', 0.75], [2024, 6, 'C', 0.65]],
+      lead: { '1998C': 'Atal Bihari Vajpayee', '1999C': 'Atal Bihari Vajpayee', '2004L': 'Manmohan Singh', '2009L': 'Manmohan Singh', '2014C': 'Narendra Modi', '2019C': 'Narendra Modi', '2024C': 'Narendra Modi' } },
+    MX: { name: 'Mexico', office: 'President', parties: { L: 'the PRI', C: 'the PAN' }, extra: { M: 'Morena' }, start: 'L', terms: 12, cycle: 6,
+      real: [[2000, 7, 'C', 0.6], [2006, 7, 'C', 0.5], [2012, 7, 'L', 0.6], [2018, 7, 'M', 0.65], [2024, 6, 'M', 0.75]],
+      lead: { '2000C': 'Vicente Fox', '2006C': 'Felipe Calderón', '2012L': 'Enrique Peña Nieto', '2018M': 'Andrés Manuel López Obrador', '2024M': 'Claudia Sheinbaum' } },
+    BR: { name: 'Brazil', office: 'President', parties: { C: 'the PSDB', L: 'the Workers’ Party' }, start: 'C', terms: 1, cycle: 4,
+      real: [[1998, 10, 'C', 0.75], [2002, 10, 'L', 0.7], [2006, 10, 'L', 0.7], [2010, 10, 'L', 0.7], [2014, 10, 'L', 0.55], [2018, 10, 'C', 0.55], [2022, 10, 'L', 0.5]],
+      lead: { '1998C': 'Fernando Henrique Cardoso', '2002L': 'Lula da Silva', '2006L': 'Lula da Silva', '2010L': 'Dilma Rousseff', '2014L': 'Dilma Rousseff', '2018C': 'Jair Bolsonaro', '2022L': 'Lula da Silva' } },
+    AU: { name: 'Australia', office: 'Prime Minister', parties: { L: 'Labor', C: 'the Coalition' }, start: 'C', terms: 1, cycle: 3,
+      real: [[1998, 10, 'C', 0.6], [2001, 11, 'C', 0.65], [2004, 10, 'C', 0.65], [2007, 11, 'L', 0.7], [2010, 8, 'L', 0.5], [2013, 9, 'C', 0.7], [2016, 7, 'C', 0.55], [2019, 5, 'C', 0.5], [2022, 5, 'L', 0.6], [2025, 5, 'L', 0.65]],
+      lead: { '1998C': 'John Howard', '2001C': 'John Howard', '2004C': 'John Howard', '2007L': 'Kevin Rudd', '2010L': 'Julia Gillard', '2013C': 'Tony Abbott' } },
+    FR: { name: 'France', office: 'President', parties: { C: 'the Gaullist right', L: 'the Socialists' }, extra: { M: 'the centrists' }, start: 'C', terms: 1, cycle: 5,
+      real: [[2002, 5, 'C', 0.75], [2007, 5, 'C', 0.6], [2012, 5, 'L', 0.6], [2017, 5, 'M', 0.55], [2022, 4, 'M', 0.65]],
+      lead: { '2002C': 'Jacques Chirac', '2007C': 'Nicolas Sarkozy', '2012L': 'François Hollande', '2017M': 'Emmanuel Macron', '2022M': 'Emmanuel Macron' } }
+  };
+  var POOL = {
+    UK: { L: ['Gordon Brown', 'David Miliband', 'Alan Johnson', 'Ed Balls', 'Yvette Cooper'], C: ['William Hague', 'Michael Portillo', 'Kenneth Clarke', 'David Davis', 'David Cameron', 'Theresa May'] },
+    DE: { L: ['Frank-Walter Steinmeier', 'Peer Steinbr\u00fcck', 'Sigmar Gabriel', 'Olaf Scholz'], C: ['Angela Merkel', 'Edmund Stoiber', 'Roland Koch', 'Wolfgang Sch\u00e4uble'] },
+    FR: { L: ['Lionel Jospin', 'S\u00e9gol\u00e8ne Royal', 'Dominique Strauss-Kahn', 'Fran\u00e7ois Hollande'], C: ['Nicolas Sarkozy', 'Alain Jupp\u00e9', 'Fran\u00e7ois Fillon', 'Dominique de Villepin'] },
+    CA: { L: ['Paul Martin', 'Michael Ignatieff', 'Bob Rae', 'Justin Trudeau'], C: ['Stephen Harper', 'Peter MacKay', 'Jim Prentice'] },
+    AU: { L: ['Kim Beazley', 'Kevin Rudd', 'Julia Gillard'], C: ['John Howard', 'Peter Costello', 'Malcolm Turnbull'] }
+  };
+  var cap = function (t) { t = t.replace(/^the /, ''); return t.charAt(0).toUpperCase() + t.slice(1); };
+  function foreignElections(Q, out, prev) {
+    var W = Q.world = Q.world || {};
+    Object.keys(FE).forEach(function (k) {
+      var c = FE[k], st = W[k] = W[k] || { gov: c.start, terms: c.terms, diverged: false, next: null, who: null };
+      var r = st.diverged ? null : c.real.filter(function (e) { return e[0] === prev.y && e[1] === prev.m; })[0];
+      var lastReal = c.real[c.real.length - 1];
+      if (!r && !st.diverged && !st.next && (prev.y > lastReal[0] || (prev.y === lastReal[0] && prev.m > lastReal[1]))) st.next = [lastReal[0] + c.cycle, lastReal[1]];
+      if (!r && st.next && st.next[0] === prev.y && st.next[1] === prev.m) r = [prev.y, prev.m, null, 0];
+      if (!r) return;
+      var name = function (x) { return c.parties[x] || (c.extra || {})[x]; }, win;
+      if (r[2]) win = R() < r[3] ? r[2] : pick(Object.keys(c.parties).filter(function (x) { return x !== r[2]; }));   // upsets go to a mainstream rival, never a fringe party
+      else { var inc = Math.max(0.25, 0.62 - 0.08 * Math.max(0, st.terms - 1)), main = Object.keys(c.parties).concat(st.gov === 'M' ? ['M'] : []); win = R() < inc ? st.gov : pick(main.filter(function (x) { return x !== st.gov; })); }
+      if (r[2] && win !== r[2]) st.diverged = true;
+      var held = win === st.gov; st.terms = held ? st.terms + 1 : 1; st.gov = win;
+      if (st.diverged) st.next = [prev.y + c.cycle, prev.m];
+      var who = !st.diverged && c.lead[prev.y + win] ? c.lead[prev.y + win] : null;
+      if (!who && st.diverged && POOL[k] && POOL[k][win]) who = held && st.who && st.terms <= 3 ? st.who : pick(POOL[k][win]);
+      var again = held && who && who === st.who; st.who = who;
+      var big = R() < 0.3;
+      out.push({ tier: 'key', kind: 'foreign',
+        head: (k === 'UK' && prev.y === 1997 && win === 'L' ? 'Labour landslide in Britain' : cap(name(win)) + (held ? ' hold on in ' : ' win power in ') + c.name) + (who ? ': ' + who + (again ? ' re-elected' : ' is ' + c.office) : ''),
+        story: 'Voters in ' + c.name + ' ' + (held ? 'return ' + name(win) + ' for another term' : 'turn to ' + name(win)) + (big ? ' by a wide margin' : ', in a closer result than the polls suggested') + '.' + (who ? ' ' + who + ' will be ' + c.office + '.' : '') + (k === 'UK' && prev.y === 1997 && win === 'L' ? ' Tony Blair’s sky-high ratings carried Labour to its biggest win ever.' : k === 'UK' && prev.y === 1997 ? ' A stunning upset: John Major’s Conservatives cling on despite Tony Blair’s commanding poll lead.' : '') });
+    });
+  }
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   // how each party picks its presidential candidate
@@ -145,11 +207,12 @@
     var parties = bigParties(Q, 7), g = Q.gov;
     // ---- real calendar ----
     WORLD.forEach(function (w) { if (w[0] === prev.y && w[1] === prev.m) out.push({ tier: w[2], kind: w[3], head: w[4], story: w[5] }); });
-    if (prev.m === 2 && SB[prev.y]) out.push({ tier: 'minor', kind: 'sport', head: 'Super Bowl: ' + SB[prev.y] + ' are champions', story: 'The ' + SB[prev.y] + ' win the Super Bowl in front of a record television audience.' });
-    if (prev.m === 6 && NBA[prev.y]) out.push({ tier: 'minor', kind: 'sport', head: 'NBA title for the ' + NBA[prev.y], story: 'The ' + NBA[prev.y] + ' win the NBA Finals.' });
-    if (prev.m === 10 && WS[prev.y]) out.push({ tier: 'minor', kind: 'sport', head: WS[prev.y] + ' win the World Series', story: 'The ' + WS[prev.y] + ' take baseball’s championship.' });
-    if (prev.y > 2012 && [2, 6, 10].indexOf(prev.m) >= 0) out.push({ tier: 'minor', kind: 'sport', head: pick(['Underdogs', 'Favorites', 'A dynasty']) + ' take the ' + { 2: 'Super Bowl', 6: 'NBA title', 10: 'World Series' }[prev.m], story: 'Celebrations in the streets of the winning city.' });
-    if (prev.y > 2012) FOREIGN_CYCLE.forEach(function (c) { if ((prev.y - c[3]) % c[1] === 0 && MON[prev.m - 1] === c[2]) out.push({ tier: 'key', kind: 'foreign', head: pick(['Incumbents ousted', 'Government re-elected', 'Hung parliament', 'Narrow win for the opposition']) + ' in ' + c[0], story: 'Voters in ' + c[0] + ' go to the polls.' }); });
+    if (prev.m === 2) { var sb = champ(SB[prev.y], NFL_T); out.push({ tier: 'minor', kind: 'sport', head: 'Super Bowl: ' + sb + ' are champions', story: 'The ' + sb + ' win the Super Bowl in front of a record television audience.' }); }
+    if (prev.m === 6) { var nb = champ(NBA[prev.y], NBA_T); out.push({ tier: 'minor', kind: 'sport', head: 'NBA title for the ' + nb, story: 'The ' + nb + ' win the NBA Finals.' }); }
+    if (prev.m === 10) { var ws = champ(WS[prev.y], MLB_T); out.push({ tier: 'minor', kind: 'sport', head: ws + ' win the World Series', story: 'The ' + ws + ' take baseball’s championship.' }); }
+    if (prev.m === 8 && prev.y % 4 === 0) { var gold = 30 + Math.floor(R() * 16), top = R() < 0.7; out.push({ tier: 'minor', kind: 'sport', head: 'Team USA ' + (top ? 'tops' : 'finishes second in') + ' the Olympic medal table', story: 'American athletes bring home ' + gold + ' gold medals' + (prev.y === 2008 ? ', ' + (5 + Math.floor(R() * 4)) + ' of them won by swimmer Michael Phelps' : '') + (top ? '.' : '; ' + pick(['China', 'Russia']) + ' takes first place.') }); }
+    if (prev.m === 9 && prev.y === 1998) out.push(R() < 0.6 ? { tier: 'minor', kind: 'sport', head: 'McGwire passes Maris: ' + (62 + Math.floor(R() * 9)) + ' home runs', story: 'Mark McGwire breaks the single-season record; Sammy Sosa is close behind.' } : { tier: 'minor', kind: 'sport', head: 'Sosa breaks the home run record', story: 'Sammy Sosa passes Roger Maris’s 61 as Mark McGwire falls just short.' });
+    foreignElections(Q, out, prev);
     if (HOLIDAYS[prev.m] && chance(0.55)) out.push({ tier: 'minor', kind: 'culture', head: HOLIDAYS[prev.m][0], story: HOLIDAYS[prev.m][1] });
     // ---- the presidential race ----
     nominations(Q, out);
