@@ -19,11 +19,18 @@
     // the President breaks ties in the House by their party's line
     if (chamber !== 'senate' && Q.president && U.PARTIES[Q.president.party]) res.pres = decide(Q.president.party);
     function tally(label, party, n, v) {
-      if (!n) return; res[v] += n; res.by.push({ label: label, party: party, n: n, vote: v });
+      if (!n) return;
+      // a split party: v = { yes: share, no: share, abstain: share }
+      if (v && typeof v === 'object') { var parts = U.Electoral.hamilton(v, n, 0); ['yes', 'no', 'abstain'].forEach(function (k) { if (parts[k]) tally(label + (k === 'yes' ? ' (aye)' : k === 'no' ? ' (nay)' : ' (abstaining)'), party, parts[k], k); }); return; }
+      res[v] += n; res.by.push({ label: label, party: party, n: n, vote: v });
     }
     Object.keys(seats).forEach(function (p) {
       var n = seats[p];
-      if (p === 'ul') {
+      if (p === 'cc' || p === 'asp') {
+        var al = U.allianceParts(Q, p, n, chamber) || {}; var put = 0;
+        for (var ak in al) if (al[ak]) { tally(U.partyInfo(ak).name, p, al[ak], decide(p, ak)); put += al[ak]; }
+        if (put < n) tally(U.PARTIES[p].short, p, n - put, decide(p));
+      } else if (p === 'ul') {
         var split = U.allianceParts(Q, 'ul', n, chamber) || P.ulSplit(Q, n);
         for (var k in split) tally(U.partyInfo(k).name, 'ul', split[k], decide('ul', k));
       } else if (p === 'aga' && chamber !== 'senate') {

@@ -20,6 +20,15 @@
   };
 
   var LIST = [
+    { id: 'uhc_repeal', title: 'Repeal universal health care?', repeat: true,
+      when: function (Q) { var g = Q.gov, right = g && ['cc', 'cdp', 'maga', 'fcp', 'asp', 'lib'].indexOf(g.pmParty) >= 0;
+        return F(Q).uhcLaw && !F(Q).uhcRepealed && right && S.now(Q) >= F(Q).uhcLaw + 12 && S.now(Q) >= (F(Q).uhcRepealTried || 0) + 24 && U.rng(Q) < 0.08; },
+      body: function (Q) { return 'Prime Minister ' + pmp(Q) + ' brings a bill to repeal universal health care. The Conservative Coalition wants it gone; the Christian Democrats are torn between their doubts about the programme and the millions who now depend on it.'; },
+      options: [
+        { label: 'Put the repeal to a vote', sub: 'The CC is for it; the CDP splits; the left is united against.', act: function (Q) { F(Q).uhcRepealTried = S.now(Q);
+          return Ev.vote(Q, 'Repeal of universal health care', 6, 1, function () { F(Q).uhcRepealed = S.now(Q); F(Q).uhcLaw = 0; gov(Q, { suburb: .2, prof: .1, retire: -.4, black: -.3, union: -.3, hisp: -.2 }); return 'Universal health care is repealed. Millions will lose coverage over two years.'; },
+            function () { approve(Q, -2); return 'The repeal fails: universal health care survives.'; }, Ev.UHC_REPEAL); } },
+        { label: 'Trim it instead', sub: 'A compromise: higher co-payments, no repeal.', act: function (Q) { F(Q).uhcRepealTried = S.now(Q); gov(Q, { suburb: .1, retire: -.1 }); return 'Co-payments rise and the public option is capped. The programme survives.'; } }] },
     mk('fiscal_cliff', 'The fiscal cliff', 2013, 1, 0.8, function (Q) { return 'Tax cuts expire and automatic spending cuts loom at once. Prime Minister ' + pmp(Q) + ' must find a deal in the House.'; }, [
       ['A balanced deal: higher taxes on the rich, slower spending', 'Most voters approve; both wings grumble.', function (Q) { approve(Q, 2); gov(Q, { prof: .2, suburb: .1, union: .1, rural: -.1 }); return 'A deal passes at the last minute. Markets rally.'; }],
       ['Let the spending cuts happen', 'Deficit hawks cheer; the military and the poor take the hit.', function (Q) { approve(Q, -2); Q.econ.shock = (Q.econ.shock || 0) - 0.6; gov(Q, { suburb: .2, union: -.3, black: -.2, retire: -.1 }); return 'The sequester begins. Growth slows by half a point.'; }]]),

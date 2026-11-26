@@ -129,7 +129,7 @@
     { id: 'healthcare', title: 'Health care for all?', when: function (Q) { return at(Q, 2009, 6) && gov(Q) && !F(Q).healthDone; },
       body: function () { return 'Fifty million Americans have no health insurance. The SDLP demands a public option; the CDP will only back market reforms.'; },
       options: [
-        { label: 'Universal coverage with a public option', sub: 'The SDLP and UL approve; the CDP walks.', act: function (Q) { F(Q).healthDone = 1; H.shift(Q, -1, 0); return Ev.vote(Q, 'Universal health care', -7, -1, function () { H.camp(Q, { union: 0.6, black: 0.5, hisp: 0.5, young: 0.3, retire: -0.2 }, 'Health care'); H.rel(Q, 'sdlp', 8); return 'Universal coverage becomes law. It is the government’s biggest achievement.'; }, function () { approve(Q, -4); return 'The bill fails by a handful of votes.'; }); } },
+        { label: 'Universal coverage with a public option', sub: 'The SDLP and UL approve; the CDP walks.', act: function (Q) { F(Q).healthDone = 1; H.shift(Q, -1, 0); return Ev.vote(Q, 'Universal health care', -7, -1, function () { F(Q).uhcLaw = S.now(Q); H.camp(Q, { union: 0.6, black: 0.5, hisp: 0.5, young: 0.3, retire: -0.2 }, 'Health care'); H.rel(Q, 'sdlp', 8); return 'Universal coverage becomes law. It is the government’s biggest achievement.'; }, function () { approve(Q, -4); return 'The bill fails by a handful of votes.'; }, Ev.UHC_STANCE); } },
         { label: 'Market-based reform: exchanges and subsidies', sub: 'The CDP may back it.', act: function (Q) { F(Q).healthDone = 1; return Ev.vote(Q, 'Health insurance reform', 1, 0, function () { H.camp(Q, { suburb: 0.3, hisp: 0.3, black: 0.2 }, 'Health care'); H.rel(Q, 'cdp', 6); return 'The reform passes with Christian Democratic votes. Twenty million people gain cover.'; }, function () { return 'The reform fails.'; }); } },
         { label: 'Not now: the economy first', act: function (Q) { F(Q).healthDone = 1; H.rel(Q, 'sdlp', -6); H.fac(Q, { proglib: 8 }); return 'Health reform is shelved.'; } }
       ] },
@@ -160,9 +160,10 @@
   ];
 
   // a House and Senate vote on a measure; lean: how far right it sits (negative = left)
-  Ev.vote = function (Q, title, econ, soc, yes, no) {
+  // special: optional function (party, member) -> 'yes' | 'no' | 'abstain' | { yes, no, abstain } shares | null
+  Ev.vote = function (Q, title, econ, soc, yes, no, special) {
     var pos = U.Elections.pos(Q), b = { econ: econ, soc: soc, fed: 0 }, ppos = Q.pos[Q.player];
-    var decide = function (p) { return K.billStance(Q, p, b, !!(Q.gov && Q.gov.coalition.indexOf(p) >= 0)); };
+    var decide = function (p, sub) { var sp = special && special(p, sub); return sp || K.billStance(Q, p, b, !!(Q.gov && Q.gov.coalition.indexOf(p) >= 0)); };
     var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
     var proc = S.legislativeProcess ? S.legislativeProcess(Q, h, s, false) : { status: U.simple(h) ? 'law' : 'defeated', text: '' };
     Q.lastVote = { title: title, house: h, senate: s, proc: proc.status, kind: 'bill' };
@@ -178,6 +179,19 @@
     if (line === 'yes') H.fac(Q, { proglib: -3, newdem: 8, heartland: -2 }); else if (line === 'no') { H.camp(Q, { young: 0.4, prof: 0.2, rural: -0.3 }, 'Iraq'); H.fac(Q, { proglib: 6 }); H.rel(Q, S.greenId(Q), 5); }
     if (U.simple(h)) { F(Q).iraq = S.now(Q); F(Q).iraqVote = line; approve(Q, 3); return 'The House authorises war, ' + h.yes + ' to ' + h.no + '. In March 2003 the invasion begins; Baghdad falls in three weeks.'; }
     F(Q).noIraq = 1; return 'The House refuses, ' + h.yes + ' to ' + h.no + '. There will be no invasion of Iraq.';
+  };
+  // universal health care: the CDP is always against it; in the CC the Republicans
+  // always oppose it and the Conservative Democrats mostly do
+  Ev.UHC_STANCE = function (p, sub) {
+    if (p === 'cdp') return 'no';
+    if (p === 'cc') return sub === 'ccdem' ? { no: 0.85, abstain: 0.1, yes: 0.05 } : 'no';
+    return null;
+  };
+  // repealing it: the CC votes to repeal (Conservative Democrats mostly); the CDP splits
+  Ev.UHC_REPEAL = function (p, sub) {
+    if (p === 'cdp') return { yes: 0.4, no: 0.3, abstain: 0.3 };
+    if (p === 'cc') return sub === 'ccdem' ? { yes: 0.8, abstain: 0.15, no: 0.05 } : 'yes';
+    return null;
   };
   Ev.crash = function (Q, line) {
     F(Q).crash = S.now(Q);
