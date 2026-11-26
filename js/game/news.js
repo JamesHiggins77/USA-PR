@@ -120,7 +120,27 @@
     [2012, 7, 'minor', 'sport', 'London Olympics open', 'Danny Boyle’s opening ceremony delights the crowd.'],
     [2012, 7, 'breaking', 'disaster', 'Cinema shooting in Aurora, Colorado', 'Twelve people are killed at a midnight screening.'],
     [2012, 10, 'breaking', 'disaster', 'Hurricane Sandy hits the East Coast', 'New York and New Jersey are flooded; millions lose power.'],
-    [2012, 11, 'key', 'foreign', 'Xi Jinping takes over in China', 'The Communist Party names a new leadership.']
+    [2012, 11, 'key', 'foreign', 'Xi Jinping takes over in China', 'The Communist Party names a new leadership.'],
+    [2013, 3, 'minor', 'foreign', 'Pope Francis elected', 'The Argentine Jorge Bergoglio is the first pope from the Americas.'],
+    [2013, 12, 'key', 'foreign', 'Nelson Mandela dies', 'South Africa mourns its first Black president.'],
+    [2014, 3, 'breaking', 'foreign', 'Russia annexes Crimea', 'Russian troops seize the Ukrainian peninsula after a disputed referendum.'],
+    [2014, 6, 'key', 'foreign', 'ISIS declares a caliphate', 'Islamist fighters seize Mosul and much of Syria and Iraq.'],
+    [2015, 11, 'breaking', 'foreign', 'Terror attacks in Paris', 'One hundred and thirty people are killed in coordinated attacks.'],
+    [2015, 12, 'key', 'foreign', 'The Paris climate agreement', 'Nearly every country commits to limit global warming.'],
+    [2016, 6, 'breaking', 'foreign', 'Britain votes to leave the EU', 'The Brexit referendum passes 52 to 48; David Cameron resigns.'],
+    [2016, 11, 'minor', 'sport', 'The Cubs win the World Series', 'Chicago ends a 108-year drought.'],
+    [2017, 9, 'breaking', 'disaster', 'Hurricane Maria devastates Puerto Rico', 'The island is without power for months; thousands die.'],
+    [2018, 6, 'key', 'foreign', 'Trump\u2013Kim style summit in Singapore', 'An American envoy meets Kim Jong-un; little changes.'],
+    [2019, 4, 'minor', 'foreign', 'Notre-Dame cathedral burns', 'Paris watches as the spire collapses.'],
+    [2020, 1, 'key', 'foreign', 'A new virus in Wuhan', 'Chinese authorities lock down a city of eleven million.'],
+    [2021, 8, 'breaking', 'foreign', 'The Taliban retake Kabul', 'The Afghan government collapses as the last Western troops leave.'],
+    [2022, 9, 'key', 'foreign', 'Queen Elizabeth II dies', 'Charles III becomes king after a seventy-year reign.'],
+    [2022, 12, 'minor', 'sport', 'Argentina win the World Cup', 'Lionel Messi lifts the trophy in Qatar.'],
+    [2023, 10, 'breaking', 'foreign', 'Hamas attacks Israel', 'Some 1,200 people are killed; Israel invades Gaza.'],
+    [2024, 7, 'minor', 'sport', 'Paris Olympics open', 'The opening ceremony is held on the Seine.'],
+    [2025, 5, 'key', 'foreign', 'A new pope', 'Cardinal Robert Prevost of Chicago becomes Leo XIV, the first American pope.'],
+    [2026, 6, 'minor', 'sport', 'The World Cup comes to North America', 'Forty-eight teams play across the United States, Canada and Mexico.'],
+    [2028, 7, 'minor', 'sport', 'The Los Angeles Olympics open', 'Los Angeles hosts the Games for the third time.']
   ];
   // after the calendar runs out, foreign elections follow their real cycles
   var NFL_T = ['Green Bay Packers', 'Denver Broncos', 'Dallas Cowboys', 'San Francisco 49ers', 'Pittsburgh Steelers', 'New England Patriots', 'New York Giants', 'Kansas City Chiefs', 'Baltimore Ravens', 'Philadelphia Eagles', 'Seattle Seahawks', 'Indianapolis Colts', 'Minnesota Vikings', 'Buffalo Bills'];
