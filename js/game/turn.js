@@ -240,7 +240,31 @@
     });
   };
 
+  // Big parties only stand aside on the House list where it costs little:
+  // states with 2-4 list seats. Very small parties may stand aside everywhere.
+  S.sdSmallStates = function (Q, a) {
+    var pr = U.Elections.apportion().pr, n = U.Votes.national(Q)[a.party] || 0;
+    return (a.states || []).filter(function (sid) { return n < 2 || (pr[sid] >= 2 && pr[sid] <= 4); });
+  };
+  // New agreements between compatible parties (the simulation's own deals).
+  S.agreementsNew = function (Q) {
+    if (U.rng(Q) > 0.03) return;
+    var n = U.Votes.national(Q), ps = Object.keys(n).filter(function (p) { return U.PARTIES[p] && !Q.dormant[p] && n[p] >= 0.4 && U.REGIONAL.indexOf(p) < 0; });
+    var pairs = []; ps.forEach(function (a) { ps.forEach(function (b) { if (a < b && !U.vetoes(a, b) && C.compat(Q, a, b) > 0.55 && C.rel(Q, a, b) >= 55 && !(Q.standDowns || []).some(function (x) { return (x.party === a && x.partner === b) || (x.party === b && x.partner === a); })) pairs.push([a, b]); }); });
+    if (!pairs.length) return;
+    var pr = U.pick(Q, pairs), small = n[pr[0]] < n[pr[1]] ? pr[0] : pr[1], big = small === pr[0] ? pr[1] : pr[0], sz = n[small];
+    var R = U.Elections.REGION_SETS, regs = Object.keys(R), reg = U.pick(Q, regs);
+    var mk = function (party, partner, region, scope) { var a = { party: party, partner: partner, region: region, states: R[region].slice(), pact: pr.join('-') + '-' + S.now(Q), scope: scope }; if (scope.house) a.houseStates = S.sdSmallStates(Q, a); return a; };
+    var sc = sz < 3 ? { house: sz < 1.5, senList: true, senTR: true, gov: true } : { house: U.rng(Q) < 0.4, senList: false, senTR: true, gov: true };
+    Q.standDowns.push(mk(small, big, reg, sc));
+    // larger partners give something back in a region of their own, for the two-round races only
+    if (sz >= 3 && U.rng(Q) < 0.6) { var reg2 = U.pick(Q, regs.filter(function (r) { return r !== reg; })); Q.standDowns.push(mk(big, small, reg2, { house: false, senList: false, senTR: true, gov: U.rng(Q) < 0.5 })); }
+    var what = X2(sc);
+    S.note(Q, 'Electoral agreement: the ' + U.PARTIES[small].short + ' will stand aside for the ' + U.PARTIES[big].short + ' in ' + U.Elections.REGION_NAMES[reg] + ' (' + what + ').');
+  };
+  function X2(sc) { return U.Elections.SCOPES.filter(function (k) { return sc[k[0]]; }).map(function (k) { return k[1]; }).join(', '); }
   S.agreementsCheck = function (Q) {
+    S.agreementsNew(Q);
     var seen = {};
     (Q.standDowns || []).forEach(function (a) {
       if (seen[a.pact]) return; seen[a.pact] = 1;
@@ -318,7 +342,7 @@
       for (var p in b.pr) if (b.pr[p]) seats[p] = b.pr[p];
       Object.keys(b.shares).sort(function (x, y) { return b.shares[y] - b.shares[x]; }).slice(0, 6).forEach(function (p) { if (b.shares[p] >= 0.5) sh[p] = Math.round(b.shares[p] * 10) / 10; });
       st[sid] = { seats: seats, shares: sh }; }
-    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: (Q.senateShares && Q.senateShares[x.state]) || (st[x.state] ? st[x.state].shares : {}) }; if (x.type === 'house') o.leg = x.party; else o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
+    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: (Q.senateShares && Q.senateShares[x.state]) || (st[x.state] ? st[x.state].shares : {}) }; if (x.type === 'house') o.leg = x.party; else if (x.type === 'tr') { o.tr = x.party; o.seats[x.party] = (o.seats[x.party] || 0) + 1; o.trRace = Q.senateRunoffs && Q.senateRunoffs[x.state]; } else o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
     for (var q in Q.house) { var n = Q.house[q]; for (sid in st) n -= st[sid].seats[q] || 0; if (n > 0) nat[q] = n; }
     return { states: st, senStates: sen, national: nat };
   };
@@ -386,6 +410,17 @@
     });
     return list;
   };
+  // state-level maps for a presidential result: round-one vote shares and the
+  // runoff's electors, keyed by party so the map colours match
+  S.presMapData = function (res) {
+    var pof = {}; res.cands.forEach(function (c) { pof[c.id] = c.party; });
+    var pct = function (votes) { var t = 0, o = {}; for (var c in votes) t += votes[c]; for (c in votes) if (votes[c] / t >= 0.005) o[pof[c]] = Math.round(votes[c] / t * 1000) / 10; return o; };
+    var r1 = {}, ec = {};
+    for (var sid in res.byState) r1[sid] = { seats: {}, shares: pct(res.byState[sid].votes) };
+    var b2 = res.byState2 || {};
+    for (sid in b2) { var seats = {}; for (var c in b2[sid].ev) if (b2[sid].ev[c]) seats[pof[c]] = b2[sid].ev[c]; ec[sid] = { seats: seats, shares: pct(b2[sid].votes) }; }
+    res.r1States = r1; res.ecStates = ec; return res;
+  };
   S.runPresidential = function (Q) {
     var cands = S.defaultCandidates(Q), mine = Q.presCandidate;
     if (mine && mine.party === Q.player) cands.unshift({ id: Q.player, party: Q.player, name: mine.name, backers: mine.backers || [], appeal: mine.appeal || 0 });
@@ -400,7 +435,8 @@
     res.winnerName = w.name; res.winnerParty = w.party; res.date = U.dateStr(Q);
     Q.lastPresidential = res;
     Q.history = Q.history || [];
-    Q.history.push({ kind: 'pres', date: res.date, total: res.total, winner: res.winner, tiebreak: res.tiebreak || null,
+    S.presMapData(res);
+    Q.history.push({ kind: 'pres', date: res.date, total: res.total, winner: res.winner, tiebreak: res.tiebreak || null, r1States: res.r1States, ecStates: res.ecStates,
       cands: cands.map(function (c) { return { id: c.id, name: c.name, party: c.party }; }),
       r1: U.clone(res.r1), r2: U.clone(res.r2 || {}), pop2: U.clone(res.pop2 || {}),
       map: (function () { var o = {}, bs = res.byState2 || res.byState; for (var s in bs) { var e = bs[s].ev, w = Object.keys(e).filter(function (k) { return e[k]; })[0]; if (w) o[s] = w; } return o; })() });

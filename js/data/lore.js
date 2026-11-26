@@ -89,7 +89,7 @@
     ['1962', 'Richard Nixon', 'Republican', 'Inherited John F. Kennedy as his Prime Minister. In 1963 he dismissed Kennedy, who had embarrassed him by trying to force through a civil-rights bill, only to see Kennedy return to office after new elections. After Kennedy\u2019s assassination in 1964 he appointed Lyndon Johnson, expecting a moderate, and was forced to accept the Civil Rights Act.'],
     ['1968', 'Robert F. Kennedy', 'Social Democratic Labor', 'Lost the LDP nomination to Prime Minister Lyndon Johnson, left the party for the SDLP, and won. He beat George Wallace (SRP) in the runoff after Johnson came third in the first round. The SDLP\u2019s first President.'],
     ['1974', 'Robert F. Kennedy', 'Social Democratic Labor', 'Re-elected over Gerald Ford (Republican).'],
-    ['1980', 'Ronald Reagan', 'Conservative Coalition', 'Beat Ted Kennedy (SDLP) in a close runoff, 361 electors to 340, and made the new CC the main party of the right.'],
+    ['1980', 'Ronald Reagan', 'Conservative Coalition', 'Beat Ted Kennedy (SDLP) in a close runoff, 362 electors to 340, and made the new CC the main party of the right.'],
     ['1986', 'Ronald Reagan', 'Conservative Coalition', 'Re-elected over Jesse Jackson (SDLP), who had pushed the LDP\u2019s Walter Mondale into third place.'],
     ['1992', 'Bill Clinton', 'Liberal Democratic', 'Beat George H. W. Bush (CC) in the runoff. The first LDP candidate to finish ahead of the SDLP in a first round since 1968; Ross Perot won 18.6%.'],
     ['1998', '—', '', 'The next election, due in November 1998.']

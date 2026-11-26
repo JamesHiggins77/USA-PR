@@ -27,7 +27,7 @@
     m.innerHTML = bar + fn();
     if (view !== 'night') U.Tips.decorate(m); U.Tips.decorate($('side'));
     bind();
-    if (view === 'elections' && $('genmap')) {
+    if ((view === 'elections' || view === 'election') && $('genmap')) {
       var PI = U.partyInfo, ochipK = function (p) { return '<i class="chip" style="background:' + PI(p).color + '"></i>'; };
       U.Zoom.attach($('genmap'), 'genmap', function (t) {
         var sid = t.dataset.state, st = genData && genData[sid]; if (!st) return null;
@@ -35,10 +35,12 @@
         var dch = function (v, d) { if (!pv) return ''; v = +v.toFixed(d); var c = !v ? 'muted' : v > 0 ? 'up' : 'down'; return ' <span class="small ' + c + '">' + (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d) + '</span>'; };
         var keys = Object.keys(se).concat(Object.keys(sh)).filter(function (p, i, a) { return a.indexOf(p) === i; });
         var bySeat = keys.filter(function (p) { return se[p] > 0 || ps[p] > 0; }).sort(function (a, b) { return (se[b] || 0) - (se[a] || 0) || (sh[b] || 0) - (sh[a] || 0); });
+        var trr = genMode === 'sentr' && st.trRace && st.trRace.r1 ? '<div class="muted" style="margin-top:4px">' + (st.trRace.round === 2 ? 'Runoff: ' + Object.keys(st.trRace.r2).map(function (p) { return PI(p).short + ' ' + st.trRace.r2[p] + '%'; }).join(' v ') + '. Round one below.' : 'Won outright in round one.') + '</div>' : '';
+        if (trr) sh = st.trRace.r1;
         var byVote = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a] || (se[b] || 0) - (se[a] || 0); });
-        return '<b>' + esc(st.name || (U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(se) ? '<div class="muted">' + U.sum(se) + (st.unit || (genMode === 'senate' ? ' senators elected statewide' : ' House seats')) + '</div>' : '') +
+        return '<b>' + esc(st.name || (U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(se) ? '<div class="muted">' + U.sum(se) + (st.unit || ({ senate: ' senators elected statewide', senpr: ' list senators', sentr: ' two-round senator' }[genMode] || ' House seats')) + '</div>' : '') +
           bySeat.map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + (se[p] || 0) + dch((se[p] || 0) - (ps[p] || 0), 0) + '</b></div>'; }).join('') +
-          (st.leg ? '<div class="muted" style="margin-top:4px">Chosen by the legislature</div><div class="kv"><span>' + ochipK(st.leg) + PI(st.leg).short + '</span><b>1</b></div>' : '') + '<div class="muted" style="margin-top:4px">Vote' + (pv ? ' (change since the previous election)' : '') + '</div>' +
+          trr + (st.leg ? '<div class="muted" style="margin-top:4px">Chosen by the legislature</div><div class="kv"><span>' + ochipK(st.leg) + PI(st.leg).short + '</span><b>1</b></div>' : '') + '<div class="muted" style="margin-top:4px">Vote' + (pv ? ' (change since the previous election)' : '') + '</div>' +
           byVote.map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + (+sh[p]).toFixed(1) + '%' + dch(sh[p] - (psh[p] || 0), 1) + '</b></div>'; }).join('');
       });
     }
@@ -201,12 +203,23 @@
     if (elec.presidential) {
       var pr = elec.presidential;
       h += '<h1 style="margin-top:28px">Presidential election</h1><p><b>' + esc(pr.winnerName) + '</b> (' + P(pr.winnerParty).short + ') wins the Electoral College runoff' + (pr.tiebreak ? ' (tie broken by ' + pr.tiebreak + ')' : '') + '. Round one was a national popular vote; the top two went head to head in the Electoral College, where a state\u2019s winner takes all its electors.</p>';
-      h += '<table><tr><th>Candidate</th><th>Round 1 (popular vote)</th>' + (pr.r2 ? '<th>Round 2 electors</th><th>Round 2 vote</th>' : '') + '</tr>' + pr.cands.slice().sort(function (a, b) { return (pr.r1[b.id] || 0) - (pr.r1[a.id] || 0); }).map(function (c) { return '<tr><td>' + chip(c.party) + esc(c.name) + (c.backers.length ? ' <span class="small muted">(backed by ' + c.backers.map(function (b) { return P(b).short; }).join(', ') + ')</span>' : '') + '</td><td>' + (pr.r1[c.id] || 0).toFixed(1) + '%</td>' + (pr.r2 ? '<td>' + (pr.r2[c.id] != null ? '<b>' + pr.r2[c.id] + '</b>' : '') + '</td><td>' + (pr.pop2 && pr.pop2[c.id] != null ? pr.pop2[c.id].toFixed(1) + '%' : '') + '</td>' : '') + '</tr>'; }).join('') + '</table>';
+      if (!pr.r1States) S.presMapData(pr);
+      var csort = pr.cands.slice().sort(function (a, b) { return (pr.r1[b.id] || 0) - (pr.r1[a.id] || 0); });
+      var r1rows = '<table class="seats">' + csort.map(function (c, i) { return '<tr><td>' + chip(c.party) + esc(c.name) + (i < 2 && pr.r2 ? ' <span class="pill yes">advances</span>' : '') + (c.backers && c.backers.length ? ' <span class="small muted">(backed by ' + c.backers.map(function (b) { return P(b).short; }).join(', ') + ')</span>' : '') + '</td><td><b>' + (pr.r1[c.id] || 0).toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
+      var r2rows = pr.r2 ? '<table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + csort.filter(function (c) { return pr.r2[c.id] != null; }).sort(function (a, b) { return pr.r2[b.id] - pr.r2[a.id]; }).map(function (c) { return '<tr><td>' + chip(c.party) + esc(c.name) + '</td><td><b>' + pr.r2[c.id] + '</b></td><td>' + (pr.pop2 && pr.pop2[c.id] != null ? pr.pop2[c.id].toFixed(1) + '%' : '') + '</td></tr>'; }).join('') + '</table>' : '';
+      h += presBlock(r1rows, pr.r1States, r2rows, pr.ecStates, pr.total);
     }
     h += '<div class="endbar"><button class="btn" data-act="closeelec">Continue</button></div>';
     return h;
   }
 
+  // round one list + map side by side, then the runoff list + Electoral College map
+  function presBlock(r1rows, r1States, r2rows, ecStates, total, note) {
+    genData = r1States || null;
+    var h = '<div class="grid2"><div><h3>Round one: national popular vote</h3>' + r1rows + '</div><div>' + (r1States ? '<div id="genmap">' + Ch.resultMap(Q, r1States) + '</div><p class="small muted">Largest first-round vote in each state, shaded ' + Ch.bandLabels.join(' · ') + '. Hover or tap a state for the full vote.</p>' : '<p class="small muted">No state breakdown was kept for this election.</p>') + '</div></div>';
+    if (r2rows) h += '<div class="grid2"><div><h3>Round two: Electoral College (' + total + ' electors)</h3>' + r2rows + '</div><div>' + (ecStates ? '<div id="ecmap">' + Ch.resultMap(Q, ecStates) + '</div><p class="small muted">Runoff winner in each state; each square is an elector.' + (note || '') + '</p>' : '') + '</div></div>';
+    return h;
+  }
   function arithmetic(seats) {
     var combos = [['ldp', 'sdlp'], ['ldp', 'sdlp', 'cdp'], ['ldp', 'cdp', 'asp'], ['ldp', 'sdlp', S.greenId(Q)], ['ldp', 'sdlp', 'asp'], ['ldp', 'sdlp', 'reform'], ['cc', 'cdp', 'asp'], ['cc', 'cdp', 'lib', 'asp'], ['cc', 'cdp', 'srp', 'lsp', 'lib']]
       .filter(function (c) { return c.every(function (p) { return !Q.dormant[p]; }); });
@@ -479,7 +492,12 @@
     h += '<p>Leader: <b>' + esc(Q.leader.name) + '</b>. Platform: economy ' + p.econ.toFixed(1) + ', society ' + p.soc.toFixed(1) + ' (negative is left/liberal). Founded ' + P('ldp').founded + '.</p>';
     h += '<h2>Factions</h2><table><tr><th>Faction</th><th>Figure</th><th>Strength</th><th>Dissent</th></tr>' + Object.keys(Q.factions).map(function (k) { var f = Q.factions[k]; return '<tr><td>' + U.LDP_FACTIONS[k].name + '<div class="small muted">' + U.LDP_FACTIONS[k].wants + '</div></td><td>' + U.LDP_FACTIONS[k].figure + '</td><td>' + Math.round(f.strength) + '%</td><td class="' + (f.dissent > 70 ? 'down' : '') + '">' + Math.round(f.dissent) + '</td></tr>'; }).join('') + '</table>';
     h += '<p class="small muted">Factions with dissent above 65 start defying the whip on key votes. Above 88 they may walk out. A weak leader facing a restless faction can be challenged.</p>';
-    h += '<h2>Regional stand-down agreements</h2><p class="small muted">Parties that do not field district candidates in a partner\u2019s region. Includes agreements between other parties.</p><table><tr><th>Party standing aside</th><th>In favour of</th><th>Where</th></tr>' + (Q.standDowns || []).map(function (a) { return '<tr><td>' + chip(a.party) + P(a.party).name + '</td><td>' + chip(a.partner) + P(a.partner).name + '</td><td>' + U.Elections.REGION_NAMES[a.region] + '</td></tr>'; }).join('') + '</table>';
+    var X = U.Elections, yn = function (b) { return b ? '<span class="up">✓</span>' : '<span class="muted">✗</span>'; };
+    h += '<h2>Stand-down agreements</h2><p class="small muted">A party agrees not to run in some contests, in some states, so its voters help a partner. Most cover the Senate two-round seat and the governorship; very small parties may also stand aside on the Senate and House lists, and large parties only on the House list in states with 2–4 list seats. About 70% of the party’s voters follow; the rest go elsewhere or stay home. Includes agreements between all parties.</p>' +
+      ((Q.standDowns || []).length ? '<div style="overflow-x:auto"><table><tr><th>Standing aside</th><th>In favour of</th><th>Where</th>' + X.SCOPES.map(function (k) { return '<th>' + k[1] + '</th>'; }).join('') + '</tr>' +
+        Q.standDowns.map(function (a) { var sc = a.scope || { senTR: true, gov: true }, st = a.states || X.REGION_SETS[a.region] || [];
+          return '<tr><td>' + chip(a.party) + P(a.party).short + '</td><td>' + chip(a.partner) + P(a.partner).short + '</td><td class="small">' + esc(X.REGION_NAMES[a.region] || '') + '<div class="muted">' + st.join(' ') + '</div></td>' +
+            X.SCOPES.map(function (k) { var on = !!sc[k[0]], hs = k[0] === 'house' && on && a.houseStates; return '<td>' + yn(on) + (hs ? '<div class="small muted">' + (a.houseStates.length ? a.houseStates.join(' ') : 'no states') + '</div>' : '') + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div>' : '<p>None.</p>');
     h += '<h2>Electoral pacts</h2><p>' + ((Q.pacts || []).length ? Q.pacts.map(function (k) { return k.parties.map(function (x) { return P(x).short; }).join(' + ') + ' (' + k.type + ')'; }).join(', ') : 'None.') + '</p>';
     return h;
   }
@@ -560,23 +578,34 @@
   }
   function prevArgs(x) { var i = genSeq.indexOf(x); return i > 0 ? blockArgs(genSeq[i - 1]) : null; }
   function resultsBlock(r, prev) {
-    var P = U.partyInfo, sen = genMode === 'senate' && r.senStates, data = sen ? r.senStates : r.states, seats = sen ? r.senate : r.house, tot = U.sum(seats);
+    var P = U.partyInfo, smode = r.senStates && /^sen/.test(genMode) ? genMode : null, sen = !!smode, data = sen ? r.senStates : r.states, seats = sen ? r.senate : r.house, tot = U.sum(seats);
+    // Senate views: total (list + two-round + legislature), list seats only, two-round seat only
+    if (smode === 'senpr' || smode === 'sentr') {
+      var d2 = {}, s2 = {};
+      for (var k0 in data) { var o0 = data[k0], se0 = {}, tr0 = o0.tr;
+        if (smode === 'sentr') { if (tr0) se0[tr0] = 1; }
+        else { for (var q0 in o0.seats) se0[q0] = o0.seats[q0] - (q0 === tr0 ? 1 : 0); for (q0 in se0) if (!se0[q0]) delete se0[q0]; }
+        var tre = o0.trRace, sh0 = smode === 'sentr' && tre && tre.r2 ? tre.r2 : o0.shares;
+        d2[k0] = { seats: se0, shares: sh0, tr: tr0, trRace: tre };
+        for (q0 in se0) s2[q0] = (s2[q0] || 0) + se0[q0]; }
+      data = d2; seats = s2; tot = U.sum(seats);
+    }
     if (sen && r.senShares) r = Object.assign({}, r, { shares: r.senShares });
     var ord = Object.keys(seats).filter(function (p) { return seats[p] > 0; }).sort(function (a, b) { return seats[b] - seats[a] || (r.shares[b] || 0) - (r.shares[a] || 0); });
     var winners = {}; for (var sid in data) { var sh = data[sid].shares || {}, w = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a]; })[0]; if (w) winners[w] = 1; }
     var lead = (sen ? r.senLeaders : r.leaders) || (sen ? {} : Q.leaders) || {};
     var econ = function (ks) { return ks.sort(function (a, b) { return (P(a).econ || 0) - (P(b).econ || 0); }); };
-    var h = '<div class="row" style="margin:14px 0 6px"><h3 style="margin:0">Results by state</h3><button class="btn ' + (sen ? 'ghost' : '') + '" data-gmode="house">House</button>' + (r.senStates ? '<button class="btn ' + (sen ? '' : 'ghost') + '" data-gmode="senate">Senate</button>' : '') + '</div>';
+    var h = '<div class="row" style="margin:14px 0 6px"><h3 style="margin:0">Results by state</h3><button class="btn ' + (sen ? 'ghost' : '') + '" data-gmode="house">House</button>' + (r.senStates ? [['senate', 'Senate (total)'], ['senpr', 'Senate (list)'], ['sentr', 'Senate (2-round)']].map(function (m) { return '<button class="btn ' + (genMode === m[0] ? '' : 'ghost') + '" data-gmode="' + m[0] + '">' + m[1] + '</button>'; }).join('') : '') + '</div>';
     h += '<div class="resgrid"><div class="resring">' + Ch.ring(seats, r.shares, econ) + '<div class="small muted">Inner: seats &middot; outer: votes</div></div><table class="seats reslegend"><tr><th>Party</th><th>' + (sen ? 'Senate leader' : 'House leader') + '</th><th>Vote</th><th>Seats</th></tr>' +
       ord.map(function (p) { return '<tr><td><span class="lgname" style="background:' + P(p).color + ';color:' + Ch.ink(P(p).color) + '">' + P(p).short + '</span>' +
         (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(p === 'revsoc' ? '(fragmented)' : p === 'ind' ? '(independents)' : lead[p] || '') + '</i></td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td><b>' + seats[p] + '</b></td></tr>'; }).join('') +
       '<tr><td colspan="4" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
-    var pdata = prev ? (sen && prev.senStates ? prev.senStates : prev.states) || {} : null;
+    var pdata = prev && smode !== 'senpr' && smode !== 'sentr' ? (sen && prev.senStates ? prev.senStates : prev.states) || {} : null;
     genData = {}; for (var gk in data) genData[gk] = Object.assign({}, data[gk], { prev: pdata ? pdata[gk] || {} : null });
     if (!sen && r.national) genData.NAT = { seats: r.national, shares: r.shares, prev: prev ? { seats: prev.national || {}, shares: prev.shares || {} } : null, name: 'National list', unit: ' national list seats' };
     var legs = null; if (sen) { legs = {}; for (var ls in data) if (data[ls].leg) legs[data[ls].leg] = (legs[data[ls].leg] || 0) + 1; if (!U.sum(legs)) legs = null; }
     h += '<div id="genmap">' + Ch.resultMap(Q, data, sen ? (legs ? { inset: { title: 'Chosen by state legislatures (' + U.sum(legs) + ' senators)', seats: legs, shares: r.shares } } : null) : r.national ? { inset: { id: 'NAT', title: 'National list (' + U.sum(r.national) + ' seats)', seats: r.national, shares: r.shares } } : null) + '</div>';
-    h += '<p class="small muted">' + (sen ? 'Each dot on the map is a senator elected statewide: three by list (largest party 2, runner-up 1; 1-1-1 if within 2 points, 3-0 in a landslide) and one by a two-round majority vote; the senators chosen by state legislatures are in the box below (' + U.sum(seats) + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
+    h += '<p class="small muted">' + (smode === 'senpr' ? 'Each dot is one of the three Senate list seats per state (largest party 2, runner-up 1; 1-1-1 if within 2 points, 3-0 in a landslide). ' : smode === 'sentr' ? 'Each dot is the state\u2019s two-round Senate seat: a majority wins outright, otherwise the top two meet in a runoff. Hover a state for both rounds. ' : '') + (smode === 'senpr' || smode === 'sentr' ? '' : sen ? 'Each dot on the map is a senator elected statewide: three by list (largest party 2, runner-up 1; 1-1-1 if within 2 points, 3-0 in a landslide) and one by a two-round majority vote; the senators chosen by state legislatures are in the box below (' + U.sum(seats) + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
     return h;
   }
 
@@ -596,15 +625,11 @@
     if (sel.kind === 'hist') {
       var w = r.r2[0];
       h += '<div class="panel"><h2 style="margin-top:0">' + r.year + ' presidential election</h2><p><b>' + esc(w[0]) + '</b> (' + esc(oldParty(w[1]).name) + ') elected. ' + esc(r.note) + '</p>';
-      h += '<h3>Round one: national popular vote</h3><table class="seats">' + r.r1.map(function (c, i) { return '<tr><td>' + (c[1] ? ochip(c[1]) : '') + esc(c[0]) + (c[1] ? ' <span class="small muted">' + esc(oldParty(c[1]).short) + '</span>' : '') + (i < 2 ? ' <span class="pill yes">advances</span>' : '') + bar(c[2] * 2.5, c[1] ? oldParty(c[1]).color : '#888') + '</td><td><b>' + c[2].toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
-      h += '<h3>Round two: Electoral College (' + r.total + ' electors)</h3><table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + r.r2.map(function (c) { return '<tr><td>' + ochip(c[1]) + esc(c[0]) + bar(c[2] / r.total * 100, oldParty(c[1]).color) + '</td><td><b>' + c[2] + '</b></td><td>' + c[3].toFixed(1) + '%</td></tr>'; }).join('') + '</table>';
-      // runoff map: electors by state for the period; greyed states had no electors yet
-      var el = r.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[r.era], lose = r.lose.split(' ');
-      var colorOfH = function (sid) { return el[sid] == null ? '#d6d2c8' : oldParty(lose.indexOf(sid) >= 0 ? r.r2[1][1] : r.r2[0][1]).color; };
-      h += '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, colorOfH, function (sid) { return el[sid] == null ? '' : String(el[sid]); }) + '</div><p class="small muted">Runoff winner in each state, with its electors.' + (el.AK == null ? ' Alaska and Hawaii were not yet states, and DC had no electors.' : '') + '</p>';
-      genData = U.LORE.presR1Detail(r);
-      h += '<h3>Round one by state</h3><div class="row small" style="gap:10px;flex-wrap:wrap">' + r.r1.filter(function (c) { return c[1]; }).map(function (c) { var pi = U.partyInfo(c[1]); return '<span><span class="lgname" style="background:' + pi.color + ';color:' + Ch.ink(pi.color) + '">' + esc(c[0]) + '</span><span class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(pi.color, b) + '"></i>'; }).join('') + '</span></span>'; }).join('') + '</div>' +
-        '<div id="genmap">' + Ch.resultMap(Q, genData) + '</div><p class="small muted">The candidate with the most first-round votes in each state, shaded ' + Ch.bandLabels.join(' · ') + '. Hover or tap a state for the full vote. State figures are reconstructed from the national result.</p></div>';
+      var r1rows = '<table class="seats">' + r.r1.map(function (c, i) { return '<tr><td>' + (c[1] ? ochip(c[1]) : '') + esc(c[0]) + (c[1] ? ' <span class="small muted">' + esc(oldParty(c[1]).short) + '</span>' : '') + (i < 2 ? ' <span class="pill yes">advances</span>' : '') + bar(c[2] * 2.5, c[1] ? oldParty(c[1]).color : '#888') + '</td><td><b>' + c[2].toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
+      var d2 = U.LORE.presR2Detail(r), ev = d2.ev;
+      var r2rows = '<table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + r.r2.map(function (c) { return '<tr><td>' + ochip(c[1]) + esc(c[0]) + bar(ev[c[1]] / d2.total * 100, oldParty(c[1]).color) + '</td><td><b>' + ev[c[1]] + '</b></td><td>' + c[3].toFixed(1) + '%</td></tr>'; }).join('') + '</table>';
+      var el = r.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[r.era];
+      h += presBlock(r1rows, U.LORE.presR1Detail(r), r2rows, d2.states, d2.total, (el.AK == null ? ' Alaska and Hawaii were not yet states, and DC had no electors.' : '') + ' State figures are reconstructed from the national result; electors follow each state\u2019s runoff vote.') + '</div>';
       return h;
     }
     if (sel.kind === 'histgen') {
@@ -628,9 +653,9 @@
       var cm = {}; r.cands.forEach(function (c) { cm[c.id] = c; });
       var order1 = Object.keys(r.r1).sort(function (a, b) { return r.r1[b] - r.r1[a]; });
       h += '<div class="panel"><h2 style="margin-top:0">' + esc(r.date) + ' presidential election</h2><p><b>' + esc(cm[r.winner].name) + '</b> (' + esc(P(cm[r.winner].party).name) + ') elected' + (r.tiebreak ? ' (tie broken by ' + r.tiebreak + ')' : '') + '.</p>';
-      h += '<h3>Round one: national popular vote</h3><table class="seats">' + order1.map(function (k, i) { var c = cm[k]; return '<tr><td>' + chip(c.party) + esc(c.name) + (i < 2 ? ' <span class="pill yes">advances</span>' : '') + bar(r.r1[k] * 2.5, P(c.party).color) + '</td><td><b>' + (+r.r1[k]).toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
-      h += '<h3>Round two: Electoral College (' + r.total + ' electors)</h3><table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + Object.keys(r.r2).sort(function (a, b) { return r.r2[b] - r.r2[a]; }).map(function (k) { var c = cm[k]; return '<tr><td>' + chip(c.party) + esc(c.name) + '</td><td><b>' + r.r2[k] + '</b></td><td>' + (r.pop2[k] != null ? r.pop2[k].toFixed(1) + '%' : '') + '</td></tr>'; }).join('') + '</table>';
-      h += '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, function (sid) { var k = r.map[sid]; return k && cm[k] ? P(cm[k].party).color : '#9aa0a6'; }, function (sid) { var k = r.map[sid]; return k && cm[k] ? P(cm[k].party).short : ''; }) + '</div><p class="small muted">Runoff winner in each state.</p></div>';
+      var r1rows = '<table class="seats">' + order1.map(function (k, i) { var c = cm[k]; return '<tr><td>' + chip(c.party) + esc(c.name) + (i < 2 ? ' <span class="pill yes">advances</span>' : '') + bar(r.r1[k] * 2.5, P(c.party).color) + '</td><td><b>' + (+r.r1[k]).toFixed(1) + '%</b></td></tr>'; }).join('') + '</table>';
+      var r2rows = '<table class="seats"><tr><th>Candidate</th><th>Electors</th><th>Vote</th></tr>' + Object.keys(r.r2).sort(function (a, b) { return r.r2[b] - r.r2[a]; }).map(function (k) { var c = cm[k]; return '<tr><td>' + chip(c.party) + esc(c.name) + '</td><td><b>' + r.r2[k] + '</b></td><td>' + (r.pop2[k] != null ? r.pop2[k].toFixed(1) + '%' : '') + '</td></tr>'; }).join('') + '</table>';
+      h += presBlock(r1rows, r.r1States, r2rows, r.ecStates, r.total) + (r.r1States ? '' : '<div id="electmap" style="margin-top:10px">' + Ch.geoMap(Q, function (sid) { var k = r.map[sid]; return k && cm[k] ? P(cm[k].party).color : '#9aa0a6'; }, function (sid) { return ''; }) + '</div>') + '</div>';
       return h;
     }
     var order = Object.keys(r.house).sort(function (a, b) { return r.house[b] - r.house[a]; });

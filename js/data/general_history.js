@@ -199,8 +199,15 @@
       var ssh = {}; for (p in sv) { if (sv[p] >= 0.5) ssh[p] = Math.round(sv[p] * 10) / 10; senW[p] = (senW[p] || 0) + sv[p] * seatsOf[s]; } senT += seatsOf[s];
       var sw = D.senateSeats(sv), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
       var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0];
+      // the fifth seat: two-round majority vote, the others' voters going mostly to the nearer finalist
+      var ord = Object.keys(sv).sort(function (a, b) { return sv[b] - sv[a]; }), tot = 0; ord.forEach(function (p) { tot += sv[p]; });
+      var tr = ord[0];
+      if (ord.length > 1 && sv[ord[0]] / tot <= 0.5) { var fa = ord[0], fb = ord[1], va = sv[fa], vb = sv[fb], ec = function (p) { return U.partyInfo(p).econ || 0; };
+        ord.slice(2).forEach(function (p) { var da = Math.abs(ec(p) - ec(fa)), db = Math.abs(ec(p) - ec(fb)), wa = Math.exp(-da / 3), wb = Math.exp(-db / 3); va += sv[p] * 0.75 * wa / (wa + wb); vb += sv[p] * 0.75 * wb / (wa + wb); });
+        tr = va >= vb ? fa : fb; }
+      ss[tr] = (ss[tr] || 0) + 1; var trRace = { winner: tr };
       for (p in ss) senate[p] = (senate[p] || 0) + ss[p];
-      senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: ssh, leg: leg };
+      senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: ssh, leg: leg, tr: tr };
     });
     if (e.seats === 600) { var nv = {}; parties.forEach(function (p) { nv[p] = e.shares[p]; });
       var nw = D.divisor(nv, 100, 'sainte-lague', 5 / (100 - oth)); for (var q in nw) if (nw[q]) { national[q] = nw[q]; house[q] = (house[q] || 0) + nw[q]; } }
@@ -226,6 +233,25 @@
     return (pcache[e.year] = out);
   };
 
+  // The runoff, state by state: each state's two-candidate vote follows its
+  // round-one lean, scaled to the national runoff vote; electors then go to
+  // each state's winner. Electoral votes come from the votes, not a fixed map.
+  var p2cache = {};
+  U.LORE.presR2Detail = function (e) {
+    if (p2cache[e.year]) return p2cache[e.year];
+    var el = e.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[e.era], r1 = U.LORE.presR1Detail(e);
+    var w = e.r2[0][1], l = e.r2[1][1], nat1 = {}; e.r1.forEach(function (c) { if (c[1]) nat1[c[1]] = c[2]; });
+    var t2 = e.r2[0][3] + e.r2[1][3], target = e.r2[0][3] / t2 * 100, ids = Object.keys(el), W = 0; ids.forEach(function (s) { W += el[s]; });
+    var lean = {}; ids.forEach(function (s) { var sh = (r1[s] || {}).shares || {}; lean[s] = 1.4 * (((sh[w] || 0) - (nat1[w] || 0)) - ((sh[l] || 0) - (nat1[l] || 0))) + 16 * (hash('r2' + e.year + s) - 0.5); });
+    var share = function (s, off) { return U.clamp(target + lean[s] + off, 3, 97); };
+    var off = 0; for (var it = 0; it < 30; it++) { var n = 0; ids.forEach(function (s) { n += share(s, off) * el[s]; }); off += target - n / W; }
+    var ev = function (o) { var a = 0; ids.forEach(function (s) { if (share(s, o) > 50) a += el[s]; }); return a; };
+    // the runoff winner of record must carry the Electoral College
+    while (ev(off) * 2 <= W && off < 20) off += 0.2;
+    var states = {}, tot = {}; tot[w] = 0; tot[l] = 0;
+    ids.forEach(function (s) { var x = share(s, off), win = x > 50 ? w : l, seats = {}, sh = {}; seats[win] = el[s]; sh[w] = Math.round(x * 10) / 10; sh[l] = Math.round((100 - x) * 10) / 10; tot[win] += el[s]; states[s] = { seats: seats, shares: sh }; });
+    return (p2cache[e.year] = { states: states, ev: tot, total: W });
+  };
   // seats for a historical election (the sum of the state results)
   U.LORE.generalSeats = function (e) { return U.LORE.generalDetail(e).house; };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

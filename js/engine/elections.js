@@ -62,13 +62,22 @@
   };
   X.REGION_NAMES = { rustbelt: 'the Rust Belt', neatlantic: 'New England and the Atlantic states', south: 'the South', liberal: 'the liberal states',
     pacific: 'the Pacific states', midwest: 'the Midwest', plains: 'the Plains', mountain: 'the Mountain West' };
-  X.standsDown = function (Q, p, sid) {
-    return (Q.standDowns || []).filter(function (a) { return a.party === p && X.REGION_SETS[a.region].indexOf(sid) >= 0; })[0];
+  // Stand-down agreements. Each has a scope: which contests it covers.
+  //   house   - the House state list (big parties only in states with 2-4 list seats)
+  //   senList - the three Senate list seats
+  //   senTR   - the two-round Senate seat
+  //   gov     - the governorship
+  // a.states lists the states it covers (a.houseStates, if set, narrows the House part).
+  X.SCOPES = [['house', 'House list'], ['senList', 'Senate list'], ['senTR', 'Senate two-round'], ['gov', 'Governor']];
+  X.sdStates = function (a, kind) { return kind === 'house' && a.houseStates ? a.houseStates : a.states || X.REGION_SETS[a.region] || []; };
+  X.sdCovers = function (a, sid, kind) { var sc = a.scope || { senTR: true, gov: true }; return !!sc[kind] && X.sdStates(a, kind).indexOf(sid) >= 0; };
+  X.standsDown = function (Q, p, sid, kind) {
+    return (Q.standDowns || []).filter(function (a) { return a.party === p && X.sdCovers(a, sid, kind || 'gov'); })[0];
   };
-  function applyStandDowns(Q, sid, sh) {
+  function applyStandDowns(Q, sid, sh, kind) {
     var out = sh, pos = X.pos(Q);
     (Q.standDowns || []).forEach(function (a) {
-      if (!out[a.party] || X.REGION_SETS[a.region].indexOf(sid) < 0 || !out[a.partner]) return;
+      if (!out[a.party] || !X.sdCovers(a, sid, kind || 'house') || !out[a.partner]) return;
       if (out === sh) out = U.clone(sh);
       var v = out[a.party]; delete out[a.party];
       out[a.partner] += v * 0.7;
@@ -88,7 +97,7 @@
     var exempt = opt.exemptRegional != null ? opt.exemptRegional : R.house.thresholdExemptRegional;
     var app = X.apportion(), nat = V.national(Q), house = {}, byState = {}, prOut = {};
     V.allStates().forEach(function (s) {
-      var sh = V.stateShares(Q, s), ok = {};
+      var sh = applyStandDowns(Q, s.id, V.stateShares(Q, s), 'house'), ok = {};
       for (var p in sh) {
         var natOk = (nat[p] || 0) >= nt * 100 || (exempt && U.REGIONAL.indexOf(p) >= 0);
         if (natOk && sh[p] >= stt * 100) ok[p] = sh[p];
@@ -124,7 +133,7 @@
       var sh = V.stateShares(Q, s), st = byState[s.id] = { shares: sh, district: {}, pr: {} };
       var nd = s.id === 'DC' ? R.house.dcSeats : app.district[s.id];
       for (var i = 0; i < nd; i++) {
-        var ds = applyJoint(Q, applyStandDowns(Q, s.id, V.districtShares(Q, s, sh, i, nd)));
+        var ds = applyJoint(Q, applyStandDowns(Q, s.id, V.districtShares(Q, s, sh, i, nd), 'house'));
         var r = E.twoRound(ds, pos, { majority: R.house.districtFirstRoundMajority, pactWith: pact });
         r.state = s.id; r.n = i + 1; districts.push(r);
         st.district[r.winner] = (st.district[r.winner] || 0) + 1; add(r.winner, 1);
@@ -141,7 +150,7 @@
   // state senate (statewide PR, 5% threshold). Unicameral: house only.
   X.stateGov = function (Q, s, prev) {
     var sh = V.stateShares(Q, s), pos = X.pos(Q), g = {};
-    var gs = U.clone(sh);
+    var gs = U.clone(applyStandDowns(Q, s.id, sh, 'gov'));
     if (prev && prev.governor && gs[prev.governor]) gs[prev.governor] *= 1.12; // incumbency
     if (!Q.noNoise) for (var p in gs) gs[p] *= 1 + 0.15 * U.gauss(Q) / 2;
     g.govRace = E.twoRound(gs, pos, { majority: R.governor.firstRoundMajority, pactWith: X.pactFn(Q) });
@@ -211,11 +220,11 @@
     Object.keys(U.STATES).forEach(function (sid) {
       var seats = Q.senateSeats.filter(function (x) { return x.state === sid; });
       var sh = X.senateShares(Q, sid, V.stateShares(Q, U.STATES[sid], { senate: true }), seats);
-      var won = E.senateSeats(sh), list = [];
+      var won = E.senateSeats(applyStandDowns(Q, sid, sh, 'senList')), list = [];
       Object.keys(won).sort(function (a, b) { return won[b] - won[a] || sh[b] - sh[a]; }).forEach(function (p) { for (var i = 0; i < won[p]; i++) list.push(p); });
       seats.filter(function (x) { return x.type === 'pr'; }).forEach(function (x, i) { x.party = list[i]; });
       seats.filter(function (x) { return x.type === 'house'; }).forEach(function (x) { x.party = X.legislatureSenator(Q, sid); });
-      var tr = X.runoffSenator(Q, sid, sh);
+      var tr = X.runoffSenator(Q, sid, applyStandDowns(Q, sid, sh, 'senTR'));
       seats.filter(function (x) { return x.type === 'tr'; }).forEach(function (x) { x.party = tr.winner; });
       if (tr.winner) won[tr.winner] = (won[tr.winner] || 0) + 1;
       Q.senateRunoffs = Q.senateRunoffs || {}; Q.senateRunoffs[sid] = tr;
