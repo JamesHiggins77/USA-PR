@@ -101,8 +101,9 @@
     // on phones the sidebar is a collapsible status panel with a one-line summary
     var short = function (L) { return L.map(function (p) { return chip(p) + P(p).short; }).join(' '); };
     var summary = esc(U.dateStr(Q)) + ' \u00b7 Pres. ' + (sealed ? '\u2026' : chip(Q.president.party) + esc(Q.president.name.split(' ').pop())) + ' \u00b7 PM ' + (sealInv ? '\u2026' : g ? chip(g.pmParty) + esc(g.pm.split(' ').pop()) : '\u2014') + (Q.formation ? ' \u00b7 forming a government' : sealInv ? ' \u00b7 new government pending' : g ? ' \u00b7 ' + short(g.coalition) + (g.cs.length ? ' \u00b7 support ' + short(g.cs) : '') : '');
-    $('side').innerHTML = '<details class="sidebox"' + (sideOpen ? ' open' : '') + '><summary><span>Status</span><span class="small">' + summary + '</span></summary><div class="side">' + h + '</div></details>';
-    $('side').querySelector('details').ontoggle = function (e) { sideOpen = e.target.open; };
+    var wide = typeof matchMedia !== 'function' || !matchMedia('(max-width: 820px)').matches;
+    $('side').innerHTML = '<details class="sidebox"' + (sideOpen || wide ? ' open' : '') + '><summary><span>Status</span><span class="small">' + summary + '</span></summary><div class="side">' + h + '</div></details>';
+    $('side').querySelector('details').ontoggle = function (e) { if (!wide) sideOpen = e.target.open; };
   }
 
   // ---------- office: events, cards, month end ----------
@@ -894,6 +895,8 @@
       e.preventDefault(); if (cur > 0) { paperIdx = cur - 1; openHead = {}; if (view === 'live') render(); else go('live'); }
     }
   });
+  // the sidebar is always open on wide screens (e.g. after going full screen from a narrow window)
+  window.addEventListener('resize', function () { if (Q && $('side')) renderSide(); });
   U.Tips.install(function () { return Q; });
   try { mapStyle = localStorage.getItem('usa-pr-mapstyle') || 'geo'; } catch (e) {}
   render();
