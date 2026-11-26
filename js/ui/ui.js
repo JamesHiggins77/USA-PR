@@ -10,7 +10,7 @@
   var pct = function (v) { return v.toFixed(1) + '%'; };
   var sign = function (v, d) { var s = v.toFixed(d == null ? 1 : d); return (v > 0 ? '+' : '') + s; };
 
-  var TABS = [['live', 'Live'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party view'], ['parties', 'Parties'], ['history', 'History'], ['elections', 'Elections'], ['log', 'Log'], ['system', 'Simulation']];
+  var TABS = [['live', 'Newspaper'], ['parliament', 'Parliament'], ['coalition', 'Coalition'], ['map', 'States'], ['polls', 'Polls & voters'], ['party', 'Party view'], ['parties', 'Parties'], ['history', 'History'], ['elections', 'Elections'], ['log', 'Log'], ['system', 'Simulation']];
 
   function save() { if (Q) S.save(Q); }
   function go(v) { if (U.Night) U.Night.stop(); if (U.Roll) U.Roll.stop(); view = v; openCard = null; openSlot = null; render(); window.scrollTo(0, 0); }
@@ -32,7 +32,7 @@
       U.Zoom.attach($('genmap'), 'genmap', function (t) {
         var sid = t.dataset.state, st = genData && genData[sid]; if (!st) return null;
         var se = st.seats || {}, sh = st.shares || {}, pv = st.prev, ps = pv && pv.seats || {}, psh = pv && pv.shares || {};
-        var dch = function (v, d) { if (!pv) return ''; var c = Math.abs(v) < (d ? 0.05 : 0.5) ? 'muted' : v > 0 ? 'up' : 'down'; return ' <span class="small ' + c + '">' + (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d) + (d ? '' : '') + '</span>'; };
+        var dch = function (v, d) { if (!pv) return ''; v = +v.toFixed(d); var c = !v ? 'muted' : v > 0 ? 'up' : 'down'; return ' <span class="small ' + c + '">' + (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d) + '</span>'; };
         var keys = Object.keys(se).concat(Object.keys(sh)).filter(function (p, i, a) { return a.indexOf(p) === i; });
         var bySeat = keys.filter(function (p) { return se[p] > 0 || ps[p] > 0; }).sort(function (a, b) { return (se[b] || 0) - (se[a] || 0) || (sh[b] || 0) - (sh[a] || 0); });
         var byVote = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a] || (se[b] || 0) - (se[a] || 0); });
@@ -132,7 +132,7 @@
           (it.elec && !(k === papers.length - 1 && elec) ? '<div class="row" style="margin-top:8px"><button class="btn ghost" data-tab="elections">Elections tab</button></div>' : '') +
           (it.vote ? '<div class="row" style="margin-top:8px"><button class="btn ghost" data-roll="' + k + ':' + i + '">Watch the roll call</button></div>' : '') + '</div>' : '') + '</div>';
     });
-    return h + '</div>' + briefing();
+    return h + '</div>';
   }
 
   function office() {

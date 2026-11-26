@@ -33,10 +33,14 @@
     Q.lastDistricts = h.districts.map(function (d) { return { s: d.state, n: d.n, w: d.winner, round: d.round, f: d.finalists }; });
     // canon: Ralph Nader is one of exactly four Green MPs
     var gd = 4 - (Q.house.grn || 0); Q.house.grn = 4; Q.house.ldp -= gd;
-    // keep state delegations consistent with the national total
-    ['CA', 'OR', 'WA', 'MA', 'NY', 'VT', 'MN', 'WI', 'IL', 'NJ'].forEach(function (sid) {
-      var d = Q.houseByState[sid]; if (!gd || !d) return;
-      if (gd > 0 && d.ldp > 0) { d.ldp--; d.grn = (d.grn || 0) + 1; gd--; } else if (gd < 0 && d.grn > 0) { d.grn--; d.ldp = (d.ldp || 0) + 1; gd++; }
+    // canon: the four Green seats are state list seats in New York, California, Washington and Florida
+    // (the Greens are under the 5% national threshold, so none come from the national list)
+    var G4 = ['NY', 'CA', 'WA', 'FL'], take = function (o) { var k = o.ldp > 0 ? 'ldp' : Object.keys(o).filter(function (x) { return x !== 'grn' && o[x] > 0; }).sort(function (a, b) { return o[b] - o[a]; })[0]; o[k]--; return k; };
+    Object.keys(Q.houseByState).forEach(function (sid) {
+      var d = Q.houseByState[sid], pr = (h.byState[sid] || {}).pr || {};
+      if (G4.indexOf(sid) < 0) { if (d.grn) { d.ldp = (d.ldp || 0) + d.grn; d.grn = 0; } if (pr.grn) { pr.ldp = (pr.ldp || 0) + pr.grn; pr.grn = 0; } return; }
+      while ((d.grn || 0) > 1) { d.grn--; d.ldp = (d.ldp || 0) + 1; } if (!d.grn) { take(d); d.grn = 1; }
+      while ((pr.grn || 0) > 1) { pr.grn--; pr.ldp = (pr.ldp || 0) + 1; } if (!pr.grn) { take(pr); pr.grn = 1; }
     }); Q.lastHouse = U.clone(Q.house); Q.agaSeats = agaByState(h); var open1996h = h;
     Q.states = {};
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
