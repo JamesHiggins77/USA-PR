@@ -132,7 +132,7 @@
       h += 'Economy ' + pos.econ.toFixed(1) + ', society ' + pos.soc.toFixed(1) + ', federalism ' + pos.fed.toFixed(1) + '<br>';
       if (p !== Q.player) h += 'Relations with LDP ' + Math.round(C.rel(Q, Q.player, p)) + ' · policy fit ' + Math.round(C.compat(Q, Q.player, p) * 100) + '%<br>';
       if (Q.gov) h += Q.gov.coalition.indexOf(p) >= 0 ? 'In government<br>' : Q.gov.cs.indexOf(p) >= 0 ? 'Confidence and supply<br>' : '';
-      if (p === 'ul' && Q.ulMembers) h += 'Members: ' + Object.keys(Q.ulMembers).map(function (m) { return U.PARTIES[m].short; }).join(', ') + '<br>';
+      if (p === 'ul' && Q.ulMembers) h += 'Members: ' + Object.keys(Q.ulMembers).map(function (m) { return U.partyInfo(m).short; }).join(', ') + '<br>';
       var vet = U.ALL_PARTIES.filter(function (q) { return q !== p && !Q.dormant[q] && U.vetoes(p, q); });
       if (vet.length) h += '<span class="muted">Red lines: ' + vet.map(function (q) { return U.PARTIES[q].short; }).join(', ') + '</span>';
     }

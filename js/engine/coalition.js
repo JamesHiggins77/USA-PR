@@ -122,7 +122,7 @@
     });
     return U.Parliament.count(Q, 'house', function (p, sub) {
       var v = verdicts[p] || 'no';
-      if (p === 'ul' && v === 'yes') { var st = U.LEFT_MEMBERS[sub] || 'hard'; return st === 'reformist' ? 'yes' : st === 'hard' ? 'abstain' : 'no'; }
+      if (p === 'ul' && v === 'yes') { var st = U.LEFT_MEMBERS[sub] || (U.ORL_STANCE || {})[sub] || 'hard'; return st === 'reformist' ? 'yes' : st === 'hard' ? 'abstain' : 'no'; }
       if (p === 'aga' && sub && sub !== 'other' && U.PARTIES.aga.chapters[sub]) {
         var ch = U.PARTIES.aga.chapters[sub], pmPos = U.Elections.pos(Q)[deal.pm];
         var d = E.dist(ch, pmPos);

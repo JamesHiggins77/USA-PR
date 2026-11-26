@@ -115,6 +115,7 @@
   S.save = function (Q, slot) { try { localStorage.setItem('usa-pr-save-' + (slot || 'auto'), JSON.stringify(Q)); return true; } catch (e) { return false; } };
   // saves from before the factions were reorganised
   S.migrateFactions = function (Q) {
+    if (Q.ulMembers) U.splitORL(Q.ulMembers);
     // stand-down agreements: give old ones explicit states and scopes
     (Q.standDowns || []).forEach(function (a) { if (!a.states) a.states = (U.Elections.REGION_SETS[a.region] || []).slice(); if (!a.scope) a.scope = { house: false, senList: true, gov: true }; if (a.scope.house && !a.houseStates && U.Game.sdSmallStates) a.houseStates = U.Game.sdSmallStates(Q, a); });
     // the fifth Senate seat was tried and dropped: remove it from saves that have it

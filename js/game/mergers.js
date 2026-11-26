@@ -34,7 +34,7 @@
     if (withGreens && !Q.dormant.grn) join.push('grn');
     if (join.length < 3) return false;
     var w = S.mergeInto(Q, join, 'ul', 1.08);
-    Q.ulMembers = {}; for (var p in w) Q.ulMembers[p] = w[p];
+    Q.ulMembers = {}; for (var p in w) Q.ulMembers[p] = w[p]; U.splitORL(Q.ulMembers);
     if (Q.ulMembers.grn) S.greenDeal(Q);
     if (Q.ulMembers.grn && Q.year <= 2000) Q.leaders.ul = 'Ralph Nader';
     Q.ulUnity = 65; Q.flags.sanders = Q.flags.sanders || S.now(Q);

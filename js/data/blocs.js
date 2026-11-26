@@ -14,7 +14,7 @@
   };
   // seven bands of the score
   var BANDS = [[-6.0, 'FL'], [-3.8, 'L'], [-1.5, 'CL'], [1.5, 'C'], [4.5, 'CR'], [6.5, 'R'], [99, 'FR']];
-  U.BLOC7_OVERRIDE = { acp: 'FL', cpusa: 'FL', ul: 'FL', grn: 'L', dsa: 'L', maga: 'FR', nenp: 'C', lib: 'R' }; // designer placements that override the score
+  U.BLOC7_OVERRIDE = { acp: 'FL', cpusa: 'FL', ul: 'L', grn: 'L', dsa: 'L', maga: 'FR', nenp: 'C', lib: 'R' }; // designer placements that override the score
   U.bloc7 = function (p, Q) { if (p === 'regional') return 'C'; if (U.BLOC7_OVERRIDE[p]) return U.BLOC7_OVERRIDE[p]; var sc = U.blocScore(p, Q); for (var i = 0; i < BANDS.length; i++) if (sc < BANDS[i][0]) return BANDS[i][1]; return 'FR'; };
   // parties placed differently in the three-bloc view (the governing centre)
   U.BLOC3_OVERRIDE = { ldp: 'C', cdp: 'C' };
@@ -62,6 +62,10 @@
   U.CONSTITUENTS = {
     aspp: { name: 'American Solidarity Party', short: 'ASP', color: '#c86a10', alliance: 'asp', econ: -3, soc: 5, desc: 'The largest party in the American Solidarity Union: Christian democracy of the older kind, culturally conservative and fiscally progressive, strongest in the Great Lakes and the Plains.' },
     ccrep: { name: 'Republican Party', short: 'REP', color: '#c0392b', alliance: 'cc', econ: 6, soc: 5, desc: 'The senior partner in the Conservative Coalition since 1978: business conservatives and the religious right outside the South. It still holds its own conventions and chooses its own candidates for the joint lists.' },
+    spusa: { name: 'Socialist Party USA', short: 'SPUSA', color: '#b3263d', alliance: 'ul', econ: -9, soc: -6, desc: 'The democratic-socialist heirs of Debs and Norman Thomas who stayed out of the 1953 SDLP merger. A member of the United Left.' },
+    pfp: { name: 'Peace and Freedom Party', short: 'PFP', color: '#8e2a7a', alliance: 'ul', econ: -9, soc: -8, desc: 'Founded in California in 1967 against the Vietnam War; a socialist and feminist party strongest on the West Coast. A member of the United Left.' },
+    swp: { name: 'Socialist Workers Party', short: 'SWP', color: '#9c1c1c', alliance: 'ul', econ: -10, soc: -5, desc: 'The Trotskyist party founded in 1938, rooted in a handful of union locals and campus groups. A member of the United Left.' },
+    wwp: { name: 'Workers World Party', short: 'WWP', color: '#6d0f0f', alliance: 'ul', econ: -10, soc: -5, desc: 'A Marxist-Leninist party that split from the SWP in 1959, known for its anti-war coalitions. A member of the United Left.' },
     ccdem: { name: 'Conservative Democrats', short: 'CDEM', color: '#1f4f8f', alliance: 'cc', econ: 4, soc: 7, desc: 'The heirs of the southern Democrats who stayed in the old Democratic Party after 1966. Since 1978 they run joint lists with the Republicans as the Conservative Coalition, and they dominate it in the South.' }
   };
   // ---- how each alliance fills its lists ----
@@ -135,6 +139,10 @@
     }
     return o;
   };
+  // the fragmented radical left joins the United Left as its separate parties
+  U.ORL_STANCE = { spusa: 'hard', pfp: 'hard', swp: 'revolutionary', wwp: 'revolutionary' };
+  U.ORL_PARTS = { spusa: 0.34, pfp: 0.24, swp: 0.21, wwp: 0.21 };
+  U.splitORL = function (w) { if (!w || !w.revsoc) return w; var v = w.revsoc; delete w.revsoc; for (var k in U.ORL_PARTS) w[k] = (w[k] || 0) + v * U.ORL_PARTS[k]; return w; };
   U.allianceParts = function (Q, p, n, chamber) {
     if (!n) return null;
     if (p === 'ul' || p === 'cc' || p === 'asp') {

@@ -253,7 +253,7 @@
       return 'The talks collapse over candidate lists. The far left stays divided, for now.';
     }
     var w = S.mergeInto(Q, join, 'ul', 1.08);
-    Q.ulMembers = {}; for (var p in w) Q.ulMembers[p] = w[p];
+    Q.ulMembers = {}; for (var p in w) Q.ulMembers[p] = w[p]; U.splitORL(Q.ulMembers);
     if (Q.ulMembers.grn && Q.year <= 2000) Q.leaders.ul = 'Ralph Nader';
     Q.ulUnity = 65;
     S.note(Q, 'The United Left is founded under Bernie Sanders: ' + join.map(function (p) { return U.PARTIES[p].short; }).join(', ') + ' will run joint lists.' + (join.indexOf('grn') < 0 && !Q.dormant.grn ? ' The Greens stay out.' : ''));

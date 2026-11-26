@@ -25,7 +25,7 @@
       var n = seats[p];
       if (p === 'ul') {
         var split = U.allianceParts(Q, 'ul', n, chamber) || P.ulSplit(Q, n);
-        for (var k in split) tally(U.PARTIES[k].name, 'ul', split[k], decide('ul', k));
+        for (var k in split) tally(U.partyInfo(k).name, 'ul', split[k], decide('ul', k));
       } else if (p === 'aga' && chamber !== 'senate') {
         var ag = Q.agaSeats || {}, used = 0;
         ['AK', 'RI', 'VA'].forEach(function (st) { var m = Math.min(n - used, ag[st] || 0); used += m; tally(U.PARTIES.aga.chapters[st].name, 'aga', m, decide('aga', st)); });
