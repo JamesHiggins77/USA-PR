@@ -91,9 +91,12 @@
   var OUTCOME = { law: 'The bill becomes law.', defeated: 'The House rejects the bill.', senateVeto: 'The Senate vetoes it with a two-thirds majority.', delayed: 'The Senate votes it down: it is delayed by up to two years, then becomes law.', presVeto: 'The President vetoes it.' };
   A.tally = function (c) { return c ? c.yes + ' yes, ' + c.no + ' no' + (c.abstain ? ', ' + c.abstain + ' abstaining' : '') : ''; };
   A.voteItem = function (Q, lv) {
-    var t = strip(lv.title), flag = lv.kind === 'budget' || lv.kind === 'bill' || /Iraq war|Bank rescue/.test(t);
+    var t = strip(lv.title), inv = lv.kind === 'investiture' || /^Investiture/.test(t), flag = inv || lv.kind === 'budget' || lv.kind === 'bill' || /Iraq war|Bank rescue/.test(t);
     var passed = lv.house.yes > lv.house.no, sen = lv.senate && lv.kind !== 'budget' && lv.kind !== 'investiture';
     var text = 'House: ' + A.tally(lv.house) + '. ' + (sen ? 'Senate: ' + A.tally(lv.senate) + '. ' : lv.kind === 'budget' ? 'Senate: no vote (budgets are for the House alone). ' : lv.kind === 'investiture' ? 'Senate: no vote (the House alone confirms a Prime Minister). ' : 'Senate: not required. ') + (OUTCOME[lv.proc] || (passed ? 'Carried.' : 'Not carried.'));
+    if (inv) { var who = t.replace(/^Investiture of /, ''), ok = lv.passed != null ? lv.passed : passed;
+      return { title: ok ? who + ' confirmed as Prime Minister' : who + ' fails the investiture vote', text: 'House: ' + A.tally(lv.house) + '. ' + (lv.need === 'absolute' ? 'An absolute majority (' + U.majority() + ') was needed. ' : 'More yes than no votes were needed. ') + 'Senate: no vote (the House alone confirms a Prime Minister).', vote: lv,
+        teaser: 'THE HOUSE VOTES ON A NEW PRIME MINISTER', teaserStory: who + ' faces the House' + (lv.need === 'absolute' ? ', needing an absolute majority of ' + U.majority() + '.' : '.') + ' The whips are still counting.' }; }
     return { title: (lv.kind === 'budget' ? 'Budget vote: ' : 'Vote: ') + t + (passed ? ' passes the House' : ' fails in the House'), text: text, vote: lv,
       teaser: flag ? (lv.kind === 'budget' ? 'THE HOUSE VOTES ON THE BUDGET' : 'CONGRESS VOTES: ' + t.toUpperCase()) : null,
       teaserStory: flag ? 'Members are filing in to vote on ' + t + '. The whips are still counting.' : null };

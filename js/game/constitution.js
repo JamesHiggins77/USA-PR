@@ -35,6 +35,7 @@
   S.ballot = function (Q) { var f = Q.formation; return f && f.stage === 'nominee' && f.round === 1 ? 1 : 2; };
   S.tryInvestiture = function (Q, deal) {
     var c = C.investitureVote(Q, deal), b = S.ballot(Q);
+    if (c && c.by) Q.lastVote = { title: 'Investiture of ' + S.leaderOf(Q, deal.pm), house: c, kind: 'investiture', need: b === 1 ? 'absolute' : 'simple', pmParty: deal.pm, passed: C.passes(c, b) };
     return { first: c, second: null, passed: C.passes(c, b), ballot: b };
   };
   // the President's choice: their own party if it can lead, else the closest viable party
@@ -99,8 +100,9 @@
   S.aiTry = function (Q, pm) {
     var f = Q.formation, deal = C.aiDeal(Q, pm, f.playerRefused ? [Q.player] : []);
     if (!f.playerRefused && (deal.coalition.indexOf(Q.player) >= 0 || deal.cs.indexOf(Q.player) >= 0)) { f.offer = deal; return 'offer'; }
-    var inv = S.tryInvestiture(Q, deal);
-    if (inv.passed) { S.formGovernment(Q, deal, S.pmName(Q, pm)); return 'formed'; }
+    var nm = S.pmName(Q, pm), inv = S.tryInvestiture(Q, deal);
+    if (Q.lastVote && Q.lastVote.kind === 'investiture') Q.lastVote.title = 'Investiture of ' + nm;
+    if (inv.passed) { S.formGovernment(Q, deal, nm); return 'formed'; }
     S.note(Q, S.pmName(Q, pm) + ' fails the investiture vote (' + inv.first.yes + ' yes, ' + inv.first.no + ' no' + (inv.ballot === 1 ? '; an absolute majority was needed' : '') + ').');
     if (f.stage === 'nominee') S.formationFailed(Q, pm); else f.failed.push(pm);
     return 'failed';
