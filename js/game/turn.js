@@ -255,10 +255,10 @@
     var pr = U.pick(Q, pairs), small = n[pr[0]] < n[pr[1]] ? pr[0] : pr[1], big = small === pr[0] ? pr[1] : pr[0], sz = n[small];
     var R = U.Elections.REGION_SETS, regs = Object.keys(R), reg = U.pick(Q, regs);
     var mk = function (party, partner, region, scope) { var a = { party: party, partner: partner, region: region, states: R[region].slice(), pact: pr.join('-') + '-' + S.now(Q), scope: scope }; if (scope.house) a.houseStates = S.sdSmallStates(Q, a); return a; };
-    var sc = sz < 3 ? { house: sz < 1.5, senList: true, senTR: true, gov: true } : { house: U.rng(Q) < 0.4, senList: false, senTR: true, gov: true };
+    var sc = sz < 3 ? { house: sz < 1.5, senList: true, gov: true } : { house: U.rng(Q) < 0.4, senList: true, gov: true };
     Q.standDowns.push(mk(small, big, reg, sc));
-    // larger partners give something back in a region of their own, for the two-round races only
-    if (sz >= 3 && U.rng(Q) < 0.6) { var reg2 = U.pick(Q, regs.filter(function (r) { return r !== reg; })); Q.standDowns.push(mk(big, small, reg2, { house: false, senList: false, senTR: true, gov: U.rng(Q) < 0.5 })); }
+    // larger partners give something back in a region of their own, for the Senate list or governor
+    if (sz >= 3 && U.rng(Q) < 0.6) { var reg2 = U.pick(Q, regs.filter(function (r) { return r !== reg; })); Q.standDowns.push(mk(big, small, reg2, { house: false, senList: true, gov: U.rng(Q) < 0.5 })); }
     var what = X2(sc);
     S.note(Q, 'Electoral agreement: the ' + U.PARTIES[small].short + ' will stand aside for the ' + U.PARTIES[big].short + ' in ' + U.Elections.REGION_NAMES[reg] + ' (' + what + ').');
   };
@@ -342,7 +342,7 @@
       for (var p in b.pr) if (b.pr[p]) seats[p] = b.pr[p];
       Object.keys(b.shares).sort(function (x, y) { return b.shares[y] - b.shares[x]; }).slice(0, 6).forEach(function (p) { if (b.shares[p] >= 0.5) sh[p] = Math.round(b.shares[p] * 10) / 10; });
       st[sid] = { seats: seats, shares: sh }; }
-    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: (Q.senateShares && Q.senateShares[x.state]) || (st[x.state] ? st[x.state].shares : {}) }; if (x.type === 'house') o.leg = x.party; else if (x.type === 'tr') { o.tr = x.party; o.seats[x.party] = (o.seats[x.party] || 0) + 1; o.trRace = Q.senateRunoffs && Q.senateRunoffs[x.state]; } else o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
+    (Q.senateSeats || []).forEach(function (x) { if (!x.party) return; var o = sen[x.state] = sen[x.state] || { seats: {}, shares: (Q.senateShares && Q.senateShares[x.state]) || (st[x.state] ? st[x.state].shares : {}) }; if (x.type === 'house') o.leg = x.party; else o.seats[x.party] = (o.seats[x.party] || 0) + 1; });
     for (var q in Q.house) { var n = Q.house[q]; for (sid in st) n -= st[sid].seats[q] || 0; if (n > 0) nat[q] = n; }
     return { states: st, senStates: sen, national: nat };
   };

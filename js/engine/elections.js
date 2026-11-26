@@ -65,12 +65,11 @@
   // Stand-down agreements. Each has a scope: which contests it covers.
   //   house   - the House state list (big parties only in states with 2-4 list seats)
   //   senList - the three Senate list seats
-  //   senTR   - the two-round Senate seat
   //   gov     - the governorship
   // a.states lists the states it covers (a.houseStates, if set, narrows the House part).
-  X.SCOPES = [['house', 'House list'], ['senList', 'Senate list'], ['senTR', 'Senate two-round'], ['gov', 'Governor']];
+  X.SCOPES = [['house', 'House list'], ['senList', 'Senate list'], ['gov', 'Governor']];
   X.sdStates = function (a, kind) { return kind === 'house' && a.houseStates ? a.houseStates : a.states || X.REGION_SETS[a.region] || []; };
-  X.sdCovers = function (a, sid, kind) { var sc = a.scope || { senTR: true, gov: true }; return !!sc[kind] && X.sdStates(a, kind).indexOf(sid) >= 0; };
+  X.sdCovers = function (a, sid, kind) { var sc = a.scope || { senList: true, gov: true }; return !!sc[kind] && X.sdStates(a, kind).indexOf(sid) >= 0; };
   X.standsDown = function (Q, p, sid, kind) {
     return (Q.standDowns || []).filter(function (a) { return a.party === p && X.sdCovers(a, sid, kind || 'gov'); })[0];
   };
@@ -213,7 +212,7 @@
     return out;
   };
 
-  // Senate after a general election: in every state, 3 seats by statewide PR, 1 by two-round vote,
+  // Senate after a general election: in every state, 3 seats by statewide PR
   // and 1 elected by the state house. Returns {state: {seats, shares}}.
   X.senate = function (Q) {
     var out = {};
@@ -224,29 +223,11 @@
       Object.keys(won).sort(function (a, b) { return won[b] - won[a] || sh[b] - sh[a]; }).forEach(function (p) { for (var i = 0; i < won[p]; i++) list.push(p); });
       seats.filter(function (x) { return x.type === 'pr'; }).forEach(function (x, i) { x.party = list[i]; });
       seats.filter(function (x) { return x.type === 'house'; }).forEach(function (x) { x.party = X.legislatureSenator(Q, sid); });
-      var tr = X.runoffSenator(Q, sid, applyStandDowns(Q, sid, sh, 'senTR'));
-      seats.filter(function (x) { return x.type === 'tr'; }).forEach(function (x) { x.party = tr.winner; });
-      if (tr.winner) won[tr.winner] = (won[tr.winner] || 0) + 1;
-      Q.senateRunoffs = Q.senateRunoffs || {}; Q.senateRunoffs[sid] = tr;
-      out[sid] = { seats: won, shares: sh, tr: tr };
+      out[sid] = { seats: won, shares: sh };
     });
     return out;
   };
 
-  // the fifth seat: one senator by two-round majority vote. A candidate with over
-  // half the first-round vote wins outright; otherwise the top two meet in a runoff,
-  // and the other parties' voters go mostly to the closer finalist.
-  X.runoffSenator = function (Q, sid, sh) {
-    var ks = Object.keys(sh).filter(function (p) { return sh[p] > 0; }).sort(function (a, b) { return sh[b] - sh[a]; });
-    if (!ks.length) return { winner: null };
-    var t = 0; ks.forEach(function (p) { t += sh[p]; });
-    var r1 = {}; ks.forEach(function (p) { r1[p] = Math.round(sh[p] / t * 1000) / 10; });
-    if (sh[ks[0]] / t > 0.5 || ks.length < 2) return { winner: ks[0], round: 1, r1: r1 };
-    var a = ks[0], b = ks[1], pos = X.pos(Q), va = sh[a], vb = sh[b];
-    ks.slice(2).forEach(function (p) { var da = E.dist(pos[p], pos[a]), db = E.dist(pos[p], pos[b]), wa = Math.exp(-da / 2.5), wb = Math.exp(-db / 2.5); va += sh[p] * 0.75 * wa / (wa + wb); vb += sh[p] * 0.75 * wb / (wa + wb); });
-    var r2 = {}; r2[a] = Math.round(va / (va + vb) * 1000) / 10; r2[b] = Math.round(1000 - r2[a] * 10) / 10;
-    return { winner: va >= vb ? a : b, round: 2, r1: r1, r2: r2, finalists: [a, b] };
-  };
   X.senateCount = function (Q) {
     var o = {}; Q.senateSeats.forEach(function (x) { o[x.party] = (o[x.party] || 0) + 1; }); return o;
   };

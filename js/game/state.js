@@ -14,8 +14,8 @@
       electionNo: 0, deadline: U.monthIndex(2000, 9), electionAt: null, formation: null,
       ulUnity: 60, discontent: 20,
       // standing electoral agreements at the start (designer canon)
-      standDowns: [{ party: 'sdlp', partner: 'ldp', region: 'neatlantic', pact: 'ldp-sdlp', scope: { house: false, senList: false, senTR: true, gov: true } }, { party: 'ldp', partner: 'sdlp', region: 'rustbelt', pact: 'ldp-sdlp', scope: { house: false, senList: false, senTR: true, gov: true } },
-        { party: 'cdp', partner: 'cc', region: 'south', pact: 'cc-cdp', scope: { house: false, senList: false, senTR: true, gov: true } }, { party: 'cc', partner: 'cdp', region: 'liberal', pact: 'cc-cdp', scope: { house: false, senList: false, senTR: true, gov: true } }]
+      standDowns: [{ party: 'sdlp', partner: 'ldp', region: 'neatlantic', pact: 'ldp-sdlp', scope: { house: false, senList: true, gov: true } }, { party: 'ldp', partner: 'sdlp', region: 'rustbelt', pact: 'ldp-sdlp', scope: { house: false, senList: true, gov: true } },
+        { party: 'cdp', partner: 'cc', region: 'south', pact: 'cc-cdp', scope: { house: false, senList: true, gov: true } }, { party: 'cc', partner: 'cdp', region: 'liberal', pact: 'cc-cdp', scope: { house: false, senList: true, gov: true } }]
     };
     U.ALL_PARTIES.forEach(function (p) { var P = U.PARTIES[p]; Q.pos[p] = { econ: P.econ, soc: P.soc, fed: P.fed }; Q.mods[p] = {}; });
     V.calibrate(Q);
@@ -46,7 +46,7 @@
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
     Q.senateSeats = [];
     Object.keys(U.STATES).forEach(function (sid) {
-      ['pr', 'pr', 'pr', 'house', 'tr'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
+      ['pr', 'pr', 'pr', 'house'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
     });
     X.senate(Q);
     var rec96 = S.stateRecord(Q, open1996h);
@@ -110,12 +110,10 @@
   // saves from before the factions were reorganised
   S.migrateFactions = function (Q) {
     // stand-down agreements: give old ones explicit states and scopes
-    (Q.standDowns || []).forEach(function (a) { if (!a.states) a.states = (U.Elections.REGION_SETS[a.region] || []).slice(); if (!a.scope) a.scope = { house: false, senList: false, senTR: true, gov: true }; if (a.scope.house && !a.houseStates && U.Game.sdSmallStates) a.houseStates = U.Game.sdSmallStates(Q, a); });
-    // the fifth Senate seat (two-round), added after saves were made
-    if (Q.senateSeats && !Q.senateSeats.some(function (x) { return x.type === 'tr'; })) Object.keys(U.STATES).forEach(function (sid) {
-      var mine = Q.senateSeats.filter(function (x) { return x.state === sid && x.type === 'pr'; }), sh = (Q.senateShares && Q.senateShares[sid]) || {};
-      var tr = U.Elections.runoffSenator(Q, sid, sh); Q.senateSeats.push({ state: sid, type: 'tr', party: tr.winner || (mine[0] && mine[0].party) || null });
-    });
+    (Q.standDowns || []).forEach(function (a) { if (!a.states) a.states = (U.Elections.REGION_SETS[a.region] || []).slice(); if (!a.scope) a.scope = { house: false, senList: true, gov: true }; if (a.scope.house && !a.houseStates && U.Game.sdSmallStates) a.houseStates = U.Game.sdSmallStates(Q, a); });
+    // the fifth Senate seat was tried and dropped: remove it from saves that have it
+    if (Q.senateSeats) Q.senateSeats = Q.senateSeats.filter(function (x) { return x.type !== 'tr'; });
+    (Q.standDowns || []).forEach(function (a) { if (a.scope && a.scope.senTR) { a.scope.senList = true; delete a.scope.senTR; } });
     if (!Q.factions || !Q.factions.civil) return;
     Q.factions.proglib.dissent = Math.round((Q.factions.proglib.dissent + Q.factions.civil.dissent) / 2);
     delete Q.factions.civil; Q.factions.chrlib = U.clone(U.LDP_FACTIONS.chrlib);

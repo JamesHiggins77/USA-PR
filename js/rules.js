@@ -22,7 +22,7 @@
       dcMethod: 'two-round'
     },
     senate: {
-      total: 250, perState: 4,          // per state: 3 by PR, 1 by the state house, 1 by two-round vote (perState: electors use the original 4)
+      total: 200, perState: 4,          // designer canon: per state, 3 elected by PR + 1 by the state house
       prSeatsPerState: 3,               // elected statewide by PR at every general election
       prFormula: 'majority-minority', prThreshold: 0,
       // majority-minority: the state's largest party wins 2 seats and the runner-up 1;

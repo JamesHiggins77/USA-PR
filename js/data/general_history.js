@@ -199,15 +199,8 @@
       var ssh = {}; for (p in sv) { if (sv[p] >= 0.5) ssh[p] = Math.round(sv[p] * 10) / 10; senW[p] = (senW[p] || 0) + sv[p] * seatsOf[s]; } senT += seatsOf[s];
       var sw = D.senateSeats(sv), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
       var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0];
-      // the fifth seat: two-round majority vote, the others' voters going mostly to the nearer finalist
-      var ord = Object.keys(sv).sort(function (a, b) { return sv[b] - sv[a]; }), tot = 0; ord.forEach(function (p) { tot += sv[p]; });
-      var tr = ord[0];
-      if (ord.length > 1 && sv[ord[0]] / tot <= 0.5) { var fa = ord[0], fb = ord[1], va = sv[fa], vb = sv[fb], ec = function (p) { return U.partyInfo(p).econ || 0; };
-        ord.slice(2).forEach(function (p) { var da = Math.abs(ec(p) - ec(fa)), db = Math.abs(ec(p) - ec(fb)), wa = Math.exp(-da / 3), wb = Math.exp(-db / 3); va += sv[p] * 0.75 * wa / (wa + wb); vb += sv[p] * 0.75 * wb / (wa + wb); });
-        tr = va >= vb ? fa : fb; }
-      ss[tr] = (ss[tr] || 0) + 1; var trRace = { winner: tr };
       for (p in ss) senate[p] = (senate[p] || 0) + ss[p];
-      senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: ssh, leg: leg, tr: tr };
+      senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: ssh, leg: leg };
     });
     if (e.seats === 600) { var nv = {}; parties.forEach(function (p) { nv[p] = e.shares[p]; });
       var nw = D.divisor(nv, 100, 'sainte-lague', 5 / (100 - oth)); for (var q in nw) if (nw[q]) { national[q] = nw[q]; house[q] = (house[q] || 0) + nw[q]; } }
