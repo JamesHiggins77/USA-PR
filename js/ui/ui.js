@@ -40,7 +40,7 @@
         var byVote = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a] || (se[b] || 0) - (se[a] || 0); });
         return '<b>' + esc(st.name || (U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(se) ? '<div class="muted">' + U.sum(se) + (st.unit || ({ senate: ' senators elected statewide', senpr: ' list senators' }[genMode] || ' House seats')) + '</div>' : '') +
           bySeat.map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + (se[p] || 0) + dch((se[p] || 0) - (ps[p] || 0), 0) + '</b></div>'; }).join('') +
-          trr + (st.leg ? '<div class="muted" style="margin-top:4px">Chosen by the legislature</div><div class="kv"><span>' + ochipK(st.leg) + PI(st.leg).short + '</span><b>1</b></div>' : '') + '<div class="muted" style="margin-top:4px">Vote' + (pv ? ' (change since the previous election)' : '') + '</div>' +
+          trr + (st.stood && st.stood.length ? '<div class="muted" style="margin-top:4px">Stood aside under an agreement: ' + st.stood.map(function (p) { return PI(p).short; }).join(', ') + '</div>' : '') + (st.leg ? '<div class="muted" style="margin-top:4px">Chosen by the legislature</div><div class="kv"><span>' + ochipK(st.leg) + PI(st.leg).short + '</span><b>1</b></div>' : '') + '<div class="muted" style="margin-top:4px">Vote' + (pv ? ' (change since the previous election)' : '') + '</div>' +
           byVote.map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + (+sh[p]).toFixed(1) + '%' + dch(sh[p] - (psh[p] || 0), 1) + '</b></div>'; }).join('');
       });
     }

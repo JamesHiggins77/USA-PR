@@ -74,7 +74,7 @@
     return (Q.standDowns || []).filter(function (a) { return a.party === p && X.sdCovers(a, sid, kind || 'gov'); })[0];
   };
   function applyStandDowns(Q, sid, sh, kind) {
-    var out = sh, pos = X.pos(Q);
+    var out = sh, pos = X.pos(Q), stood = [];
     (Q.standDowns || []).forEach(function (a) {
       if (!out[a.party] || !X.sdCovers(a, sid, kind || 'house') || !out[a.partner]) return;
       if (out === sh) out = U.clone(sh);
@@ -82,7 +82,13 @@
       out[a.partner] += v * 0.7;
       var others = Object.keys(out).filter(function (q) { return q !== a.partner; }), ws = others.map(function (q) { return Math.exp(-E.dist(pos[a.party], pos[q]) / 3); }), wt = ws.reduce(function (x, y) { return x + y; }, 0);
       others.forEach(function (q, i) { out[q] += v * 0.15 * ws[i] / wt; }); // 15% elsewhere, 15% stay home
+      stood.push(a.party);
     });
+    if (out !== sh) { // the 15% who stay home: shares are of the votes actually cast
+      var t0 = 0, t1 = 0, k; for (k in sh) t0 += sh[k]; for (k in out) t1 += out[k];
+      for (k in out) out[k] = out[k] * t0 / t1;
+      Object.defineProperty(out, 'stood', { value: stood, enumerable: false });
+    }
     return out;
   }
   X.applyStandDowns = applyStandDowns;
@@ -219,7 +225,11 @@
     Object.keys(U.STATES).forEach(function (sid) {
       var seats = Q.senateSeats.filter(function (x) { return x.state === sid; });
       var sh = X.senateShares(Q, sid, V.stateShares(Q, U.STATES[sid], { senate: true }), seats);
-      var won = E.senateSeats(applyStandDowns(Q, sid, sh, 'senList')), list = [];
+      var sl = applyStandDowns(Q, sid, sh, 'senList'), list = [];
+      // the published vote is the vote cast, after any stand-downs; seats follow the published figures
+      Q.senateShares[sid] = {}; for (var q in sl) if (sl[q] >= 0.5) Q.senateShares[sid][q] = Math.round(sl[q] * 10) / 10;
+      var won = E.senateSeats(Q.senateShares[sid]);
+      Q.senateStood = Q.senateStood || {}; Q.senateStood[sid] = sl.stood || [];
       Object.keys(won).sort(function (a, b) { return won[b] - won[a] || sh[b] - sh[a]; }).forEach(function (p) { for (var i = 0; i < won[p]; i++) list.push(p); });
       seats.filter(function (x) { return x.type === 'pr'; }).forEach(function (x, i) { x.party = list[i]; });
       seats.filter(function (x) { return x.type === 'house'; }).forEach(function (x) { x.party = X.legislatureSenator(Q, sid); });

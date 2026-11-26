@@ -197,7 +197,7 @@
       parties.forEach(function (p) { st0 += v[s][p]; sv[p] = Math.max(0, v[s][p] * (1 + ((e.sen || {})[p] || 0) / e.shares[p]) * (1 + 0.4 * (hash('s' + e.year + s + p) - 0.5)) * (((e.senBoost || {})[s] || {})[p] || 1)); st1 += sv[p]; });
       parties.forEach(function (p) { sv[p] = sv[p] * (st0 - ind) / st1; }); if (ind) sv.ind = ind;
       var ssh = {}; for (p in sv) { if (sv[p] >= 0.5) ssh[p] = Math.round(sv[p] * 10) / 10; senW[p] = (senW[p] || 0) + sv[p] * seatsOf[s]; } senT += seatsOf[s];
-      var sw = D.senateSeats(sv), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
+      var sw = D.senateSeats(ssh), ss = {}; for (p in sw) if (sw[p]) ss[p] = sw[p];
       var leg = Object.keys(seats).sort(function (a, b) { return seats[b] - seats[a] || v[s][b] - v[s][a]; })[0];
       for (p in ss) senate[p] = (senate[p] || 0) + ss[p];
       senate[leg] = (senate[leg] || 0) + 1; senStates[s] = { seats: ss, shares: ssh, leg: leg };
