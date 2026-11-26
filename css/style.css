@@ -257,9 +257,9 @@ table.talks { width: 100%; } table.talks td:nth-child(4) { text-align: left; min
 .papernav { display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
 .papernav .btn.small { font-size: 12px; padding: 4px 8px; }
 .tierhead { margin: 18px 0 2px; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; display: inline-block; }
-.tierhead.breaking { background: #b3261e; color: #fff; }
-.tierhead.key { background: #2d3748; color: #fff; }
-.tierhead.minor { background: transparent; color: var(--muted, #777); border: 1px solid currentColor; }
+.tierhead.tb { background: #b3261e; color: #fff; }
+.tierhead.tk { background: #2d3748; color: #fff; }
+.tierhead.tm { background: transparent; color: var(--muted, #777); border: 1px solid currentColor; }
 .story.t-minor .headline { font-size: 15px; padding: 6px 2px; font-weight: 600; }
 .story.t-breaking .headline { color: #b3261e; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .story.t-breaking .headline { color: #ff8a80; } }

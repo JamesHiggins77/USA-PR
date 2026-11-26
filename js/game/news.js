@@ -89,7 +89,16 @@
   var NBA_T = ['Chicago Bulls', 'Los Angeles Lakers', 'San Antonio Spurs', 'Boston Celtics', 'Miami Heat', 'Detroit Pistons', 'Utah Jazz', 'New York Knicks', 'Golden State Warriors', 'Dallas Mavericks', 'Phoenix Suns', 'Indiana Pacers', 'Sacramento Kings'];
   var MLB_T = ['New York Yankees', 'Boston Red Sox', 'Atlanta Braves', 'St. Louis Cardinals', 'Los Angeles Dodgers', 'San Francisco Giants', 'Cleveland Indians', 'Chicago Cubs', 'Houston Astros', 'Philadelphia Phillies', 'Seattle Mariners', 'New York Mets', 'Oakland Athletics'];
   // in this timeline the real champion is the favorite, not a certainty
-  function champ(real, pool) { return real && R() < 0.55 ? real : pick(pool); }
+  // otherwise the strong teams of that era (recent and coming champions) are next in line
+  function champ(map, y, pool) {
+    var w = {}, add = function (t, v) { if (t) w[t] = (w[t] || 0) + v; };
+    add(map[y], 14);
+    for (var d = 1; d <= 4; d++) { add(map[y - d], 4 / d); add(map[y + d], 4 / d); }
+    pool.forEach(function (t) { add(t, 0.35); });
+    if (!map[y]) { var ks = Object.keys(map).map(Number), last = Math.max.apply(null, ks); for (d = 0; d < 4; d++) add(map[last - d], 1); }
+    var tot = 0, k; for (k in w) tot += w[k]; var x = R() * tot;
+    for (k in w) { x -= w[k]; if (x <= 0) return k; } return k;
+  }
 
   // Foreign elections. While a country's history still matches ours, the real
   // winner is the favorite (with odds reflecting how close the real race was);
@@ -207,9 +216,9 @@
     var parties = bigParties(Q, 7), g = Q.gov;
     // ---- real calendar ----
     WORLD.forEach(function (w) { if (w[0] === prev.y && w[1] === prev.m) out.push({ tier: w[2], kind: w[3], head: w[4], story: w[5] }); });
-    if (prev.m === 2) { var sb = champ(SB[prev.y], NFL_T); out.push({ tier: 'minor', kind: 'sport', head: 'Super Bowl: ' + sb + ' are champions', story: 'The ' + sb + ' win the Super Bowl in front of a record television audience.' }); }
-    if (prev.m === 6) { var nb = champ(NBA[prev.y], NBA_T); out.push({ tier: 'minor', kind: 'sport', head: 'NBA title for the ' + nb, story: 'The ' + nb + ' win the NBA Finals.' }); }
-    if (prev.m === 10) { var ws = champ(WS[prev.y], MLB_T); out.push({ tier: 'minor', kind: 'sport', head: ws + ' win the World Series', story: 'The ' + ws + ' take baseball’s championship.' }); }
+    if (prev.m === 2) { var sb = champ(SB, prev.y, NFL_T); out.push({ tier: 'minor', kind: 'sport', head: 'Super Bowl: ' + sb + ' are champions', story: 'The ' + sb + ' win the Super Bowl in front of a record television audience.' }); }
+    if (prev.m === 6) { var nb = champ(NBA, prev.y, NBA_T); out.push({ tier: 'minor', kind: 'sport', head: 'NBA title for the ' + nb, story: 'The ' + nb + ' win the NBA Finals.' }); }
+    if (prev.m === 10) { var ws = champ(WS, prev.y, MLB_T); out.push({ tier: 'minor', kind: 'sport', head: ws + ' win the World Series', story: 'The ' + ws + ' take baseball’s championship.' }); }
     if (prev.m === 8 && prev.y % 4 === 0) { var gold = 30 + Math.floor(R() * 16), top = R() < 0.7; out.push({ tier: 'minor', kind: 'sport', head: 'Team USA ' + (top ? 'tops' : 'finishes second in') + ' the Olympic medal table', story: 'American athletes bring home ' + gold + ' gold medals' + (prev.y === 2008 ? ', ' + (5 + Math.floor(R() * 4)) + ' of them won by swimmer Michael Phelps' : '') + (top ? '.' : '; ' + pick(['China', 'Russia']) + ' takes first place.') }); }
     if (prev.m === 9 && prev.y === 1998) out.push(R() < 0.6 ? { tier: 'minor', kind: 'sport', head: 'McGwire passes Maris: ' + (62 + Math.floor(R() * 9)) + ' home runs', story: 'Mark McGwire breaks the single-season record; Sammy Sosa is close behind.' } : { tier: 'minor', kind: 'sport', head: 'Sosa breaks the home run record', story: 'Sammy Sosa passes Roger Maris’s 61 as Mark McGwire falls just short.' });
     foreignElections(Q, out, prev);
@@ -226,10 +235,10 @@
     if (govs.length && chance(0.7)) { var gs = pick(govs), gp = Q.states[gs].governor, bill = pick(STATE_BILLS);
       out.push({ tier: chance(0.2) ? 'key' : 'minor', kind: 'states', head: stName(gs) + ' governor signs ' + bill, story: 'The ' + PI(gp).short + ' Governor of ' + stName(gs) + ' signs ' + bill + ' into law. Other states are watching.' }); }
     // ---- Congress: bills, repeals, expansions ----
-    if (g && chance(0.6)) { var fb = pick(FED_BILLS), act = pick(['passes', 'passes', 'fails', 'repeal', 'expand']), gov = U.Game.govSeats ? U.Game.govSeats(Q) : 300, yes = Math.round(U.clamp(gov + (R() - 0.4) * 80, 150, 520)), no = 600 - yes - Math.floor(R() * 20);
-      if (act === 'repeal') out.push({ tier: 'key', kind: 'congress', head: 'House votes to repeal parts of ' + fb[0], story: 'By ' + yes + ' to ' + no + ', the House strikes provisions on ' + fb[1] + ' that the ' + PI(g.pmParty).short + ' had called a failure.' });
-      else if (act === 'expand') out.push({ tier: 'key', kind: 'congress', head: fb[0] + ' expanded', story: 'Congress extends the program on ' + fb[1] + ', ' + yes + ' votes to ' + no + '. The cost is put at $' + (5 + Math.floor(R() * 60)) + ' billion over ten years.' });
-      else { var pass = act === 'passes' && yes > no; out.push({ tier: 'key', kind: 'congress', head: fb[0] + (pass ? ' clears the House' : ' defeated in the House'), story: 'The bill on ' + fb[1] + ' ' + (pass ? 'passes' : 'fails') + ', ' + (pass ? yes + ' to ' + no : Math.min(yes, no) + ' to ' + Math.max(yes, no)) + '. ' + (pass ? 'It now goes to the Senate.' : 'The government says it will try again.') }); } }
+    if (g && chance(0.6)) { var sy = U.clamp(Math.round(125 + (R() - 0.35) * 70), 60, 220), sn = 250 - sy - Math.floor(R() * 8), sen = function (must) { if (must && sy <= sn) { sy = 126 + Math.floor(R() * 50); sn = 250 - sy - Math.floor(R() * 8); } return ' Senate: ' + sy + ' yes, ' + sn + ' no' + (sy > sn ? '.' : '; two-thirds against would be needed to block it, so it goes ahead after a delay.'); }, fb = pick(FED_BILLS), act = pick(['passes', 'passes', 'fails', 'repeal', 'expand']), gov = U.Game.govSeats ? U.Game.govSeats(Q) : 300, yes = Math.round(U.clamp(gov + (R() - 0.4) * 80, 150, 520)), no = 600 - yes - Math.floor(R() * 20);
+      if (act === 'repeal') out.push({ tier: 'key', kind: 'congress', head: 'House votes to repeal parts of ' + fb[0], story: 'By ' + yes + ' to ' + no + ', the House strikes provisions on ' + fb[1] + ' that the ' + PI(g.pmParty).short + ' had called a failure.' + sen(true) });
+      else if (act === 'expand') out.push({ tier: 'key', kind: 'congress', head: fb[0] + ' expanded', story: 'Congress extends the program on ' + fb[1] + ', ' + yes + ' votes to ' + no + '. The cost is put at $' + (5 + Math.floor(R() * 60)) + ' billion over ten years.' + sen(true) });
+      else { var pass = act === 'passes' && yes > no; out.push({ tier: 'key', kind: 'congress', head: fb[0] + (pass ? ' clears the House' : ' defeated in the House'), story: 'The bill on ' + fb[1] + ' ' + (pass ? 'passes' : 'fails') + ', ' + (pass ? yes + ' to ' + no : Math.min(yes, no) + ' to ' + Math.max(yes, no)) + '. ' + (pass ? sen(false) : 'The government says it will try again; the Senate does not vote on a bill the House has rejected.') }); } }
     // ---- reports ----
     if (chance(0.4)) { var rp = pick(REPORTS), txt = rp[1].replace('{x}', (Q.econ.deficit > 0 ? 'a rise' : 'a fall')).replace('{dir}', Q.econ.growth > 2 ? 'risen' : 'fallen').replace('{pace}', Q.econ.growth > 3 ? 'solid' : Q.econ.growth > 0 ? 'modest' : 'weak').replace('{unemp}', Q.econ.unemp.toFixed(1));
       out.push({ tier: 'key', kind: 'report', head: rp[0] + ' ' + txt.split(' ').slice(0, 7).join(' ') + (txt.split(' ').length > 7 ? '…' : ''), story: rp[0] + ' ' + txt + '.' }); }

@@ -51,7 +51,7 @@
     if (r.out.general) { var g = r.out.general, ord = Object.keys(g.house).sort(function (a, b) { return g.house[b] - g.house[a]; });
       items.push({ kind: 'election', teaser: 'AMERICA VOTES: A NEW CONGRESS', teaserStory: 'The polls have closed in the general election. The results are coming in state by state.', head: PI(ord[0]).short + ' FIRST AS VOTERS ELECT A NEW CONGRESS', story: 'House seats: ' + ord.slice(0, 7).map(function (p) { return PI(p).short + ' ' + g.house[p] + ((g.before && g.before[p] != null) ? ' (' + (g.house[p] - g.before[p] >= 0 ? '+' : '') + (g.house[p] - g.before[p]) + ')' : ''); }).join(', ') + '. ' + U.majority() + ' are needed for a majority.', elec: 'g' }); }
     r.events.forEach(function (e) {
-      items.push({ kind: 'event', id: e.id, head: e.title, story: [e.body, e.choice ? 'Outcome: ' + e.choice + '.' : '', e.text].filter(Boolean).join(' '), vote: e.vote });
+      items.push({ kind: e.vote ? 'vote' : 'event', id: e.id, teaser: e.teaser, teaserStory: e.teaserStory, tier: e.teaser ? 'breaking' : undefined, head: e.title, story: [e.body, e.choice ? 'Outcome: ' + e.choice + '.' : '', e.text].filter(Boolean).join(' '), vote: e.vote });
     });
     (r.news || []).forEach(function (t) { t.split(/(?<=[a-z\)]{2}\.)\s+(?=[A-Z])/).forEach(function (x) { if (x.length > 8 && !(r.out.presidential && /elected President/.test(x))) items.push({ kind: 'news', head: x.length > 90 ? x.slice(0, 87).replace(/\s\S*$/, '') + '…' : x, story: x }); }); });
     // the regular pages: polls, economy, the government, the parties
@@ -85,6 +85,17 @@
     return items;
   };
 
+  // a recorded vote as a news item, with both chambers' tallies
+  var OUTCOME = { law: 'The bill becomes law.', defeated: 'The House rejects the bill.', senateVeto: 'The Senate vetoes it with a two-thirds majority.', delayed: 'The Senate votes it down: it is delayed by up to two years, then becomes law.', presVeto: 'The President vetoes it.' };
+  A.tally = function (c) { return c ? c.yes + ' yes, ' + c.no + ' no' + (c.abstain ? ', ' + c.abstain + ' abstaining' : '') : ''; };
+  A.voteItem = function (Q, lv) {
+    var t = strip(lv.title), flag = lv.kind === 'budget' || lv.kind === 'bill' || /Iraq war|Bank rescue/.test(t);
+    var passed = lv.house.yes > lv.house.no, sen = lv.senate && lv.kind !== 'budget' && lv.kind !== 'investiture';
+    var text = 'House: ' + A.tally(lv.house) + '. ' + (sen ? 'Senate: ' + A.tally(lv.senate) + '. ' : lv.kind === 'budget' ? 'Senate: no vote (budgets are for the House alone). ' : lv.kind === 'investiture' ? 'Senate: no vote (the House alone confirms a Prime Minister). ' : 'Senate: not required. ') + (OUTCOME[lv.proc] || (passed ? 'Carried.' : 'Not carried.'));
+    return { title: (lv.kind === 'budget' ? 'Budget vote: ' : 'Vote: ') + t + (passed ? ' passes the House' : ' fails in the House'), text: text, vote: lv,
+      teaser: flag ? (lv.kind === 'budget' ? 'THE HOUSE VOTES ON THE BUDGET' : 'CONGRESS VOTES: ' + t.toUpperCase()) : null,
+      teaserStory: flag ? 'Members are filing in to vote on ' + t + '. The whips are still counting.' : null };
+  };
   A.step = function (Q) {
     Q.zero = true;
     var before = U.Votes.national(Q), lv0 = Q.lastVote;
@@ -96,7 +107,7 @@
     if (res.out.general) A.record(Q, { kind: 'election', title: 'General election', text: res.out.general.date || '' });
     if (res.out.presidential) A.record(Q, { kind: 'election', title: 'Presidential election', text: Q.president.name + ' (' + U.partyInfo(Q.president.party).short + ') wins' });
     var r = { out: res.out, events: pre.concat(post), news: (Q.report || []).map(strip) };
-    if (Q.lastVote && Q.lastVote !== lv0 && Q.lastVote.house && Q.lastVote.house.by) r.events.push({ title: 'Vote: ' + strip(Q.lastVote.title), text: 'The House voted ' + Q.lastVote.house.yes + ' to ' + Q.lastVote.house.no + '.', vote: Q.lastVote });
+    if (Q.lastVote && Q.lastVote !== lv0 && Q.lastVote.house && Q.lastVote.house.by) r.events.push(A.voteItem(Q, Q.lastVote));
     r.items = A.edition(Q, r, before, U.dateStr(Q));
     return r;
   };
