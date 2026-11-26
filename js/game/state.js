@@ -52,7 +52,7 @@
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], gov1996(sid)); });
     Q.senateSeats = [];
     Object.keys(U.STATES).forEach(function (sid) {
-      ['pr', 'pr', 'pr', 'house'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
+      ['pr', 'pr', 'pr', 'pr', 'pr'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
     });
     X.senate(Q);
     var rec96 = S.stateRecord(Q, open1996h);
@@ -117,7 +117,9 @@
   // saves from before the factions were reorganised
   S.migrateFactions = function (Q) {
     if (Q.ulMembers) U.splitORL(Q.ulMembers);
-    (Q.cabinet || []).forEach(function (c) { delete c.by; });   // no presidential appointees in the cabinet any more
+    (Q.cabinet || []).forEach(function (c) { delete c.by; });
+    // the Senate became 5 PR seats per state (D'Hondt, 10% threshold), with no appointed senator: re-elect it from current votes
+    if (Q.senateSeats && Q.senateSeats.some(function (x) { return x.type !== 'pr'; })) { Q.senateSeats = []; Object.keys(U.STATES).forEach(function (sid) { for (var i = 0; i < 5; i++) Q.senateSeats.push({ state: sid, type: 'pr', party: null }); }); U.Elections.senate(Q); }   // no presidential appointees in the cabinet any more
     // pacts in older saves were treated as joint lists: they are only pacts
     (Q.pacts || []).forEach(function (pk) { if (pk.type === 'list') pk.type = 'pact'; });
     // stand-down agreements: give old ones explicit states and scopes

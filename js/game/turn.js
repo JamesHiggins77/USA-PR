@@ -398,7 +398,6 @@
     var old = {}, sid; for (sid in Q.states) old[sid] = Q.states[sid].governor;
     for (sid in U.STATES) Q.states[sid] = X.stateGov(Q, U.STATES[sid], Q.states[sid]);
     // the new legislatures choose their senators
-    (Q.senateSeats || []).forEach(function (x) { if (x.type === 'house') x.party = X.legislatureSenator(Q, x.state); });
     var flips = Object.keys(old).filter(function (s) { return old[s] !== Q.states[s].governor; });
     var mid = !withPres;
     var res = { date: U.dateStr(Q), flips: flips.map(function (s) { return { s: s, from: old[s], to: Q.states[s].governor }; }), midterm: mid };

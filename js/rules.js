@@ -22,14 +22,10 @@
       dcMethod: 'two-round'
     },
     senate: {
-      total: 200, perState: 4,          // designer canon: per state, 3 elected by PR + 1 by the state house
-      prSeatsPerState: 3,               // elected statewide by PR at every general election
-      prFormula: 'majority-minority', prThreshold: 0,
-      // majority-minority: the state's largest party wins 2 seats and the runner-up 1;
-      // a near-tie (lead under closeLead points) gives 1-1-1, and a landslide
-      // (at least sweepRatio x the runner-up and sweepLead points ahead) gives 3-0
-      closeLead: 2, sweepRatio: 2, sweepLead: 15,
-      legislatureSeat: 'state-house'    // the 4th senator is elected by the lower house (Nebraska: its legislature)
+      total: 250, perState: 4,          // perState: the 4 electors per state in the Electoral College (unchanged)
+      prSeatsPerState: 5,               // five senators per state, elected statewide at every general election
+      prFormula: 'dhondt', prThreshold: 0.10,   // D'Hondt with a 10% state threshold; no senator is appointed by the state
+      legislatureSeat: null
     },
     constitution: {
       dissolutionLockMonths: 48,        // no dissolution for 4 years after a government forms (unless the PM asks and both chambers agree, or a new President)

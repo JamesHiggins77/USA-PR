@@ -5,7 +5,7 @@ const sum = o => Object.values(o).reduce((s, v) => s + v, 0);
 test('the 1997 opening matches the canon', () => {
   const Q = U.Game.newGame(7);
   assert.strictEqual(sum(Q.house), 600);
-  assert.strictEqual(Q.senateSeats.length, 200);
+  assert.strictEqual(Q.senateSeats.length, 250);
   assert.strictEqual(Q.president.name, 'Bill Clinton');
   assert.strictEqual(Q.gov.pm, 'Al Gore');
   assert.deepStrictEqual(Q.gov.coalition, ['ldp', 'cdp', 'sdlp']);
@@ -16,20 +16,15 @@ test('the 1997 opening matches the canon', () => {
   const g = ['ldp', 'cdp', 'sdlp'];
   assert.ok(g.reduce((s, p) => s + Q.house[p], 0) >= U.majority(), 'the government controls the House');
   const sen = U.Elections.senateCount(Q);
-  assert.ok(g.reduce((s, p) => s + (sen[p] || 0), 0) > 100, 'government controls the Senate');
+  assert.ok(g.reduce((s, p) => s + (sen[p] || 0), 0) > 125, 'government controls the Senate');
   assert.strictEqual(Q.player, 'ldp');
   assert.strictEqual(Q.year, 1997);
   assert.strictEqual(Q.nextPres, U.monthIndex(1998, 11), 'presidential election in November 1998');
 });
 
-test('Senate: in each state 3 seats by PR and 1 elected by the state house', () => {
+test('Senate: five senators per state by D\u2019Hondt with a 10% state threshold, none appointed', () => {
   const Q = U.Game.newGame(3);
-  for (const sid of Object.keys(U.STATES)) {
-    const seats = Q.senateSeats.filter(s => s.state === sid);
-    assert.strictEqual(seats.filter(s => s.type === 'pr').length, 3);
-    const h = seats.filter(s => s.type === 'house');
-    assert.strictEqual(h.length, 1); assert.strictEqual(h[0].party, U.Elections.chamberChoice(Q, Q.states[sid].house));
-  }
+  for (const sid of Object.keys(U.STATES)) { const seats = Q.senateSeats.filter(s => s.state === sid); assert.strictEqual(seats.length, 5); assert.ok(seats.every(s => s.type === 'pr')); }
   assert.strictEqual(Q.states.NE.senate, undefined, 'Nebraska is unicameral');
 });
 
@@ -144,11 +139,11 @@ test('historical general elections: every government holds a majority', () => {
   }
 });
 
-test('senate: 2-1 normally, 1-1-1 in near-ties, 3-0 in landslides', () => {
-  const S = U.Electoral.senateSeats;
-  assert.deepStrictEqual(S({ a: 30, b: 25, c: 20 }), { a: 2, b: 1 });
-  assert.deepStrictEqual(S({ a: 26, b: 25, c: 20 }), { a: 1, b: 1, c: 1 });
-  assert.deepStrictEqual(S({ a: 50, b: 20, c: 10 }), { a: 3 });
+test('senate: D\u2019Hondt, 5 seats, 10% threshold', () => {
+  const S = U.Electoral.senateSeats, z = o => Object.fromEntries(Object.entries(o).filter(e => e[1]));
+  assert.deepStrictEqual(z(S({ a: 40, b: 30, c: 20, d: 9 })), { a: 2, b: 2, c: 1 });
+  assert.deepStrictEqual(z(S({ a: 58, b: 26, c: 16 })), { a: 3, b: 1, c: 1 });
+  assert.ok(!S({ a: 50, b: 41, c: 9 }).c, 'under 10% wins nothing');
 });
 
 test('constitution: Senate veto/delay, presidential veto override, budgets bypass the Senate', () => {
@@ -246,7 +241,7 @@ test('careers: politicians retire and newcomers arrive over time', () => {
 
 test('opening parliament: Sanders holds a Vermont House seat for the VPP, the Greens have 4 seats', () => {
   const Q = U.Game.newGame(7); assert.strictEqual(Q.houseByState.VT.vpp, 1); assert.strictEqual(Q.house.grn, 4);
-  assert.ok(!Q.senateSeats.some(x => x.state === 'VT' && x.party === 'vpp'));
+  assert.ok(!Q.flags.sandersSenator, 'Sanders is not a senator at the start');
   const o = Q.open1996, sum = {}; for (const s in o.states) for (const p in o.states[s].seats) sum[p] = (sum[p] || 0) + o.states[s].seats[p]; for (const p in o.national) sum[p] = (sum[p] || 0) + o.national[p];
   assert.deepStrictEqual(sum, Object.fromEntries(Object.entries(o.house).filter(e => e[1])));
 });

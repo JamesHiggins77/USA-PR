@@ -55,7 +55,7 @@
     'red line': 'A party refuses to sit in cabinet with another party. Softer for confidence and supply.',
     'red lines': 'Parties that refuse to sit in cabinet together. Softer for confidence and supply.',
     'Red lines': 'Parties that refuse to sit in cabinet together. Softer for confidence and supply.',
-    'unicameral': 'A one-chamber state legislature (Nebraska). It elects the state\u2019s fourth U.S. senator, as the state house does elsewhere.',
+    'unicameral': 'A one-chamber state legislature (Nebraska).',
     '5% threshold': 'State senate seats go only to parties with at least 5% of the statewide vote.',
     'Government formation': 'After an election, parties negotiate. If no Prime Minister is invested within 3 months, a repeat election is called.',
     'government formation': 'After an election, parties negotiate. If no Prime Minister is invested within 3 months, a repeat election is called.',
