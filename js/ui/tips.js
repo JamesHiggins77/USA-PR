@@ -138,6 +138,7 @@
     }
     if (P.home) h += '<br><span class="muted">Strongest in: ' + Object.keys(P.home).slice(0, 6).join(', ') + '</span>';
     if (P.note) h += '<br><span class="muted">' + esc(P.note) + '</span>';
+    if (U.LIST_RULES && U.LIST_RULES[p]) h += '<br><span class="muted">Lists: ' + esc(U.LIST_RULES[p]) + (p === 'ul' && Q && Q.ulGreenDeal ? ' Greens\u2019 terms: ' + (Q.ulGreenDeal === 'all' ? 'the whole national list.' : 'the first ' + Q.ulGreenDeal + ' national-list places.') : '') + '</span>';
     return h;
   }
 

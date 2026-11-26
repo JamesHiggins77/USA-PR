@@ -24,7 +24,7 @@
     Object.keys(seats).forEach(function (p) {
       var n = seats[p];
       if (p === 'ul') {
-        var split = P.ulSplit(Q, n);
+        var split = U.allianceParts(Q, 'ul', n, chamber) || P.ulSplit(Q, n);
         for (var k in split) tally(U.PARTIES[k].name, 'ul', split[k], decide('ul', k));
       } else if (p === 'aga' && chamber !== 'senate') {
         var ag = Q.agaSeats || {}, used = 0;

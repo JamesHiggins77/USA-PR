@@ -21,6 +21,13 @@
     });
   };
 
+  // the Greens' price for joining the United Left: Greens at the top of the national
+  // list. The stronger they are within the alliance, the more they get.
+  S.greenDeal = function (Q) {
+    var w = Q.ulMembers || {}, t = 0; for (var k in w) t += w[k]; var sh = (w.grn || 0) / (t || 1), r = U.rng(Q);
+    Q.ulGreenDeal = sh > 0.45 && r < 0.5 ? 'all' : sh > 0.3 || r < 0.35 ? 10 : 5;
+    S.note(Q, 'The Greens\u2019 terms are agreed: ' + (Q.ulGreenDeal === 'all' ? 'the United Left\u2019s national list will be made up entirely of Greens.' : 'the first ' + Q.ulGreenDeal + ' names on the United Left\u2019s national list will be Greens.'));
+  };
   // founding the United Left (also used by the talks event)
   S.foundUL = function (Q, withGreens) {
     var join = LEFT.filter(function (p) { return !Q.dormant[p]; });
@@ -28,6 +35,7 @@
     if (join.length < 3) return false;
     var w = S.mergeInto(Q, join, 'ul', 1.08);
     Q.ulMembers = {}; for (var p in w) Q.ulMembers[p] = w[p];
+    if (Q.ulMembers.grn) S.greenDeal(Q);
     if (Q.ulMembers.grn && Q.year <= 2000) Q.leaders.ul = 'Ralph Nader';
     Q.ulUnity = 65; Q.flags.sanders = Q.flags.sanders || S.now(Q);
     S.note(Q, 'The United Left is founded under Bernie Sanders: ' + join.map(function (p) { return U.PARTIES[p].short; }).join(', ') + ' will run joint lists.' + (join.indexOf('grn') < 0 && !Q.dormant.grn ? ' The Greens stay out.' : ''));
@@ -62,7 +70,7 @@
     if (live('ul') && live('grn') && pl.grn04 && now >= pl.grnAt && !Q.flags.grnJoined) {
       Q.flags.grnJoined = 1;
       var gs = n.grn || 0; S.mergeInto(Q, ['grn'], 'ul', 0.95);
-      Q.ulMembers = Q.ulMembers || {}; Q.ulMembers.grn = gs; Q.ulUnity = 65;
+      Q.ulMembers = Q.ulMembers || {}; Q.ulMembers.grn = gs; Q.ulUnity = 65; S.greenDeal(Q);
       S.note(Q, 'The Green Party votes to join the United Left. The far left now runs a single list.');
     }
     // the two green parties

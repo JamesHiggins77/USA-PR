@@ -64,13 +64,62 @@
     ccrep: { name: 'Republican Party', short: 'REP', color: '#c0392b', alliance: 'cc', econ: 6, soc: 5, desc: 'The senior partner in the Conservative Coalition since 1978: business conservatives and the religious right outside the South. It still holds its own conventions and chooses its own candidates for the joint lists.' },
     ccdem: { name: 'Conservative Democrats', short: 'CDEM', color: '#1f4f8f', alliance: 'cc', econ: 4, soc: 7, desc: 'The heirs of the southern Democrats who stayed in the old Democratic Party after 1966. Since 1978 they run joint lists with the Republicans as the Conservative Coalition, and they dominate it in the South.' }
   };
+  // ---- how each alliance fills its lists ----
+  // Each alliance agrees who stands where. A list is an order of member parties
+  // (repeated as needed); a list that wins n seats elects its first n names.
+  var SOUTH = ['AL', 'AR', 'GA', 'KY', 'LA', 'MS', 'NC', 'OK', 'SC', 'TN', 'VA', 'WV'], BIG = ['NY', 'IL', 'FL', 'TX', 'CA'];
+  var NEWENG = ['ME', 'NH', 'VT', 'MA', 'RI', 'CT'], SUNBELT = ['FL', 'GA', 'TX', 'AZ', 'NM', 'NV', 'CA', 'AL', 'MS', 'LA', 'SC', 'NC', 'TN', 'AR', 'OK'], PLAINS = ['KS', 'NE', 'ND', 'SD', 'IA', 'MO', 'MN'];
+  var cycle = function (order, n) { var o = {}; for (var i = 0; i < n; i++) { var p = order[i % order.length]; o[p] = (o[p] || 0) + 1; } return o; };
+  U.LIST_RULES = {
+    cc: 'Conservative Democrats head the list across the South and Republicans elsewhere (three Republicans to each Democrat). In the big states (New York, Illinois, Florida, Texas, California) the lists alternate, Democrat first in Florida and Texas, Republican first in the North. The national list alternates, Republican first.',
+    asp: 'The ASP alone fills the national list and the Great Plains lists. The Mormon Unity Party runs on its own in Utah and Idaho. In New England the Catholic and Moderate parties alternate; across the Sunbelt it is Catholic, ASP, Catholic, ASP. Elsewhere the ASP leads, alternating with the Catholics and Moderates.',
+    ul: 'Member parties share each state list by their strength in the alliance; the Vermont Progressives run only in Vermont, where they head the list. The national list follows the Greens\u2019 terms for joining, when they are members.'
+  };
+  U.listOrder = function (Q, a, sid) {
+    if (a === 'cc') {
+      if (sid === 'NAT') return ['ccrep', 'ccdem'];
+      if (BIG.indexOf(sid) >= 0) return SOUTH.concat(['FL', 'TX']).indexOf(sid) >= 0 ? ['ccdem', 'ccrep'] : ['ccrep', 'ccdem'];
+      if (SOUTH.indexOf(sid) >= 0) return ['ccdem'];
+      return ['ccrep', 'ccrep', 'ccrep', 'ccdem'];
+    }
+    if (a === 'asp') {
+      var ref = Q.flags && Q.flags.reformAbsorbed;
+      if (sid === 'NAT' || PLAINS.indexOf(sid) >= 0) return ['aspp'];
+      if (sid === 'UT' || sid === 'ID') return ['mup'];
+      if (NEWENG.indexOf(sid) >= 0) return ['cath', 'mod'];
+      if (SUNBELT.indexOf(sid) >= 0) return ref && sid === 'TX' ? ['reform', 'cath', 'aspp'] : ['cath', 'aspp'];
+      return ref ? ['aspp', 'cath', 'reform', 'aspp', 'mod'] : ['aspp', 'cath', 'aspp', 'mod'];
+    }
+    return null;
+  };
+  // the United Left: by strength, Vermont Progressives only in Vermont, Greens' national-list terms
+  function ulList(Q, sid, n) {
+    var w = U.clone(Q.ulMembers || { cpusa: 1 });
+    if (sid === 'VT' && w.vpp) { var o = { vpp: 1 }; if (n > 1) { delete w.vpp; var r = U.Electoral.hamilton(w, n - 1, 0); for (var k in r) if (r[k]) o[k] = r[k]; } return o; }
+    delete w.vpp;
+    if (sid === 'NAT' && w.grn && Q.ulGreenDeal) {
+      var top = Q.ulGreenDeal === 'all' ? n : Math.min(n, Q.ulGreenDeal), g = {}; g.grn = top;
+      if (n > top) { delete w.grn; var rr = U.Electoral.hamilton(w, n - top, 0); for (var q in rr) if (rr[q]) g[q] = rr[q]; }
+      return g;
+    }
+    return U.Electoral.hamilton(w, n, 0);
+  }
+  U.listSplit = function (Q, a, sid, n) { if (!n) return {}; if (a === 'ul') return ulList(Q, sid, n); var ord = U.listOrder(Q, a, sid); return ord ? cycle(ord, n) : null; };
+  // where an alliance's seats came from: state lists (+ the national list) or Senate states
+  function seatsByList(Q, a, chamber) {
+    var o = {}, t = 0;
+    if (chamber === 'senate') (Q.senateSeats || []).forEach(function (x) { if (x.party === a) { o[x.state] = (o[x.state] || 0) + 1; t++; } });
+    else { var hb = Q.houseByState || {}; for (var s in hb) if (hb[s][a]) { o[s] = hb[s][a]; t += hb[s][a]; } var nat = (Q.house[a] || 0) - t; if (nat > 0) { o.NAT = nat; t += nat; } }
+    return { by: o, total: t };
+  }
   U.allianceParts = function (Q, p, n, chamber) {
     if (!n) return null;
-    if (p === 'ul') return U.Parliament.ulSplit(Q, n);
-    if (p === 'cc') return U.Electoral.hamilton({ ccrep: 0.58, ccdem: 0.42 }, n, 0);
-    if (p === 'asp') {
-      var w = { aspp: 0.4, mup: 0.22, cath: 0.25, mod: 0.13 }; if (Q.flags && Q.flags.reformAbsorbed) w.reform = 0.2;
-      return U.Electoral.hamilton(w, n, 0);
+    if (p === 'ul' || p === 'cc' || p === 'asp') {
+      var L = seatsByList(Q, p, chamber), out = {};
+      if (L.total === n) { for (var s in L.by) { var sp = U.listSplit(Q, p, s, L.by[s]); for (var k in sp) out[k] = (out[k] || 0) + sp[k]; } return out; }
+      // a hypothetical seat count: share it as the lists would on average
+      if (L.total) { for (s in L.by) { sp = U.listSplit(Q, p, s, L.by[s]); for (k in sp) out[k] = (out[k] || 0) + sp[k]; } return U.Electoral.hamilton(out, n, 0); }
+      return U.listSplit(Q, p, 'NAT', n);
     }
     if (p === 'aga') {
       var bs = chamber === 'senate' ? null : Q.agaSeats, o = {}, t = 0, s;
