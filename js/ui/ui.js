@@ -71,8 +71,8 @@
     var h = '<div class="date">' + U.dateStr(Q) + '</div>';
     var lp = Q.papers && Q.papers[Q.papers.length - 1], sealed = lp && !lp.open && lp.items.some(function (it) { return it.teaser && it.kind === 'election' && !it.seen; });
     var chips = function (L) { return L.map(function (p) { return chip(p) + P(p).short; }).join(' '); };
-    var presTxt = sealed ? 'Votes being counted' : esc(Q.president.name) + ' (' + P(Q.president.party).short + ')';
-    var pmTxt = Q.formation ? (g ? esc(g.pm) + ' (caretaker)' : 'Vacant') + ' — forming a government' : g ? esc(g.pm) + ' (' + P(g.pmParty).short + ')' : '—';
+    var presTxt = sealed ? 'Votes being counted' : chip(Q.president.party) + esc(Q.president.name) + ' (' + P(Q.president.party).short + ')';
+    var pmTxt = Q.formation ? (g ? esc(g.pm) + ' (caretaker)' : 'Vacant') + ' — forming a government' : g ? chip(g.pmParty) + esc(g.pm) + ' (' + P(g.pmParty).short + ')' : '—';
     h += '<div class="kv"><span>President</span><b>' + presTxt + '</b></div>';
     h += '<div class="kv"><span>Prime Minister</span><b>' + pmTxt + '</b></div>';
     if (g && !Q.formation) {
@@ -97,8 +97,8 @@
     for (var k in Q.factions) { var f = Q.factions[k]; h += '<div class="kv"><span>' + U.LDP_FACTIONS[k].name + '</span><b>' + Math.round(f.dissent) + '</b></div>' + Ch.bar(f.dissent, 100, f.dissent > 70 ? 'bad' : f.dissent > 50 ? 'warn' : ''); }
     h += '<h4>Economy</h4><div class="kv"><span>Growth</span><b>' + Q.econ.growth.toFixed(1) + '%</b></div><div class="kv"><span>Unemployment</span><b>' + Q.econ.unemp.toFixed(1) + '%</b></div><div class="kv"><span>Inflation</span><b>' + Q.econ.infl.toFixed(1) + '%</b></div><div class="kv"><span>Deficit</span><b>' + Q.econ.deficit.toFixed(1) + '% GDP</b></div>';
     // on phones the sidebar is a collapsible status panel with a one-line summary
-    var short = function (L) { return L.map(function (p) { return P(p).short; }).join('\u2013'); };
-    var summary = esc(U.dateStr(Q)) + ' \u00b7 Pres. ' + (sealed ? '\u2026' : esc(Q.president.name.split(' ').pop()) + ' (' + P(Q.president.party).short + ')') + ' \u00b7 PM ' + (g ? esc(g.pm.split(' ').pop()) : '\u2014') + (Q.formation ? ' \u00b7 forming a government' : g ? ' \u00b7 ' + short(g.coalition) + (g.cs.length ? ' \u00b7 support ' + short(g.cs) : '') : '');
+    var short = function (L) { return L.map(function (p) { return chip(p) + P(p).short; }).join(' '); };
+    var summary = esc(U.dateStr(Q)) + ' \u00b7 Pres. ' + (sealed ? '\u2026' : chip(Q.president.party) + esc(Q.president.name.split(' ').pop())) + ' \u00b7 PM ' + (g ? chip(g.pmParty) + esc(g.pm.split(' ').pop()) : '\u2014') + (Q.formation ? ' \u00b7 forming a government' : g ? ' \u00b7 ' + short(g.coalition) + (g.cs.length ? ' \u00b7 support ' + short(g.cs) : '') : '');
     $('side').innerHTML = '<details class="sidebox"' + (sideOpen ? ' open' : '') + '><summary><span>Status</span><span class="small">' + summary + '</span></summary><div class="side">' + h + '</div></details>';
     $('side').querySelector('details').ontoggle = function (e) { sideOpen = e.target.open; };
   }
