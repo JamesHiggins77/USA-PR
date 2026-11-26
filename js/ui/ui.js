@@ -124,22 +124,27 @@
   function live() {
     var papers = Q.papers || [], k = paperIdx == null ? papers.length - 1 : paperIdx, pp = papers[k];
     var h = '<div class="paper"><div class="masthead"><div class="small muted">Seed ' + Q.seed0 + '</div><div class="paper-name">The Republic Gazette</div><div class="small muted">' + (pp ? esc(pp.date) : esc(U.dateStr(Q))) + '</div></div>';
-    h += '<div class="row" style="justify-content:space-between;margin:8px 0"><button class="btn ghost" data-paper="' + (k - 1) + '"' + (k > 0 ? '' : ' disabled') + '>← Earlier</button>' +
-      (k < papers.length - 1 ? '<button class="btn ghost" data-paper="' + (k + 1) + '">Later →</button><button class="btn ghost" data-paper="latest">Latest</button>' : '') +
-      '<button class="btn" data-act="nextmonth">Next month →</button></div>';
+    var latest = papers.length - 1;
+    h += '<div class="papernav"><button class="btn ghost small" data-paper="0"' + (k > 0 ? '' : ' disabled') + '>⇤ Start</button>' +
+      '<button class="btn" data-paper="' + (k - 1) + '"' + (k > 0 ? '' : ' disabled') + '>← Previous month</button>' +
+      (k < latest ? '<button class="btn" data-paper="' + (k + 1) + '">Next month →</button>' : '<button class="btn" data-act="nextmonth">Next month →</button>') +
+      '<button class="btn ghost small" data-paper="latest"' + (k < latest ? '' : ' disabled') + '>Most recent ⇥</button></div>';
     if (!pp) h += '<p class="muted">The first edition comes out at the end of ' + esc(U.dateStr(Q)) + '. Press <b>Next month</b> to begin.</p>';
     else if (pp.sealed) {
       var tz = pp.items.filter(function (it) { return it.teaser; });
-      h += tz.map(function (it, i) { return '<div class="story' + (i === 0 ? ' lead' : '') + '"><div class="headline"><span class="kicker">Election</span>' + esc(it.teaser) + '</div><div class="storytext">' + esc(it.teaserStory) + '</div></div>'; }).join('') +
+      h += '<div class="tierhead breaking">Breaking news</div>' + tz.map(function (it, i) { return '<div class="story' + (i === 0 ? ' lead' : '') + '"><div class="headline"><span class="kicker">Election</span>' + esc(it.teaser) + '</div><div class="storytext">' + esc(it.teaserStory) + '</div></div>'; }).join('') +
         '<div class="row" style="margin:10px 0"><button class="btn" data-act="seenight">Experience election night</button><button class="btn ghost" data-act="seefinal">Go straight to the results</button></div><p class="small muted">The rest of this edition goes to print once the results are in.</p>';
     }
-    else pp.items.forEach(function (it, i) {
-      var open = openHead[k + ':' + i], lead = i === 0;
-      h += '<div class="story' + (lead ? ' lead' : '') + '"><button class="headline" data-head="' + k + ':' + i + '"><span class="kicker">' + esc({ election: 'Election', event: 'Politics', news: 'Politics', polls: 'Polls', economy: 'Economy', gov: 'Government', states: 'States' }[it.kind] || '') + '</span>' + esc(it.head) + '</button>' +
-        (open ? '<div class="storytext">' + esc(it.story || '') +
-          (it.elec && k === papers.length - 1 && elec ? '<div class="row" style="margin-top:8px"><button class="btn" data-act="seenight">Watch election night</button><button class="btn ghost" data-act="seefinal">See the results</button></div>' : '') +
-          (it.elec && !(k === papers.length - 1 && elec) ? '<div class="row" style="margin-top:8px"><button class="btn ghost" data-tab="elections">Elections tab</button></div>' : '') +
-          (it.vote ? '<div class="row" style="margin-top:8px"><button class="btn ghost" data-roll="' + k + ':' + i + '">Watch the roll call</button></div>' : '') + '</div>' : '') + '</div>';
+    else [['breaking', 'Breaking news'], ['key', 'Key news'], ['minor', 'Minor news']].forEach(function (T) {
+      var list = pp.items.map(function (it, i) { return [it, i]; }).filter(function (x) { return (x[0].tier || 'key') === T[0]; });
+      if (!list.length) return;
+      h += '<div class="tierhead ' + T[0] + '">' + T[1] + '</div>';
+      list.forEach(function (x, n) { var it = x[0], i = x[1], open = openHead[k + ':' + i];
+        h += '<div class="story' + (T[0] === 'breaking' && n === 0 ? ' lead' : '') + ' t-' + T[0] + '"><button class="headline" data-head="' + k + ':' + i + '"><span class="kicker">' + esc({ election: 'Election', event: 'Politics', news: 'Politics', polls: 'Polls', economy: 'Economy', gov: 'Government', states: 'States', campaign: 'Campaign', speech: 'Speeches', congress: 'Congress', report: 'Reports', courts: 'Courts', disaster: 'Disaster', weather: 'Weather', diplomacy: 'Diplomacy', foreign: 'World', culture: 'Culture', sport: 'Sport' }[it.kind] || '') + '</span>' + esc(it.head) + '</button>' +
+          (open ? '<div class="storytext">' + esc(it.story || '') +
+            (it.elec && k === latest && elec ? '<div class="row" style="margin-top:8px"><button class="btn" data-act="seenight">Watch election night</button><button class="btn ghost" data-act="seefinal">See the results</button></div>' : '') +
+            (it.elec && !(k === latest && elec) ? '<div class="row" style="margin-top:8px"><button class="btn ghost" data-tab="elections">Elections tab</button></div>' : '') +
+            (it.vote ? '<div class="row" style="margin-top:8px"><button class="btn ghost" data-roll="' + k + ':' + i + '">Watch the roll call</button></div>' : '') + '</div>' : '') + '</div>'; });
     });
     return h + '</div>';
   }
