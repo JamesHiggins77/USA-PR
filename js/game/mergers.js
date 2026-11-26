@@ -129,8 +129,8 @@
       });
       if (!best) return;
       used[a] = used[best] = 1;
-      Q.pacts = (Q.pacts || []).concat([{ parties: [a, best], type: 'list' }]);
-      S.note(Q, 'Electoral pact: the ' + U.PARTIES[a].short + ' and ' + U.PARTIES[best].short + ' will run a joint national list, ' + ((n[a] || 0) + (n[best] || 0)).toFixed(1) + '% between them in the polls.');
+      Q.pacts = (Q.pacts || []).concat([{ parties: [a, best], type: 'pact' }]);
+      S.note(Q, 'Electoral pact: the ' + U.PARTIES[a].short + ' and ' + U.PARTIES[best].short + ' will urge their voters to back each other in two-round races. Each still needs 5% on its own for national list seats.');
     });
   };
 
@@ -183,7 +183,10 @@
   };
   S.aiParties = function (Q) { aiParties(Q); S.mergers(Q); S.smallPacts(Q); S.tidyGov(Q); S.careers(Q); };
 
-  // joint national lists: combined votes pass the threshold together; seats are split by votes
+  // The national threshold applies to each party on its own. An electoral pact is
+  // cooperation, not a list: it does not pool votes. Only a united electoral list
+  // that is itself a registered party (the CC, the ASU, the UL, the Rainbow
+  // Coalition) passes the threshold on its members' combined vote.
   var X = U.Elections, E = U.Electoral, R = U.RULES;
   X.houseTwoTier = function (Q, opt) {
     opt = opt || {};
@@ -191,7 +194,7 @@
     var st = opt.stateThreshold != null ? opt.stateThreshold : R.house.stateThreshold;
     var stateTier = X.housePure(Q, { nationalThreshold: 0, stateThreshold: st }), nat = U.clone(V.national(Q)), lists = {};
     (Q.pacts || []).forEach(function (pk, i) {
-      if (pk.type !== 'list') return;
+      if (pk.type !== 'list' || !U.RULES.house.pactsPoolThreshold) return;
       var mem = pk.parties.filter(function (p) { return nat[p] != null; }); if (mem.length < 2) return;
       var k = 'L' + i, sub = {}; nat[k] = 0;
       mem.forEach(function (p) { sub[p] = nat[p]; nat[k] += nat[p]; delete nat[p]; });

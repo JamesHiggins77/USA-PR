@@ -117,6 +117,8 @@
   // saves from before the factions were reorganised
   S.migrateFactions = function (Q) {
     if (Q.ulMembers) U.splitORL(Q.ulMembers);
+    // pacts in older saves were treated as joint lists: they are only pacts
+    (Q.pacts || []).forEach(function (pk) { if (pk.type === 'list') pk.type = 'pact'; });
     // stand-down agreements: give old ones explicit states and scopes
     (Q.standDowns || []).forEach(function (a) { if (!a.states) a.states = (U.Elections.REGION_SETS[a.region] || []).slice(); if (!a.scope) a.scope = { house: false, senList: true, gov: true }; if (a.scope.house && !a.houseStates && U.Game.sdSmallStates) a.houseStates = U.Game.sdSmallStates(Q, a); });
     // the fifth Senate seat was tried and dropped: remove it from saves that have it

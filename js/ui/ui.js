@@ -553,7 +553,9 @@
         Q.standDowns.map(function (a) { var sc = a.scope || { senList: true, gov: true }, st = a.states || X.REGION_SETS[a.region] || [];
           return '<tr><td>' + chip(a.party) + P(a.party).short + '</td><td>' + chip(a.partner) + P(a.partner).short + '</td><td class="small">' + esc(X.REGION_NAMES[a.region] || '') + '<div class="muted">' + st.join(' ') + '</div></td>' +
             X.SCOPES.map(function (k) { var on = !!sc[k[0]], hs = k[0] === 'house' && on && a.houseStates; return '<td>' + yn(on) + (hs ? '<div class="small muted">' + (a.houseStates.length ? a.houseStates.join(' ') : 'no states') + '</div>' : '') + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div>' : '<p>None.</p>');
-    h += '<h2>Electoral pacts</h2><p>' + ((Q.pacts || []).length ? Q.pacts.map(function (k) { return k.parties.map(function (x) { return P(x).short; }).join(' + ') + ' (' + k.type + ')'; }).join(', ') : 'None.') + '</p>';
+    h += '<h2>United electoral lists</h2><p class="small muted">Alliances registered as a single party: their members run on one list, so their combined vote counts towards the 5% national threshold.</p><p>' +
+      Object.keys(U.ALLIANCES).filter(function (a) { return !Q.dormant[a] && a !== 'aga'; }).map(function (a) { var m = U.allianceMembers(Q, a) || []; return '<b>' + esc(P(a).name) + '</b>' + (m.length ? ': ' + m.map(function (x) { return esc(U.partyInfo(x).short); }).join(', ') : ''); }).join('<br>') + '</p>';
+    h += '<h2>Electoral pacts</h2><p class="small muted">Parties that urge their voters to back each other in two-round races. A pact does not pool votes: each party still needs 5% on its own for national list seats.</p><p>' + ((Q.pacts || []).length ? Q.pacts.map(function (k) { return k.parties.map(function (x) { return P(x).short; }).join(' + '); }).join(', ') : 'None.') + '</p>';
     return h;
   }
 
