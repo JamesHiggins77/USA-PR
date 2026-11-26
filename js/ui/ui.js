@@ -571,8 +571,24 @@
   // Results map in the style of Spanish election maps: shaded winner, seat dots, legend, ring
   var genMode = 'house', genData = null, genSeq = [], govSeq = [], resMode = 'alliances';
   // governors elected at a general election: map, party totals with change, closest races
+  // party view of a state result: alliance seats go to the member parties by the
+  // list order, and the alliance's vote is shown under the party heading its list
+  var ALLY = { cc: 1, asp: 1, ul: 1 };
+  function headOf(a, sid) { var sp = U.listSplit(Q, a, sid, 1) || {}; return Object.keys(sp)[0] || a; }
+  function partyView(dat) {
+    var out = {};
+    for (var sid in dat) { var o = dat[sid], se = {}, sh = {}, p;
+      for (p in o.seats || {}) { if (!o.seats[p]) continue; if (ALLY[p]) { var sp = U.listSplit(Q, p, sid, o.seats[p]); for (var k in sp) if (sp[k]) se[k] = (se[k] || 0) + sp[k]; } else se[p] = (se[p] || 0) + o.seats[p]; }
+      for (p in o.shares || {}) { var q = ALLY[p] ? headOf(p, sid) : p; sh[q] = (sh[q] || 0) + o.shares[p]; }
+      out[sid] = Object.assign({}, o, { seats: se, shares: sh, leg: o.leg && ALLY[o.leg] ? headOf(o.leg, sid) : o.leg }); }
+    return out;
+  }
   function governors(x) {
     var g = x.rec.govs, i = govSeq.indexOf(x), pv = i > 0 ? govSeq[i - 1].rec.govs : null, tot = {}, ptot = {}, data = {};
+    if (resMode === 'parties') {   // an alliance's candidate comes from the party heading its list in that state
+      var conv = function (G) { var o = {}; for (var s in G) { var r0 = G[s], m = function (d) { if (!d) return d; var z = {}; for (var k in d) { var q = ALLY[k] ? headOf(k, s) : k; z[q] = (z[q] || 0) + d[k]; } return z; };
+        o[s] = { w: ALLY[r0.w] ? headOf(r0.w, s) : r0.w, r1: m(r0.r1), r2: m(r0.r2) }; } return o; };
+      g = conv(g); if (pv) pv = conv(pv); }
     for (var sid in g) { var o = g[sid], sh = o.r2 || o.r1 || {}, se = {}; se[o.w] = 1; tot[o.w] = (tot[o.w] || 0) + 1;
       var shr = {}; for (var p in sh) if (sh[p] >= 0.5) shr[p] = Math.round(sh[p] * 10) / 10;
       data[sid] = { unit: ' governorship', gov: o, seats: se, shares: shr, prev: pv && pv[sid] ? { seats: (function () { var z = {}; z[pv[sid].w] = 1; return z; })(), shares: pv[sid].r1 || {} } : null }; }
@@ -580,7 +596,7 @@
     genData = data;
     var ord = Object.keys(tot).sort(function (a, b) { return tot[b] - tot[a]; }), flips = pv ? Object.keys(g).filter(function (s) { return pv[s] && pv[s].w !== g[s].w; }) : [];
     var d = function (v) { return '<span class="small ' + (!v ? 'muted' : v > 0 ? 'up' : 'down') + '">' + (v > 0 ? '+' : v < 0 ? '\u2212' : '\u00b1') + Math.abs(v) + '</span>'; };
-    var h = '<div class="panel"><h2 style="margin-top:0">' + esc(x.label) + (x.rec.midterm ? ' midterm' : '') + ' gubernatorial elections</h2><p>Governors and state legislatures serve fixed three-year terms, elected with each presidential election and again at its midterm. Governors are elected in two rounds: a majority wins outright, otherwise the top two meet in a runoff. Governors run on state issues, so candidates\u2019 personal votes, incumbency, independents and smaller parties count for more than in federal races, and split tickets are common.' + (pv ? ' ' + flips.length + ' governorship' + (flips.length === 1 ? '' : 's') + ' changed hands.' : '') + '</p>';
+    var h = '<div class="panel"><div class="row" style="justify-content:space-between;flex-wrap:wrap"><h2 style="margin:0">' + esc(x.label) + (x.rec.midterm ? ' midterm' : '') + ' gubernatorial elections</h2><span><span class="small">Show: </span><button class="btn ' + (resMode === 'alliances' ? '' : 'ghost') + '" data-resmode="alliances">Alliances</button><button class="btn ' + (resMode === 'parties' ? '' : 'ghost') + '" data-resmode="parties">Individual parties</button></span></div><p>Governors and state legislatures serve fixed three-year terms, elected with each presidential election and again at its midterm. Governors are elected in two rounds: a majority wins outright, otherwise the top two meet in a runoff. Governors run on state issues, so candidates\u2019 personal votes, incumbency, independents and smaller parties count for more than in federal races, and split tickets are common.' + (pv ? ' ' + flips.length + ' governorship' + (flips.length === 1 ? '' : 's') + ' changed hands.' : '') + '</p>';
     h += '<div class="grid2"><div><table class="seats"><tr><th>Party</th><th>Governors</th>' + (pv ? '<th>\u00b1</th>' : '') + '</tr>' + ord.map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>' + tot[p] + '</b></td>' + (pv ? '<td>' + d(tot[p] - (ptot[p] || 0)) + '</td>' : '') + '</tr>'; }).join('') +
       (pv ? Object.keys(ptot).filter(function (p) { return !tot[p]; }).map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>0</b></td><td>' + d(-ptot[p]) + '</td></tr>'; }).join('') : '') + '</table>' +
       (flips.length ? '<h3>Changed hands</h3><p class="small">' + flips.map(function (s) { return esc((U.STATES[s] || U.DC).name) + ': ' + U.partyInfo(pv[s].w).short + ' \u2192 ' + U.partyInfo(g[s].w).short; }).join(' \u00b7 ') + '</p>' : '') + '</div>' +
@@ -631,7 +647,9 @@
       ord.map(function (p) { return '<tr><td><span class="lgname" style="background:' + P(p).color + ';color:' + Ch.ink(P(p).color) + '">' + P(p).short + '</span>' +
         (winners[p] ? '<div class="lgscale">' + [0, 1, 2, 3, 4, 5, 6].map(function (b) { return '<i style="background:' + Ch.shade(P(p).color, b) + '"></i>'; }).join('') + '</div>' : '') + '</td><td class="small"><i>' + esc(p === 'revsoc' ? '(fragmented)' : p === 'ind' ? '(independents)' : lead[p] || '') + '</i>' + (allianceOf[p] ? ' <span class="muted">(' + U.partyInfo(allianceOf[p]).short + ')</span>' : '') + '</td><td>' + (r.shares[p] != null ? (+r.shares[p]).toFixed(2) + '%' : '') + '</td><td>' + dV(p) + '</td><td><b>' + seats[p] + '</b></td><td>' + dS(p) + '</td></tr>'; }).join('') +
       '<tr><td colspan="6" class="small muted">Shading: ' + Ch.bandLabels.join(' · ') + ' for the party with the most votes in the state.</td></tr></table></div>';
+    if (resMode === 'parties') { data = partyView(data); if (!sen && r.national) { var nsp = {}, nsh = {}; for (var np in r.national) { if (ALLY[np]) { var ns = U.listSplit(Q, np, 'NAT', r.national[np]); for (var nk in ns) if (ns[nk]) nsp[nk] = (nsp[nk] || 0) + ns[nk]; } else nsp[np] = r.national[np]; } for (np in r.shares) { var nq = ALLY[np] ? headOf(np, 'NAT') : np; nsh[nq] = (nsh[nq] || 0) + r.shares[np]; } r = Object.assign({}, r, { national: nsp, shares: nsh }); } }
     var pdata = prev && smode !== 'senpr' && smode !== 'sentr' ? (sen && prev.senStates ? prev.senStates : prev.states) || {} : null;
+    if (pdata && resMode === 'parties') pdata = partyView(pdata);
     genData = {}; for (var gk in data) genData[gk] = Object.assign({}, data[gk], { prev: pdata ? pdata[gk] || {} : null });
     if (!sen && r.national) genData.NAT = { seats: r.national, shares: r.shares, prev: prev ? { seats: prev.national || {}, shares: prev.shares || {} } : null, name: 'National list', unit: ' national list seats' };
     var legs = null; if (sen) { legs = {}; for (var ls in data) if (data[ls].leg) legs[data[ls].leg] = (legs[data[ls].leg] || 0) + 1; if (!U.sum(legs)) legs = null; }
