@@ -616,7 +616,7 @@
   // governors elected at a general election: map, party totals with change, closest races
   // party view of a state result: alliance seats go to the member parties by the
   // list order, and the alliance's vote is shown under the party heading its list
-  var ALLY = { cc: 1, asp: 1, ul: 1 };
+  var ALLY = { cc: 1, asp: 1, ul: 1, rbw: 1 };
   function headOf(a, sid) { var sp = U.listSplit(Q, a, sid, 1) || {}; return Object.keys(sp)[0] || a; }
   function partyView(dat) {
     var out = {};

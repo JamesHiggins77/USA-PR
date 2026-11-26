@@ -141,6 +141,27 @@
   };
 
   // Non-player parties campaign, drift and react (brief §16).
+  // Polls move more: each party has a party-wide swing (a mean-reverting random
+  // walk). Its voter base sets a floor and a ceiling, which drift slowly with its
+  // support; in the Great Recession and the COVID years the bases themselves move fast.
+  S.realigning = function (Q) { var t = S.now(Q); return (t >= U.monthIndex(2008, 9) && t <= U.monthIndex(2010, 12)) || (t >= U.monthIndex(2020, 3) && t <= U.monthIndex(2021, 12)); };
+  S.pollSwings = function (Q) {
+    var n = V.national(Q), re = S.realigning(Q);
+    Q.swing = Q.swing || {}; Q.base = Q.base || {};
+    if (re && !Q.flags['realign' + Q.year]) { Q.flags['realign' + Q.year] = 1; if (Q.year === 2008 || Q.year === 2020) S.note(Q, (Q.year === 2008 ? 'The financial crash' : 'The pandemic') + ' is shaking up party loyalties: pollsters say voters\u2019 old attachments are breaking down.'); }
+    U.ALL_PARTIES.forEach(function (p) {
+      if (Q.dormant[p] || n[p] == null) return;
+      var P = U.PARTIES[p], m = Q.mods[p] = Q.mods[p] || {}, s = n[p];
+      var b = Q.base[p] = Q.base[p] || { lo: s * 0.6, hi: s * 1.6 + 1 };
+      var sw = Q.swing[p] || 0, d = -(re ? 0.015 : 0.03) * sw + U.gauss(Q) * (re ? 0.1 : 0.05);
+      if (s < b.lo) d += 0.04 * (b.lo - s) / Math.max(0.5, b.lo);    // the base holds
+      if (s > b.hi) d -= 0.04 * (s - b.hi) / Math.max(0.5, b.hi);    // and limits growth
+      Q.swing[p] = sw + d;
+      U.GROUPS.forEach(function (g) { m[g] = (m[g] || 0) + d * ((P.pref && P.pref[g]) || 1); });
+      var rate = re ? 0.08 : 0.01;   // bases follow support slowly, fast in a realignment
+      b.lo += (s * 0.6 - b.lo) * rate; b.hi += (s * 1.6 + 1 - b.hi) * rate;
+    });
+  };
   S.aiParties = function (Q) {
     U.ALL_PARTIES.forEach(function (p) {
       if (Q.dormant[p]) return;
@@ -159,6 +180,7 @@
       }
       if (U.PARTIES[p].home) Q.homeMult[p] = U.clamp((Q.homeMult[p] == null ? 1 : Q.homeMult[p]) + U.gauss(Q) * 0.015, 0.3, 3);
     });
+    S.pollSwings(Q);
     // The Nader surge (designer canon): through 1999-2000 the Greens, or the
     // United Left if the Greens have joined it, climb towards a target of
     // 6-9% (Q.naderTarget, moved by the LDP's responses), drawing mainly on

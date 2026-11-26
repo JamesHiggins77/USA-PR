@@ -90,6 +90,11 @@
     aga: P('alliance', 'Federation of state Green parties; no fixed left-right line', { econ: -1, trade: -2, soc: 0, foreign: -4, fed: 5, pop: 2, env: 9 }, [
       ['Progressive chapters', 'Greg Gerritt', 'Rhode Island and the Northeast'],
       ['Conservationist chapters', 'Carol Miller', 'Virginia’s Independent Greens and rural chapters']]),
+    rbw: P('alliance', 'Rainbow Coalition: Black, Native, Puerto Rican and poor white community movements on one list', { econ: -9, trade: -6, soc: -7, foreign: -9, fed: 3, pop: 8, env: 4 }, [
+      ['Black Panther Party', 'Fred Hampton Jr.', 'community control, free breakfast and health programs'],
+      ['American Indian Movement', 'Russell Means', 'treaty rights and tribal sovereignty'],
+      ['Young Lords', 'Juan González', 'Puerto Rican self-determination'],
+      ['Young Patriots and White Panthers', 'William Fesperman', 'poor whites of Appalachia and the Rust Belt']], { members: ['bpp', 'aim', 'ylo', 'ypo', 'wpn'] }),
     revsoc: P('alliance', 'Fragmented radical left: Trotskyist, Maoist and Black liberation groups (not an electoral list)', { econ: -10, trade: -7, soc: -5, foreign: -9, fed: -3, pop: 6, env: 3 }, [
       ['Socialist Workers', 'James Harris', 'Trotskyism'],
       ['Workers World / PSL', 'Gloria La Riva', 'anti-imperialism'],

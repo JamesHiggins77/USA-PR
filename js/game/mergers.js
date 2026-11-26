@@ -60,6 +60,7 @@
   }
 
   S.mergers = function (Q) {
+    rainbow(Q);
     var pl = S.plan(Q), now = S.now(Q), n = V.national(Q), live = function (p) { return !Q.dormant[p]; };
     // the far left unites before the 2000 election (or, failing that, by 2004)
     if (Q.dormant.ul && !Q.flags.ulDone) {
@@ -91,6 +92,26 @@
 
   // Electoral pacts: before each election, small parties under the national
   // threshold pair up into joint national lists.
+  // The Rainbow Coalition: may take in the Raza Unida, merge into one party, or join
+  // the United Left list (at which point the Raza Unida walks out again).
+  function rainbow(Q) {
+    if (Q.dormant.rbw || Q.year < 1998) return;
+    var n = V.national(Q), r = U.rng(Q);
+    if (!Q.dormant.raza && !Q.flags.razaInRbw && !Q.flags.rbwParty && r < 0.004) {
+      S.mergeInto(Q, ['raza'], 'rbw', 0.9); Q.flags.razaInRbw = S.now(Q);
+      S.note(Q, 'The Raza Unida Party joins the Rainbow Coalition, heading its lists in the Southwest.'); return;
+    }
+    if (!Q.flags.rbwParty && r > 0.997) {
+      Q.flags.rbwParty = S.now(Q);
+      S.note(Q, 'The Rainbow Coalition\u2019s member groups vote to merge into a single Rainbow party.'); return;
+    }
+    if (!Q.dormant.ul && Q.ulMembers && r > 0.4 && r < 0.4 + 0.008) {
+      var share = n.rbw || 0.3;
+      if (Q.flags.razaInRbw) { S.activate(Q, 'raza', Math.max(0.3, share * 0.35)); Q.flags.razaInRbw = 0; S.note(Q, 'The Raza Unida Party refuses to run on United Left lists and leaves the Rainbow Coalition.'); }
+      S.mergeInto(Q, ['rbw'], 'ul', 0.92); Q.ulMembers.rbw = share; Q.flags.rbwInUL = S.now(Q);
+      S.note(Q, 'The Rainbow Coalition joins the United Left lists. Its parties will run as the Rainbow bloc inside the alliance.');
+    }
+  }
   S.smallPacts = function (Q) {
     if (!Q.electionAt || Q.flags.pactsFor === Q.electionAt) return;
     Q.flags.pactsFor = Q.electionAt;

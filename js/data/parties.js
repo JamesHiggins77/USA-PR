@@ -51,12 +51,16 @@
       target: 0.9, office: .4, leader: 'State chairs (New York)',
       pref: { prof: 1, suburb: 1.5, union: 6, rural: .5, relig: .5, black: 5, hisp: 4, young: 2, retire: 1.5 } },
     revsoc: { name: 'Other radical left parties (fragmented)', short: 'ORL', color: '#4a0d1e', kind: 'bloc', econ: -10, soc: -5, fed: -3,
-      target: 0.7, office: .05, leader: 'Several (PSL, SWP, SEP, WWP, BPP and others)',
-      note: 'Separate small parties (PSL, Black Panther Party, Socialist Workers, Socialist Equality, Workers World, Socialist Alternative and others) shown together for readability.',
+      target: 0.5, office: .05, leader: 'Several (PSL, SWP, SEP, WWP and others)',
+      note: 'Separate small parties (PSL, Socialist Workers, Socialist Equality, Workers World, Socialist Alternative and others) shown together for readability.',
       pref: { prof: 1, suburb: .3, union: 2, rural: .3, relig: .2, black: 3, hisp: 1.5, young: 4, retire: .3 } },
     ul: { name: 'United Left', short: 'UL', color: '#7f0000', kind: 'alliance', econ: -8, soc: -6, fed: -2,
       target: 0, office: .3, leader: 'Bernie Sanders',
       pref: { prof: 8, suburb: 3, union: 6, rural: 2, relig: 1, black: 10, hisp: 6, young: 18, retire: 2 } },
+    rbw: { name: 'Rainbow Coalition', short: 'RBW', color: '#a0306e', kind: 'alliance', econ: -9, soc: -7, fed: 2,
+      target: 0.3, office: .05, leader: 'A coordinating committee (Fred Hampton Jr.)', founded: '1969 (as an electoral alliance, 1990s)',
+      note: 'An alliance of radical community movements: the Black Panther Party, the American Indian Movement, the Young Lords, the Young Patriots and the White Panther Party.',
+      pref: { prof: .6, suburb: .2, union: 1.5, rural: .6, relig: .4, black: 6, hisp: 4, young: 5, retire: .2 } },
     acp: { name: 'American Communist Party', short: 'ACP', color: '#4a0000', kind: 'party', econ: -9, soc: 1, fed: -6,
       target: 0, founded: '2020s (emergent)', office: .1, leader: 'Party collective',
       pref: { prof: 1, suburb: .5, union: 2, rural: .5, relig: .2, black: 2, hisp: 1, young: 3, retire: .5 } },
@@ -97,9 +101,9 @@
   // The general election that elected the opening parliament (late 1996).
   // Fixed, so the opening seats do not move when the 1997 polling is tuned.
   // Scenario assumption.
-  U.ELECTION_1996 = { ldp: 24.3, sdlp: 18.4, cdp: 13.2, cc: 20.0, asp: 3.8, reform: 4.0, grn: 0.9, cpusa: 1.5, dsa: 1.1, wfp: 0.9, revsoc: 0.7, lib: 3.0, con: 2.5 };
+  U.ELECTION_1996 = { ldp: 24.3, sdlp: 18.4, cdp: 13.2, cc: 20.0, asp: 3.8, reform: 4.0, grn: 0.9, cpusa: 1.5, dsa: 1.1, wfp: 0.9, revsoc: 0.4, rbw: 0.3, lib: 3.0, con: 2.5 };
   U.PARTIES = P;
-  U.NATIONAL = ['ldp', 'sdlp', 'cdp', 'cc', 'asp', 'reform', 'ul', 'grn', 'cpusa', 'dsa', 'wfp', 'revsoc', 'acp', 'lib', 'con'];
+  U.NATIONAL = ['ldp', 'sdlp', 'cdp', 'cc', 'asp', 'reform', 'ul', 'grn', 'cpusa', 'dsa', 'wfp', 'revsoc', 'rbw', 'acp', 'lib', 'con'];
   U.REGIONAL = ['aga', 'lsp', 'srp', 'cnp', 'cfc', 'alk', 'aloha', 'raza', 'nenp', 'nyfp', 'vpp'];
   // Potential United Left members and how they behave on confidence votes.
   U.LEFT_MEMBERS = { grn: 'reformist', dsa: 'reformist', wfp: 'reformist', vpp: 'reformist', cpusa: 'hard', revsoc: 'revolutionary' };
@@ -121,7 +125,7 @@
       Object.keys(U.LEFT_MEMBERS).forEach(function (m) { if (m !== o) U.RED_LINES.push([m, o]); }); });
   });
   ['grn', 'dsa', 'wfp', 'cpusa', 'revsoc'].forEach(function (m) { U.RED_LINES.push([m, 'cdp']); });
-  U.RED_LINES.push(['revsoc', 'ldp'], ['revsoc', 'sdlp'], ['revsoc', 'asp'], ['cpusa', 'asp'], ['reform', 'acp'], ['reform', 'ul'], ['reform', 'revsoc']);
+  U.RED_LINES.push(['rbw', 'cc'], ['rbw', 'con'], ['rbw', 'srp'], ['rbw', 'cdp'], ['rbw', 'asp'], ['revsoc', 'ldp'], ['revsoc', 'sdlp'], ['revsoc', 'asp'], ['cpusa', 'asp'], ['reform', 'acp'], ['reform', 'ul'], ['reform', 'revsoc']);
   U.vetoes = function (a, b) {
     return U.RED_LINES.some(function (r) { return (r[0] === a && r[1] === b) || (r[0] === b && r[1] === a); });
   };

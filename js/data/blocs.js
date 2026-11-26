@@ -57,7 +57,7 @@
   };
 
   // alliances and their constituent parties
-  U.ALLIANCES = { ul: 'United Left', asp: 'American Solidarity Union', aga: 'American Green Alliance', cc: 'Conservative Coalition' };
+  U.ALLIANCES = { ul: 'United Left', asp: 'American Solidarity Union', aga: 'American Green Alliance', cc: 'Conservative Coalition', rbw: 'Rainbow Coalition' };
   // constituent parties of the alliances that are not parties in their own right elsewhere
   U.CONSTITUENTS = {
     aspp: { name: 'American Solidarity Party', short: 'ASP', color: '#c86a10', alliance: 'asp', econ: -3, soc: 5, desc: 'The largest party in the American Solidarity Union: Christian democracy of the older kind, culturally conservative and fiscally progressive, strongest in the Great Lakes and the Plains.' },
@@ -66,6 +66,16 @@
     pfp: { name: 'Peace and Freedom Party', short: 'PFP', color: '#8e2a7a', alliance: 'ul', econ: -9, soc: -8, desc: 'Founded in California in 1967 against the Vietnam War; a socialist and feminist party strongest on the West Coast. A member of the United Left.' },
     swp: { name: 'Socialist Workers Party', short: 'SWP', color: '#9c1c1c', alliance: 'ul', econ: -10, soc: -5, desc: 'The Trotskyist party founded in 1938, rooted in a handful of union locals and campus groups. A member of the United Left.' },
     wwp: { name: 'Workers World Party', short: 'WWP', color: '#6d0f0f', alliance: 'ul', econ: -10, soc: -5, desc: 'A Marxist-Leninist party that split from the SWP in 1959, known for its anti-war coalitions. A member of the United Left.' },
+    cpny: { name: 'Conservative Party of New York State', short: 'CPNY', color: '#5b6fa8', alliance: 'cc', econ: 6, soc: 7, desc: 'Founded in 1962 as a check on liberal Republicans; within the Conservative Coalition it alone fills the New York list.' },
+    scwp: { name: 'South Carolina Workers Party', short: 'SCWP', color: '#a3242c', alliance: 'ul', econ: -9, soc: -3, desc: 'A small labor party of mill and port workers; a United Left list partner in South Carolina only.' },
+    ucp: { name: 'United Citizens Party', short: 'UCP', color: '#7a3b8f', alliance: 'ul', econ: -6, soc: -3, desc: 'Founded in South Carolina in 1969 to elect Black candidates; a United Left list partner in states with large Black populations.' },
+    opp: { name: 'Oregon Progressive Party', short: 'OPP', color: '#3c8d63', alliance: 'ul', econ: -7, soc: -6, desc: 'Oregon\u2019s progressive state party; a United Left list partner in Oregon.' },
+    wapp: { name: 'Washington Progressive Party', short: 'WAPP', color: '#3c7f8d', alliance: 'ul', econ: -7, soc: -6, desc: 'Washington\u2019s progressive state party; a United Left list partner in Washington.' },
+    bpp: { name: 'Black Panther Party', short: 'BPP', color: '#1a1a1a', alliance: 'rbw', econ: -10, soc: -6, desc: 'The Black Panther Party for Self-Defense, founded in Oakland in 1966: community programs and Black self-determination. The largest party in the Rainbow Coalition.' },
+    aim: { name: 'American Indian Movement', short: 'AIM', color: '#b5651d', alliance: 'rbw', econ: -7, soc: -4, desc: 'Founded in Minneapolis in 1968 for treaty rights and tribal sovereignty; runs where Native voters are numerous.' },
+    ylo: { name: 'Young Lords', short: 'YLO', color: '#8b1a3a', alliance: 'rbw', econ: -9, soc: -6, desc: 'The Puerto Rican movement born in Chicago and New York; runs in the Puerto Rican communities of the Northeast and Illinois.' },
+    ypo: { name: 'Young Patriots', short: 'YPO', color: '#6b5a2e', alliance: 'rbw', econ: -8, soc: -2, desc: 'Poor white Southerners and Appalachian migrants in Chicago, the original partners of Fred Hampton\u2019s Rainbow Coalition.' },
+    wpn: { name: 'White Panther Party', short: 'WPN', color: '#c9c9c9', alliance: 'rbw', econ: -9, soc: -9, desc: 'The Michigan counterculture party founded in 1968 in solidarity with the Black Panthers.' },
     ccdem: { name: 'Conservative Democrats', short: 'CDEM', color: '#1f4f8f', alliance: 'cc', econ: 4, soc: 7, desc: 'The heirs of the southern Democrats who stayed in the old Democratic Party after 1966. Since 1978 they run joint lists with the Republicans as the Conservative Coalition, and they dominate it in the South.' }
   };
   // ---- how each alliance fills its lists ----
@@ -73,6 +83,7 @@
   // (repeated as needed); a list that wins n seats elects its first n names.
   var SOUTH = ['AL', 'AR', 'GA', 'KY', 'LA', 'MS', 'NC', 'OK', 'SC', 'TN', 'VA', 'WV'], BIG = ['NY', 'IL', 'FL', 'TX', 'CA'];
   var NEWENG = ['ME', 'NH', 'VT', 'MA', 'RI', 'CT'], SUNBELT = ['FL', 'GA', 'TX', 'AZ', 'NM', 'NV', 'CA', 'AL', 'MS', 'LA', 'SC', 'NC', 'TN', 'AR', 'OK'], PLAINS = ['KS', 'NE', 'ND', 'SD', 'IA', 'MO', 'MN'];
+  var BLACK = ['MS', 'LA', 'GA', 'MD', 'SC', 'AL', 'NC', 'DE', 'VA', 'TN', 'DC'], NATIVE = ['SD', 'ND', 'MT', 'NM', 'AZ', 'OK', 'AK', 'MN', 'WY'];
   var cycle = function (order, n) { var o = {}; for (var i = 0; i < n; i++) { var p = order[i % order.length]; o[p] = (o[p] || 0) + 1; } return o; };
   U.LIST_RULES = {
     cc: 'Conservative Democrats head the list across the South and Republicans elsewhere (three Republicans to each Democrat). In the big states (New York, Illinois, Florida, Texas, California) the lists alternate, Democrat first in Florida and Texas, Republican first in the North. The national list alternates, Republican first.',
@@ -82,9 +93,20 @@
   U.listOrder = function (Q, a, sid) {
     if (a === 'cc') {
       if (sid === 'NAT') return ['ccrep', 'ccdem'];
+      if (sid === 'NY') return ['cpny'];
       if (BIG.indexOf(sid) >= 0) return SOUTH.concat(['FL', 'TX']).indexOf(sid) >= 0 ? ['ccdem', 'ccrep'] : ['ccrep', 'ccdem'];
       if (SOUTH.indexOf(sid) >= 0) return ['ccdem'];
       return ['ccrep', 'ccrep', 'ccrep', 'ccdem'];
+    }
+    if (a === 'rbw') {
+      var raza = Q && Q.flags && Q.flags.razaInRbw && !(Q.flags.rbwInUL);
+      if (raza && ['TX', 'NM', 'CA', 'AZ', 'CO'].indexOf(sid) >= 0) return ['raza', 'bpp', 'ylo'];
+      if (BLACK.indexOf(sid) >= 0) return ['bpp'];
+      if (NATIVE.indexOf(sid) >= 0) return ['aim', 'bpp'];
+      if (['NY', 'NJ', 'IL', 'PA', 'CT', 'MA'].indexOf(sid) >= 0) return ['ylo', 'bpp'];
+      if (sid === 'MI') return ['wpn', 'bpp'];
+      if (['WV', 'KY', 'TN', 'OH'].indexOf(sid) >= 0) return ['ypo', 'bpp'];
+      return ['bpp', 'ylo', 'aim', 'ypo', 'wpn'];
     }
     if (a === 'asp') {
       var ref = Q.flags && Q.flags.reformAbsorbed;
@@ -97,18 +119,41 @@
     return null;
   };
   // the United Left: by strength, Vermont Progressives only in Vermont, Greens' national-list terms
+  // The United Left: each state list rotates through the members by strength
+  // (with the Greens inside: Green, DSA, CPUSA ...). Working Families take 2nd or
+  // 3rd place in New York, Connecticut and Oregon; local partners join in their states.
+  function hsh(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) % 1000; }
+  function ulOrder(Q, sid, len) {
+    var w = U.clone(Q.ulMembers || { cpusa: 1 }), seats = {}, out = [];
+    delete w.vpp; if (!Object.keys(w).length) w = { cpusa: 1 };
+    var local = ['NY', 'CT', 'OR'].indexOf(sid) >= 0 && w.wfp; if (local) delete w.wfp;
+    // who heads the list differs from state to state, in proportion to strength
+    var tw = 0, k0; for (k0 in w) tw += w[k0]; var x = hsh(sid + 'head') / 1000 * tw;
+    for (k0 in w) { x -= w[k0]; if (x <= 0) { seats[k0] = 1; out.push(k0); break; } }
+    for (var i = out.length; i < len; i++) { var best = null, bv = -1; for (var k in w) { var v = w[k] / (2 * (seats[k] || 0) + 1); if (v > bv) { bv = v; best = k; } } seats[best] = (seats[best] || 0) + 1; out.push(best); }
+    var put = function (key, pos) { out.splice(Math.min(pos, out.length), 0, key); };
+    if (local) put('wfp', 1 + hsh(sid + 'wfp') % 2);
+    if (sid === 'VT' && Q.ulMembers && Q.ulMembers.vpp) put('vpp', 0);
+    if (sid === 'SC') put('scwp', 1);
+    if (BLACK.indexOf(sid) >= 0) put('ucp', 2);
+    if (sid === 'OR') put('opp', 1);
+    if (sid === 'WA') put('wapp', 1);
+    return out;
+  }
   function ulList(Q, sid, n) {
-    var w = U.clone(Q.ulMembers || { cpusa: 1 });
-    if (sid === 'VT' && w.vpp) { var o = { vpp: 1 }; if (n > 1) { delete w.vpp; var r = U.Electoral.hamilton(w, n - 1, 0); for (var k in r) if (r[k]) o[k] = r[k]; } return o; }
+    var w = U.clone(Q.ulMembers || { cpusa: 1 }), o;
     delete w.vpp;
     if (sid === 'NAT' && w.grn && Q.ulGreenDeal) {
-      var top = Q.ulGreenDeal === 'all' ? n : Math.min(n, Q.ulGreenDeal), g = {}; g.grn = top;
-      if (n > top) { delete w.grn; var rr = U.Electoral.hamilton(w, n - top, 0); for (var q in rr) if (rr[q]) g[q] = rr[q]; }
-      return g;
-    }
-    return U.Electoral.hamilton(w, n, 0);
+      var top = Q.ulGreenDeal === 'all' ? n : Math.min(n, Q.ulGreenDeal); o = { grn: top };
+      if (n > top) { delete w.grn; var rr = U.Electoral.hamilton(w, n - top, 0); for (var q in rr) if (rr[q]) o[q] = rr[q]; }
+    } else if (sid === 'NAT') o = U.Electoral.hamilton(w, n, 0);
+    else o = cycle(ulOrder(Q, sid, n + 6), n);
+    // the Rainbow Coalition, if it has joined, splits its places among its own parties
+    if (o.rbw) { var rb = U.listSplit(Q, 'rbw', sid, o.rbw); delete o.rbw; for (var r in rb) o[r] = (o[r] || 0) + rb[r]; }
+    return o;
   }
-  U.listSplit = function (Q, a, sid, n) { if (!n) return {}; if (a === 'ul') return ulList(Q, sid, n); var ord = U.listOrder(Q, a, sid); return ord ? cycle(ord, n) : null; };
+
+  U.listSplit = function (Q, a, sid, n) { if (!n) return {}; if (a === 'rbw' && Q.flags && Q.flags.rbwParty) return { rbw: n }; if (a === 'ul') return ulList(Q, sid, n); var ord = U.listOrder(Q, a, sid); return ord ? cycle(ord, n) : null; };
   // where an alliance's seats came from: state lists (+ the national list) or Senate states
   function seatsByList(Q, a, chamber) {
     var o = {}, t = 0;
@@ -118,9 +163,10 @@
   }
   // every member party of an alliance, seats or not
   U.allianceMembers = function (Q, a) {
-    if (a === 'cc') return ['ccrep', 'ccdem'];
+    if (a === 'cc') return ['ccrep', 'ccdem', 'cpny'];
+    if (a === 'rbw') return ['bpp', 'aim', 'ylo', 'ypo', 'wpn'].concat(Q && Q.flags && Q.flags.razaInRbw && !Q.flags.rbwInUL ? ['raza'] : []);
     if (a === 'asp') return ['aspp', 'mup', 'cath', 'mod'].concat(Q && Q.flags && Q.flags.reformAbsorbed ? ['reform'] : []);
-    if (a === 'ul') return Object.keys((Q && Q.ulMembers) || {});
+    if (a === 'ul') { var um = Object.keys((Q && Q.ulMembers) || {}).filter(function (m) { return m !== 'rbw'; }); if (Q && Q.ulMembers && Q.ulMembers.rbw) um = um.concat(['bpp', 'aim', 'ylo', 'ypo', 'wpn']); return um.concat(['scwp', 'ucp', 'opp', 'wapp']); }
     return null;
   };
   // split a result's alliance seats into member parties using that election's
@@ -129,7 +175,7 @@
     var o = {}, p, sid;
     for (p in seats) {
       if (!seats[p]) continue;
-      if (!(p === 'cc' || p === 'asp' || p === 'ul') || !states) { o[p] = (o[p] || 0) + seats[p]; continue; }
+      if (!(p === 'cc' || p === 'asp' || p === 'ul' || p === 'rbw') || !states) { o[p] = (o[p] || 0) + seats[p]; continue; }
       var got = {}, t = 0, add = function (sp) { for (var k in sp) { got[k] = (got[k] || 0) + sp[k]; t += sp[k]; } };
       for (sid in states) { var st = states[sid], n = (st.seats || {})[p] || 0; if (n) add(U.listSplit(Q, p, sid, n)); if (st.leg === p) add(U.listSplit(Q, p, sid, 1)); }
       if (national && national[p]) add(U.listSplit(Q, p, 'NAT', national[p]));
@@ -145,7 +191,7 @@
   U.splitORL = function (w) { if (!w || !w.revsoc) return w; var v = w.revsoc; delete w.revsoc; for (var k in U.ORL_PARTS) w[k] = (w[k] || 0) + v * U.ORL_PARTS[k]; return w; };
   U.allianceParts = function (Q, p, n, chamber) {
     if (!n) return null;
-    if (p === 'ul' || p === 'cc' || p === 'asp') {
+    if (p === 'ul' || p === 'cc' || p === 'asp' || (p === 'rbw' && !(Q.flags && Q.flags.rbwParty))) {
       var L = seatsByList(Q, p, chamber), out = {};
       if (L.total === n) { for (var s in L.by) { var sp = U.listSplit(Q, p, s, L.by[s]); for (var k in sp) out[k] = (out[k] || 0) + sp[k]; } return out; }
       // a hypothetical seat count: share it as the lists would on average
