@@ -235,10 +235,10 @@
     var el = e.era === 'modern' ? U.Elections.apportion().electors : U.LORE.ecEras[e.era], r1 = U.LORE.presR1Detail(e);
     var w = e.r2[0][1], l = e.r2[1][1], nat1 = {}; e.r1.forEach(function (c) { if (c[1]) nat1[c[1]] = c[2]; });
     var t2 = e.r2[0][3] + e.r2[1][3], target = e.r2[0][3] / t2 * 100, ids = Object.keys(el), W = 0; ids.forEach(function (s) { W += el[s]; });
-    var lean = {}; ids.forEach(function (s) { var sh = (r1[s] || {}).shares || {}; lean[s] = 1.4 * (((sh[w] || 0) - (nat1[w] || 0)) - ((sh[l] || 0) - (nat1[l] || 0))) + 16 * (hash('r2' + e.year + s) - 0.5); });
+    var lean = {}; ids.forEach(function (s) { var sh = (r1[s] || {}).shares || {}; lean[s] = (e.leanScale || 1) * 1.4 * (((sh[w] || 0) - (nat1[w] || 0)) - ((sh[l] || 0) - (nat1[l] || 0))) + Math.pow(e.leanScale || 1, 2) * 16 * (hash('r2' + e.year + s) - 0.5); });
     // tipping-point states (e.tip): decided by a whisker for the winner
     var tip = e.tip || [];
-    var share = function (s, off) { var i = tip.indexOf(s); if (i >= 0) return 50.15 + 0.25 * i; return U.clamp(target + lean[s] + off, 3, 97); };
+    var share = function (s, off) { var i = tip.indexOf(s); if (i >= 0) return 50.15 + 0.25 * i; if (e.hold && e.hold.indexOf(s) >= 0) return 42 - (e.hold.indexOf(s) % 3) * 2.5; /* the loser's home base */ return U.clamp(target + lean[s] + off, 3, 97); };
     var off = 0; for (var it = 0; it < 30; it++) { var n = 0; ids.forEach(function (s) { n += share(s, off) * el[s]; }); off += target - n / W; }
     var ev = function (o) { var a = 0; ids.forEach(function (s) { if (share(s, o) > 50) a += el[s]; }); return a; };
     // the runoff winner of record must carry the Electoral College
