@@ -229,19 +229,23 @@
     { id: 'devolve', name: 'Federalism and devolution commission', sub: 'Regional parties welcome it; centralists worry.', econ: 0, soc: 0, fed: 4, cost: 0, groups: {}, fac: { newdem: 1 }, regional: true }
   ];
 
+  // How a party votes on a bill: by how far the bill is from the party's own
+  // position (economics weighs most), not by where the LDP stands. Governing
+  // parties give their own government a little more benefit of the doubt.
+  K.billStance = function (Q, p, bill, inGov) {
+    var pos = U.Elections.pos(Q)[p]; if (!pos) return 'abstain';
+    var d = Math.abs((pos.econ || 0) - bill.econ) * 1.3 + Math.abs((pos.soc || 0) - (bill.soc || 0)) * Math.max(0.1, Math.min(0.6, Math.abs(bill.soc || 0) * 0.2)) + Math.abs((pos.fed || 0) - (bill.fed || 0)) * 0.2;
+    var yes = inGov ? 6 : 4.5, abst = inGov ? 7 : 6;
+    return d <= yes ? 'yes' : d <= abst ? 'abstain' : 'no';
+  };
   K.legislate = function (Q, pol) {
     var g = Q.gov, ppos = { econ: 1, soc: 1, fed: 0 }, bpos = { econ: pol.econ, soc: pol.soc, fed: pol.fed || 0 };
     var pos = U.Elections.pos(Q), out = [];
     var decide = function (p) {
-      var dq = U.Electoral.dist(pos[p], ppos), db = U.Electoral.dist(pos[p], bpos);
-      if (p === Q.player) return 'yes';
       if (pol.regional && U.REGIONAL.indexOf(p) >= 0) return 'yes';
-      if (g.coalition.indexOf(p) >= 0) {
-        if (db > dq + 4) { C.addRel(Q, Q.player, p, -6); return 'abstain'; }
-        if (db > dq) C.addRel(Q, Q.player, p, -3);
-        return 'yes';
-      }
-      return db < dq - 0.5 ? 'yes' : db < dq + 1.5 ? 'abstain' : 'no';
+      var v = K.billStance(Q, p, bpos, g.coalition.indexOf(p) >= 0);
+      if (g.coalition.indexOf(p) >= 0 && v !== 'yes' && p !== g.pmParty) C.addRel(Q, g.pmParty, p, -3);
+      return v;
     };
     var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
     var objects = false;

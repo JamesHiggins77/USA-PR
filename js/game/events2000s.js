@@ -129,7 +129,7 @@
     { id: 'healthcare', title: 'Health care for all?', when: function (Q) { return at(Q, 2009, 6) && gov(Q) && !F(Q).healthDone; },
       body: function () { return 'Fifty million Americans have no health insurance. The SDLP demands a public option; the CDP will only back market reforms.'; },
       options: [
-        { label: 'Universal coverage with a public option', sub: 'The SDLP and UL approve; the CDP walks.', act: function (Q) { F(Q).healthDone = 1; H.shift(Q, -1, 0); return Ev.vote(Q, 'Universal health care', -5, 0, function () { H.camp(Q, { union: 0.6, black: 0.5, hisp: 0.5, young: 0.3, retire: -0.2 }, 'Health care'); H.rel(Q, 'sdlp', 8); return 'Universal coverage becomes law. It is the government’s biggest achievement.'; }, function () { approve(Q, -4); return 'The bill fails by a handful of votes.'; }); } },
+        { label: 'Universal coverage with a public option', sub: 'The SDLP and UL approve; the CDP walks.', act: function (Q) { F(Q).healthDone = 1; H.shift(Q, -1, 0); return Ev.vote(Q, 'Universal health care', -7, -1, function () { H.camp(Q, { union: 0.6, black: 0.5, hisp: 0.5, young: 0.3, retire: -0.2 }, 'Health care'); H.rel(Q, 'sdlp', 8); return 'Universal coverage becomes law. It is the government’s biggest achievement.'; }, function () { approve(Q, -4); return 'The bill fails by a handful of votes.'; }); } },
         { label: 'Market-based reform: exchanges and subsidies', sub: 'The CDP may back it.', act: function (Q) { F(Q).healthDone = 1; return Ev.vote(Q, 'Health insurance reform', 1, 0, function () { H.camp(Q, { suburb: 0.3, hisp: 0.3, black: 0.2 }, 'Health care'); H.rel(Q, 'cdp', 6); return 'The reform passes with Christian Democratic votes. Twenty million people gain cover.'; }, function () { return 'The reform fails.'; }); } },
         { label: 'Not now: the economy first', act: function (Q) { F(Q).healthDone = 1; H.rel(Q, 'sdlp', -6); H.fac(Q, { proglib: 8 }); return 'Health reform is shelved.'; } }
       ] },
@@ -162,7 +162,7 @@
   // a House and Senate vote on a measure; lean: how far right it sits (negative = left)
   Ev.vote = function (Q, title, econ, soc, yes, no) {
     var pos = U.Elections.pos(Q), b = { econ: econ, soc: soc, fed: 0 }, ppos = Q.pos[Q.player];
-    var decide = function (p) { if (p === Q.player) return 'yes'; var d = U.Electoral.dist(pos[p], b), dq = U.Electoral.dist(pos[p], ppos); if (Q.gov && Q.gov.coalition.indexOf(p) >= 0) return d < dq + 3 ? 'yes' : 'abstain'; return d < dq - 0.5 ? 'yes' : d < dq + 1 ? 'abstain' : 'no'; };
+    var decide = function (p) { return K.billStance(Q, p, b, !!(Q.gov && Q.gov.coalition.indexOf(p) >= 0)); };
     var h = U.Parliament.count(Q, 'house', decide), s = U.Parliament.count(Q, 'senate', decide);
     var proc = S.legislativeProcess ? S.legislativeProcess(Q, h, s, false) : { status: U.simple(h) ? 'law' : 'defeated', text: '' };
     Q.lastVote = { title: title, house: h, senate: s, proc: proc.status, kind: 'bill' };
