@@ -245,6 +245,41 @@
     ids.forEach(function (s) { var x = share(s, off), win = x > 50 ? w : l, seats = {}, sh = {}; seats[win] = el[s]; sh[w] = Math.round(x * 10) / 10; sh[l] = Math.round((100 - x) * 10) / 10; tot[win] += el[s]; states[s] = { seats: seats, shares: sh }; });
     return (p2cache[e.year] = { states: states, ev: tot, total: W });
   };
+  // Governors since 1914, elected at each general election in two rounds.
+  // Governors are judged on state issues: a candidate's personal vote counts for
+  // more, incumbent parties have an edge, smaller and regional parties do better
+  // than in federal races, and independents sometimes run strong campaigns.
+  var gcache = null;
+  U.LORE.govHistory = function () {
+    if (gcache) return gcache;
+    var out = [], prev = null;
+    U.LORE.generalElections.forEach(function (e) {
+      var d = U.LORE.generalDetail(e), govs = {};
+      Object.keys(d.states).forEach(function (s) {
+        if (s === 'DC') return;
+        var base = d.states[s].shares, v = {}, t = 0, inc = prev && prev[s] ? prev[s].w : null;
+        for (var p in base) {
+          var x = base[p] * (1 + 0.8 * (hash('g' + e.year + s + p) - 0.5));          // personal vote
+          if (p === inc) x *= 1.18;                                                       // incumbency
+          if (base[p] < 12) x *= 1.3;                                                     // minor parties do better locally
+          v[p] = x; t += x; }
+        var hi = hash('gi' + e.year + s);
+        if (hi > 0.93) { v.ind = t * (0.12 + 0.35 * hash('gx' + e.year + s)); t += v.ind; }  // a strong independent
+        var r1 = {}; for (p in v) { var q = v[p] / t * 100; if (q >= 0.5) r1[p] = Math.round(q * 10) / 10; }
+        var ord = Object.keys(r1).sort(function (a, b) { return r1[b] - r1[a]; }), w = ord[0], r2 = null;
+        if (ord.length > 1 && r1[ord[0]] <= 50) {
+          var a = ord[0], b = ord[1], va = r1[a], vb = r1[b], ec = function (p) { return p === 'ind' ? (U.partyInfo(a).econ + U.partyInfo(b).econ) / 2 : (U.partyInfo(p).econ || 0); };
+          ord.slice(2).forEach(function (p) { var wa = Math.exp(-Math.abs(ec(p) - ec(a)) / 3), wb = Math.exp(-Math.abs(ec(p) - ec(b)) / 3); va += r1[p] * 0.75 * wa / (wa + wb); vb += r1[p] * 0.75 * wb / (wa + wb); });
+          // runoffs are about the candidates too
+          va *= 1 + 0.16 * (hash('gr' + e.year + s) - 0.5);
+          r2 = {}; r2[a] = Math.round(va / (va + vb) * 1000) / 10; r2[b] = Math.round((100 - r2[a]) * 10) / 10; w = r2[a] >= r2[b] ? a : b;
+        }
+        govs[s] = { w: w, r1: r1, r2: r2 };
+      });
+      out.push({ year: e.year, govs: govs }); prev = govs;
+    });
+    return (gcache = out);
+  };
   // seats for a historical election (the sum of the state results)
   U.LORE.generalSeats = function (e) { return U.LORE.generalDetail(e).house; };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

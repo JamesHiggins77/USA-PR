@@ -35,8 +35,8 @@
         var dch = function (v, d) { if (!pv) return ''; v = +v.toFixed(d); var c = !v ? 'muted' : v > 0 ? 'up' : 'down'; return ' <span class="small ' + c + '">' + (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d) + '</span>'; };
         var keys = Object.keys(se).concat(Object.keys(sh)).filter(function (p, i, a) { return a.indexOf(p) === i; });
         var bySeat = keys.filter(function (p) { return se[p] > 0 || ps[p] > 0; }).sort(function (a, b) { return (se[b] || 0) - (se[a] || 0) || (sh[b] || 0) - (sh[a] || 0); });
-        var trr = false && st.trRace && st.trRace.r1 ? '<div class="muted" style="margin-top:4px">' + (st.trRace.round === 2 ? 'Runoff: ' + Object.keys(st.trRace.r2).map(function (p) { return PI(p).short + ' ' + st.trRace.r2[p] + '%'; }).join(' v ') + '. Round one below.' : 'Won outright in round one.') + '</div>' : '';
-        if (trr) sh = st.trRace.r1;
+        var trr = st.gov ? '<div class="muted" style="margin-top:4px">' + (st.gov.r2 ? 'Runoff: ' + Object.keys(st.gov.r2).map(function (p) { return PI(p).short + ' ' + st.gov.r2[p] + '%'; }).join(' v ') + '. Round one below.' : 'Won outright in round one.') + '</div>' : false && st.trRace && st.trRace.r1 ? '<div class="muted" style="margin-top:4px">' + (st.trRace.round === 2 ? 'Runoff: ' + Object.keys(st.trRace.r2).map(function (p) { return PI(p).short + ' ' + st.trRace.r2[p] + '%'; }).join(' v ') + '. Round one below.' : 'Won outright in round one.') + '</div>' : '';
+        if (trr) sh = st.gov ? st.gov.r1 || sh : st.trRace.r1;
         var byVote = Object.keys(sh).sort(function (a, b) { return sh[b] - sh[a] || (se[b] || 0) - (se[a] || 0); });
         return '<b>' + esc(st.name || (U.STATES[sid] || U.DC).name) + '</b>' + (U.sum(se) ? '<div class="muted">' + U.sum(se) + (st.unit || ({ senate: ' senators elected statewide', senpr: ' list senators' }[genMode] || ' House seats')) + '</div>' : '') +
           bySeat.map(function (p) { return '<div class="kv"><span>' + ochipK(p) + PI(p).short + '</span><b>' + (se[p] || 0) + dch((se[p] || 0) - (ps[p] || 0), 0) + '</b></div>'; }).join('') +
@@ -573,12 +573,12 @@
     var g = x.rec.govs, i = govSeq.indexOf(x), pv = i > 0 ? govSeq[i - 1].rec.govs : null, tot = {}, ptot = {}, data = {};
     for (var sid in g) { var o = g[sid], sh = o.r2 || o.r1 || {}, se = {}; se[o.w] = 1; tot[o.w] = (tot[o.w] || 0) + 1;
       var shr = {}; for (var p in sh) if (sh[p] >= 0.5) shr[p] = Math.round(sh[p] * 10) / 10;
-      data[sid] = { unit: ' governorship', seats: se, shares: shr, prev: pv && pv[sid] ? { seats: (function () { var z = {}; z[pv[sid].w] = 1; return z; })(), shares: {} } : null }; }
+      data[sid] = { unit: ' governorship', gov: o, seats: se, shares: shr, prev: pv && pv[sid] ? { seats: (function () { var z = {}; z[pv[sid].w] = 1; return z; })(), shares: {} } : null }; }
     if (pv) for (sid in pv) ptot[pv[sid].w] = (ptot[pv[sid].w] || 0) + 1;
     genData = data;
     var ord = Object.keys(tot).sort(function (a, b) { return tot[b] - tot[a]; }), flips = pv ? Object.keys(g).filter(function (s) { return pv[s] && pv[s].w !== g[s].w; }) : [];
     var d = function (v) { return '<span class="small ' + (!v ? 'muted' : v > 0 ? 'up' : 'down') + '">' + (v > 0 ? '+' : v < 0 ? '\u2212' : '\u00b1') + Math.abs(v) + '</span>'; };
-    var h = '<div class="panel"><h2 style="margin-top:0">' + esc(x.label) + ' gubernatorial elections</h2><p>Governors are elected in two rounds at each general election: a majority wins outright, otherwise the top two meet in a runoff.' + (pv ? ' ' + flips.length + ' governorship' + (flips.length === 1 ? '' : 's') + ' changed hands.' : '') + '</p>';
+    var h = '<div class="panel"><h2 style="margin-top:0">' + esc(x.label) + ' gubernatorial elections</h2><p>Governors are elected in two rounds at each general election: a majority wins outright, otherwise the top two meet in a runoff. Governors run on state issues, so candidates\u2019 personal votes, incumbency, independents and smaller parties count for more than in federal races, and split tickets are common.' + (pv ? ' ' + flips.length + ' governorship' + (flips.length === 1 ? '' : 's') + ' changed hands.' : '') + '</p>';
     h += '<div class="grid2"><div><table class="seats"><tr><th>Party</th><th>Governors</th>' + (pv ? '<th>\u00b1</th>' : '') + '</tr>' + ord.map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>' + tot[p] + '</b></td>' + (pv ? '<td>' + d(tot[p] - (ptot[p] || 0)) + '</td>' : '') + '</tr>'; }).join('') +
       (pv ? Object.keys(ptot).filter(function (p) { return !tot[p]; }).map(function (p) { return '<tr><td>' + chip(p) + esc(U.partyInfo(p).name) + '</td><td><b>0</b></td><td>' + d(-ptot[p]) + '</td></tr>'; }).join('') : '') + '</table>' +
       (flips.length ? '<h3>Changed hands</h3><p class="small">' + flips.map(function (s) { return esc((U.STATES[s] || U.DC).name) + ': ' + U.partyInfo(pv[s].w).short + ' \u2192 ' + U.partyInfo(g[s].w).short; }).join(' \u00b7 ') + '</p>' : '') + '</div>' +
@@ -639,7 +639,7 @@
     var yr = function (d) { return String(d).split(' ').pop(); };
     var presL = hist.concat(game.filter(function (x) { return x.kind === 'pres'; }).map(function (x) { return Object.assign({}, x, { label: yr(x.rec.date) }); }));
     var congL = gens.concat(game.filter(function (x) { return x.kind !== 'pres'; }).map(function (x) { return Object.assign({}, x, { label: yr(x.rec.date) }); }));
-    var govL = (Q.open1996 && Q.open1996.govs ? [{ key: 'v96', label: '1996', kind: 'gov', rec: { govs: Q.open1996.govs, date: '1996' } }] : [])
+    var govL = U.LORE.govHistory().map(function (g, i) { return { key: 'vh' + i, label: String(g.year), kind: 'gov', rec: { govs: g.govs, date: String(g.year) } }; }).concat(Q.open1996 && Q.open1996.govs ? [{ key: 'v96', label: '1996', kind: 'gov', rec: { govs: Q.open1996.govs, date: '1996' } }] : [])
       .concat((Q.history || []).map(function (e, i) { return e.kind !== 'pres' && e.govs ? { key: 'v' + i, label: yr(e.date), kind: 'gov', rec: { govs: e.govs, date: e.date } } : null; }).filter(Boolean));
     var all = presL.concat(congL, govL);
     genSeq = congL.filter(function (x) { return x.kind === 'histgen' || x.rec.states; });
