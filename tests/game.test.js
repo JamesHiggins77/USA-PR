@@ -5,7 +5,7 @@ const sum = o => Object.values(o).reduce((s, v) => s + v, 0);
 test('the 1997 opening matches the canon', () => {
   const Q = U.Game.newGame(7);
   assert.strictEqual(sum(Q.house), 600);
-  assert.strictEqual(Q.senateSeats.length, 200);
+  assert.strictEqual(Q.senateSeats.length, 250);
   assert.strictEqual(Q.president.name, 'Bill Clinton');
   assert.strictEqual(Q.gov.pm, 'Al Gore');
   assert.deepStrictEqual(Q.gov.coalition, ['ldp', 'cdp', 'sdlp']);
@@ -16,7 +16,7 @@ test('the 1997 opening matches the canon', () => {
   const g = ['ldp', 'cdp', 'sdlp'];
   assert.ok(g.reduce((s, p) => s + Q.house[p], 0) >= U.majority(), 'the government controls the House');
   const sen = U.Elections.senateCount(Q);
-  assert.ok(g.reduce((s, p) => s + (sen[p] || 0), 0) >= 101, 'government controls the Senate');
+  assert.ok(g.reduce((s, p) => s + (sen[p] || 0), 0) > 125, 'government controls the Senate');
   assert.strictEqual(Q.player, 'ldp');
   assert.strictEqual(Q.year, 1997);
   assert.strictEqual(Q.nextPres, U.monthIndex(1998, 11), 'presidential election in November 1998');

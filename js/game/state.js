@@ -46,7 +46,7 @@
     Object.keys(U.STATES).forEach(function (sid) { Q.states[sid] = X.stateGov(Q, U.STATES[sid], null); });
     Q.senateSeats = [];
     Object.keys(U.STATES).forEach(function (sid) {
-      ['pr', 'pr', 'pr', 'house'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
+      ['pr', 'pr', 'pr', 'house', 'tr'].forEach(function (t) { Q.senateSeats.push({ state: sid, type: t, party: null }); });
     });
     X.senate(Q);
     var rec96 = S.stateRecord(Q, open1996h);
@@ -109,6 +109,11 @@
   S.save = function (Q, slot) { try { localStorage.setItem('usa-pr-save-' + (slot || 'auto'), JSON.stringify(Q)); return true; } catch (e) { return false; } };
   // saves from before the factions were reorganised
   S.migrateFactions = function (Q) {
+    // the fifth Senate seat (two-round), added after saves were made
+    if (Q.senateSeats && !Q.senateSeats.some(function (x) { return x.type === 'tr'; })) Object.keys(U.STATES).forEach(function (sid) {
+      var mine = Q.senateSeats.filter(function (x) { return x.state === sid && x.type === 'pr'; }), sh = (Q.senateShares && Q.senateShares[sid]) || {};
+      var tr = U.Elections.runoffSenator(Q, sid, sh); Q.senateSeats.push({ state: sid, type: 'tr', party: tr.winner || (mine[0] && mine[0].party) || null });
+    });
     if (!Q.factions || !Q.factions.civil) return;
     Q.factions.proglib.dissent = Math.round((Q.factions.proglib.dissent + Q.factions.civil.dissent) / 2);
     delete Q.factions.civil; Q.factions.chrlib = U.clone(U.LDP_FACTIONS.chrlib);

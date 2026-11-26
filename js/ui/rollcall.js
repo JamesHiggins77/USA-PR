@@ -32,7 +32,7 @@
     var houseNeed = lv.need === 'absolute' ? { text: 'Needs an absolute majority: ' + U.majority() + ' yes votes', ok: function (c) { return U.absolute(c); } } : { text: 'Needs more yes votes than no votes', ok: function (c) { return U.simple(c); } };
     st.push({ label: 'House of Representatives', total: total, rows: byState(lv.house, Q.houseByState || {}), need: houseNeed, count: lv.house });
     if (lv.senate && kind !== 'budget' && kind !== 'investiture') {
-      var sTot = 200, two = Math.ceil(sTot * 2 / 3);
+      var sTot = U.sum(U.Elections.senateCount(Q)) || 250, two = Math.ceil(sTot * 2 / 3);
       st.push({ label: 'Senate', total: sTot, rows: byState(lv.senate, senateByState(Q)), count: lv.senate,
         need: { text: 'A simple majority passes it; two-thirds against (' + two + ') would veto it', ok: function (c) { return c.yes > c.no; } } });
     }
@@ -59,7 +59,7 @@
       var n = k < S.si ? stg.rows.length : S.i, c = { yes: 0, abstain: 0, no: 0 }, shown = stg.rows.slice(0, n);
       shown.forEach(function (r) { c.yes += r.yes; c.abstain += r.abstain; c.no += r.no; });
       var fin = n >= stg.rows.length, pass = fin && stg.need.ok(fin ? stg.count : c), w = function (v) { return (v / stg.total * 100).toFixed(2) + '%'; };
-      var maj = U.majority(), mark = stg.label.indexOf('override') >= 0 ? Math.ceil(stg.total * 2 / 3) : stg.total === 200 ? 101 : maj;
+      var maj = U.majority(), mark = stg.label.indexOf('override') >= 0 ? Math.ceil(stg.total * 2 / 3) : stg.label === 'Senate' ? Math.floor(stg.total / 2) + 1 : maj;
       h += '<div class="panel rollstage"><div class="row" style="justify-content:space-between"><b>' + esc(stg.label) + '</b><span class="small muted">' + esc(stg.need.text) + '</span></div>' +
         '<div class="rollbar"><i class="vy" style="width:' + w(c.yes) + '"></i><i class="va" style="width:' + w(c.abstain) + '"></i><i class="vn" style="width:' + w(c.no) + '"></i><span class="rollmark" style="left:' + (mark / stg.total * 100) + '%"></span></div>' +
         '<div class="rollnums"><span class="up">Yes <b>' + c.yes + '</b></span><span>Abstain <b>' + c.abstain + '</b></span><span class="down">No <b>' + c.no + '</b></span><span class="muted">' + (stg.total - c.yes - c.abstain - c.no) + ' still to vote</span></div>';

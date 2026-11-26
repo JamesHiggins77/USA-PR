@@ -204,7 +204,7 @@
     return out;
   };
 
-  // Senate after a general election: in every state, 3 seats by statewide PR
+  // Senate after a general election: in every state, 3 seats by statewide PR, 1 by two-round vote,
   // and 1 elected by the state house. Returns {state: {seats, shares}}.
   X.senate = function (Q) {
     var out = {};
@@ -215,11 +215,29 @@
       Object.keys(won).sort(function (a, b) { return won[b] - won[a] || sh[b] - sh[a]; }).forEach(function (p) { for (var i = 0; i < won[p]; i++) list.push(p); });
       seats.filter(function (x) { return x.type === 'pr'; }).forEach(function (x, i) { x.party = list[i]; });
       seats.filter(function (x) { return x.type === 'house'; }).forEach(function (x) { x.party = X.legislatureSenator(Q, sid); });
-      out[sid] = { seats: won, shares: sh };
+      var tr = X.runoffSenator(Q, sid, sh);
+      seats.filter(function (x) { return x.type === 'tr'; }).forEach(function (x) { x.party = tr.winner; });
+      if (tr.winner) won[tr.winner] = (won[tr.winner] || 0) + 1;
+      Q.senateRunoffs = Q.senateRunoffs || {}; Q.senateRunoffs[sid] = tr;
+      out[sid] = { seats: won, shares: sh, tr: tr };
     });
     return out;
   };
 
+  // the fifth seat: one senator by two-round majority vote. A candidate with over
+  // half the first-round vote wins outright; otherwise the top two meet in a runoff,
+  // and the other parties' voters go mostly to the closer finalist.
+  X.runoffSenator = function (Q, sid, sh) {
+    var ks = Object.keys(sh).filter(function (p) { return sh[p] > 0; }).sort(function (a, b) { return sh[b] - sh[a]; });
+    if (!ks.length) return { winner: null };
+    var t = 0; ks.forEach(function (p) { t += sh[p]; });
+    var r1 = {}; ks.forEach(function (p) { r1[p] = Math.round(sh[p] / t * 1000) / 10; });
+    if (sh[ks[0]] / t > 0.5 || ks.length < 2) return { winner: ks[0], round: 1, r1: r1 };
+    var a = ks[0], b = ks[1], pos = X.pos(Q), va = sh[a], vb = sh[b];
+    ks.slice(2).forEach(function (p) { var da = E.dist(pos[p], pos[a]), db = E.dist(pos[p], pos[b]), wa = Math.exp(-da / 2.5), wb = Math.exp(-db / 2.5); va += sh[p] * 0.75 * wa / (wa + wb); vb += sh[p] * 0.75 * wb / (wa + wb); });
+    var r2 = {}; r2[a] = Math.round(va / (va + vb) * 1000) / 10; r2[b] = Math.round(1000 - r2[a] * 10) / 10;
+    return { winner: va >= vb ? a : b, round: 2, r1: r1, r2: r2, finalists: [a, b] };
+  };
   X.senateCount = function (Q) {
     var o = {}; Q.senateSeats.forEach(function (x) { o[x.party] = (o[x.party] || 0) + 1; }); return o;
   };

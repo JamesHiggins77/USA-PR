@@ -72,8 +72,9 @@
     if (Q.formation) h += '<div>' + (Q.gov && Q.gov.senateCaretaker ? 'Senate-appointed caretaker. ' : 'Caretaker. ') + '<b>Government formation</b> under way' + (Q.formation.stage === 'open' ? ' (' + Q.formation.monthsLeft + ' months before a new election)' : ' (presidential nomination ' + Q.formation.round + ' of 2)') + '.</div>';
     else if (g) h += '<div>PM <b>' + esc(g.pm) + '</b> (' + P(g.pmParty).short + ')</div><div class="small">' + g.coalition.map(function (p) { return chip(p) + P(p).short; }).join(' ') + (g.cs.length ? ' &middot; C&amp;S: ' + g.cs.map(function (p) { return P(p).short; }).join(', ') : '') + '</div><div class="kv"><span>Seats</span><b>' + S.govSeats(Q) + ' / ' + U.RULES.house.total + '</b></div>';
     h += '<div class="kv"><span>Gov. approval</span><b>' + Math.round(Q.govApproval) + '%</b></div>';
-    h += '<div class="kv"><span>President</span><b>' + esc(Q.president.name) + ' (' + P(Q.president.party).short + ')</b></div>';
-    if (Q.offices) h += '<div class="kv"><span>Vice President</span><b>' + esc(Q.offices.vp.name) + ' (' + P(Q.offices.vp.party).short + ')</b></div><div class="kv"><span>Speaker</span><b>' + esc(Q.offices.speaker.name) + ' (' + P(Q.offices.speaker.party).short + ')</b></div>';
+    var sealed = Q.papers && Q.papers.length && Q.papers[Q.papers.length - 1].sealed;
+    h += '<div class="kv"><span>President</span><b>' + (sealed ? 'Votes being counted' : esc(Q.president.name) + ' (' + P(Q.president.party).short + ')') + '</b></div>';
+    if (Q.offices && !sealed) h += '<div class="kv"><span>Vice President</span><b>' + esc(Q.offices.vp.name) + ' (' + P(Q.offices.vp.party).short + ')</b></div><div class="kv"><span>Speaker</span><b>' + esc(Q.offices.speaker.name) + ' (' + P(Q.offices.speaker.party).short + ')</b></div>';
     var ed = Q.electionAt || Q.deadline, y = Math.floor(ed / 12), m = ed % 12 + 1;
     h += '<div class="kv"><span>' + (Q.electionAt ? 'Election day' : 'Election due by') + '</span><b>' + U.MONTHS[m - 1].slice(0, 3) + ' ' + y + '</b></div>';
     h += '<h4>Polls</h4>';
@@ -113,10 +114,13 @@
   // ---------- the monthly newspaper ----------
   var paperIdx = null, openHead = {};
   function nextMonth() {
+    var last = (Q.papers || [])[Q.papers ? Q.papers.length - 1 : 0]; if (last) last.sealed = false;
     var r = U.Auto.step(Q); paperIdx = null; openHead = {}; rollSeen = Q.lastVote; save();
     elec = (r.out.general || r.out.presidential) ? r.out : null;
+    if (elec) Q.papers[Q.papers.length - 1].sealed = true;
     go('live');
   }
+  function unseal() { var l = Q.papers && Q.papers[Q.papers.length - 1]; if (l && l.sealed) { l.sealed = false; save(); } }
   function live() {
     var papers = Q.papers || [], k = paperIdx == null ? papers.length - 1 : paperIdx, pp = papers[k];
     var h = '<div class="paper"><div class="masthead"><div class="small muted">Seed ' + Q.seed0 + '</div><div class="paper-name">The Republic Gazette</div><div class="small muted">' + (pp ? esc(pp.date) : esc(U.dateStr(Q))) + '</div></div>';
@@ -124,6 +128,11 @@
       (k < papers.length - 1 ? '<button class="btn ghost" data-paper="' + (k + 1) + '">Later →</button><button class="btn ghost" data-paper="latest">Latest</button>' : '') +
       '<button class="btn" data-act="nextmonth">Next month →</button></div>';
     if (!pp) h += '<p class="muted">The first edition comes out at the end of ' + esc(U.dateStr(Q)) + '. Press <b>Next month</b> to begin.</p>';
+    else if (pp.sealed) {
+      var tz = pp.items.filter(function (it) { return it.teaser; });
+      h += tz.map(function (it, i) { return '<div class="story' + (i === 0 ? ' lead' : '') + '"><div class="headline"><span class="kicker">Election</span>' + esc(it.teaser) + '</div><div class="storytext">' + esc(it.teaserStory) + '</div></div>'; }).join('') +
+        '<div class="row" style="margin:10px 0"><button class="btn" data-act="seenight">Experience election night</button><button class="btn ghost" data-act="seefinal">Go straight to the results</button></div><p class="small muted">The rest of this edition goes to print once the results are in.</p>';
+    }
     else pp.items.forEach(function (it, i) {
       var open = openHead[k + ':' + i], lead = i === 0;
       h += '<div class="story' + (lead ? ' lead' : '') + '"><button class="headline" data-head="' + k + ':' + i + '"><span class="kicker">' + esc({ election: 'Election', event: 'Politics', news: 'Politics', polls: 'Polls', economy: 'Economy', gov: 'Government', states: 'States' }[it.kind] || '') + '</span>' + esc(it.head) + '</button>' +
@@ -272,7 +281,7 @@
     var hs = parlMode === 'parties' ? U.splitAlliances(Q, Q.house, 'house') : Q.house, ss = parlMode === 'parties' ? U.splitAlliances(Q, sen, 'senate') : sen;
     var toggle = '<div class="row" style="margin:6px 0 10px"><span class="small">Show:</span>' + [['alliances', 'Alliances'], ['parties', 'Individual parties']].map(function (m) { return '<button class="btn ' + (parlMode === m[0] ? '' : 'ghost') + '" data-parl="' + m[0] + '">' + m[1] + '</button>'; }).join('') + '</div>';
     var h = '<h1>Parliament</h1>' + h0 + toggle + '<div class="grid2"><div><h2>House of Representatives</h2>' + Ch.hemicycle(Q, hs) + seatTable2(hs, 'house') + '<p class="small muted">' + (U.pure() ? U.RULES.house.total + ' seats by statewide proportional representation (' + U.RULES.house.prFormula + '; national threshold ' + (U.RULES.house.nationalThreshold * 100) + '%, state threshold ' + (U.RULES.house.stateThreshold * 100) + '%). Majority ' + U.majority() + '; the President breaks a tie.' : '435 two-round districts, 365 statewide list seats and the DC seat.') + '</p></div>' +
-      '<div><h2>Senate</h2>' + Ch.hemicycle(Q, ss) + seatTable2(ss, 'senate') + '<p class="small muted">Four per state: three elected statewide by proportional representation at each general election, and one elected by the state house (in Nebraska, by its single-chamber legislature).</p></div></div>';
+      '<div><h2>Senate</h2>' + Ch.hemicycle(Q, ss) + seatTable2(ss, 'senate') + '<p class="small muted">Five per state: three elected statewide by proportional representation at each general election, one by a two-round majority vote on the same day, and one elected by the state house (in Nebraska, by its single-chamber legislature).</p></div></div>';
     if (Q.house.ul) { var ul = U.Parliament.ulSplit(Q, Q.house.ul); h += '<h3>Inside the United Left</h3><p class="small">' + Object.keys(ul).filter(function (k) { return ul[k]; }).map(function (k) { return esc(P(k).name) + ' <b>' + ul[k] + '</b> <span class="muted">(' + U.LEFT_MEMBERS[k] + ')</span>'; }).join(' &middot; ') + ' &middot; Unity ' + Math.round(Q.ulUnity) + '</p>'; }
     if (Q.house.revsoc) h += '<p class="small muted">' + esc(P('revsoc').note) + '</p>';
     if (Q.house.aga) h += '<h3>American Green Alliance</h3><p class="small">A federation of autonomous state parties. House seats by state: ' + Object.keys(Q.agaSeats || {}).filter(function (s) { return Q.agaSeats[s]; }).map(function (s) { return s + ' ' + Q.agaSeats[s]; }).join(', ') + '. Each chapter decides its own votes on confidence and budgets.</p>';
@@ -559,7 +568,7 @@
     if (!sen && r.national) genData.NAT = { seats: r.national, shares: r.shares, prev: prev ? { seats: prev.national || {}, shares: prev.shares || {} } : null, name: 'National list', unit: ' national list seats' };
     var legs = null; if (sen) { legs = {}; for (var ls in data) if (data[ls].leg) legs[data[ls].leg] = (legs[data[ls].leg] || 0) + 1; if (!U.sum(legs)) legs = null; }
     h += '<div id="genmap">' + Ch.resultMap(Q, data, sen ? (legs ? { inset: { title: 'Chosen by state legislatures (' + U.sum(legs) + ' senators)', seats: legs, shares: r.shares } } : null) : r.national ? { inset: { id: 'NAT', title: 'National list (' + U.sum(r.national) + ' seats)', seats: r.national, shares: r.shares } } : null) + '</div>';
-    h += '<p class="small muted">' + (sen ? 'Each dot on the map is a senator elected statewide (largest party 2, runner-up 1; 1-1-1 if within 2 points, 3-0 in a landslide); the senators chosen by state legislatures are in the box below (' + tot + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
+    h += '<p class="small muted">' + (sen ? 'Each dot on the map is a senator elected statewide: three by list (largest party 2, runner-up 1; 1-1-1 if within 2 points, 3-0 in a landslide) and one by a two-round majority vote; the senators chosen by state legislatures are in the box below (' + U.sum(seats) + ' in all).' : r.national ? 'Each dot is a state list seat; the 100 national list seats are shown in the box.' : 'Each dot is a House seat, elected by statewide PR.') + (r.generated ? ' State figures for elections before 1996 are reconstructed from the national result.' : '') + ' Hover or tap a state for details.</p>';
     return h;
   }
 
@@ -699,8 +708,8 @@
         if (a === 'discardall') { after(F.discardAll(Q)); }
         if (a === 'skip') { after(F.skip(Q)); }
         if (a === 'skipahead') { after(F.skipAhead(Q, 12)); }
-        if (a === 'seenight') { U.Night.reset(); go('night'); }
-        if (a === 'seefinal') { go('election'); }
+        if (a === 'seenight') { unseal(); U.Night.reset(); go('night'); }
+        if (a === 'seefinal') { unseal(); go('election'); }
         if (a === 'closeelec') { go('live'); }
         if (a === 'negotiate') { deal = null; negSel = null; negOffer = {}; negMsg = ''; go('negotiate'); }
         if (a === 'makeoffer') { var res = U.Talks.offer(Q, negSel, negOffer); negMsg = res ? (res.error || res.text) : ''; if (res && !res.error) { negSel = null; negOffer = {}; } save(); render(); }

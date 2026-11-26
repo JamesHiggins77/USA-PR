@@ -47,9 +47,9 @@
   var PI = function (p) { return U.partyInfo(p); };
   A.edition = function (Q, r, before, date) {
     var items = [], V = U.Votes, n = V.national(Q);
-    if (r.out.presidential) items.push({ kind: 'election', head: Q.president.name.toUpperCase() + ' WINS THE PRESIDENCY', story: Q.president.name + ' (' + PI(Q.president.party).name + ') is elected President' + (Q.offices && Q.offices.vp ? ', with ' + Q.offices.vp.name + ' as Vice President' : '') + '.', elec: 'p' });
+    if (r.out.presidential) items.push({ kind: 'election', teaser: 'AMERICA VOTES: THE RACE FOR THE WHITE HOUSE', teaserStory: 'The polls have closed in the presidential election. The results are coming in state by state.', head: Q.president.name.toUpperCase() + ' WINS THE PRESIDENCY', story: Q.president.name + ' (' + PI(Q.president.party).name + ') is elected President' + (Q.offices && Q.offices.vp ? ', with ' + Q.offices.vp.name + ' as Vice President' : '') + '.', elec: 'p' });
     if (r.out.general) { var g = r.out.general, ord = Object.keys(g.house).sort(function (a, b) { return g.house[b] - g.house[a]; });
-      items.push({ kind: 'election', head: PI(ord[0]).short + ' FIRST AS VOTERS ELECT A NEW CONGRESS', story: 'House seats: ' + ord.slice(0, 7).map(function (p) { return PI(p).short + ' ' + g.house[p] + ((g.before && g.before[p] != null) ? ' (' + (g.house[p] - g.before[p] >= 0 ? '+' : '') + (g.house[p] - g.before[p]) + ')' : ''); }).join(', ') + '. ' + U.majority() + ' are needed for a majority.', elec: 'g' }); }
+      items.push({ kind: 'election', teaser: 'AMERICA VOTES: A NEW CONGRESS', teaserStory: 'The polls have closed in the general election. The results are coming in state by state.', head: PI(ord[0]).short + ' FIRST AS VOTERS ELECT A NEW CONGRESS', story: 'House seats: ' + ord.slice(0, 7).map(function (p) { return PI(p).short + ' ' + g.house[p] + ((g.before && g.before[p] != null) ? ' (' + (g.house[p] - g.before[p] >= 0 ? '+' : '') + (g.house[p] - g.before[p]) + ')' : ''); }).join(', ') + '. ' + U.majority() + ' are needed for a majority.', elec: 'g' }); }
     r.events.forEach(function (e) {
       items.push({ kind: 'event', head: e.title, story: [e.body, e.choice ? 'Outcome: ' + e.choice + '.' : '', e.text].filter(Boolean).join(' '), vote: e.vote });
     });
