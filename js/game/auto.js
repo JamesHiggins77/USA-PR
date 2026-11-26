@@ -7,6 +7,9 @@
   var strip = function (s) { return String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); };
 
   // pick an option: earlier options (usually the mainstream line) weigh more
+  // when a government is invested, voters lent to larger parties in a repeat election mostly go home
+  var formGov = U.Game.formGovernment;
+  U.Game.formGovernment = function (Q, deal, label) { var r = formGov.apply(this, arguments); if (Q.lendBack && U.Game.returnLentVotes) U.Game.returnLentVotes(Q); return r; };
   A.choose = function (Q, e, opts) {
     var ok = opts.map(function (o, i) { return o.ok ? i : -1; }).filter(function (i) { return i >= 0; });
     if (!ok.length) return -1;

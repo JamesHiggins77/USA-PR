@@ -239,18 +239,27 @@
     inc.forEach(function (p) { Q.calib[p] = (Q.calib[p] || 1) * 0.92; });
     Q.govApproval -= 8; Q.president.approval -= 7;
     var big = Object.keys(n).filter(function (p) { return n[p] >= 12 && U.PARTIES[p]; }), lent = [];
-    Q.lendBack = [];
+    Q.lendBack = Q.lendBack || [];
+    var shift = function (p, amt) { var now = V.national(Q)[p] || 0.01; Q.calib[p] = (Q.calib[p] || 1) * Math.max(0.05, (now + amt) / now); };
     Object.keys(n).forEach(function (s) {
       if (!U.PARTIES[s] || Q.dormant[s] || n[s] >= thr * 1.6 || big.indexOf(s) >= 0) return;
-      var b = big.filter(function (x) { return !U.vetoes(s, x); }).sort(function (x, y) { return U.Electoral.dist(pos[s], pos[x]) - U.Electoral.dist(pos[s], pos[y]); })[0];
-      if (!b) return;
-      var frac = n[s] < thr ? 0.35 : 0.2, moved = n[s] * frac, fs = 1 - frac, fb = (n[b] + moved) / n[b];
-      Q.calib[s] = (Q.calib[s] || 1) * fs; Q.calib[b] = (Q.calib[b] || 1) * fb; Q.lendBack.push([s, b, fs, fb]); lent.push(U.PARTIES[s].short + ' \u2192 ' + U.PARTIES[b].short);
+      // lent to the two nearest large parties, more to the nearer one
+      var near = big.filter(function (x) { return !U.vetoes(s, x); }).map(function (x) { return [x, U.Electoral.dist(pos[s], pos[x])]; }).sort(function (a, b) { return a[1] - b[1]; }).slice(0, 2);
+      if (!near.length) return;
+      var moved = n[s] * (n[s] < thr ? 0.35 : 0.2), w = near.map(function (x) { return Math.exp(-x[1] / 2); }), tw = w[0] + (w[1] || 0);
+      shift(s, -moved);
+      near.forEach(function (x, k) { var a = moved * w[k] / tw; shift(x[0], a); Q.lendBack.push({ s: s, b: x[0], amt: a }); });
+      lent.push(U.PARTIES[s].short + ' → ' + near.map(function (x) { return U.PARTIES[x[0]].short; }).join('/'));
     });
     S.note(Q, 'Voters blame the caretaker government and the President for the deadlock. Pollsters see supporters of small parties lending their votes to larger ones to break it: ' + lent.slice(0, 6).join(', ') + '.');
   };
-  // after the repeat election, lent votes go home
-  S.returnLentVotes = function (Q) { (Q.lendBack || []).forEach(function (l) { Q.calib[l[0]] /= l[2]; Q.calib[l[1]] /= l[3]; }); Q.lendBack = null; };
+  // once a government is invested, most lent votes (50-90%) go back to their own party; the rest stay
+  S.returnLentVotes = function (Q) {
+    var L = Q.lendBack; if (!L || !L.length) return; Q.lendBack = null;
+    var back = 0.5 + U.rng(Q) * 0.4, shift = function (p, amt) { var now = V.national(Q)[p] || 0.01; Q.calib[p] = (Q.calib[p] || 1) * Math.max(0.05, (now + amt) / now); };
+    L.forEach(function (l) { if (Q.dormant[l.s] || Q.dormant[l.b]) return; var a = l.amt * back; shift(l.b, -a); shift(l.s, a); });
+    S.note(Q, 'With a government in place, about ' + Math.round(back * 100) + '% of the votes lent to the larger parties drift back to their own parties.');
+  };
   S.defect = function (Q, from, to, frac) {
     var n = Math.round((Q.house[from] || 0) * frac); if (n < 1) return 0;
     Q.house[from] -= n; Q.house[to] = (Q.house[to] || 0) + n;
