@@ -144,27 +144,30 @@
     exclude = exclude || [];
     var need = Math.floor(U.RULES.house.total / 2) + 1;
     var deal = { pm: pm, coalition: [pm], cs: [], posts: {}, concessions: {} };
+    // partners: compatible first, and mid-sized to large parties strongly preferred
+    var SMALL = 30, score = function (p) { return C.compat(Q, p, pm) + C.rel(Q, p, pm) / 200 + Math.min(1, Q.house[p] / 120) * 0.8; };
     var cands = U.ALL_PARTIES.filter(function (p) { return p !== pm && Q.house[p] && exclude.indexOf(p) < 0; })
-      .sort(function (a, b) { return (C.compat(Q, b, pm) + C.rel(Q, b, pm) / 200) - (C.compat(Q, a, pm) + C.rel(Q, a, pm) / 200); });
+      .sort(function (a, b) { return score(b) - score(a); });
+    var big = cands.filter(function (p) { return Q.house[p] >= SMALL; }), small = cands.filter(function (p) { return Q.house[p] < SMALL; });
+    var full = function () { return C.seats(Q, deal.coalition.concat(deal.cs)) >= need; };
     function alloc() {
       var tot = C.seats(Q, deal.coalition); deal.posts = {};
       deal.coalition.forEach(function (p) { deal.posts[p] = Math.max(1, Math.round(20 * Q.house[p] / tot)); });
       C.fitPosts(deal);
     }
-    cands.forEach(function (p) {
-      if (C.seats(Q, deal.coalition) >= need) return;
-      if (deal.coalition.some(function (q) { return U.vetoes(p, q); })) return;
-      deal.coalition.push(p); deal.concessions[p] = [C.demandsOf(p)[0].id]; alloc();
-      if (!C.assess(Q, p, deal, 'coalition').ok) { deal.coalition.pop(); delete deal.concessions[p]; alloc(); }
-    });
-    alloc();
-    // fill with confidence & supply
-    cands.forEach(function (p) {
-      if (deal.coalition.indexOf(p) >= 0 || C.seats(Q, deal.coalition.concat(deal.cs)) >= need) return;
+    function tryJoin(p, role) {
+      if (deal.coalition.concat(deal.cs).some(function (q) { return U.vetoes(p, q) || U.vetoes(q, p); })) return false;
       deal.concessions[p] = [C.demandsOf(p)[0].id];
-      deal.cs.push(p);
-      if (!C.assess(Q, p, deal, 'cs').ok) { deal.cs.pop(); delete deal.concessions[p]; }
-    });
+      if (role === 'coalition') { deal.coalition.push(p); alloc(); if (!C.assess(Q, p, deal, 'coalition').ok) { deal.coalition.pop(); delete deal.concessions[p]; alloc(); return false; } return true; }
+      deal.cs.push(p); if (!C.assess(Q, p, deal, 'cs').ok) { deal.cs.pop(); delete deal.concessions[p]; return false; } return true;
+    }
+    // 1. a coalition of mid-sized and large parties
+    big.forEach(function (p) { if (C.seats(Q, deal.coalition) < need) tryJoin(p, 'coalition'); });
+    alloc();
+    // 2. still short: small parties lend outside support (or other large parties do)
+    small.concat(big).forEach(function (p) { if (!full() && deal.coalition.indexOf(p) < 0 && deal.cs.indexOf(p) < 0) tryJoin(p, 'cs'); });
+    // 3. only if that fails do small parties get seats at the cabinet table
+    small.forEach(function (p) { if (!full() && deal.cs.indexOf(p) < 0 && deal.coalition.indexOf(p) < 0) tryJoin(p, 'coalition'); });
     return deal;
   };
 
