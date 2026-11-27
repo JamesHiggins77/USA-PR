@@ -83,7 +83,7 @@
   // End the month. Returns {general, presidential} results when held.
   F.end = function (Q) {
     var due = S.endMonth(Q), out = {};
-    if (due.general) out.general = S.runGeneralElection(Q);
+    if (due.general) { var rep = (Q.repeats || 0) > 0; out.general = S.runGeneralElection(Q); if (S.seatLosses) S.seatLosses(Q, rep); }
     if (due.president) out.presidential = S.runPresidential(Q);
     if (due.state) out.state = S.runStateElections(Q, !!out.presidential);
     F.clampAll(Q);

@@ -9,7 +9,7 @@
   // pick an option: earlier options (usually the mainstream line) weigh more
   // when a government is invested, voters lent to larger parties in a repeat election mostly go home
   var formGov = U.Game.formGovernment;
-  U.Game.formGovernment = function (Q, deal, label) { var r = formGov.apply(this, arguments); A.logGov(Q, null, true); if (Q.lendBack && U.Game.returnLentVotes) U.Game.returnLentVotes(Q); return r; };
+  U.Game.formGovernment = function (Q, deal, label) { var r = formGov.apply(this, arguments); Q.repeats = 0; A.logGov(Q, null, true); if (Q.lendBack && U.Game.returnLentVotes) U.Game.returnLentVotes(Q); return r; };
   // the record of governments in this timeline
   A.logGov = function (Q, start, invested) {
     var g = Q.gov; if (!g) return; Q.govLog = Q.govLog || [];

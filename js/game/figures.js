@@ -66,10 +66,10 @@
         return; }
       if (f.status === 'active') return;
       if (Q.year < f.enter) return;
-      if (Q.dormant[f.p]) { if (Q.year > f.enter + 8) { f.status = 'retired'; f.never = 1; } return; }
+      if (Q.dormant[f.p]) { if (Q.year > f.enter + 8) { f.status = 'retired'; f.never = 1; Q.retired[n] = 1; } return; }
       if (canWin(Q, f)) { f.status = 'active'; f.since = Q.year; ins.push(n + ' (' + U.partyInfo(f.p).short + ')'); }
       else { f.tries++; f.status = 'lost'; f.lastLost = Q.year; lost.push(n);
-        if (f.tries >= 4) { f.status = 'retired'; f.never = 1; } }
+        if (f.tries >= 4) { f.status = 'retired'; f.out = Q.year; Q.retired[n] = 1; if (!f.since) f.never = 1; } }
     });
     if (outs.length) S.note(Q, 'Leaving national politics this year: ' + outs.slice(0, 8).join(', ') + (outs.length > 8 ? ' and others' : '') + '.');
     if (ins.length) S.note(Q, 'New faces on the national scene: ' + ins.slice(0, 8).join(', ') + (ins.length > 8 ? ' and others' : '') + '.');
@@ -77,6 +77,21 @@
     if (lost.length) S.note(Q, 'Rising stars held back when their party could not win their state: ' + lost.slice(0, 6).join(', ') + '.');
   };
 
+  // after a general election: members whose party won nothing in their state lose
+  // their seats (ministers and party leaders keep their jobs: they need no seat)
+  S.seatLosses = function (Q, repeat) {
+    if (!Q.fig) return;
+    var O = Q.offices || {}, keep = {}, out = [];
+    [Q.president && Q.president.name, Q.gov && Q.gov.pm, O.vp && O.vp.name, O.speaker && O.speaker.name].forEach(function (n) { if (n) keep[n] = 1; });
+    (Q.cabinet || []).forEach(function (c) { keep[c.name] = 1; }); for (var lp in (Q.leaders || {})) keep[Q.leaders[lp]] = 1;
+    Object.keys(Q.fig).forEach(function (n) {
+      var f = Q.fig[n]; if (f.status !== 'active' || keep[n] || (f.route !== 'H' && f.route !== 'S')) return;
+      var held = f.route === 'H' ? ((Q.houseByState || {})[f.st] || {})[f.p] > 0 : (Q.senateSeats || []).some(function (x) { return x.state === f.st && x.party === f.p; });
+      // even where the party holds on, a few lose their place on a shrinking list
+      if (!held || U.rng(Q) < (repeat ? 0.06 : 0.03)) { f.status = 'lost'; f.lastLost = Q.year; f.tries = (f.tries || 0) + 1; out.push(n + ' (' + U.partyInfo(f.p).short + ', ' + f.st + ')'); }
+    });
+    if (out.length) S.note(Q, (repeat ? 'Casualties of the repeat election: ' : 'Defeated at the election: ') + out.slice(0, 8).join(', ') + (out.length > 8 ? ' and ' + (out.length - 8) + ' others' : '') + '.');
+  };
   // every position a figure holds now
   S.positionsOf = function (Q, n) {
     var o = [], O = Q.offices || {};

@@ -233,6 +233,27 @@
   // A repeat election after failed talks: voters punish the caretaker government and
   // the President, and many supporters of small parties lend their vote to the
   // nearest large party to deliver a stable majority (for this election only).
+  // After a repeat election, with another one looming, MPs who fear for their seats
+  // will back a unity government: a technocratic cabinet under the leader of the
+  // largest party, supported by every party that can stomach it.
+  S.unityGovernment = function (Q) {
+    var hs = Q.house, L = Object.keys(hs).filter(function (p) { return hs[p] && U.PARTIES[p] && !Q.dormant[p]; }).sort(function (a, b) { return hs[b] - hs[a]; })[0];
+    if (!L) return false;
+    var others = Object.keys(hs).filter(function (p) { return p !== L && hs[p] && U.PARTIES[p] && !Q.dormant[p] && !U.vetoes(L, p) && !U.vetoes(p, L); })
+      .sort(function (a, b) { return C.compat(Q, L, b) - C.compat(Q, L, a) || hs[b] - hs[a]; });
+    var coal = [L], seats = hs[L], need = U.majority();
+    for (var i = 0; i < others.length && seats < need; i++) if (C.compat(Q, L, others[i]) >= 0.2) { coal.push(others[i]); seats += hs[others[i]]; }
+    var fear = Math.min(0.8, 0.3 + 0.2 * (Q.repeats || 1));
+    var decide = function (p) { if (coal.indexOf(p) >= 0) return 'yes'; if (U.vetoes(p, L)) return 'no'; return U.rng(Q) < fear ? 'abstain' : 'no'; };
+    var c = U.Parliament.count(Q, 'house', decide), pm = S.leaderOf(Q, L);
+    Q.lastVote = { title: 'Investiture of ' + pm + ' (unity government)', house: c, kind: 'investiture', need: 'simple', passed: c.yes > c.no };
+    if (c.yes <= c.no) { S.note(Q, 'A unity government under ' + pm + ' fails in the House, ' + c.yes + ' to ' + c.no + '.'); return false; }
+    var deal = { pm: L, coalition: coal, cs: [], abstain: [], posts: {}, concessions: {}, unity: 1 };
+    S.formGovernment(Q, deal, pm);
+    if (Q.govLog && Q.govLog.length) Q.govLog[Q.govLog.length - 1].unity = 1;
+    S.note(Q, 'Facing yet another election, the House invests a unity government: a technocratic cabinet under ' + pm + ' (' + U.PARTIES[L].short + '), ' + c.yes + ' to ' + c.no + ', with ' + c.abstain + ' abstaining.');
+    return true;
+  };
   S.repeatElection = function (Q) {
     var n = V.national(Q), thr = U.RULES.house.nationalThreshold * 100, pos = U.Elections.pos(Q);
     var inc = (Q.gov ? Q.gov.coalition : []).concat([Q.president.party]).filter(function (p, i, a) { return a.indexOf(p) === i && !Q.dormant[p] && U.PARTIES[p]; });
@@ -692,9 +713,10 @@
     if (Q.formation) {
       var r = S.aiFormation(Q);
       Q.formation && (Q.formation.monthsLeft -= 1);
+      if (Q.formation && !Q.formation.offer && (Q.repeats || 0) >= 1 && Q.formation.stage === 'open' && Q.formation.monthsLeft <= 2) S.unityGovernment(Q);
       if (Q.formation && Q.formation.monthsLeft <= 0 && !Q.formation.offer) {
         S.note(Q, 'No government can be formed. A repeat election is called.');
-        Q.formation = null; S.callElection(Q, 2); S.repeatElection(Q);
+        Q.formation = null; S.callElection(Q, 2); S.repeatElection(Q); Q.repeats = (Q.repeats || 0) + 1;
       }
     } else { S.confidenceCheck(Q); S.electionTiming(Q); }
     // bills delayed by the Senate become law when the delay runs out
