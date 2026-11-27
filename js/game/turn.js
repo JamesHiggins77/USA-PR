@@ -210,7 +210,7 @@
     // A syncretic communist party emerges only in the 2020s
     if (Q.dormant.acp && Q.year >= 2021 && U.rng(Q) < 0.03 + Q.discontent / 3000) S.activate(Q, 'acp', 1 + Q.discontent / 40);
     // Dormant populist right can emerge from 2015 if conditions allow
-    S.magaArc(Q); S.uniqueLeaders(Q);
+    S.magaArc(Q); S.ulSurge(Q); S.uniqueLeaders(Q);
     S.newParties(Q);
   };
 
@@ -283,6 +283,17 @@
   // Donald Trump enters politics in 2013 and launches MAGA. It climbs in the polls
   // until 2016, then plateaus; once Trump or MAGA holds power, it slowly declines.
   // A few years into MAGA power, the hard right splits off as the America First Party.
+  // After the Great Recession the United Left may surge, in some timelines to about
+  // 30%; in many it does not surge at all.
+  S.ulSurge = function (Q) {
+    var now = S.now(Q), mi = U.monthIndex; if (Q.dormant.ul || now < mi(2009, 1) || now > mi(2014, 12)) return;
+    if (Q.flags.ulTop == null) Q.flags.ulTop = U.rng(Q) < 0.55 ? 8 + 22 * Math.pow(U.rng(Q), 2) : 0;
+    if (!Q.flags.ulTop) return;
+    var n = V.national(Q).ul || 0, target = 3 + Math.min(1, (now - mi(2009, 1)) / 48) * (Q.flags.ulTop - 3);
+    Q.base = Q.base || {}; Q.base.ul = { lo: n * 0.7, hi: Math.max(target + 2, n * 1.3) };
+    if (n < target) { var m = Q.mods.ul = Q.mods.ul || {}, pr = U.PARTIES.ul.pref || {}, d = Math.min(0.15, (target - n) / Math.max(1, n) * 0.3); U.GROUPS.forEach(function (g) { m[g] = (m[g] || 0) + d * (pr[g] || 1); }); }
+    if (Q.flags.ulTop > 15 && !Q.flags.ulSurgeNote && n > 12) { Q.flags.ulSurgeNote = 1; S.note(Q, 'After the crash, the United Left surges: pollsters put it above 12% for the first time.'); }
+  };
   S.magaArc = function (Q) {
     var now = S.now(Q), mi = U.monthIndex;
     if (Q.dormant.maga && now >= mi(2013, 6)) {
@@ -298,13 +309,15 @@
     var n = V.national(Q).maga || 0;
     // a relative push to a party's support, bypassing campaign fatigue
     var push = function (p, d) { var m = Q.mods[p] = Q.mods[p] || {}, pr = U.PARTIES[p].pref || {}; U.GROUPS.forEach(function (g) { m[g] = (m[g] || 0) + d * (pr[g] || 1); }); };
-    if (inPower && Q.flags.magaPeak) Q.flags.magaPeak = Math.min(Q.flags.magaPeak, n);   // what it loses in power stays lost
-    if (now < mi(2016, 11) && !inPower) {   // the rise: its voter base grows with it
-      var target = 6 + (now - mi(2013, 6)) / 41 * (8 + Q.discontent / 8);
+    if (inPower && Q.flags.magaPeak && now >= mi(2016, 11)) Q.flags.magaPeak = Math.min(Q.flags.magaPeak, n);   // what it loses in power stays lost
+    if (now < mi(2016, 11)) {   // the rise: its voter base grows with it, even if it already holds office
+      // how far it rises differs by timeline: 10-35% by 2016, above 25% only rarely
+      if (Q.flags.magaTop == null) Q.flags.magaTop = 10 + 25 * Math.pow(U.rng(Q), 2.5) + Q.discontent / 20;
+      var target = 3 + Math.min(1, (now - mi(2013, 6)) / 41) * (Q.flags.magaTop - 3);
       Q.base = Q.base || {}; Q.base.maga = { lo: n * 0.7, hi: Math.max(target + 2, n * 1.3) };
-      if (n < target) push('maga', Math.min(0.12, (target - n) / Math.max(1, n) * 0.25));
+      if (n < target) push('maga', Math.min(0.5, (target - n) / Math.max(1, n) * 0.8));
     }
-    else if (inPower) push('maga', -0.006);                                                                               // governing wears it down
+    else if (inPower) push('maga', -0.008);                                                                               // governing wears it down
     else { if (!Q.flags.magaPeak) Q.flags.magaPeak = n; if (n < Q.flags.magaPeak * 0.9) push('maga', Math.min(0.05, (Q.flags.magaPeak * 0.95 - n) / Math.max(1, n) * 0.15)); }   // out of power: a plateau
     if (Q.dormant.afp && Q.flags.magaPower && now - Q.flags.magaPower >= 24 + (Q.seed0 % 24) && U.rng(Q) < 0.15) {
       S.activate(Q, 'afp', 2); S.note(Q, 'Hardliners who say MAGA has gone soft in power found the America First Party.');
