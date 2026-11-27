@@ -9,7 +9,16 @@
   // pick an option: earlier options (usually the mainstream line) weigh more
   // when a government is invested, voters lent to larger parties in a repeat election mostly go home
   var formGov = U.Game.formGovernment;
-  U.Game.formGovernment = function (Q, deal, label) { var r = formGov.apply(this, arguments); if (Q.lendBack && U.Game.returnLentVotes) U.Game.returnLentVotes(Q); return r; };
+  U.Game.formGovernment = function (Q, deal, label) { var r = formGov.apply(this, arguments); A.logGov(Q, null, true); if (Q.lendBack && U.Game.returnLentVotes) U.Game.returnLentVotes(Q); return r; };
+  // the record of governments in this timeline
+  A.logGov = function (Q, start, invested) {
+    var g = Q.gov; if (!g) return; Q.govLog = Q.govLog || [];
+    var last = Q.govLog[Q.govLog.length - 1], now = start || U.dateStr(Q);
+    if (last && last.pm === g.pm && last.coalition.join() === g.coalition.join() && last.cs.join() === g.cs.join() && !last.end) return;
+    if (last && !last.end) last.end = now;
+    var lv = invested && Q.lastVote && Q.lastVote.kind === 'investiture' ? Q.lastVote.house : null;
+    Q.govLog.push({ how: invested ? 'invested' : last ? 'reshuffled' : '', start: now, pm: g.pm, party: g.pmParty, coalition: g.coalition.slice(), cs: g.cs.slice(), seats: U.Game.govSeats ? U.Game.govSeats(Q) : 0, president: Q.president.name, vote: lv ? lv.yes + '\u2013' + lv.no : '' });
+  };
   A.choose = function (Q, e, opts) {
     var ok = opts.map(function (o, i) { return o.ok ? i : -1; }).filter(function (i) { return i >= 0; });
     if (!ok.length) return -1;
@@ -119,6 +128,7 @@
     before.ym = { y: Q.year, m: Q.month };
     before.x = { unemp: Q.econ.unemp, infl: Q.econ.infl, gov: Q.govApproval, pres: Q.president.approval };
     var pre = A.resolve(Q), res = F.skip(Q) || { out: {} };
+    if (Q.gov && !Q.formation) A.logGov(Q);   // partners leaving or joining
     var post = A.resolve(Q);
     if (Q.report && Q.report.length) A.record(Q, { kind: 'news', title: 'News', text: Q.report.map(strip).join(' ') });
     if (res.out.general) A.record(Q, { kind: 'election', title: 'General election', text: res.out.general.date || '' });

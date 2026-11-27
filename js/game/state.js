@@ -117,6 +117,7 @@
   // saves from before the factions were reorganised
   S.migrateFactions = function (Q) {
     if (Q.ulMembers) U.splitORL(Q.ulMembers);
+    if (!Q.govLog && Q.gov && U.Auto) U.Auto.logGov(Q, Q.year === 1997 && Q.month === 1 ? 'November 1996' : U.dateStr(Q));
     (Q.cabinet || []).forEach(function (c) { delete c.by; });
     // the Senate became 5 PR seats per state (D'Hondt, 10% threshold), with no appointed senator: re-elect it from current votes
     if (Q.senateSeats && Q.senateSeats.some(function (x) { return x.type !== 'pr'; })) { Q.senateSeats = []; Object.keys(U.STATES).forEach(function (sid) { for (var i = 0; i < 5; i++) Q.senateSeats.push({ state: sid, type: 'pr', party: null }); }); U.Elections.senate(Q); }   // no presidential appointees in the cabinet any more
