@@ -129,6 +129,7 @@
     before.x = { unemp: Q.econ.unemp, infl: Q.econ.infl, gov: Q.govApproval, pres: Q.president.approval };
     var pre = A.resolve(Q), res = F.skip(Q) || { out: {} };
     if (Q.gov && !Q.formation) A.logGov(Q);   // partners leaving or joining
+    if (U.Game.uniqueLeaders) U.Game.uniqueLeaders(Q);
     var post = A.resolve(Q);
     if (Q.report && Q.report.length) A.record(Q, { kind: 'news', title: 'News', text: Q.report.map(strip).join(' ') });
     if (res.out.general) A.record(Q, { kind: 'election', title: 'General election', text: res.out.general.date || '' });

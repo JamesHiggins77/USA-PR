@@ -210,8 +210,7 @@
     // A syncretic communist party emerges only in the 2020s
     if (Q.dormant.acp && Q.year >= 2021 && U.rng(Q) < 0.03 + Q.discontent / 3000) S.activate(Q, 'acp', 1 + Q.discontent / 40);
     // Dormant populist right can emerge from 2015 if conditions allow
-    if (Q.dormant.maga && Q.year >= 2015 && Q.month >= 6 && Q.discontent > 45 && U.rng(Q) < 0.15) S.activate(Q, 'maga', 4 + Q.discontent / 10);
-    if (Q.dormant.afp && !Q.dormant.maga && Q.year >= 2018 && S.inGov(Q, 'maga') && U.rng(Q) < 0.05) S.activate(Q, 'afp', 2);
+    S.magaArc(Q); S.uniqueLeaders(Q);
     S.newParties(Q);
   };
 
@@ -280,6 +279,45 @@
     var back = 0.5 + U.rng(Q) * 0.4, shift = function (p, amt) { var now = V.national(Q)[p] || 0.01; Q.calib[p] = (Q.calib[p] || 1) * Math.max(0.05, (now + amt) / now); };
     L.forEach(function (l) { if (Q.dormant[l.s] || Q.dormant[l.b]) return; var a = l.amt * back; shift(l.b, -a); shift(l.s, a); });
     S.note(Q, 'With a government in place, about ' + Math.round(back * 100) + '% of the votes lent to the larger parties drift back to their own parties.');
+  };
+  // Donald Trump enters politics in 2013 and launches MAGA. It climbs in the polls
+  // until 2016, then plateaus; once Trump or MAGA holds power, it slowly declines.
+  // A few years into MAGA power, the hard right splits off as the America First Party.
+  S.magaArc = function (Q) {
+    var now = S.now(Q), mi = U.monthIndex;
+    if (Q.dormant.maga && now >= mi(2013, 6)) {
+      S.activate(Q, 'maga', 2.5); Q.leaders.maga = 'Donald Trump';
+      if (Q.fig && Q.fig['Donald Trump']) { var f = Q.fig['Donald Trump']; f.status = 'active'; f.since = 2013; f.p = 'maga'; if (f.leave && f.leave < 2030) f.leave = 2030; }
+      S.note(Q, 'Donald Trump enters politics, launching MAGA on a platform of border walls, tariffs and "draining the swamp".');
+      return;
+    }
+    if (Q.dormant.maga) return;
+    var inPower = Q.president.party === 'maga' || (Q.gov && Q.gov.coalition.indexOf('maga') >= 0);
+    if (inPower && !Q.flags.magaPower) Q.flags.magaPower = now;
+    if (!inPower && Q.flags.magaPower && now - Q.flags.magaPower < 6) Q.flags.magaPower = 0;
+    var n = V.national(Q).maga || 0;
+    // a relative push to a party's support, bypassing campaign fatigue
+    var push = function (p, d) { var m = Q.mods[p] = Q.mods[p] || {}, pr = U.PARTIES[p].pref || {}; U.GROUPS.forEach(function (g) { m[g] = (m[g] || 0) + d * (pr[g] || 1); }); };
+    if (inPower && Q.flags.magaPeak) Q.flags.magaPeak = Math.min(Q.flags.magaPeak, n);   // what it loses in power stays lost
+    if (now < mi(2016, 11) && !inPower) {   // the rise: its voter base grows with it
+      var target = 6 + (now - mi(2013, 6)) / 41 * (8 + Q.discontent / 8);
+      Q.base = Q.base || {}; Q.base.maga = { lo: n * 0.7, hi: Math.max(target + 2, n * 1.3) };
+      if (n < target) push('maga', Math.min(0.12, (target - n) / Math.max(1, n) * 0.25));
+    }
+    else if (inPower) push('maga', -0.006);                                                                               // governing wears it down
+    else { if (!Q.flags.magaPeak) Q.flags.magaPeak = n; if (n < Q.flags.magaPeak * 0.9) push('maga', Math.min(0.05, (Q.flags.magaPeak * 0.95 - n) / Math.max(1, n) * 0.15)); }   // out of power: a plateau
+    if (Q.dormant.afp && Q.flags.magaPower && now - Q.flags.magaPower >= 24 + (Q.seed0 % 24) && U.rng(Q) < 0.15) {
+      S.activate(Q, 'afp', 2); S.note(Q, 'Hardliners who say MAGA has gone soft in power found the America First Party.');
+    }
+  };
+  // nobody leads two parties at once (e.g. Ralph Nader leads the Greens or the United Left, not both)
+  S.uniqueLeaders = function (Q) {
+    var by = {}; Object.keys(Q.leaders || {}).forEach(function (p) { if (Q.dormant[p] || !U.PARTIES[p]) return; var n = Q.leaders[p]; (by[n] = by[n] || []).push(p); });
+    Object.keys(by).forEach(function (n) {
+      var ps = by[n]; if (ps.length < 2) return;
+      var own = Q.fig && Q.fig[n] && ps.indexOf(Q.fig[n].p) >= 0 ? Q.fig[n].p : ps[0];
+      ps.forEach(function (p) { if (p === own) return; var ex = {}; ex[n] = 1; Q.leaders[p] = S.pickPerson(Q, p, ex, 'charisma'); });
+    });
   };
   S.defect = function (Q, from, to, frac) {
     var n = Math.round((Q.house[from] || 0) * frac); if (n < 1) return 0;
@@ -511,7 +549,7 @@
     var list = [], y = Q.year;
     var L = function (p) { return S.leaderOf(Q, p); };
     var names = { sdlp: L('sdlp'), cdp: L('cdp'), cc: L('cc'), grn: L('grn'),
-      ul: (Q.ulMembers && Q.ulMembers.grn && y <= 2004) ? 'Ralph Nader' : L('ul'),
+      ul: L('ul'),
       reform: y <= 2000 ? 'Pat Buchanan' : L('reform'), asp: L('asp'), lib: L('lib'), maga: L('maga') };
     var appeal = { sdlp: 2, cdp: 3, cc: 2, ul: 2, grn: 2, reform: 0, asp: 0, lib: 0, maga: 4 };
     ['sdlp', 'cdp', 'cc', 'ul', 'grn', 'reform', 'lib', 'maga'].concat(Q.dormant.reform ? ['asp'] : []).forEach(function (p) {
@@ -574,6 +612,8 @@
   };
   S.pickPerson = function (Q, p, exclude, byStat) {
     var list = U.PEOPLE[p] || [], busy = S.busy(Q);
+    // an alliance draws on its member parties' people
+    if (p === 'ul' && Q.ulMembers) Object.keys(Q.ulMembers).forEach(function (m) { list = list.concat((U.PEOPLE[m] || []).filter(function (n) { return list.indexOf(n) < 0 && !(m === 'grn' && !Q.dormant.grn); })); });
     var yr = Q.year || 1997, free = list.filter(function (n) { return !busy[n] && !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && S.isActive(Q, n); });
     if (!free.length) free = list.filter(function (n) { return !(exclude && exclude[n]) && !(Q.retired && Q.retired[n]) && S.isActive(Q, n); });
     if (byStat) free.sort(function (a, b) { return U.personStats(b)[byStat] - U.personStats(a)[byStat]; });
